@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Velo.Tests", "src\Velo.Tests\Velo.Tests.csproj", "{19C8D859-62E5-44C1-AF91-032CD03E3EAF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Velo", "src\Velo\Velo.csproj", "{603D3C40-641B-41E5-B5F8-049F554D4DF5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Velo.Benchmark", "src\Velo.Benchmark\Velo.Benchmark.csproj", "{E13E2572-CCFF-4737-87FA-B740897FF407}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{19C8D859-62E5-44C1-AF91-032CD03E3EAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19C8D859-62E5-44C1-AF91-032CD03E3EAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19C8D859-62E5-44C1-AF91-032CD03E3EAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19C8D859-62E5-44C1-AF91-032CD03E3EAF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{603D3C40-641B-41E5-B5F8-049F554D4DF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{603D3C40-641B-41E5-B5F8-049F554D4DF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{603D3C40-641B-41E5-B5F8-049F554D4DF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{603D3C40-641B-41E5-B5F8-049F554D4DF5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E13E2572-CCFF-4737-87FA-B740897FF407}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E13E2572-CCFF-4737-87FA-B740897FF407}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E13E2572-CCFF-4737-87FA-B740897FF407}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E13E2572-CCFF-4737-87FA-B740897FF407}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
