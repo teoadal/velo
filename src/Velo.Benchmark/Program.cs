@@ -2,9 +2,10 @@
 
 namespace Velo.Benchmark
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        // ReSharper disable once UnusedParameter.Local
+        private static void Main(string[] args)
         {
             BenchmarkRunner.Run<MappersBenchmark>();
         }
