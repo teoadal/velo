@@ -53,21 +53,6 @@ namespace Velo.Benchmark
             _jSerializer.PrepareForSource<BigObject>();
         }
 
-        [Benchmark]
-        public long JSerializer()
-        {
-            long stub = 0;
-
-            for (var i = 0; i < _dataset.Length; i++)
-            {
-                var element = _dataset[i];
-                var deserialized = _jSerializer.Deserialize<BigObject>(element);
-                stub += deserialized.Int;
-            }
-
-            return stub;
-        }
-
         [Benchmark(Baseline = true)]
         public long Newtonsoft()
         {
@@ -77,6 +62,21 @@ namespace Velo.Benchmark
             {
                 var element = _dataset[i];
                 var deserialized = JsonConvert.DeserializeObject<BigObject>(element);
+                stub += deserialized.Int;
+            }
+
+            return stub;
+        }
+
+        [Benchmark]
+        public long JSerializer()
+        {
+            long stub = 0;
+
+            for (var i = 0; i < _dataset.Length; i++)
+            {
+                var element = _dataset[i];
+                var deserialized = _jSerializer.Deserialize<BigObject>(element);
                 stub += deserialized.Int;
             }
 
