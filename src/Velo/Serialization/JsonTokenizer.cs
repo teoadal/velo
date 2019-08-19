@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Velo.Serialization
 {
-    internal sealed class JTokenizer : IEnumerator<JToken>
+    internal sealed class JsonTokenizer : IEnumerator<JToken>
     {
         public JToken Current { get; private set; }
 
@@ -13,7 +13,7 @@ namespace Velo.Serialization
         private int _position;
         private string _serialized;
 
-        public JTokenizer(string serialized, StringBuilder stringBuilder = null)
+        public JsonTokenizer(string serialized, StringBuilder stringBuilder = null)
         {
             _serialized = serialized;
             _builder = stringBuilder ?? new StringBuilder();
@@ -31,7 +31,7 @@ namespace Velo.Serialization
                     continue;
                 }
 
-                if (char.IsDigit(ch))
+                if (char.IsDigit(ch) || ch == '-')
                 {
                     Current = ReadNumber();
                     return true;
@@ -69,7 +69,7 @@ namespace Velo.Serialization
             return false;
         }
 
-        public JTokenizer GetEnumerator() => this;
+        public JsonTokenizer GetEnumerator() => this;
 
         private JToken MaybeProperty(string stringToken)
         {
