@@ -1,18 +1,18 @@
 namespace Velo.Serialization
 {
-    internal readonly struct JToken
+    internal readonly struct JsonToken
     {
-        public readonly JTokenType TokenType;
+        public readonly JsonTokenType TokenType;
 
         public readonly string Value;
 
-        public JToken(JTokenType tokenType, string value = null)
+        public JsonToken(JsonTokenType tokenType, string value = null)
         {
             TokenType = tokenType;
             Value = value;
         }
 
-        public bool IsEmpty() => TokenType == JTokenType.None;
+        public bool IsEmpty() => TokenType == JsonTokenType.None;
 
         public override string ToString()
         {
@@ -22,7 +22,7 @@ namespace Velo.Serialization
         }
     }
 
-    public enum JTokenType : byte
+    public enum JsonTokenType : byte
     {
         None = 0,
         ArrayStart,

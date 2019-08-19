@@ -5,9 +5,9 @@ using System.Text;
 
 namespace Velo.Serialization
 {
-    internal sealed class JsonTokenizer : IEnumerator<JToken>
+    internal sealed class JsonTokenizer : IEnumerator<JsonToken>
     {
-        public JToken Current { get; private set; }
+        public JsonToken Current { get; private set; }
 
         private StringBuilder _builder;
         private int _position;
@@ -40,16 +40,16 @@ namespace Velo.Serialization
                 switch (ch)
                 {
                     case '[':
-                        Current = Read(JTokenType.ArrayStart);
+                        Current = Read(JsonTokenType.ArrayStart);
                         return true;
                     case ']':
-                        Current = Read(JTokenType.ArrayEnd);
+                        Current = Read(JsonTokenType.ArrayEnd);
                         return true;
                     case '{':
-                        Current = Read(JTokenType.ObjectStart);
+                        Current = Read(JsonTokenType.ObjectStart);
                         return true;
                     case '}':
-                        Current = Read(JTokenType.ObjectEnd);
+                        Current = Read(JsonTokenType.ObjectEnd);
                         return true;
                     case '"':
                         Current = MaybeProperty(ReadString());
@@ -71,25 +71,24 @@ namespace Velo.Serialization
 
         public JsonTokenizer GetEnumerator() => this;
 
-        private JToken MaybeProperty(string stringToken)
+        private JsonToken MaybeProperty(string stringToken)
         {
-            var isProperty = _serialized[_position] == ':';
-
-            if (!isProperty) return new JToken(JTokenType.String, stringToken);
+            var isProperty = _serialized.Length != _position && _serialized[_position] == ':';
+            if (!isProperty) return new JsonToken(JsonTokenType.String, stringToken);
 
             SkipChar();
-            return new JToken(JTokenType.Property, stringToken);
+            return new JsonToken(JsonTokenType.Property, stringToken);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private JToken Read(JTokenType tokenType)
+        private JsonToken Read(JsonTokenType tokenType)
         {
             SkipChar();
-            return new JToken(tokenType);
+            return new JsonToken(tokenType);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private JToken ReadFalse()
+        private JsonToken ReadFalse()
         {
             var serialized = _serialized;
             for (; _position < serialized.Length; _position++)
@@ -98,11 +97,11 @@ namespace Velo.Serialization
                 if (char.IsPunctuation(ch)) break;
             }
 
-            return new JToken(JTokenType.False);
+            return new JsonToken(JsonTokenType.False);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private JToken ReadTrue()
+        private JsonToken ReadTrue()
         {
             var serialized = _serialized;
             for (; _position < serialized.Length; _position++)
@@ -111,11 +110,11 @@ namespace Velo.Serialization
                 if (char.IsPunctuation(ch)) break;
             }
 
-            return new JToken(JTokenType.True);
+            return new JsonToken(JsonTokenType.True);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private JToken ReadNull()
+        private JsonToken ReadNull()
         {
             var serialized = _serialized;
             for (; _position < serialized.Length; _position++)
@@ -124,11 +123,11 @@ namespace Velo.Serialization
                 if (char.IsPunctuation(ch)) break;
             }
 
-            return new JToken(JTokenType.Null);
+            return new JsonToken(JsonTokenType.Null);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private JToken ReadNumber()
+        private JsonToken ReadNumber()
         {
             var serialized = _serialized;
             for (; _position < serialized.Length; _position++)
@@ -139,7 +138,7 @@ namespace Velo.Serialization
                 _builder.Append(ch);
             }
 
-            var result = new JToken(JTokenType.Number, _builder.ToString());
+            var result = new JsonToken(JsonTokenType.Number, _builder.ToString());
             _builder.Clear();
             return result;
         }

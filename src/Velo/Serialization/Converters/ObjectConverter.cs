@@ -34,10 +34,10 @@ namespace Velo.Serialization.Converters
                 var current = tokenizer.Current;
                 var tokenType = current.TokenType;
                 
-                if (tokenType == JTokenType.ObjectStart) continue;
-                if (tokenType == JTokenType.ObjectEnd) break;
+                if (tokenType == JsonTokenType.ObjectStart) continue;
+                if (tokenType == JsonTokenType.ObjectEnd) break;
 
-                if (tokenType != JTokenType.Property)
+                if (tokenType != JsonTokenType.Property)
                 {
                     throw new InvalidCastException($"Invalid token '{current}' in object");
                 }

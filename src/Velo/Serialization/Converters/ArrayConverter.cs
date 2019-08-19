@@ -21,8 +21,8 @@ namespace Velo.Serialization.Converters
                 var current = tokenizer.Current;
                 var tokenType = current.TokenType;
                 
-                if (tokenType == JTokenType.ArrayStart) continue;
-                if (tokenType == JTokenType.ArrayEnd) break;
+                if (tokenType == JsonTokenType.ArrayStart) continue;
+                if (tokenType == JsonTokenType.ArrayEnd) break;
 
                 var element = _elementConverter.Convert(tokenizer);
                 _buffer.Add(element);

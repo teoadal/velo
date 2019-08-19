@@ -10,9 +10,9 @@ namespace Velo.Serialization.Converters
 
             switch (token.TokenType)
             {
-                case JTokenType.True:
+                case JsonTokenType.True:
                     return true;
-                case JTokenType.False:
+                case JsonTokenType.False:
                     return false;
                 default:
                     throw new InvalidOperationException($"Invalid boolean token '{token}'");
