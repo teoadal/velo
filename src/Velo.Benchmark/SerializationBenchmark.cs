@@ -70,7 +70,7 @@ namespace Velo.Benchmark
         }
 
         [Benchmark]
-        public long JDeserializer()
+        public long JSerializer()
         {
             long stub = 0;
 
