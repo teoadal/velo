@@ -31,17 +31,35 @@ namespace Velo.Serialization
             if (_buffer == null) _buffer = new StringBuilder(200);
 
             var type = typeof(T);
-            var converter = GetOrBuildConverter(type);
+            var converter = GetConverter(type);
             using (var tokenizer = new JsonTokenizer(source, _buffer))
             {
                 if (type.IsPrimitive || type == typeof(string)) tokenizer.MoveNext();
 
                 var typedConverter = (IJsonConverter<T>) converter;
-                return typedConverter.Convert(tokenizer);
+                var result = typedConverter.Deserialize(tokenizer);
+
+                _buffer.Clear();
+
+                return result;
             }
         }
 
-        public void PrepareForSource<TSource>()
+        public string Serialize(object source)
+        {
+            if (_buffer == null) _buffer = new StringBuilder(200);
+
+            var type = source.GetType();
+            var converter = GetConverter(type);
+
+            converter.Serialize(source, _buffer);
+
+            var result = _buffer.ToString();
+            _buffer.Clear();
+            return result;
+        }
+
+        public void PrepareConverterFor<TSource>()
         {
             var sourceType = typeof(TSource);
 
@@ -51,7 +69,7 @@ namespace Velo.Serialization
             _converters.Add(sourceType, converter);
         }
 
-        internal IJsonConverter GetOrBuildConverter(Type type)
+        internal IJsonConverter GetConverter(Type type)
         {
             if (_converters.TryGetValue(type, out var exists)) return exists;
 
@@ -66,7 +84,7 @@ namespace Velo.Serialization
             if (type.IsArray)
             {
                 var arrayElementType = type.GetElementType();
-                var arrayElementConverter = GetOrBuildConverter(arrayElementType);
+                var arrayElementConverter = GetConverter(arrayElementType);
 
                 var arrayConverterType = typeof(ArrayConverter<>).MakeGenericType(arrayElementType);
                 return (IJsonConverter) Activator.CreateInstance(arrayConverterType, arrayElementConverter);

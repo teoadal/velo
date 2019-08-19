@@ -10,7 +10,8 @@ namespace Velo.Benchmark
     [MeanColumn, MemoryDiagnoser]
     public class MappersBenchmark
     {
-        [Params(10000, 10003)] public int Count;
+        [Params(10000, 10003)] 
+        public int Count;
 
         private Boo[] _dataset;
 
@@ -36,7 +37,7 @@ namespace Velo.Benchmark
             _basicMapper = new BasicMapper<Foo>();
 
             _compiledMapper = new CompiledMapper<Foo>();
-            _compiledMapper.PrepareForSource<Boo>();
+            _compiledMapper.PrepareConverterFor<Boo>();
 
             var config = new MapperConfiguration(cfg => cfg.CreateMap<Boo, Foo>());
             _autoMapper = config.CreateMapper();

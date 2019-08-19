@@ -3,37 +3,48 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text;
 
 namespace Velo.Serialization.Converters
 {
     internal sealed class ObjectConverter<T> : IJsonConverter<T>
     {
-        private readonly Dictionary<string, Action<T, JsonTokenizer>> _converters;
         private readonly Func<T> _activator;
+        private readonly EqualityComparer<T> _equalityComparer;
+        private readonly Dictionary<string, Action<T, JsonTokenizer>> _deserializers;
+        private readonly Dictionary<string, Action<T, StringBuilder>> _serializers;
 
         public ObjectConverter(JSerializer serializer)
         {
             var outType = typeof(T);
-            
-            _converters = outType
-                .GetProperties()
-                .ToDictionary(p => p.Name, p => BuildPropertyConverter(p, serializer.GetOrBuildConverter(p.PropertyType)));
-            
+            var properties = outType.GetProperties();
             var outInstanceConstructor = outType.GetConstructor(Array.Empty<Type>());
+
             _activator = outInstanceConstructor == null
                 ? throw new Exception($"Default constructor for {outType.Name} not found")
                 : Expression.Lambda<Func<T>>(Expression.New(outInstanceConstructor)).Compile();
+
+            _deserializers = properties.ToDictionary(
+                p => p.Name,
+                p => BuildPropertyDeserializer(p, serializer.GetConverter(p.PropertyType)));
+
+            _equalityComparer = EqualityComparer<T>.Default;
+
+            _serializers = properties.ToDictionary(
+                p => p.Name,
+                p => BuildPropertySerializer(p, serializer.GetConverter(p.PropertyType)));
         }
 
-        public T Convert(JsonTokenizer tokenizer)
+        public T Deserialize(JsonTokenizer tokenizer)
         {
             var outInstance = _activator();
-            
+
             while (tokenizer.MoveNext())
             {
                 var current = tokenizer.Current;
                 var tokenType = current.TokenType;
-                
+
+                if (tokenType == JsonTokenType.Null) return default;
                 if (tokenType == JsonTokenType.ObjectStart) continue;
                 if (tokenType == JsonTokenType.ObjectEnd) break;
 
@@ -42,9 +53,10 @@ namespace Velo.Serialization.Converters
                     throw new InvalidCastException($"Invalid token '{current}' in object");
                 }
 
-                if (_converters.TryGetValue(current.Value, out var converter))
+                if (_deserializers.TryGetValue(current.Value, out var converter))
                 {
                     tokenizer.MoveNext();
+                    if (tokenizer.Current.TokenType == JsonTokenType.Null) continue;
                     converter(outInstance, tokenizer);
                 }
             }
@@ -52,29 +64,79 @@ namespace Velo.Serialization.Converters
             return outInstance;
         }
 
-        private static Action<T, JsonTokenizer> BuildPropertyConverter(PropertyInfo property, IJsonConverter converter)
+        public void Serialize(T value, StringBuilder builder)
         {
-            const string convertMethodName = nameof(IJsonConverter<object>.Convert);
-            
+            if (_equalityComparer.Equals(value, default))
+            {
+                builder.Append(JsonTokenizer.NullValue);
+                return;
+            }
+
+            builder.Append('{');
+
+            var first = true;
+            foreach (var pair in _serializers)
+            {
+                if (first) first = false;
+                else builder.Append(',');
+
+                builder.Append('"').Append(pair.Key).Append("\":");
+                pair.Value(value, builder);
+            }
+
+            builder.Append('}');
+        }
+
+        private static Action<T, StringBuilder> BuildPropertySerializer(PropertyInfo property,
+            IJsonConverter jsonConverter)
+        {
+            const string serializeMethodName = nameof(IJsonConverter<object>.Serialize);
+
             var instance = Expression.Parameter(typeof(T), "instance");
-            var tokenizer = Expression.Parameter(typeof(JsonTokenizer), "tokenizer");
+            var builder = Expression.Parameter(typeof(StringBuilder), "builder");
 
-            var converterType = converter.GetType();
-            var typedConverter = Expression.Constant(converter, converterType);
-            var convertMethod = converterType.GetMethod(convertMethodName);
+            var converterType = jsonConverter.GetType();
+            var serializeMethod = converterType.GetMethod(serializeMethodName);
 
-            if (convertMethod == null)
+            if (serializeMethod == null)
             {
                 throw new InvalidOperationException($"Bad converter for type {property.PropertyType}");
             }
-            
-            var assign = Expression.Assign(
-                Expression.Property(instance, property),
-                Expression.Call(typedConverter, convertMethod, tokenizer));
 
+            var converter = Expression.Constant(jsonConverter, converterType);
+            var propertyValue = Expression.Property(instance, property);
+
+            var body = Expression.Call(converter, serializeMethod, propertyValue, builder);
             return Expression
-                .Lambda<Action<T, JsonTokenizer>>(assign, instance, tokenizer)
+                .Lambda<Action<T, StringBuilder>>(body, instance, builder)
                 .Compile();
         }
+
+        private static Action<T, JsonTokenizer> BuildPropertyDeserializer(PropertyInfo property,
+            IJsonConverter jsonConverter)
+        {
+            const string deserializeMethodName = nameof(IJsonConverter<object>.Deserialize);
+
+            var instance = Expression.Parameter(typeof(T), "instance");
+            var tokenizer = Expression.Parameter(typeof(JsonTokenizer), "tokenizer");
+
+            var converterType = jsonConverter.GetType();
+            var deserializeMethod = converterType.GetMethod(deserializeMethodName);
+
+            if (deserializeMethod == null)
+            {
+                throw new InvalidOperationException($"Bad converter for type {property.PropertyType}");
+            }
+
+            var converter = Expression.Constant(jsonConverter, converterType);
+            var propertyValue = Expression.Call(converter, deserializeMethod, tokenizer);
+
+            var body = Expression.Assign(Expression.Property(instance, property), propertyValue);
+            return Expression
+                .Lambda<Action<T, JsonTokenizer>>(body, instance, tokenizer)
+                .Compile();
+        }
+
+        void IJsonConverter.Serialize(object value, StringBuilder builder) => Serialize((T) value, builder);
     }
 }

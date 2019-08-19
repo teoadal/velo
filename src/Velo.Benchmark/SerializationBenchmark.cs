@@ -10,18 +10,18 @@ namespace Velo.Benchmark
 {
     [CoreJob]
     [MeanColumn, MemoryDiagnoser]
-    public class DeserializationBenchmark
+    public class SerializationBenchmark
     {
         [Params(10000, 10003)] 
         public int Count;
 
-        private string[] _dataset;
+        private BigObject[] _dataset;
         private JSerializer _jSerializer;
 
         [GlobalSetup]
         public void Init()
         {
-            _dataset = new string[Count];
+            _dataset = new BigObject[Count];
 
             for (var i = 0; i < _dataset.Length; i++)
             {
@@ -47,7 +47,7 @@ namespace Velo.Benchmark
                     Double = i + 8,
                     String = Guid.NewGuid().ToString()
                 };
-                _dataset[i] = JsonConvert.SerializeObject(instance);
+                _dataset[i] = instance;
             }
 
             _jSerializer = new JSerializer();
@@ -62,8 +62,8 @@ namespace Velo.Benchmark
             for (var i = 0; i < _dataset.Length; i++)
             {
                 var element = _dataset[i];
-                var deserialized = JsonConvert.DeserializeObject<BigObject>(element);
-                stub += deserialized.Int;
+                var serialized = JsonConvert.SerializeObject(element);
+                stub += serialized.Length;
             }
 
             return stub;
@@ -77,8 +77,8 @@ namespace Velo.Benchmark
             for (var i = 0; i < _dataset.Length; i++)
             {
                 var element = _dataset[i];
-                var deserialized = _jSerializer.Deserialize<BigObject>(element);
-                stub += deserialized.Int;
+                var serialized = _jSerializer.Serialize(element);
+                stub += serialized.Length;
             }
 
             return stub;

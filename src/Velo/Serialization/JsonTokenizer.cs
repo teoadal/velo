@@ -7,6 +7,10 @@ namespace Velo.Serialization
 {
     internal sealed class JsonTokenizer : IEnumerator<JsonToken>
     {
+        public const string FalseValue = "false";
+        public const string NullValue = "null";
+        public const string TrueValue = "true";
+        
         public JsonToken Current { get; private set; }
 
         private StringBuilder _builder;

@@ -1,10 +1,11 @@
 using System;
+using System.Text;
 
 namespace Velo.Serialization.Converters
 {
     internal sealed class BoolConverter : IJsonConverter<bool>
     {
-        public bool Convert(JsonTokenizer tokenizer)
+        public bool Deserialize(JsonTokenizer tokenizer)
         {
             var token = tokenizer.Current;
 
@@ -18,5 +19,12 @@ namespace Velo.Serialization.Converters
                     throw new InvalidOperationException($"Invalid boolean token '{token}'");
             }
         }
+
+        public void Serialize(bool value, StringBuilder builder)
+        {
+            builder.Append(value ? JsonTokenizer.TrueValue : JsonTokenizer.FalseValue);
+        }
+
+        void IJsonConverter.Serialize(object value, StringBuilder builder) => Serialize((bool) value, builder);
     }
 }

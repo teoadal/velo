@@ -1,11 +1,16 @@
+using System.Text;
+
 namespace Velo.Serialization.Converters
 {
     internal interface IJsonConverter
     {
+        void Serialize(object value, StringBuilder builder);
     }
 
-    internal interface IJsonConverter<out T> : IJsonConverter
+    internal interface IJsonConverter<T> : IJsonConverter
     {
-        T Convert(JsonTokenizer tokenizer);
+        T Deserialize(JsonTokenizer tokenizer);
+
+        void Serialize(T value, StringBuilder builder);
     }
 }

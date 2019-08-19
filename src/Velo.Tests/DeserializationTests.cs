@@ -85,7 +85,6 @@ namespace Velo
             Assert.Equal(source.String, deserialized.String);
         }
 
-
         [Theory, AutoData]
         public void Deserialize_Boolean(bool source)
         {
@@ -129,6 +128,39 @@ namespace Velo
 
             var deserialized = _serializer.Deserialize<string>(json);
             Assert.Equal(source, deserialized);
+        }
+
+        [Fact]
+        public void Deserialize_Null_Property()
+        {
+            var source = new BigObject
+            {
+                Array = null,
+                Boo = null,
+                Foo = null,
+                String = null
+            };
+
+            var json = JsonConvert.SerializeObject(source);
+
+            var deserialized = _serializer.Deserialize<BigObject>(json);
+            
+            Assert.Equal(source.Array, deserialized.Array);
+            Assert.Equal(source.Boo, deserialized.Boo);
+            Assert.Equal(source.Foo, deserialized.Foo);
+            Assert.Equal(source.String, deserialized.String);
+        }
+        
+        [Fact]
+        public void Deserialize_Null()
+        {
+            BigObject source = null;
+
+            // ReSharper disable once ExpressionIsAlwaysNull
+            var json = JsonConvert.SerializeObject(source);
+
+            var deserialized = _serializer.Deserialize<BigObject>(json);
+            Assert.Null(deserialized);
         }
     }
 }

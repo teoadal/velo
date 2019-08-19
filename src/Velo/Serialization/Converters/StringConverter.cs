@@ -1,11 +1,22 @@
+using System.Text;
+
 namespace Velo.Serialization.Converters
 {
-    internal sealed class StringConverter: IJsonConverter<string>
+    internal sealed class StringConverter : IJsonConverter<string>
     {
-        public string Convert(JsonTokenizer tokenizer)
+        public string Deserialize(JsonTokenizer tokenizer)
         {
             var token = tokenizer.Current;
             return token.Value;
         }
+
+        public void Serialize(string value, StringBuilder builder)
+        {
+            builder.Append('"');
+            builder.Append(value);
+            builder.Append('"');
+        }
+
+        void IJsonConverter.Serialize(object value, StringBuilder builder) => Serialize((string) value, builder);
     }
 }

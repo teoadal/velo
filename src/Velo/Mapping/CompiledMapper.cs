@@ -41,7 +41,7 @@ namespace Velo.Mapping
             return converter(source);
         }
 
-        public void PrepareForSource<TSource>()
+        public void PrepareConverterFor<TSource>()
         {
             var sourceType = typeof(TSource);
             
