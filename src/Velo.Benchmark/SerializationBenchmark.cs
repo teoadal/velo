@@ -21,33 +21,11 @@ namespace Velo.Benchmark
         [GlobalSetup]
         public void Init()
         {
+            var random = new Random(123);
             _dataset = new BigObject[Count];
-
             for (var i = 0; i < _dataset.Length; i++)
             {
-                var instance = new BigObject
-                {
-                    Array = new[] {i + 1, i + 2, i + 3},
-                    Bool = i % 10 == 0,
-                    Boo = new Boo
-                    {
-                        Bool = i % 5 == 0,
-                        Double = i + 1,
-                        Float = i + 2,
-                        Int = i + 3,
-                    },
-                    Foo = new Foo
-                    {
-                        Bool = i % 100 == 0,
-                        Float = i + 4,
-                        Int = i + 5,
-                    },
-                    Float = i + 6,
-                    Int = i + 7,
-                    Double = i + 8,
-                    String = Guid.NewGuid().ToString()
-                };
-                _dataset[i] = instance;
+                _dataset[i] = Builder.CreateBigObject(random);
             }
 
             _converter = new JConverter();
