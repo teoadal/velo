@@ -14,8 +14,6 @@ namespace Velo.Serialization.Tokenization
             Value = value;
         }
 
-        public bool IsEmpty() => TokenType == JsonTokenType.None;
-
         public override string ToString()
         {
             return string.IsNullOrEmpty(Value)
