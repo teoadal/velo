@@ -10,7 +10,7 @@ namespace Velo.Serialization
         public const string FalseValue = "false";
         public const string NullValue = "null";
         public const string TrueValue = "true";
-        
+
         public JsonToken Current { get; private set; }
 
         private StringBuilder _builder;
@@ -56,7 +56,8 @@ namespace Velo.Serialization
                         Current = Read(JsonTokenType.ObjectEnd);
                         return true;
                     case '"':
-                        Current = MaybeProperty(ReadString());
+                        var stringValue = ReadString();
+                        Current = MaybeProperty(stringValue);
                         return true;
                     case 'n':
                         Current = ReadNull();
@@ -75,6 +76,7 @@ namespace Velo.Serialization
 
         public JsonTokenizer GetEnumerator() => this;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private JsonToken MaybeProperty(string stringToken)
         {
             var isProperty = _serialized.Length != _position && _serialized[_position] == ':';
