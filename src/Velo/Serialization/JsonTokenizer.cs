@@ -80,7 +80,11 @@ namespace Velo.Serialization
         private JsonToken MaybeProperty(string stringToken)
         {
             var isProperty = _serialized.Length != _position && _serialized[_position] == ':';
-            if (!isProperty) return new JsonToken(JsonTokenType.String, stringToken);
+
+            if (!isProperty)
+            {
+                return new JsonToken(JsonTokenType.String, stringToken);
+            }
 
             SkipChar();
             return new JsonToken(JsonTokenType.Property, stringToken);
