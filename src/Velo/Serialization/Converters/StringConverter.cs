@@ -1,5 +1,7 @@
 using System.Text;
 
+using Velo.Serialization.Tokenization;
+
 namespace Velo.Serialization.Converters
 {
     internal sealed class StringConverter : IJsonConverter<string>

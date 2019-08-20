@@ -1,4 +1,4 @@
-namespace Velo.Serialization
+namespace Velo.Serialization.Tokenization
 {
     internal readonly struct JsonToken
     {
@@ -22,20 +22,5 @@ namespace Velo.Serialization
                 ? TokenType.ToString()
                 : $"{TokenType} '{Value}'";
         }
-    }
-
-    public enum JsonTokenType : byte
-    {
-        None = 0,
-        ArrayStart,
-        ArrayEnd,
-        False,
-        Number,
-        Null,
-        ObjectStart,
-        ObjectEnd,
-        Property,
-        String,
-        True,
     }
 }

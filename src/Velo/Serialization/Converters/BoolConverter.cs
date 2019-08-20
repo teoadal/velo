@@ -1,6 +1,8 @@
 using System;
 using System.Text;
 
+using Velo.Serialization.Tokenization;
+
 namespace Velo.Serialization.Converters
 {
     internal sealed class BoolConverter : IJsonConverter<bool>

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace Velo.Serialization
+namespace Velo.Serialization.Tokenization
 {
     internal sealed class JsonTokenizer : IEnumerator<JsonToken>
     {

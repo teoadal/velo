@@ -5,6 +5,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 
+using Velo.Serialization.Tokenization;
+
 namespace Velo.Serialization.Converters
 {
     internal sealed class ObjectConverter<T> : IJsonConverter<T>

@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Text;
 
+using Velo.Serialization.Tokenization;
+
 namespace Velo.Serialization.Converters
 {
     internal sealed class ArrayConverter<T> : IJsonConverter<T[]>
