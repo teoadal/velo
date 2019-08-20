@@ -39,8 +39,6 @@ namespace Velo.Serialization
                 var typedConverter = (IJsonConverter<T>) converter;
                 var result = typedConverter.Deserialize(tokenizer);
 
-                _buffer.Clear();
-
                 return result;
             }
         }

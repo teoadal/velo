@@ -81,6 +81,11 @@ namespace Velo.Serialization
 
         public JsonTokenizer GetEnumerator() => this;
 
+        public void Reset()
+        {
+            _position = 0;
+        }
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private JsonToken MaybeProperty(string stringToken)
         {
@@ -202,10 +207,6 @@ namespace Velo.Serialization
 
         IEnumerator IEnumerable.GetEnumerator() => this;
 
-        void IEnumerator.Reset()
-        {
-        }
-
         #endregion
 
         public void Dispose()
@@ -214,7 +215,6 @@ namespace Velo.Serialization
 
             Current = JsonToken.Empty;
 
-            _builder.Clear();
             _builder = null;
             _position = -1;
             _serialized = null;
