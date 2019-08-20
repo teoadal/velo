@@ -28,7 +28,7 @@ namespace Velo.Serialization.Tokenization
 
         public bool MoveNext()
         {
-            if (_disposed) throw new ObjectDisposedException($"{nameof(JsonTokenizer)} disposed");
+            EnsureNotDisposed();
 
             var serialized = _serialized;
             for (; _position < serialized.Length; _position++)
@@ -81,7 +81,15 @@ namespace Velo.Serialization.Tokenization
 
         public void Reset()
         {
+            EnsureNotDisposed();
+            
             _position = 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void EnsureNotDisposed()
+        {
+            if (_disposed) throw new ObjectDisposedException(nameof(JsonTokenizer));
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -201,7 +209,7 @@ namespace Velo.Serialization.Tokenization
 
         public void Dispose()
         {
-            if (_disposed) throw new ObjectDisposedException($"{nameof(JsonTokenizer)} already disposed");
+            if (_disposed) return;
 
             Current = JsonToken.Empty;
 
