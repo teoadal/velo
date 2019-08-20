@@ -7,12 +7,12 @@ using Velo.Serialization.Converters;
 
 namespace Velo.Serialization
 {
-    public sealed class JSerializer
+    public sealed class JConverter
     {
         private static StringBuilder _buffer;
         private readonly Dictionary<Type, IJsonConverter> _converters;
 
-        public JSerializer(CultureInfo culture = null)
+        public JConverter(CultureInfo culture = null)
         {
             if (culture == null) culture = CultureInfo.InvariantCulture;
 

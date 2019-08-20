@@ -10,11 +10,11 @@ namespace Velo
 {
     public class DeserializationTests
     {
-        private readonly JSerializer _serializer;
+        private readonly JConverter _converter;
 
         public DeserializationTests()
         {
-            _serializer = new JSerializer();
+            _converter = new JConverter();
         }
 
         [Theory, AutoData]
@@ -22,7 +22,7 @@ namespace Velo
         {
             var json = JsonConvert.SerializeObject(array);
 
-            var deserialized = _serializer.Deserialize<float[]>(json);
+            var deserialized = _converter.Deserialize<float[]>(json);
             for (var i = 0; i < array.Length; i++)
             {
                 Assert.Equal(array[i], deserialized[i]);
@@ -34,7 +34,7 @@ namespace Velo
         {
             var json = JsonConvert.SerializeObject(array);
 
-            var deserialized = _serializer.Deserialize<int[]>(json);
+            var deserialized = _converter.Deserialize<int[]>(json);
             for (var i = 0; i < array.Length; i++)
             {
                 Assert.Equal(array[i], deserialized[i]);
@@ -46,7 +46,7 @@ namespace Velo
         {
             var json = JsonConvert.SerializeObject(array);
 
-            var deserialized = _serializer.Deserialize<string[]>(json);
+            var deserialized = _converter.Deserialize<string[]>(json);
             for (var i = 0; i < array.Length; i++)
             {
                 Assert.Equal(array[i], deserialized[i]);
@@ -58,7 +58,7 @@ namespace Velo
         {
             var json = JsonConvert.SerializeObject(source);
 
-            var deserialized = _serializer.Deserialize<BigObject>(json);
+            var deserialized = _converter.Deserialize<BigObject>(json);
 
             if (source.Boo != null)
             {
@@ -90,7 +90,7 @@ namespace Velo
         {
             var json = JsonConvert.SerializeObject(source);
 
-            var deserialized = _serializer.Deserialize<bool>(json);
+            var deserialized = _converter.Deserialize<bool>(json);
             Assert.Equal(source, deserialized);
         }
 
@@ -99,7 +99,7 @@ namespace Velo
         {
             var json = JsonConvert.SerializeObject(source);
 
-            var deserialized = _serializer.Deserialize<double>(json);
+            var deserialized = _converter.Deserialize<double>(json);
             Assert.Equal(source, deserialized);
         }
 
@@ -108,7 +108,7 @@ namespace Velo
         {
             var json = JsonConvert.SerializeObject(source);
 
-            var deserialized = _serializer.Deserialize<double>(json);
+            var deserialized = _converter.Deserialize<double>(json);
             Assert.Equal(source, deserialized);
         }
 
@@ -117,7 +117,7 @@ namespace Velo
         {
             var json = JsonConvert.SerializeObject(source);
 
-            var deserialized = _serializer.Deserialize<int>(json);
+            var deserialized = _converter.Deserialize<int>(json);
             Assert.Equal(source, deserialized);
         }
 
@@ -126,7 +126,7 @@ namespace Velo
         {
             var json = JsonConvert.SerializeObject(source);
 
-            var deserialized = _serializer.Deserialize<string>(json);
+            var deserialized = _converter.Deserialize<string>(json);
             Assert.Equal(source, deserialized);
         }
 
@@ -143,7 +143,7 @@ namespace Velo
 
             var json = JsonConvert.SerializeObject(source);
 
-            var deserialized = _serializer.Deserialize<BigObject>(json);
+            var deserialized = _converter.Deserialize<BigObject>(json);
             
             Assert.Equal(source.Array, deserialized.Array);
             Assert.Equal(source.Boo, deserialized.Boo);
@@ -159,7 +159,7 @@ namespace Velo
             // ReSharper disable once ExpressionIsAlwaysNull
             var json = JsonConvert.SerializeObject(source);
 
-            var deserialized = _serializer.Deserialize<BigObject>(json);
+            var deserialized = _converter.Deserialize<BigObject>(json);
             Assert.Null(deserialized);
         }
     }

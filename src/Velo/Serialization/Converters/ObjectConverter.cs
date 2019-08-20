@@ -14,7 +14,7 @@ namespace Velo.Serialization.Converters
         private readonly Dictionary<string, Action<T, JsonTokenizer>> _deserializers;
         private readonly Dictionary<string, Action<T, StringBuilder>> _serializers;
 
-        public ObjectConverter(JSerializer serializer)
+        public ObjectConverter(JConverter converter)
         {
             var outType = typeof(T);
             var properties = outType.GetProperties();
@@ -26,13 +26,13 @@ namespace Velo.Serialization.Converters
 
             _deserializers = properties.ToDictionary(
                 p => p.Name,
-                p => BuildPropertyDeserializer(p, serializer.GetConverter(p.PropertyType)));
+                p => BuildPropertyDeserializer(p, converter.GetConverter(p.PropertyType)));
 
             _equalityComparer = EqualityComparer<T>.Default;
 
             _serializers = properties.ToDictionary(
                 p => p.Name,
-                p => BuildPropertySerializer(p, serializer.GetConverter(p.PropertyType)));
+                p => BuildPropertySerializer(p, converter.GetConverter(p.PropertyType)));
         }
 
         public T Deserialize(JsonTokenizer tokenizer)

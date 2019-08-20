@@ -16,7 +16,7 @@ namespace Velo.Benchmark
         public int Count;
 
         private BigObject[] _dataset;
-        private JSerializer _jSerializer;
+        private JConverter _converter;
 
         [GlobalSetup]
         public void Init()
@@ -50,8 +50,8 @@ namespace Velo.Benchmark
                 _dataset[i] = instance;
             }
 
-            _jSerializer = new JSerializer();
-            _jSerializer.PrepareConverterFor<BigObject>();
+            _converter = new JConverter();
+            _converter.PrepareConverterFor<BigObject>();
         }
 
         [Benchmark(Baseline = true)]
@@ -77,7 +77,7 @@ namespace Velo.Benchmark
             for (var i = 0; i < _dataset.Length; i++)
             {
                 var element = _dataset[i];
-                var serialized = _jSerializer.Serialize(element);
+                var serialized = _converter.Serialize(element);
                 stub += serialized.Length;
             }
 

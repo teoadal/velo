@@ -10,17 +10,17 @@ namespace Velo
 {
     public class SerializationTests
     {
-        private readonly JSerializer _serializer;
+        private readonly JConverter _converter;
 
         public SerializationTests()
         {
-            _serializer = new JSerializer();
+            _converter = new JConverter();
         }
 
         [Theory, AutoData]
         public void Serialize_BigObject(BigObject source)
         {
-            var serialized = _serializer.Serialize(source);
+            var serialized = _converter.Serialize(source);
 
             var deserialized = JsonConvert.DeserializeObject<BigObject>(serialized);
 
