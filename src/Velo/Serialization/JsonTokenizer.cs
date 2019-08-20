@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -5,7 +6,7 @@ using System.Text;
 
 namespace Velo.Serialization
 {
-    internal sealed class JsonTokenizer : IEnumerator<JsonToken>
+    internal sealed class JsonTokenizer : IEnumerator<JsonToken>, IEnumerable<JsonToken>
     {
         public const string FalseValue = "false";
         public const string NullValue = "null";
@@ -17,6 +18,8 @@ namespace Velo.Serialization
         private int _position;
         private string _serialized;
 
+        private bool _disposed;
+
         public JsonTokenizer(string serialized, StringBuilder stringBuilder = null)
         {
             _serialized = serialized;
@@ -25,6 +28,8 @@ namespace Velo.Serialization
 
         public bool MoveNext()
         {
+            if (_disposed) throw new ObjectDisposedException($"{nameof(JsonTokenizer)} disposed");
+
             var serialized = _serialized;
             for (; _position < serialized.Length; _position++)
             {
@@ -189,17 +194,32 @@ namespace Velo.Serialization
             _position++;
         }
 
+        #region Interface implementations
+
         object IEnumerator.Current => Current;
+
+        IEnumerator<JsonToken> IEnumerable<JsonToken>.GetEnumerator() => this;
+
+        IEnumerator IEnumerable.GetEnumerator() => this;
 
         void IEnumerator.Reset()
         {
         }
 
+        #endregion
+
         public void Dispose()
         {
+            if (_disposed) throw new ObjectDisposedException($"{nameof(JsonTokenizer)} already disposed");
+
+            Current = JsonToken.Empty;
+
+            _builder.Clear();
             _builder = null;
             _position = -1;
             _serialized = null;
+
+            _disposed = true;
         }
     }
 }

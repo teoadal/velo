@@ -2,6 +2,8 @@ namespace Velo.Serialization
 {
     internal readonly struct JsonToken
     {
+        public static readonly JsonToken Empty = new JsonToken(JsonTokenType.None);
+        
         public readonly JsonTokenType TokenType;
 
         public readonly string Value;
