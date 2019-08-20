@@ -79,8 +79,6 @@ namespace Velo.Serialization
             return false;
         }
 
-        public JsonTokenizer GetEnumerator() => this;
-
         public void Reset()
         {
             _position = 0;
