@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Velo.Serialization
 {
-    internal sealed class JsonTokenizer : IEnumerator<JsonToken>, IEnumerable<JsonToken>
+    internal sealed class JsonTokenizer : IEnumerator<JsonToken>
     {
         public const string FalseValue = "false";
         public const string NullValue = "null";
@@ -199,15 +199,7 @@ namespace Velo.Serialization
             _position++;
         }
 
-        #region Interface implementations
-
         object IEnumerator.Current => Current;
-
-        IEnumerator<JsonToken> IEnumerable<JsonToken>.GetEnumerator() => this;
-
-        IEnumerator IEnumerable.GetEnumerator() => this;
-
-        #endregion
 
         public void Dispose()
         {
