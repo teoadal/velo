@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 
 using Velo.Serialization.Converters;
@@ -10,6 +11,7 @@ namespace Velo.Serialization
 {
     public sealed class JConverter
     {
+        [ThreadStatic] 
         private static StringBuilder _buffer;
         private readonly Dictionary<Type, IJsonConverter> _converters;
 
@@ -20,27 +22,27 @@ namespace Velo.Serialization
             _converters = new Dictionary<Type, IJsonConverter>
             {
                 {typeof(bool), new BoolConverter()},
+                {typeof(DateTime), new DateTimeConverter(culture)},
                 {typeof(double), new DoubleConverter(culture)},
                 {typeof(float), new FloatConverter(culture)},
+                {typeof(Guid), new GuidConverter()},
                 {typeof(int), new IntConverter()},
-                {typeof(string), new StringConverter()},
+                {typeof(string), new StringConverter()}
             };
         }
 
-        public T Deserialize<T>(string source)
+        public TOut Deserialize<TOut>(string source)
         {
             if (_buffer == null) _buffer = new StringBuilder(200);
 
-            var type = typeof(T);
-            var converter = GetConverter(type);
+            var outType = typeof(TOut);
+            var converter = GetOrBuildConverter(outType);
             using (var tokenizer = new JsonTokenizer(source, _buffer))
             {
-                if (type.IsPrimitive || type == typeof(string)) tokenizer.MoveNext();
+                if (outType.IsPrimitive || outType == typeof(string)) tokenizer.MoveNext();
 
-                var typedConverter = (IJsonConverter<T>) converter;
-                var result = typedConverter.Deserialize(tokenizer);
-
-                return result;
+                var typedConverter = (IJsonConverter<TOut>) converter;
+                return typedConverter.Deserialize(tokenizer);
             }
         }
 
@@ -49,13 +51,13 @@ namespace Velo.Serialization
             if (_buffer == null) _buffer = new StringBuilder(200);
 
             var type = source.GetType();
-            var converter = GetConverter(type);
+            var converter = GetOrBuildConverter(type);
 
             converter.Serialize(source, _buffer);
 
-            var result = _buffer.ToString();
+            var json = _buffer.ToString();
             _buffer.Clear();
-            return result;
+            return json;
         }
 
         public void PrepareConverterFor<TSource>()
@@ -68,7 +70,26 @@ namespace Velo.Serialization
             _converters.Add(sourceType, converter);
         }
 
-        internal IJsonConverter GetConverter(Type type)
+        private IJsonConverter BuildConverter(Type type)
+        {
+            if (type.IsArray)
+            {
+                var arrayElementType = type.GetElementType();
+                var arrayElementConverter = GetOrBuildConverter(arrayElementType);
+
+                var arrayConverterType = typeof(ArrayConverter<>).MakeGenericType(arrayElementType);
+                return (IJsonConverter) Activator.CreateInstance(arrayConverterType, arrayElementConverter);
+            }
+
+            var objectPropertyConverters = type
+                .GetProperties()
+                .ToDictionary(p => p, p => GetOrBuildConverter(p.PropertyType));
+
+            var objectConverterType = typeof(ObjectConverter<>).MakeGenericType(type);
+            return (IJsonConverter) Activator.CreateInstance(objectConverterType, objectPropertyConverters);
+        }
+
+        private IJsonConverter GetOrBuildConverter(Type type)
         {
             if (_converters.TryGetValue(type, out var exists)) return exists;
 
@@ -76,21 +97,6 @@ namespace Velo.Serialization
             _converters.Add(type, converter);
 
             return converter;
-        }
-
-        private IJsonConverter BuildConverter(Type type)
-        {
-            if (type.IsArray)
-            {
-                var arrayElementType = type.GetElementType();
-                var arrayElementConverter = GetConverter(arrayElementType);
-
-                var arrayConverterType = typeof(ArrayConverter<>).MakeGenericType(arrayElementType);
-                return (IJsonConverter) Activator.CreateInstance(arrayConverterType, arrayElementConverter);
-            }
-
-            var objectConverterType = typeof(ObjectConverter<>).MakeGenericType(type);
-            return (IJsonConverter) Activator.CreateInstance(objectConverterType, this);
         }
     }
 }

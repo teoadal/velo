@@ -5,24 +5,24 @@ using Velo.Serialization.Tokenization;
 
 namespace Velo.Serialization.Converters
 {
-    internal sealed class ArrayConverter<T> : IJsonConverter<T[]>
+    internal sealed class ArrayConverter<TElement> : IJsonConverter<TElement[]>
     {
-        private readonly List<T> _buffer;
-        private readonly IJsonConverter<T> _elementConverter;
+        private readonly List<TElement> _buffer;
+        private readonly IJsonConverter<TElement> _elementConverter;
 
-        public ArrayConverter(IJsonConverter<T> elementConverter)
+        public ArrayConverter(IJsonConverter<TElement> elementConverter)
         {
             _elementConverter = elementConverter;
 
-            _buffer = new List<T>(10);
+            _buffer = new List<TElement>(10);
         }
 
-        public T[] Deserialize(JsonTokenizer tokenizer)
+        public TElement[] Deserialize(JsonTokenizer tokenizer)
         {
             while (tokenizer.MoveNext())
             {
-                var current = tokenizer.Current;
-                var tokenType = current.TokenType;
+                var token = tokenizer.Current;
+                var tokenType = token.TokenType;
 
                 if (tokenType == JsonTokenType.ArrayStart) continue;
                 if (tokenType == JsonTokenType.ArrayEnd) break;
@@ -31,7 +31,7 @@ namespace Velo.Serialization.Converters
                 _buffer.Add(element);
             }
 
-            var array = new T[_buffer.Count];
+            var array = new TElement[_buffer.Count];
             for (var i = 0; i < array.Length; i++)
                 array[i] = _buffer[i];
 
@@ -40,7 +40,7 @@ namespace Velo.Serialization.Converters
             return array;
         }
 
-        public void Serialize(T[] array, StringBuilder builder)
+        public void Serialize(TElement[] array, StringBuilder builder)
         {
             if (array == null)
             {
@@ -59,6 +59,6 @@ namespace Velo.Serialization.Converters
             builder.Append("]");
         }
 
-        void IJsonConverter.Serialize(object value, StringBuilder builder) => Serialize((T[]) value, builder);
+        void IJsonConverter.Serialize(object value, StringBuilder builder) => Serialize((TElement[]) value, builder);
     }
 }

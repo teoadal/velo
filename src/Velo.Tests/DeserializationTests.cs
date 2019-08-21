@@ -18,6 +18,24 @@ namespace Velo
         }
 
         [Theory, AutoData]
+        public void Deserialize_Array_Object(Boo[] array)
+        {
+            var json = JsonConvert.SerializeObject(array);
+
+            var deserialized = _converter.Deserialize<Boo[]>(json);
+            for (var i = 0; i < array.Length; i++)
+            {
+                var element = array[i];
+                var deserializedElement = deserialized[i];
+
+                Assert.Equal(element.Bool, deserializedElement.Bool);
+                Assert.Equal(element.Double, deserializedElement.Double);
+                Assert.Equal(element.Float, deserializedElement.Float);
+                Assert.Equal(element.Int, deserializedElement.Int);
+            }
+        }
+
+        [Theory, AutoData]
         public void Deserialize_Array_Float(float[] array)
         {
             var json = JsonConvert.SerializeObject(array);
@@ -144,13 +162,13 @@ namespace Velo
             var json = JsonConvert.SerializeObject(source);
 
             var deserialized = _converter.Deserialize<BigObject>(json);
-            
+
             Assert.Equal(source.Array, deserialized.Array);
             Assert.Equal(source.Boo, deserialized.Boo);
             Assert.Equal(source.Foo, deserialized.Foo);
             Assert.Equal(source.String, deserialized.String);
         }
-        
+
         [Fact]
         public void Deserialize_Null()
         {
