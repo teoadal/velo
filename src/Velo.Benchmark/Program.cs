@@ -8,7 +8,7 @@ namespace Velo.Benchmark
         private static void Main(string[] args)
         {
             BenchmarkRunner.Run<DeserializationBenchmark>();
-            BenchmarkRunner.Run<MappersBenchmark>();
+            //BenchmarkRunner.Run<MappersBenchmark>();
             BenchmarkRunner.Run<SerializationBenchmark>();
         }
     }

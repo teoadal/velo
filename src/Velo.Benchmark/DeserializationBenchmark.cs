@@ -64,6 +64,21 @@ namespace Velo.Benchmark
 
             return stub;
         }
+
+        [Benchmark]
+        public long VNext_JsonSerializer()
+        {
+            long stub = 0;
+
+            for (var i = 0; i < _dataset.Length; i++)
+            {
+                var element = _dataset[i];
+                var deserialized = System.Text.Json.JsonSerializer.Deserialize<BigObject>(element);
+                stub += deserialized.Int;
+            }
+
+            return stub;
+        }
         
         [Benchmark]
         public long JDeserializer()

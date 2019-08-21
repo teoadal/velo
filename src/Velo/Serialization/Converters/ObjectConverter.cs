@@ -54,13 +54,14 @@ namespace Velo.Serialization.Converters
                     throw new InvalidCastException($"Invalid token '{token}' in object");
                 }
 
-                // ReSharper disable once InvertIf
-                if (_deserializeMethods.TryGetValue(token.Value, out var converter))
-                {
-                    tokenizer.MoveNext();
-                    if (tokenizer.Current.TokenType == JsonTokenType.Null) continue;
-                    converter(instance, tokenizer);
-                }
+                var propertyName = token.Value;
+
+                tokenizer.MoveNext();
+
+                if (tokenizer.Current.TokenType == JsonTokenType.Null) continue;
+                if (!_deserializeMethods.TryGetValue(propertyName, out var converter)) continue;
+
+                converter(instance, tokenizer);
             }
 
             return instance;
