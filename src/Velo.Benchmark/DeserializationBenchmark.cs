@@ -2,6 +2,8 @@ using System;
 
 using BenchmarkDotNet.Attributes;
 
+using fastJSON;
+
 using Newtonsoft.Json;
 
 using Velo.Serialization;
@@ -48,6 +50,21 @@ namespace Velo.Benchmark
             return stub;
         }
 
+        [Benchmark]
+        public long FastJson()
+        {
+            long stub = 0;
+
+            for (var i = 0; i < _dataset.Length; i++)
+            {
+                var element = _dataset[i];
+                var deserialized = JSON.ToObject<BigObject>(element);
+                stub += deserialized.Int;
+            }
+
+            return stub;
+        }
+        
         [Benchmark]
         public long JDeserializer()
         {
