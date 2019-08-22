@@ -3,6 +3,7 @@ using AutoFixture.Xunit2;
 using Newtonsoft.Json;
 
 using Velo.Serialization;
+using Velo.TestsModels;
 
 using Xunit;
 

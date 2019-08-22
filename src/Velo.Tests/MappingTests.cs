@@ -1,4 +1,5 @@
 using Velo.Mapping;
+using Velo.TestsModels;
 
 using Xunit;
 

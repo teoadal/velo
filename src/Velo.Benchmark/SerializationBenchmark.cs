@@ -7,6 +7,7 @@ using fastJSON;
 using Newtonsoft.Json;
 
 using Velo.Serialization;
+using Velo.TestsModels;
 
 namespace Velo.Benchmark
 {

@@ -1,5 +1,7 @@
 using System;
 
+using Velo.TestsModels;
+
 namespace Velo.Benchmark
 {
     public static class TestDataBuilder

@@ -3,6 +3,7 @@ using AutoMapper;
 using BenchmarkDotNet.Attributes;
 
 using Velo.Mapping;
+using Velo.TestsModels;
 
 namespace Velo.Benchmark
 {
