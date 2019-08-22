@@ -2,7 +2,7 @@ using System;
 
 namespace Velo.Benchmark
 {
-    public static class Builder
+    public static class TestDataBuilder
     {
         public static BigObject CreateBigObject(Random random)
         {

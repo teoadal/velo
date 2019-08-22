@@ -59,7 +59,7 @@ namespace Velo.Benchmark
         }
 
         [Benchmark]
-        public long BasicMapper()
+        public long Velo_BasicMapper()
         {
             long stub = 0;
 
@@ -74,7 +74,7 @@ namespace Velo.Benchmark
         }
 
         [Benchmark]
-        public long CompiledMapper()
+        public long Velo_CompiledMapper()
         {
             long stub = 0;
 

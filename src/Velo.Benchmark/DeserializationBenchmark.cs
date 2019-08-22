@@ -27,7 +27,7 @@ namespace Velo.Benchmark
             _dataset = new string[Count];
             for (var i = 0; i < _dataset.Length; i++)
             {
-                var instance = Builder.CreateBigObject(random);
+                var instance = TestDataBuilder.CreateBigObject(random);
                 _dataset[i] = JsonConvert.SerializeObject(instance);
             }
 
@@ -66,7 +66,7 @@ namespace Velo.Benchmark
         }
         
         [Benchmark]
-        public long JDeserializer()
+        public long Velo_Deserializer()
         {
             long stub = 0;
 
