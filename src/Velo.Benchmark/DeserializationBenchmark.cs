@@ -82,7 +82,7 @@ namespace Velo.Benchmark
         }
         
         [Benchmark]
-        public long Velo_Deserializer()
+        public long Velo()
         {
             long stub = 0;
 
