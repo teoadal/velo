@@ -67,6 +67,21 @@ namespace Velo.Benchmark
         }
         
         [Benchmark]
+        public long Simple_Json()
+        {
+            long stub = 0;
+
+            for (var i = 0; i < _dataset.Length; i++)
+            {
+                var element = _dataset[i];
+                var deserialized = SimpleJson.SimpleJson.DeserializeObject<BigObject>(element);
+                stub += deserialized.Int;
+            }
+
+            return stub;
+        }
+        
+        [Benchmark]
         public long Velo_Deserializer()
         {
             long stub = 0;

@@ -17,4 +17,8 @@
       <ProjectReference Include="..\Velo\Velo.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Other" />
+    </ItemGroup>
+
 </Project>
