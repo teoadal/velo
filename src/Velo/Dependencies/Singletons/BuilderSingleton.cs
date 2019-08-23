@@ -6,7 +6,7 @@ namespace Velo.Dependencies.Singletons
         where T : class
     {
         private readonly Type _contract;
-        private Func<DependencyContainer, T> _builder;
+        private readonly Func<DependencyContainer, T> _builder;
         private T _instance;
 
         public BuilderSingleton(Type contract, Func<DependencyContainer, T> builder)
@@ -22,8 +22,6 @@ namespace Velo.Dependencies.Singletons
 
         public void Destroy()
         {
-            _builder = null;
-            
             // ReSharper disable once InvertIf
             if (_instance != null && _instance is IDisposable disposable)
             {
@@ -37,7 +35,6 @@ namespace Velo.Dependencies.Singletons
             if (_instance != null) return _instance;
 
             _instance = _builder(container);
-            _builder = null;
             return _instance;
         }
     }

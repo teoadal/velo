@@ -6,7 +6,7 @@ namespace Velo.Dependencies.Singletons
     internal sealed class GenericSingleton : IDependency
     {
         private readonly Type _genericType;
-        private Dictionary<Type, object> _instances;
+        private readonly Dictionary<Type, object> _instances;
 
         public GenericSingleton(Type genericType)
         {
