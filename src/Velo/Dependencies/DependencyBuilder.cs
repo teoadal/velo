@@ -10,12 +10,10 @@ namespace Velo.Dependencies
 {
     public sealed class DependencyBuilder
     {
-        private readonly List<DependencyConfigurator> _configurators;
         private readonly List<IDependency> _dependencies;
 
         public DependencyBuilder()
         {
-            _configurators = new List<DependencyConfigurator>();
             _dependencies = new List<IDependency>();
         }
 
@@ -62,7 +60,7 @@ namespace Velo.Dependencies
         {
             return AddDependency(new GenericSingleton(genericType));
         }
-        
+
         public DependencyBuilder AddSingleton<TContract>() where TContract : class
         {
             var contracts = new[] {Typeof<TContract>.Raw};
@@ -98,29 +96,19 @@ namespace Velo.Dependencies
             return AddDependency(dependency);
         }
 
-        public DependencyContainer Build()
+        public DependencyContainer BuildContainer()
         {
-            foreach (var configurator in _configurators)
-            {
-                var dependency = configurator.Build();
-                _dependencies.Add(dependency);
-            }
-
-            var container = new DependencyContainer(_dependencies);
-
-            _configurators.Clear();
-            _dependencies.Clear();
-
-            return container;
+            return new DependencyContainer(_dependencies);
         }
 
-        public DependencyConfigurator Configure()
+        public DependencyBuilder Configure(Action<DependencyConfigurator> configure)
         {
             var configurator = new DependencyConfigurator();
 
-            _configurators.Add(configurator);
+            configure(configurator);
 
-            return configurator;
+            var dependency = configurator.Build();
+            return AddDependency(dependency);
         }
     }
 }

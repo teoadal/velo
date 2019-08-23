@@ -1,10 +1,7 @@
 namespace Velo.TestsModels.Services
 {
-    public interface IDataRepository
+    public interface IDataRepository : IRepository
     {
-        IConfiguration Configuration { get; }
-
-        ISession Session { get; }
     }
 
     public class DataRepository : IDataRepository

@@ -6,9 +6,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Autofac" Version="4.9.4" />
       <PackageReference Include="AutoMapper" Version="9.0.0" />
       <PackageReference Include="BenchmarkDotNet" Version="0.11.5" />
+      <PackageReference Include="Castle.Windsor" Version="5.0.0" />
       <PackageReference Include="fastJSON" Version="2.2.4" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
       <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
     </ItemGroup>
 

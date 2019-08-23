@@ -18,7 +18,7 @@ namespace Velo
             var container = new DependencyBuilder()
                 .AddSingleton<JConverter>()
                 .AddFactory<ISession, Session>()
-                .Build();
+                .BuildContainer();
 
             var first = container.Resolve<ISession>();
             var second = container.Resolve<ISession>();
@@ -29,6 +29,34 @@ namespace Velo
         [Fact]
         public void Factory_Array()
         {
+            var container = new DependencyBuilder()
+                .AddFactory<ISession, Session>()
+                .AddSingleton<JConverter>()
+                .AddSingleton<IConfiguration, Configuration>()
+                .Configure(dataRepository => dataRepository
+                    .Contracts<IRepository, IDataRepository>()
+                    .Implementation<DataRepository>()
+                    .Singleton())
+                .Configure(userRepository => userRepository
+                    .Contracts<IRepository, IUserRepository>()
+                    .Implementation<UserRepository>()
+                    .Singleton())
+                .BuildContainer();
+
+            var first = container.Resolve<IRepository[]>();
+            var second = container.Resolve<IRepository[]>();
+
+            Assert.NotSame(first, second);
+
+            for (var i = 0; i < first.Length; i++)
+            {
+                var firstRepository = first[i];
+                var secondRepository = second[i];
+
+                Assert.Same(firstRepository, secondRepository);
+                Assert.Same(firstRepository.Configuration, secondRepository.Configuration);
+                Assert.Same(firstRepository.Session, secondRepository.Session);
+            }
         }
 
         [Fact]
@@ -37,7 +65,7 @@ namespace Velo
             var container = new DependencyBuilder()
                 .AddSingleton<JConverter>()
                 .AddFactory<ISession>(ctx => new Session(ctx.Resolve<JConverter>()))
-                .Build();
+                .BuildContainer();
 
             var first = container.Resolve<ISession>();
             var second = container.Resolve<ISession>();
@@ -50,7 +78,7 @@ namespace Velo
         {
             var container = new DependencyBuilder()
                 .AddGenericFactory(typeof(List<>))
-                .Build();
+                .BuildContainer();
 
             var first = container.Resolve<List<int>>();
             var second = container.Resolve<List<int>>();
@@ -64,7 +92,7 @@ namespace Velo
             var container = new DependencyBuilder()
                 .AddSingleton<JConverter>()
                 .AddSingleton<ISession, Session>()
-                .Build();
+                .BuildContainer();
 
             var first = container.Resolve<ISession>();
             var second = container.Resolve<ISession>();
@@ -78,7 +106,7 @@ namespace Velo
             var container = new DependencyBuilder()
                 .AddSingleton<JConverter>()
                 .AddSingleton<ISession>(ctx => new Session(ctx.Resolve<JConverter>()))
-                .Build();
+                .BuildContainer();
 
             var first = container.Resolve<ISession>();
             var second = container.Resolve<ISession>();
@@ -91,7 +119,7 @@ namespace Velo
         {
             var container = new DependencyBuilder()
                 .AddGenericSingleton(typeof(CompiledMapper<>))
-                .Build();
+                .BuildContainer();
 
             var first = container.Resolve<CompiledMapper<Boo>>();
             var second = container.Resolve<CompiledMapper<Boo>>();
@@ -104,12 +132,33 @@ namespace Velo
         {
             var container = new DependencyBuilder()
                 .AddSingleton(new JConverter())
-                .Build();
+                .BuildContainer();
 
             var first = container.Resolve<JConverter>();
             var second = container.Resolve<JConverter>();
 
             Assert.Same(first, second);
+        }
+
+        [Fact]
+        public void Resolve()
+        {
+            var container = new DependencyBuilder()
+                .AddSingleton<JConverter>()
+                .AddSingleton<ILogger, Logger>()
+                .AddSingleton<IMapper<Boo>, CompiledMapper<Boo>>()
+                .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
+                .AddSingleton<IConfiguration>(provider => new Configuration())                
+                .AddFactory<ISession, Session>()
+                .AddSingleton<IDataService, DataService>()
+                .AddSingleton<IDataRepository, DataRepository>()
+                .AddSingleton<IUserService, UserService>()
+                .AddSingleton<IUserRepository, UserRepository>()
+                .AddSingleton<DataUserController>()
+                .BuildContainer();
+
+            var controller = container.Resolve<DataUserController>();
+            Assert.NotNull(controller);
         }
     }
 }

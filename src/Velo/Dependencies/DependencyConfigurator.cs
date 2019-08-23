@@ -2,13 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
+using Velo.Dependencies.Singletons;
 using Velo.Utils;
 
 namespace Velo.Dependencies
 {
     public sealed class DependencyConfigurator
     {
-        private Func<DependencyContainer, object> _builder;
+        private Delegate _builder;
         private readonly List<Type> _contracts;
         private Type _implementation;
         private object _instance;
@@ -20,9 +21,16 @@ namespace Velo.Dependencies
             _contracts = new List<Type>(2);
         }
 
-        public DependencyConfigurator Contract<T>()
+        public DependencyConfigurator Contract<TContract>()
         {
-            return Contract(Typeof<T>.Raw);
+            return Contract(Typeof<TContract>.Raw);
+        }
+
+        public DependencyConfigurator Contracts<TContract1, TContract2>()
+        {
+            Contract(Typeof<TContract1>.Raw);
+            Contract(Typeof<TContract2>.Raw);
+            return this;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -32,22 +40,32 @@ namespace Velo.Dependencies
             {
                 throw new InvalidOperationException($"{contract} is not assignable from {_implementation}");
             }
-            
+
             _contracts.Add(contract);
             return this;
         }
 
-        public DependencyConfigurator Builder(Func<DependencyContainer, object> builder)
+        public DependencyConfigurator Builder<T>(Func<DependencyContainer, T> builder)
         {
             if (_implementation != null) throw InconsistentConfiguration();
-            
+
+            if (_contracts.Count > 0)
+            {
+                var implementation = typeof(T);
+                foreach (var contract in _contracts)
+                {
+                    if (contract.IsAssignableFrom(implementation)) continue;
+                    throw new InvalidOperationException($"{contract} is not assignable from {implementation}");
+                }
+            }
+
             _builder = builder;
             return this;
         }
 
-        public DependencyConfigurator Implementation<T>() 
+        public DependencyConfigurator Implementation<TImplementation>()
         {
-            return Implementation(typeof(T));
+            return Implementation(typeof(TImplementation));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -77,11 +95,11 @@ namespace Velo.Dependencies
             {
                 throw InconsistentConfiguration();
             }
-            
+
             _instance = instance;
             return this;
         }
-        
+
         public DependencyConfigurator Scope(bool value = true)
         {
             _singleton = value;
@@ -100,7 +118,22 @@ namespace Velo.Dependencies
         {
             var contracts = _contracts.ToArray();
             _contracts.Clear();
-            
+
+            if (_singleton)
+            {
+                if (_builder != null)
+                {
+                    var builderResult = _builder.GetType().GetGenericArguments()[1];
+                    var builderType = typeof(BuilderSingleton<>).MakeGenericType(builderResult);
+                    return (IDependency) Activator.CreateInstance(builderType, contracts, _builder);
+                }
+
+                if (_implementation != null)
+                {
+                    return new ActivatorSingleton(contracts, _implementation);
+                }
+            }
+
             throw new NotImplementedException();
         }
 

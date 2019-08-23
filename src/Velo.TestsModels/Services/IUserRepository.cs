@@ -1,10 +1,7 @@
 namespace Velo.TestsModels.Services
 {
-    public interface IUserRepository
+    public interface IUserRepository : IRepository
     {
-        IConfiguration Configuration { get; }
-
-        ISession Session { get; }
     }
 
     public class UserRepository : IUserRepository
