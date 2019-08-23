@@ -2,39 +2,33 @@ using System;
 
 namespace Velo.Dependencies.Singletons
 {
-    internal sealed class BuilderSingleton<T> : IDependency
+    internal sealed class BuilderSingleton<T> : Dependency
         where T : class
     {
-        private readonly Type _contract;
         private readonly Func<DependencyContainer, T> _builder;
+        private bool _isDisposable;
+
         private T _instance;
 
-        public BuilderSingleton(Type contract, Func<DependencyContainer, T> builder)
+        public BuilderSingleton(Type[] contracts, Func<DependencyContainer, T> builder) : base(contracts)
         {
-            _contract = contract;
             _builder = builder;
         }
 
-        public bool Applicable(Type requestedType)
+        public override void Destroy()
         {
-            return _contract == requestedType;
+            if (!_isDisposable) return;
+
+            ((IDisposable) _instance)?.Dispose();
+            _isDisposable = false;
         }
 
-        public void Destroy()
-        {
-            // ReSharper disable once InvertIf
-            if (_instance != null && _instance is IDisposable disposable)
-            {
-                disposable.Dispose();
-                _instance = null;
-            }
-        }
-
-        public object Resolve(Type requestedType, DependencyContainer container)
+        public override object Resolve(Type requestedType, DependencyContainer container)
         {
             if (_instance != null) return _instance;
 
             _instance = _builder(container);
+            _isDisposable = _instance.GetType().IsAssignableFrom(typeof(IDisposable));
             return _instance;
         }
     }

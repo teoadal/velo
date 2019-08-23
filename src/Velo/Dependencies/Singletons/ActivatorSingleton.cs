@@ -2,32 +2,30 @@ using System;
 
 namespace Velo.Dependencies.Singletons
 {
-    internal sealed class ActivatorSingleton : IDependency
+    internal sealed class ActivatorSingleton : Dependency
     {
-        private readonly Type _contract;
+        private readonly Type _implementation;
+        private readonly bool _isDisposable;
+        
         private object _instance;
 
-        public ActivatorSingleton(Type contract)
+        public ActivatorSingleton(Type[] contracts, Type implementation) : base(contracts)
         {
-            _contract = contract;
+            _implementation = implementation;
+            _isDisposable = _implementation.IsAssignableFrom(typeof(IDisposable));
         }
 
-        public bool Applicable(Type requestedType)
+        public override void Destroy()
         {
-            return _contract == requestedType;
-        }
-
-        public void Destroy()
-        {
-            if (_instance != null && _instance is IDisposable disposable)
+            if (_isDisposable)
             {
-                disposable.Dispose();
+                ((IDisposable) _instance)?.Dispose();
             }
         }
 
-        public object Resolve(Type requestedType, DependencyContainer container)
+        public override object Resolve(Type requestedType, DependencyContainer container)
         {
-            return _instance ?? (_instance = container.Activate(_contract));
+            return _instance ?? (_instance = container.Activate(_implementation));
         }
     }
 }

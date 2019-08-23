@@ -2,28 +2,17 @@ using System;
 
 namespace Velo.Dependencies.Factories
 {
-    internal sealed class BuilderFactory<T> : IDependency
+    internal sealed class BuilderFactory<T> : Dependency
         where T : class
     {
-        private readonly Type _contract;
         private readonly Func<DependencyContainer, T> _builder;
 
-        public BuilderFactory(Type contract, Func<DependencyContainer, T> builder)
+        public BuilderFactory(Type[] contracts, Func<DependencyContainer, T> builder) : base(contracts)
         {
-            _contract = contract;
             _builder = builder;
         }
 
-        public bool Applicable(Type requestedType)
-        {
-            return _contract == requestedType;
-        }
-
-        public void Destroy()
-        {
-        }
-
-        public object Resolve(Type requestedType, DependencyContainer container)
+        public override object Resolve(Type requestedType, DependencyContainer container)
         {
             return _builder(container);
         }

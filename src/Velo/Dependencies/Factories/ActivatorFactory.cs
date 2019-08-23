@@ -2,27 +2,18 @@ using System;
 
 namespace Velo.Dependencies.Factories
 {
-    internal sealed class ActivatorFactory : IDependency
+    internal sealed class ActivatorFactory : Dependency
     {
-        private readonly Type _contract;
+        private readonly Type _implementation;
 
-        public ActivatorFactory(Type contract)
+        public ActivatorFactory(Type[] contracts, Type implementation) : base(contracts)
         {
-            _contract = contract;
+            _implementation = implementation;
         }
 
-        public bool Applicable(Type requestedType)
+        public override object Resolve(Type requestedType, DependencyContainer container)
         {
-            return _contract == requestedType;
-        }
-
-        public void Destroy()
-        {
-        }
-
-        public object Resolve(Type requestedType, DependencyContainer container)
-        {
-            return container.Activate(_contract);
+            return container.Activate(_implementation);
         }
     }
 }

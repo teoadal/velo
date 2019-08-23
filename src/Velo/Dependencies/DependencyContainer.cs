@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
+using Velo.Dependencies.Factories;
 using Velo.Dependencies.Singletons;
 using Velo.Utils;
 
@@ -15,10 +17,12 @@ namespace Velo.Dependencies
 
         internal DependencyContainer(List<IDependency> dependencies)
         {
-            dependencies.Add(new InstanceSingleton(Typeof<DependencyContainer>.Raw, this));
+            dependencies.Add(new InstanceSingleton(new[] {Typeof<DependencyContainer>.Raw}, this));
+            dependencies.Add(new ArrayFactory(dependencies));
+
+            _dependencies = dependencies.ToArray();
 
             _circularDetector = new CircularDependencyDetector(50);
-            _dependencies = dependencies.ToArray();
             _resolvedDependencies = new Dictionary<Type, IDependency>(_dependencies.Length);
         }
 
@@ -36,7 +40,7 @@ namespace Velo.Dependencies
             for (var i = 0; i < parameters.Length; i++)
             {
                 var parameter = parameters[i];
-                var required = parameter.HasDefaultValue;
+                var required = !parameter.HasDefaultValue;
 
                 resolvedParameters[i] = Resolve(parameter.ParameterType, required);
             }
@@ -70,10 +74,9 @@ namespace Velo.Dependencies
                 return resolved;
             }
 
-            var dependencies = _dependencies;
-            for (var i = 0; i < dependencies.Length; i++)
+            for (var i = 0; i < _dependencies.Length; i++)
             {
-                var dependency = dependencies[i];
+                var dependency = _dependencies[i];
                 if (!dependency.Applicable(type)) continue;
 
                 _resolvedDependencies.Add(type, dependency);
@@ -90,6 +93,11 @@ namespace Velo.Dependencies
 
             _circularDetector.Resolved();
             return null;
+        }
+
+        public DependencyScope Scope([CallerMemberName] string name = "")
+        {
+            return new DependencyScope(name);
         }
     }
 }
