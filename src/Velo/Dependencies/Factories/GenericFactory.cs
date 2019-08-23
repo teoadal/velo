@@ -16,6 +16,10 @@ namespace Velo.Dependencies.Factories
             return requestedType.IsGenericType && requestedType.GetGenericTypeDefinition() == _genericType;
         }
 
+        public void Destroy()
+        {
+        }
+
         public object Resolve(Type requestedType, DependencyContainer container)
         {
             return container.Activate(requestedType);

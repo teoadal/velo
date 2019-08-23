@@ -6,6 +6,8 @@ namespace Velo.Dependencies
     {
         bool Applicable(Type requestedType);
 
+        void Destroy();
+        
         object Resolve(Type requestedType, DependencyContainer container);
     }
 }

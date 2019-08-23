@@ -4,7 +4,7 @@ namespace Velo.Dependencies.Singletons
 {
     internal sealed class ActivatorSingleton : IDependency
     {
-        private readonly Type _contract;
+        private Type _contract;
         private object _instance;
 
         public ActivatorSingleton(Type contract)
@@ -15,6 +15,16 @@ namespace Velo.Dependencies.Singletons
         public bool Applicable(Type requestedType)
         {
             return _contract == requestedType;
+        }
+
+        public void Destroy()
+        {
+            _contract = null;
+            
+            if (_instance != null && _instance is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
         }
 
         public object Resolve(Type requestedType, DependencyContainer container)

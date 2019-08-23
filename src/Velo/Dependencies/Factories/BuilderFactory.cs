@@ -6,7 +6,7 @@ namespace Velo.Dependencies.Factories
         where T : class
     {
         private readonly Type _contract;
-        private readonly Func<DependencyContainer, T> _builder;
+        private Func<DependencyContainer, T> _builder;
 
         public BuilderFactory(Type contract, Func<DependencyContainer, T> builder)
         {
@@ -19,6 +19,11 @@ namespace Velo.Dependencies.Factories
             return _contract == requestedType;
         }
 
+        public void Destroy()
+        {
+            _builder = null;
+        }
+        
         public object Resolve(Type requestedType, DependencyContainer container)
         {
             return _builder(container);

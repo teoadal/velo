@@ -6,7 +6,7 @@ namespace Velo.Dependencies.Singletons
     internal sealed class GenericSingleton : IDependency
     {
         private readonly Type _genericType;
-        private readonly Dictionary<Type, object> _instances;
+        private Dictionary<Type, object> _instances;
 
         public GenericSingleton(Type genericType)
         {
@@ -17,6 +17,20 @@ namespace Velo.Dependencies.Singletons
         public bool Applicable(Type requestedType)
         {
             return requestedType.IsGenericType && requestedType.GetGenericTypeDefinition() == _genericType;
+        }
+
+        public void Destroy()
+        {
+            foreach (var pair in _instances)
+            {
+                var instance = pair.Value;
+                if (instance is IDisposable disposable)
+                {
+                    disposable.Dispose();
+                }
+            }
+            
+            _instances.Clear();
         }
 
         public object Resolve(Type requestedType, DependencyContainer container)

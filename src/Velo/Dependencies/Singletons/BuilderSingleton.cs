@@ -20,6 +20,18 @@ namespace Velo.Dependencies.Singletons
             return _contract == requestedType;
         }
 
+        public void Destroy()
+        {
+            _builder = null;
+            
+            // ReSharper disable once InvertIf
+            if (_instance != null && _instance is IDisposable disposable)
+            {
+                disposable.Dispose();
+                _instance = null;
+            }
+        }
+
         public object Resolve(Type requestedType, DependencyContainer container)
         {
             if (_instance != null) return _instance;

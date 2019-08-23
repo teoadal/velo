@@ -40,7 +40,7 @@ namespace Velo.Dependencies
 
             return AddDependency(dependency);
         }
-        
+
         public DependencyBuilder AddSingleton<TContract>() where TContract : class
         {
             var contract = Typeof<TContract>.Raw;
@@ -64,6 +64,11 @@ namespace Velo.Dependencies
             var dependency = new BuilderSingleton<TContract>(contract, builder);
 
             return AddDependency(dependency);
+        }
+
+        public DependencyContainer Build()
+        {
+            return new DependencyContainer(_dependencies);
         }
     }
 }
