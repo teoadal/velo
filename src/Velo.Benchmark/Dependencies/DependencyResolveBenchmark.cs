@@ -23,29 +23,29 @@ namespace Velo.Benchmark.Dependencies
         [GlobalSetup]
         public void Init()
         {
-            //_autofacContainer = DependencyBuilders.ForAutofac().Build();
-            //_castleContainer = DependencyBuilders.ForCastle();
+            _autofacContainer = DependencyBuilders.ForAutofac().Build();
+            _castleContainer = DependencyBuilders.ForCastle();
             _coreContainer = DependencyBuilders.ForCore().BuildServiceProvider();
             _veloContainer = DependencyBuilders.ForVelo().BuildContainer();
         }
 
-//        [Benchmark]
-//        public string Autofac()
-//        {
-//            var controller = _autofacContainer.Resolve<DataUserController>();
-//            var dataService = _autofacContainer.Resolve<IDataService>();
-//            var userService = _autofacContainer.Resolve<IUserService>();
-//            return controller.Name + dataService.Name + userService.Name;
-//        }
+        [Benchmark]
+        public string Autofac()
+        {
+            var controller = _autofacContainer.Resolve<SomethingController>();
+            var dataService = _autofacContainer.Resolve<IDataService>();
+            var userService = _autofacContainer.Resolve<IUserService>();
+            return controller.Name + dataService.Name + userService.Name;
+        }
         
-//        [Benchmark]
-//        public string Castle()
-//        {
-//            var controller = _castleContainer.Resolve<DataUserController>();
-//            var dataService = _castleContainer.Resolve<IDataService>();
-//            var userService = _castleContainer.Resolve<IUserService>();
-//            return controller.Name + dataService.Name + userService.Name;
-//        }
+        [Benchmark]
+        public string Castle()
+        {
+            var controller = _castleContainer.Resolve<SomethingController>();
+            var dataService = _castleContainer.Resolve<IDataService>();
+            var userService = _castleContainer.Resolve<IUserService>();
+            return controller.Name + dataService.Name + userService.Name;
+        }
         
         [Benchmark(Baseline = true)]
         public string Core()
