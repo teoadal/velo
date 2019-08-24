@@ -1,6 +1,6 @@
 namespace Velo.TestsModels.Services
 {
-    public class DataUserController
+    public class SomethingController
     {
         public string Name { get; }
         
@@ -10,7 +10,7 @@ namespace Velo.TestsModels.Services
 
         public ILogger Logger { get; }
         
-        public DataUserController(IDataService dataService, IUserService userService, ILogger logger)
+        public SomethingController(IDataService dataService, IUserService userService, ILogger logger)
         {
             Name = dataService.Repository.Session.Id.ToString("N");
             

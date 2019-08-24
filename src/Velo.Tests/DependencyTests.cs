@@ -1,11 +1,9 @@
 using System.Collections.Generic;
-
 using Velo.Dependencies;
 using Velo.Mapping;
 using Velo.Serialization;
 using Velo.TestsModels;
 using Velo.TestsModels.Services;
-
 using Xunit;
 
 namespace Velo
@@ -87,6 +85,45 @@ namespace Velo
         }
 
         [Fact]
+        public void Resolve()
+        {
+            var container = new DependencyBuilder()
+                .AddSingleton<JConverter>()
+                .AddSingleton<ILogger, Logger>()
+                .AddSingleton<IMapper<Boo>, CompiledMapper<Boo>>()
+                .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
+                .AddSingleton<IConfiguration>(provider => new Configuration())
+                .AddFactory<ISession, Session>()
+                .AddSingleton<IDataService, DataService>()
+                .AddSingleton<IDataRepository, DataRepository>()
+                .AddSingleton<IUserService, UserService>()
+                .AddSingleton<IUserRepository, UserRepository>()
+                .AddSingleton<SomethingController>()
+                .BuildContainer();
+
+            var controller = container.Resolve<SomethingController>();
+            Assert.NotNull(controller);
+        }
+
+        [Fact]
+        public void Scan()
+        {
+            var container = new DependencyBuilder()
+                .AddSingleton<IConfiguration, Configuration>()
+                .AddFactory<ISession, Session>()
+                .AddSingleton<JConverter>()
+                .Scan(scanner => scanner
+                    .Assembly(typeof(IRepository).Assembly)
+                    .RegisterAsSingleton<IRepository>())
+                .BuildContainer();
+
+            var repositories = container.Resolve<IRepository[]>();
+            Assert.Equal(2, repositories.Length);
+            Assert.Contains(repositories, r => r.GetType() == typeof(DataRepository));
+            Assert.Contains(repositories, r => r.GetType() == typeof(UserRepository));
+        }
+
+        [Fact]
         public void Singleton_Activator()
         {
             var container = new DependencyBuilder()
@@ -138,27 +175,6 @@ namespace Velo
             var second = container.Resolve<JConverter>();
 
             Assert.Same(first, second);
-        }
-
-        [Fact]
-        public void Resolve()
-        {
-            var container = new DependencyBuilder()
-                .AddSingleton<JConverter>()
-                .AddSingleton<ILogger, Logger>()
-                .AddSingleton<IMapper<Boo>, CompiledMapper<Boo>>()
-                .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
-                .AddSingleton<IConfiguration>(provider => new Configuration())                
-                .AddFactory<ISession, Session>()
-                .AddSingleton<IDataService, DataService>()
-                .AddSingleton<IDataRepository, DataRepository>()
-                .AddSingleton<IUserService, UserService>()
-                .AddSingleton<IUserRepository, UserRepository>()
-                .AddSingleton<DataUserController>()
-                .BuildContainer();
-
-            var controller = container.Resolve<DataUserController>();
-            Assert.NotNull(controller);
         }
     }
 }

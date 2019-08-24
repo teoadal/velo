@@ -13,6 +13,8 @@ namespace Velo.Dependencies
         private readonly IDependency[] _dependencies;
         private readonly Dictionary<Type, IDependency> _resolvedDependencies;
 
+        private readonly Stack<Type> _resolveStack;
+
         internal DependencyContainer(List<IDependency> dependencies, Dictionary<Type, IDependency> resolvedDependencies)
         {
             dependencies.Add(new InstanceSingleton(new[] {Typeof<DependencyContainer>.Raw}, this));
@@ -20,6 +22,7 @@ namespace Velo.Dependencies
 
             _dependencies = dependencies.ToArray();
             _resolvedDependencies = resolvedDependencies;
+            _resolveStack = new Stack<Type>(dependencies.Count);
         }
 
         public T Activate<T>() where T : class
@@ -64,20 +67,26 @@ namespace Velo.Dependencies
 
         public object Resolve(Type type, bool throwInNotExists = true)
         {
+            CheckCircularDependency(type);
+            RegisterDependencyCall(type);
+
             if (_resolvedDependencies.TryGetValue(type, out var resolver))
             {
                 var resolved = resolver.Resolve(type, this);
+                RegisterDependencyResolve();
                 return resolved;
             }
 
-            for (var i = 0; i < _dependencies.Length; i++)
+            var dependencies = _dependencies;
+            for (var i = 0; i < dependencies.Length; i++)
             {
-                var dependency = _dependencies[i];
+                var dependency = dependencies[i];
                 if (!dependency.Applicable(type)) continue;
 
                 _resolvedDependencies.Add(type, dependency);
 
                 var resolved = dependency.Resolve(type, this);
+                RegisterDependencyResolve();
                 return resolved;
             }
 
@@ -86,12 +95,33 @@ namespace Velo.Dependencies
                 throw new InvalidOperationException($"Dependency with type '{type}' is not registered");
             }
 
+            RegisterDependencyResolve();
             return null;
         }
 
         public DependencyScope Scope([CallerMemberName] string name = "")
         {
             return new DependencyScope(name);
+        }
+
+        private void CheckCircularDependency(Type type)
+        {
+            if (_resolveStack.Contains(type))
+            {
+                throw new InvalidOperationException($"Detected circular dependency {type}");
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void RegisterDependencyCall(Type type)
+        {
+            _resolveStack.Push(type);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void RegisterDependencyResolve()
+        {
+            _resolveStack.Pop();
         }
     }
 }

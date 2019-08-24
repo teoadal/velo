@@ -4,22 +4,29 @@ using Velo.Utils;
 
 namespace Velo.Dependencies.Singletons
 {
-    internal sealed class ActivatorSingleton : Dependency
+    internal sealed class SimpleDependency : IDependency
     {
         private readonly ConstructorInfo _constructor;
+        private readonly Type _contract;
         private readonly Type _implementation;
         private readonly bool _isDisposable;
 
         private object _instance;
 
-        public ActivatorSingleton(Type[] contracts, Type implementation) : base(contracts)
+        public SimpleDependency(Type contract, Type implementation)
         {
             _constructor = ReflectionUtils.GetConstructor(implementation);
+            _contract = contract;
             _implementation = implementation;
             _isDisposable = _implementation.IsAssignableFrom(typeof(IDisposable));
         }
 
-        public override void Destroy()
+        public bool Applicable(Type requestedType)
+        {
+            return _contract == requestedType;
+        }
+
+        public void Destroy()
         {
             if (_isDisposable)
             {
@@ -27,12 +34,13 @@ namespace Velo.Dependencies.Singletons
             }
         }
 
-        public override object Resolve(Type requestedType, DependencyContainer container)
+        public object Resolve(Type requestedType, DependencyContainer container)
         {
             if (_instance != null) return _instance;
 
             _instance = container.Activate(_implementation, _constructor);
             return _instance;
         }
+        
     }
 }

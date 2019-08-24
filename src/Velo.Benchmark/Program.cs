@@ -14,7 +14,7 @@ namespace Velo.Benchmark
 //            BenchmarkRunner.Run<DeserializationBenchmark>();
 //            BenchmarkRunner.Run<SerializationBenchmark>();
 
-            BenchmarkRunner.Run<DependencyBuildBenchmark>();
+            //BenchmarkRunner.Run<DependencyBuildBenchmark>();
             BenchmarkRunner.Run<DependencyResolveBenchmark>();
         }
     }

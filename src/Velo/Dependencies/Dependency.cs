@@ -13,9 +13,10 @@ namespace Velo.Dependencies
 
         public bool Applicable(Type requestedType)
         {
-            for (int i = 0; i < _contracts.Length; i++)
+            var contracts = _contracts;
+            for (var i = 0; i < contracts.Length; i++)
             {
-                if (_contracts[i] == requestedType)
+                if (contracts[i] == requestedType)
                 {
                     return true;
                 }

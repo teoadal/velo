@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-
 using Velo.Dependencies.Singletons;
 using Velo.Utils;
 
@@ -130,7 +129,9 @@ namespace Velo.Dependencies
 
                 if (_implementation != null)
                 {
-                    return new ActivatorSingleton(contracts, _implementation);
+                    return contracts.Length == 1
+                        ? (IDependency) new SimpleDependency(contracts[0], _implementation)
+                        : new ActivatorSingleton(contracts, _implementation);
                 }
             }
 

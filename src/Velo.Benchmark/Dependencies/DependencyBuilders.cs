@@ -31,7 +31,7 @@ namespace Velo.Benchmark.Dependencies
             builder.RegisterType<UserService>().As<IUserService>().SingleInstance();
             builder.RegisterType<UserRepository>().As<IUserRepository>().SingleInstance();
 
-            builder.RegisterType<DataUserController>().SingleInstance();
+            builder.RegisterType<SomethingController>().SingleInstance();
 
             return builder;
         }
@@ -52,7 +52,7 @@ namespace Velo.Benchmark.Dependencies
                 Component.For<IUserService>().ImplementedBy<UserService>().LifeStyle.Singleton,
                 Component.For<IUserRepository>().ImplementedBy<UserRepository>().LifeStyle.Singleton,
                 
-                Component.For<DataUserController>().LifeStyle.Singleton
+                Component.For<SomethingController>().LifeStyle.Singleton
             );
         }
         
@@ -72,7 +72,7 @@ namespace Velo.Benchmark.Dependencies
                 .AddSingleton<IUserService, UserService>()
                 .AddSingleton<IUserRepository, UserRepository>()
                 
-                .AddSingleton<DataUserController>();
+                .AddSingleton<SomethingController>();
         }
 
         public static DependencyBuilder ForVelo()
@@ -91,7 +91,7 @@ namespace Velo.Benchmark.Dependencies
                 .AddSingleton<IUserService, UserService>()
                 .AddSingleton<IUserRepository, UserRepository>()
                 
-                .AddSingleton<DataUserController>();
+                .AddSingleton<SomethingController>();
         }
     }
 }

@@ -8,21 +8,21 @@ namespace Velo.Benchmark.Dependencies
     [MeanColumn, MemoryDiagnoser]
     public class DependencyBuildBenchmark
     {
-        [Benchmark]
-        public string Autofac()
-        {
-            var builder = DependencyBuilders.ForAutofac();
-            var container = builder.Build();
+//        [Benchmark]
+//        public string Autofac()
+//        {
+//            var builder = DependencyBuilders.ForAutofac();
+//            var container = builder.Build();
+//
+//            return container.ToString();
+//        }
 
-            return container.ToString();
-        }
-
-        [Benchmark]
-        public string Castle()
-        {
-            var container = DependencyBuilders.ForCastle();
-            return container.ToString();
-        }
+//        [Benchmark]
+//        public string Castle()
+//        {
+//            var container = DependencyBuilders.ForCastle();
+//            return container.ToString();
+//        }
 
         [Benchmark(Baseline = true)]
         public string Core()

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Velo.Dependencies.Factories;
+using Velo.Dependencies.Scan;
 using Velo.Dependencies.Singletons;
 using Velo.Utils;
 
@@ -28,13 +29,16 @@ namespace Velo.Dependencies
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public DependencyBuilder AddDependency(Type contract, IDependency dependency)
         {
-            _concreteDependency.Add(contract, dependency);
+            if (!_concreteDependency.ContainsKey(contract))
+            {
+                _concreteDependency.Add(contract, dependency);
+            }
+
             _dependencies.Add(dependency);
-            
+
             return this;
         }
 
-        
         public DependencyBuilder AddFactory<TContract>() where TContract : class
         {
             var contract = Typeof<TContract>.Raw;
@@ -75,7 +79,7 @@ namespace Velo.Dependencies
         public DependencyBuilder AddSingleton<TContract>() where TContract : class
         {
             var contract = Typeof<TContract>.Raw;
-            var dependency = new ActivatorSingleton(new[] {contract}, contract);
+            var dependency = new SimpleDependency(contract, contract);
 
             return AddDependency(contract, dependency);
         }
@@ -85,7 +89,7 @@ namespace Velo.Dependencies
             where TImplementation : TContract
         {
             var contract = Typeof<TContract>.Raw;
-            var dependency = new ActivatorSingleton(new[] {contract}, typeof(TImplementation));
+            var dependency = new SimpleDependency(contract, typeof(TImplementation));
 
             return AddDependency(contract, dependency);
         }
@@ -107,6 +111,12 @@ namespace Velo.Dependencies
             return AddDependency(contract, dependency);
         }
 
+        public DependencyBuilder AddSingleton(Type contract, Type implementation)
+        {
+            var dependency = new SimpleDependency(contract, implementation);
+            return AddDependency(contract, dependency);
+        }
+
         public DependencyContainer BuildContainer()
         {
             return new DependencyContainer(_dependencies, _concreteDependency);
@@ -120,6 +130,16 @@ namespace Velo.Dependencies
 
             var dependency = configurator.Build();
             return AddDependency(dependency);
+        }
+
+        public DependencyBuilder Scan(Action<AssemblyScanner> configure)
+        {
+            var configurator = new AssemblyScanner(this);
+
+            configure(configurator);
+            configurator.Scan();
+
+            return this;
         }
     }
 }
