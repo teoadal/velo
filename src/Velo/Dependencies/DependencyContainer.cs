@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Runtime.CompilerServices;
-
 using Velo.Dependencies.Factories;
 using Velo.Dependencies.Singletons;
 using Velo.Utils;
@@ -13,17 +13,13 @@ namespace Velo.Dependencies
         private readonly IDependency[] _dependencies;
         private readonly Dictionary<Type, IDependency> _resolvedDependencies;
 
-        private readonly CircularDependencyDetector _circularDetector;
-
-        internal DependencyContainer(List<IDependency> dependencies)
+        internal DependencyContainer(List<IDependency> dependencies, Dictionary<Type, IDependency> resolvedDependencies)
         {
             dependencies.Add(new InstanceSingleton(new[] {Typeof<DependencyContainer>.Raw}, this));
             dependencies.Add(new ArrayFactory(dependencies));
 
             _dependencies = dependencies.ToArray();
-
-            _circularDetector = new CircularDependencyDetector(50);
-            _resolvedDependencies = new Dictionary<Type, IDependency>(_dependencies.Length);
+            _resolvedDependencies = resolvedDependencies;
         }
 
         public T Activate<T>() where T : class
@@ -31,9 +27,12 @@ namespace Velo.Dependencies
             return (T) Activate(Typeof<T>.Raw);
         }
 
-        public object Activate(Type type)
+        public object Activate(Type type, ConstructorInfo constructor = null)
         {
-            var constructor = type.GetConstructors()[0];
+            if (constructor == null)
+            {
+                constructor = ReflectionUtils.GetConstructor(type);
+            }
 
             var parameters = constructor.GetParameters();
             var resolvedParameters = new object[parameters.Length];
@@ -65,12 +64,9 @@ namespace Velo.Dependencies
 
         public object Resolve(Type type, bool throwInNotExists = true)
         {
-            _circularDetector.Call(type, throwInNotExists);
-
             if (_resolvedDependencies.TryGetValue(type, out var resolver))
             {
                 var resolved = resolver.Resolve(type, this);
-                _circularDetector.Resolved();
                 return resolved;
             }
 
@@ -82,16 +78,14 @@ namespace Velo.Dependencies
                 _resolvedDependencies.Add(type, dependency);
 
                 var resolved = dependency.Resolve(type, this);
-                _circularDetector.Resolved();
                 return resolved;
             }
 
             if (throwInNotExists)
             {
-                throw new InvalidOperationException($"Dependency resolver for type '{type}' is not registered");
+                throw new InvalidOperationException($"Dependency with type '{type}' is not registered");
             }
 
-            _circularDetector.Resolved();
             return null;
         }
 

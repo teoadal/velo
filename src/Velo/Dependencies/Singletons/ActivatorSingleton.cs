@@ -1,16 +1,20 @@
 using System;
+using System.Reflection;
+using Velo.Utils;
 
 namespace Velo.Dependencies.Singletons
 {
     internal sealed class ActivatorSingleton : Dependency
     {
+        private readonly ConstructorInfo _constructor;
         private readonly Type _implementation;
         private readonly bool _isDisposable;
-        
+
         private object _instance;
 
         public ActivatorSingleton(Type[] contracts, Type implementation) : base(contracts)
         {
+            _constructor = ReflectionUtils.GetConstructor(implementation);
             _implementation = implementation;
             _isDisposable = _implementation.IsAssignableFrom(typeof(IDisposable));
         }
@@ -25,7 +29,7 @@ namespace Velo.Dependencies.Singletons
 
         public override object Resolve(Type requestedType, DependencyContainer container)
         {
-            return _instance ?? (_instance = container.Activate(_implementation));
+            return _instance ?? (_instance = container.Activate(_implementation, _constructor));
         }
     }
 }
