@@ -1,5 +1,4 @@
 using System;
-using Velo.Dependencies.Singletons;
 
 namespace Velo.Dependencies.Scan
 {

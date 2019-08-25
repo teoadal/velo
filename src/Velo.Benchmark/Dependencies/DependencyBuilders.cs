@@ -2,9 +2,11 @@ using Autofac;
 
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
-
+using LightInject;
 using Microsoft.Extensions.DependencyInjection;
-
+using SimpleInjector;
+using Unity;
+using Unity.Lifetime;
 using Velo.Dependencies;
 using Velo.Mapping;
 using Velo.Serialization;
@@ -55,7 +57,7 @@ namespace Velo.Benchmark.Dependencies
                 Component.For<SomethingController>().LifeStyle.Singleton
             );
         }
-        
+
         public static IServiceCollection ForCore()
         {
             return new ServiceCollection()
@@ -75,6 +77,51 @@ namespace Velo.Benchmark.Dependencies
                 .AddSingleton<SomethingController>();
         }
 
+        public static ServiceContainer ForLightInject()
+        {
+            var container = new ServiceContainer();
+            
+            container
+                .RegisterSingleton(provider => new JConverter())
+                .RegisterSingleton<ILogger, Logger>()
+                .RegisterSingleton<IMapper<Boo>, CompiledMapper<Boo>>()
+                .RegisterSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
+                .RegisterSingleton<IConfiguration>(provider => new Configuration())
+                .RegisterTransient<ISession, Session>()
+                
+                .RegisterSingleton<IDataService, DataService>()
+                .RegisterSingleton<IDataRepository, DataRepository>()
+                
+                .RegisterSingleton<IUserService, UserService>()
+                .RegisterSingleton<IUserRepository, UserRepository>()
+                
+                .RegisterSingleton<SomethingController>();
+
+            return container;
+        }
+
+        public static Container ForSimpleInject()
+        {
+            var container = new Container();
+            
+            container.Register(typeof(JConverter), () => new JConverter(), Lifestyle.Singleton);
+            container.RegisterSingleton<ILogger, Logger>();
+            container.RegisterSingleton<IMapper<Boo>, CompiledMapper<Boo>>();
+            container.RegisterSingleton<IMapper<Foo>, CompiledMapper<Foo>>();
+            container.Register(typeof(IConfiguration), () => new Configuration(), Lifestyle.Singleton);
+            container.RegisterSingleton<ISession, Session>();
+
+            container.RegisterSingleton<IDataService, DataService>();
+            container.RegisterSingleton<IDataRepository, DataRepository>();
+
+            container.RegisterSingleton<IUserService, UserService>();
+            container.RegisterSingleton<IUserRepository, UserRepository>();
+                
+            container.RegisterSingleton<SomethingController>();
+            
+            return container;
+        }
+        
         public static DependencyBuilder ForVelo()
         {
             return new DependencyBuilder()
@@ -92,6 +139,25 @@ namespace Velo.Benchmark.Dependencies
                 .AddSingleton<IUserRepository, UserRepository>()
                 
                 .AddSingleton<SomethingController>();
+        }
+
+        public static IUnityContainer ForUnity()
+        {
+            return new UnityContainer()
+                .RegisterSingleton<JConverter>()
+                .RegisterSingleton<ILogger, Logger>()
+                .RegisterSingleton<IMapper<Boo>, CompiledMapper<Boo>>()
+                .RegisterSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
+                .RegisterFactory<IConfiguration>(ctx => new Configuration(), new SingletonLifetimeManager())
+                .RegisterFactory<ISession>(ctx => new Session(ctx.Resolve<JConverter>()))
+                
+                .RegisterSingleton<IDataService, DataService>()
+                .RegisterSingleton<IDataRepository, DataRepository>()
+                
+                .RegisterSingleton<IUserService, UserService>()
+                .RegisterSingleton<IUserRepository, UserRepository>()
+                
+                .RegisterSingleton<SomethingController>();
         }
     }
 }

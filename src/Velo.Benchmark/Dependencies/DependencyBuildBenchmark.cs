@@ -1,5 +1,4 @@
 using BenchmarkDotNet.Attributes;
-
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Velo.Benchmark.Dependencies
@@ -33,6 +32,19 @@ namespace Velo.Benchmark.Dependencies
             return container.ToString();
         }
 
+        [Benchmark]
+        public string LightInject()
+        {
+            var container = DependencyBuilders.ForLightInject();
+            return container.ToString();
+        }
+        
+        [Benchmark]
+        public string SimpleInject()
+        {
+            var container = DependencyBuilders.ForSimpleInject();
+            return container.ToString();
+        }
         
         [Benchmark]
         public string Velo()
@@ -42,5 +54,13 @@ namespace Velo.Benchmark.Dependencies
 
             return container.ToString();
         }
+        
+        [Benchmark]
+        public string Unity()
+        {
+            var container = DependencyBuilders.ForUnity();
+            return container.ToString();
+        }
+
     }
 }

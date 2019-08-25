@@ -124,6 +124,11 @@ namespace Velo
         }
 
         [Fact]
+        public void Scope()
+        {
+        }
+
+        [Fact]
         public void Singleton_Activator()
         {
             var container = new DependencyBuilder()
