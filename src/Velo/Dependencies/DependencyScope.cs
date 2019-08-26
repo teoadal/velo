@@ -20,7 +20,7 @@ namespace Velo.Dependencies
         {
             Name = name;
 
-            if (_current == null) _parent = _current;
+            _parent = _current;
             _current = this;
             _scopeDependencies = new List<IDependency>();
         }

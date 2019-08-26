@@ -126,6 +126,23 @@ namespace Velo
         [Fact]
         public void Scope()
         {
+            var container = new DependencyBuilder()
+                .AddSingleton<JConverter>()
+                .AddScope<ISession, Session>()
+                .BuildContainer();
+
+            ISession firstScopeSession;
+            using (container.StartScope())
+            {
+                firstScopeSession = container.Resolve<ISession>();
+                Assert.Same(firstScopeSession, container.Resolve<ISession>());
+            }
+            
+            using (container.StartScope())
+            {
+                var secondScopeSession = container.Resolve<ISession>();
+                Assert.NotSame(firstScopeSession, secondScopeSession);
+            }
         }
 
         [Fact]
@@ -173,7 +190,7 @@ namespace Velo
         public void Singleton_Instance()
         {
             var container = new DependencyBuilder()
-                .AddSingleton(new JConverter())
+                .AddInstance(new JConverter())
                 .BuildContainer();
 
             var first = container.Resolve<JConverter>();

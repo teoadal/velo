@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+
 using Velo.Dependencies.Factories;
 using Velo.Dependencies.Scan;
 using Velo.Dependencies.Singletons;
@@ -18,6 +19,8 @@ namespace Velo.Dependencies
             _concreteDependency = new Dictionary<Type, IDependency>(capacity);
             _dependencies = new List<IDependency>(capacity);
         }
+
+        #region AddDependency
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public DependencyBuilder AddDependency(IDependency dependency)
@@ -39,7 +42,11 @@ namespace Velo.Dependencies
             return this;
         }
 
-        public DependencyBuilder AddFactory<TContract>() where TContract : class
+        #endregion
+
+        #region AddFactory
+
+        public DependencyBuilder AddFactory<TContract>()
         {
             var contract = Typeof<TContract>.Raw;
             var dependency = new ActivatorFactory(new[] {contract}, contract);
@@ -48,7 +55,6 @@ namespace Velo.Dependencies
         }
 
         public DependencyBuilder AddFactory<TContract, TImplementation>()
-            where TContract : class
             where TImplementation : TContract
         {
             var contract = Typeof<TContract>.Raw;
@@ -66,6 +72,10 @@ namespace Velo.Dependencies
             return AddDependency(contract, dependency);
         }
 
+        #endregion
+
+        #region AddGeneric
+
         public DependencyBuilder AddGenericFactory(Type genericType)
         {
             return AddDependency(new GenericFactory(genericType));
@@ -76,7 +86,25 @@ namespace Velo.Dependencies
             return AddDependency(new GenericSingleton(genericType));
         }
 
-        public DependencyBuilder AddSingleton<TContract>() where TContract : class
+        public DependencyBuilder AddGenericScope(Type genericType)
+        {
+            return AddDependency(new GenericSingleton(genericType, true));
+        }
+
+        #endregion
+
+        public DependencyBuilder AddInstance<TContract>(TContract instance)
+            where TContract : class
+        {
+            var contract = Typeof<TContract>.Raw;
+            var dependency = new InstanceSingleton(new[] {contract}, instance);
+
+            return AddDependency(contract, dependency);
+        }
+
+        #region AddSingleton
+
+        public DependencyBuilder AddSingleton<TContract>()
         {
             var contract = Typeof<TContract>.Raw;
             var dependency = new SimpleDependency(contract, contract);
@@ -85,19 +113,10 @@ namespace Velo.Dependencies
         }
 
         public DependencyBuilder AddSingleton<TContract, TImplementation>()
-            where TContract : class
             where TImplementation : TContract
         {
             var contract = Typeof<TContract>.Raw;
             var dependency = new SimpleDependency(contract, typeof(TImplementation));
-
-            return AddDependency(contract, dependency);
-        }
-
-        public DependencyBuilder AddSingleton<TContract>(TContract instance) where TContract : class
-        {
-            var contract = Typeof<TContract>.Raw;
-            var dependency = new InstanceSingleton(new[] {contract}, instance);
 
             return AddDependency(contract, dependency);
         }
@@ -116,6 +135,38 @@ namespace Velo.Dependencies
             var dependency = new SimpleDependency(contract, implementation);
             return AddDependency(contract, dependency);
         }
+
+        #endregion
+
+        #region AddScope
+
+        public DependencyBuilder AddScope<TContract>()
+        {
+            var contract = Typeof<TContract>.Raw;
+            var dependency = new SimpleDependency(contract, contract, true);
+
+            return AddDependency(contract, dependency);
+        }
+
+        public DependencyBuilder AddScope<TContract, TImplementation>()
+            where TImplementation : TContract
+        {
+            var contract = Typeof<TContract>.Raw;
+            var dependency = new SimpleDependency(contract, typeof(TImplementation), true);
+
+            return AddDependency(contract, dependency);
+        }
+
+        public DependencyBuilder AddScope<TContract>(Func<DependencyContainer, TContract> builder)
+            where TContract : class
+        {
+            var contract = Typeof<TContract>.Raw;
+            var dependency = new BuilderSingleton<TContract>(new[] {contract}, builder, true);
+
+            return AddDependency(contract, dependency);
+        }
+
+        #endregion
 
         public DependencyContainer BuildContainer()
         {

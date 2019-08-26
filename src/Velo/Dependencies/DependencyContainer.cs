@@ -99,7 +99,8 @@ namespace Velo.Dependencies
             return null;
         }
 
-        public DependencyScope Scope([CallerMemberName] string name = "")
+        // ReSharper disable once MemberCanBeMadeStatic.Global
+        public DependencyScope StartScope([CallerMemberName] string name = "")
         {
             return new DependencyScope(name);
         }
