@@ -144,7 +144,22 @@ namespace Velo
             Assert.IsType<DataRepository>(dataRepository);
             Assert.IsType<UserRepository>(userRepository);
         }
-        
+
+        [Fact]
+        public void Resolve_Named_Without_Name()
+        {
+            const string dataRepositoryName = "dataRepository";
+            var container = new DependencyBuilder()
+                .AddSingleton<JConverter>()
+                .AddSingleton<IConfiguration, Configuration>()
+                .AddSingleton<ISession, Session>()
+                .AddSingleton<IRepository, DataRepository>(dataRepositoryName)
+                .BuildContainer();
+
+            var dataRepository = container.Resolve<IRepository>();
+            Assert.IsType<DataRepository>(dataRepository);
+        }
+
         [Fact]
         public void Scan()
         {
