@@ -15,9 +15,11 @@ namespace Velo.Dependencies.Singletons
 
         public override void Destroy()
         {
-            if (!_isDisposable) return;
+            if (_isDisposable)
+            {
+                ((IDisposable) _instance)?.Dispose();
+            }
 
-            ((IDisposable) _instance).Dispose();
             _instance = null;
         }
 

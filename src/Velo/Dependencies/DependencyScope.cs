@@ -9,61 +9,44 @@ namespace Velo.Dependencies
 
         public string Name { get; private set; }
 
-        [ThreadStatic] private static DependencyScope _current;
+        [ThreadStatic] 
+        private static DependencyScope _current;
 
+        private List<IDependency> _scopeDependencies;
         private bool _disposed;
-        private Dictionary<Type, IDisposable> _instances;
         private DependencyScope _parent;
 
         internal DependencyScope(string name)
         {
             Name = name;
-            _instances = new Dictionary<Type, IDisposable>();
 
             if (_current == null) _parent = _current;
             _current = this;
+            _scopeDependencies = new List<IDependency>();
         }
 
-        public void Add(Type contract, IDisposable instance)
+        public static void Add(IDependency dependency)
         {
-            if (_disposed)
+            if (_current == null)
+            {
+                throw new InvalidOperationException($"Scope is not started");
+            }
+
+            var currentScope = _current;
+
+            if (currentScope._disposed)
             {
                 throw new ObjectDisposedException(nameof(DependencyScope));
             }
 
-            if (_instances.ContainsKey(contract))
+            var scopeDependencies = currentScope._scopeDependencies;
+
+            if (scopeDependencies.Contains(dependency))
             {
-                throw new InvalidOperationException($"Current scope already contains {contract}");
+                throw new InvalidOperationException($"Dependency {dependency} already exists in scope {currentScope}");
             }
 
-            if (_parent != null && _parent.Contains(contract))
-            {
-                throw new InvalidOperationException($"Parent scope already contains {contract}");
-            }
-
-            _instances.Add(contract, instance);
-        }
-
-        public bool Contains(Type contract)
-        {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(nameof(DependencyScope));
-            }
-
-            if (_instances.ContainsKey(contract)) return true;
-            return _parent != null && _parent.Contains(contract);
-        }
-
-        public bool TryGet(Type contract, out IDisposable instance)
-        {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(nameof(DependencyScope));
-            }
-
-            if (_instances.TryGetValue(contract, out instance)) return true;
-            return _parent != null && _parent.TryGet(contract, out instance);
+            scopeDependencies.Add(dependency);
         }
 
         public void Dispose()
@@ -74,13 +57,13 @@ namespace Velo.Dependencies
             _disposed = true;
             _parent = null;
 
-            foreach (var instance in _instances.Values)
+            foreach (var dependency in _scopeDependencies)
             {
-                instance.Dispose();
+                dependency.Destroy();
             }
 
-            _instances.Clear();
-            _instances = null;
+            _scopeDependencies.Clear();
+            _scopeDependencies = null;
         }
 
         public override string ToString()

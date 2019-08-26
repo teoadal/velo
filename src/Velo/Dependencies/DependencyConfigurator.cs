@@ -124,14 +124,14 @@ namespace Velo.Dependencies
                 {
                     var builderResult = _builder.GetType().GetGenericArguments()[1];
                     var builderType = typeof(BuilderSingleton<>).MakeGenericType(builderResult);
-                    return (IDependency) Activator.CreateInstance(builderType, contracts, _builder);
+                    return (IDependency) Activator.CreateInstance(builderType, contracts, _builder, _scope);
                 }
 
                 if (_implementation != null)
                 {
                     return contracts.Length == 1
-                        ? (IDependency) new SimpleDependency(contracts[0], _implementation)
-                        : new ActivatorSingleton(contracts, _implementation);
+                        ? (IDependency) new SimpleDependency(contracts[0], _implementation, _scope)
+                        : new ActivatorSingleton(contracts, _implementation, _scope);
                 }
             }
 
