@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 using Velo.Dependencies;
@@ -11,6 +12,16 @@ namespace Velo
 {
     public class DependencyTests
     {
+        [Fact]
+        public void Circular_Dependency_Detection()
+        {
+            var container = new DependencyBuilder()
+                .AddSingleton<CircularDependencyService>()
+                .BuildContainer();
+
+            Assert.Throws<InvalidOperationException>(() => container.Resolve<CircularDependencyService>());
+        }
+        
         [Fact]
         public void Factory_Activator()
         {
