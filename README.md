@@ -86,6 +86,19 @@ var container = new DependencyBuilder()
     .BuildContainer();
 ```
 
+### Use assembly scanner for find generic interface implementations
+
+```cs
+var container = new DependencyBuilder()
+    .AddSingleton<IConfiguration, Configuration>()
+    .AddFactory<ISession, Session>()
+    .AddSingleton<JConverter>()
+    .Scan(scanner => scanner
+        .Assembly(typeof(IRepository).Assembly)
+        .RegisterGenericInterfaceAsSingleton(typeof(IRepository<>)))
+    .BuildContainer();
+```
+
 ### Resolve dependency
 
 ```cs
