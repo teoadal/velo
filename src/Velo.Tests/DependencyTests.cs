@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+
 using Velo.Dependencies;
 using Velo.Mapping;
 using Velo.Serialization;
@@ -85,6 +86,25 @@ namespace Velo
         }
 
         [Fact]
+        public void Inject_By_Name()
+        {
+            const string dataRepositoryName = "dataRepository";
+            const string userRepositoryName = "userRepository";
+            var container = new DependencyBuilder()
+                .AddSingleton<JConverter>()
+                .AddSingleton<IConfiguration, Configuration>()
+                .AddSingleton<ISession, Session>()
+                .AddSingleton<IRepository, DataRepository>(dataRepositoryName)
+                .AddSingleton<IRepository, UserRepository>(userRepositoryName)
+                .BuildContainer();
+
+            var repositoryCollection = container.Activate<RepositoryCollection>();
+            
+            Assert.IsType<DataRepository>(repositoryCollection.DataRepository);
+            Assert.IsType<UserRepository>(repositoryCollection.UserRepository);
+        }
+        
+        [Fact]
         public void Resolve()
         {
             var container = new DependencyBuilder()
@@ -105,6 +125,26 @@ namespace Velo
             Assert.NotNull(controller);
         }
 
+        [Fact]
+        public void Resolve_By_Name()
+        {
+            const string dataRepositoryName = "dataRepository";
+            const string userRepositoryName = "userRepository";
+            var container = new DependencyBuilder()
+                .AddSingleton<JConverter>()
+                .AddSingleton<IConfiguration, Configuration>()
+                .AddSingleton<ISession, Session>()
+                .AddSingleton<IRepository, DataRepository>(dataRepositoryName)
+                .AddSingleton<IRepository, UserRepository>(userRepositoryName)
+                .BuildContainer();
+
+            var dataRepository = container.Resolve<IRepository>(dataRepositoryName);
+            var userRepository = container.Resolve<IRepository>(userRepositoryName);
+
+            Assert.IsType<DataRepository>(dataRepository);
+            Assert.IsType<UserRepository>(userRepository);
+        }
+        
         [Fact]
         public void Scan()
         {
