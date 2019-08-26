@@ -95,6 +95,15 @@ var otherSession = container.Resolve<ISession>();
 var converterSingleton = container.Resolve<JConverter>();
 ```
 
+### Use scope
+
+```cs
+using (container.StartScope())
+{
+    var controller = container.Resolve<SomethingController>();
+}
+```
+
 ### Benchmarks
 
 #### Create container benchmark
