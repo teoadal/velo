@@ -26,8 +26,7 @@ var foo = compiledMapper.Map(source);
 |              Method |        Mean |      Error |     StdDev | Ratio |  Allocated |
 |-------------------- |------------:|-----------:|-----------:|------:|-----------:|
 |          AutoMapper |  1,267.2 us |  10.499 us |   8.197 us |  1.00 |   312.5 KB |
-|    Velo_BasicMapper | 12,320.1 us | 116.795 us | 109.250 us |  9.72 |  3437.5 KB |
-| **Velo_CompiledMapper** |    348.6 us |   4.400 us |   4.116 us |  **0.28** |   **312.5 KB** |
+|                Velo |    348.6 us |   4.400 us |   4.116 us |  0.28 |   312.5 KB |
 
 ## Serialization/Deserialization
 
