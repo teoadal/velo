@@ -9,6 +9,8 @@ using Newtonsoft.Json;
 using Velo.Serialization;
 using Velo.TestsModels;
 
+using JsonSerializer = SpanJson.JsonSerializer;
+
 namespace Velo.Benchmark
 {
     [CoreJob]
@@ -74,6 +76,21 @@ namespace Velo.Benchmark
             {
                 var element = _dataset[i];
                 var serialized = SimpleJson.SimpleJson.SerializeObject(element);
+                stub += serialized.Length;
+            }
+
+            return stub;
+        }
+        
+        [Benchmark]
+        public long SpanJson()
+        {
+            long stub = 0;
+
+            for (var i = 0; i < _dataset.Length; i++)
+            {
+                var element = _dataset[i];
+                var serialized = JsonSerializer.Generic.Utf16.Serialize(element);
                 stub += serialized.Length;
             }
 
