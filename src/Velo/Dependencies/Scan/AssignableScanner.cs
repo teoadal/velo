@@ -2,11 +2,11 @@ using System;
 
 namespace Velo.Dependencies.Scan
 {
-    internal sealed class ParentScanner : IDependencyScanner
+    internal sealed class AssignableScanner : IDependencyScanner
     {
         private readonly Type _contract;
 
-        public ParentScanner(Type contract)
+        public AssignableScanner(Type contract)
         {
             _contract = contract;
         }

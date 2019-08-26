@@ -184,7 +184,7 @@ namespace Velo
         }
 
         [Fact]
-        public void Scan()
+        public void Scan_Assignable()
         {
             var container = new DependencyBuilder()
                 .AddSingleton<IConfiguration, Configuration>()
@@ -202,6 +202,25 @@ namespace Velo
             Assert.Contains(repositories, r => r.GetType() == typeof(OtherFooRepository));
         }
 
+        [Fact]
+        public void Scan_Generic_Interface_Implementations()
+        {
+            var container = new DependencyBuilder()
+                .AddSingleton<IConfiguration, Configuration>()
+                .AddFactory<ISession, Session>()
+                .AddSingleton<JConverter>()
+                .Scan(scanner => scanner
+                    .Assembly(typeof(IRepository).Assembly)
+                    .RegisterGenericInterfaceAsSingleton(typeof(IRepository<>)))
+                .BuildContainer();
+
+            var booRepository = container.Resolve<IRepository<Boo>>();
+            Assert.NotNull(booRepository);
+            
+            var fooRepository = container.Resolve<IRepository<Foo>>();
+            Assert.NotNull(fooRepository);
+        }
+        
         [Fact]
         public void Scope()
         {

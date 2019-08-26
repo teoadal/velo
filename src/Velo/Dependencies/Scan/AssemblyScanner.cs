@@ -36,11 +36,17 @@ namespace Velo.Dependencies.Scan
         public AssemblyScanner RegisterAsSingleton<TContract>()
         {
             var contract = Typeof<TContract>.Raw;
-            var scanner = new ParentScanner(contract);
+            var scanner = new AssignableScanner(contract);
             
             return UseScanner(scanner);
         }
 
+        public AssemblyScanner RegisterGenericInterfaceAsSingleton(Type genericInterfaceDefinition)
+        {
+            var scanner = new GenericInterfaceScanner(genericInterfaceDefinition);
+            return UseScanner(scanner);
+        }
+        
         public AssemblyScanner UseScanner(IDependencyScanner scanner)
         {
             _scanners.Add(scanner);
