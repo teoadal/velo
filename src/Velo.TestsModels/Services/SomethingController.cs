@@ -4,18 +4,18 @@ namespace Velo.TestsModels.Services
     {
         public string Name { get; }
         
-        public IDataService DataService { get; }
+        public IFooService FooService { get; }
 
-        public IUserService UserService { get; }
+        public IBooService BooService { get; }
 
         public ILogger Logger { get; }
         
-        public SomethingController(IDataService dataService, IUserService userService, ILogger logger)
+        public SomethingController(IFooService fooService, IBooService booService, ILogger logger)
         {
-            Name = dataService.Repository.Session.Id.ToString("N");
+            Name = fooService.Repository.Session.Id.ToString("N");
             
-            DataService = dataService;
-            UserService = userService;
+            FooService = fooService;
+            BooService = booService;
             
             Logger = logger;
         }

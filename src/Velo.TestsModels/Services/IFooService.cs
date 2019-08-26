@@ -4,7 +4,7 @@ using Velo.Mapping;
 
 namespace Velo.TestsModels.Services
 {
-    public interface IDataService
+    public interface IFooService
     {
         IConfiguration Configuration { get; }
 
@@ -12,10 +12,10 @@ namespace Velo.TestsModels.Services
 
         string Name { get; }
 
-        IDataRepository Repository { get; }
+        IFooRepository Repository { get; }
     }
 
-    public class DataService : IDataService
+    public class FooService : IFooService
     {
         public IConfiguration Configuration { get; }
 
@@ -23,9 +23,9 @@ namespace Velo.TestsModels.Services
 
         public string Name { get; }
 
-        public IDataRepository Repository { get; }
+        public IFooRepository Repository { get; }
 
-        public DataService(IConfiguration configuration, IMapper<Foo> mapper, IDataRepository repository)
+        public FooService(IConfiguration configuration, IMapper<Foo> mapper, IFooRepository repository)
         {
             Configuration = configuration;
             Mapper = mapper;

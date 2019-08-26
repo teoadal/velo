@@ -2,14 +2,14 @@ namespace Velo.TestsModels.Services
 {
     public class RepositoryCollection
     {
-        public IRepository DataRepository { get; }
+        public IRepository BooRepository { get; }
         
-        public IRepository UserRepository { get; }
+        public IRepository FooRepository { get; }
 
-        public RepositoryCollection(IRepository dataRepository, IRepository userRepository)
+        public RepositoryCollection(IRepository booRepository, IRepository fooRepository)
         {
-            DataRepository = dataRepository;
-            UserRepository = userRepository;
+            BooRepository = booRepository;
+            FooRepository = fooRepository;
         }
     }
 }

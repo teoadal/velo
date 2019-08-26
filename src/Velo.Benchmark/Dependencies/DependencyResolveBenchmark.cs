@@ -38,8 +38,8 @@ namespace Velo.Benchmark.Dependencies
         public string Autofac()
         {
             var controller = _autofacContainer.Resolve<SomethingController>();
-            var dataService = _autofacContainer.Resolve<IDataService>();
-            var userService = _autofacContainer.Resolve<IUserService>();
+            var dataService = _autofacContainer.Resolve<IFooService>();
+            var userService = _autofacContainer.Resolve<IBooService>();
             return controller.Name + dataService.Name + userService.Name;
         }
 
@@ -47,8 +47,8 @@ namespace Velo.Benchmark.Dependencies
         public string Castle()
         {
             var controller = _castleContainer.Resolve<SomethingController>();
-            var dataService = _castleContainer.Resolve<IDataService>();
-            var userService = _castleContainer.Resolve<IUserService>();
+            var dataService = _castleContainer.Resolve<IFooService>();
+            var userService = _castleContainer.Resolve<IBooService>();
             return controller.Name + dataService.Name + userService.Name;
         }
 
@@ -56,8 +56,8 @@ namespace Velo.Benchmark.Dependencies
         public string Core()
         {
             var controller = _coreContainer.GetService<SomethingController>();
-            var dataService = _coreContainer.GetService<IDataService>();
-            var userService = _coreContainer.GetService<IUserService>();
+            var dataService = _coreContainer.GetService<IFooService>();
+            var userService = _coreContainer.GetService<IBooService>();
             return controller.Name + dataService.Name + userService.Name;
         }
 
@@ -65,8 +65,8 @@ namespace Velo.Benchmark.Dependencies
         public string LightInject()
         {
             var controller = _lightInjectContainer.GetInstance<SomethingController>();
-            var dataService = _lightInjectContainer.GetInstance<IDataService>();
-            var userService = _lightInjectContainer.GetInstance<IUserService>();
+            var dataService = _lightInjectContainer.GetInstance<IFooService>();
+            var userService = _lightInjectContainer.GetInstance<IBooService>();
             return controller.Name + dataService.Name + userService.Name;
         }
         
@@ -74,8 +74,8 @@ namespace Velo.Benchmark.Dependencies
         public string SimpleInject()
         {
             var controller = _simpleContainer.GetInstance<SomethingController>();
-            var dataService = _simpleContainer.GetInstance<IDataService>();
-            var userService = _simpleContainer.GetInstance<IUserService>();
+            var dataService = _simpleContainer.GetInstance<IFooService>();
+            var userService = _simpleContainer.GetInstance<IBooService>();
             return controller.Name + dataService.Name + userService.Name;
         }
         
@@ -83,8 +83,8 @@ namespace Velo.Benchmark.Dependencies
         public string Velo()
         {
             var controller = _veloContainer.Resolve<SomethingController>();
-            var dataService = _veloContainer.Resolve<IDataService>();
-            var userService = _veloContainer.Resolve<IUserService>();
+            var dataService = _veloContainer.Resolve<IFooService>();
+            var userService = _veloContainer.Resolve<IBooService>();
             return controller.Name + dataService.Name + userService.Name;
         }
 
@@ -92,8 +92,8 @@ namespace Velo.Benchmark.Dependencies
         public string Unity()
         {
             var controller = _unityContainer.Resolve<SomethingController>();
-            var dataService = _unityContainer.Resolve<IDataService>();
-            var userService = _unityContainer.Resolve<IUserService>();
+            var dataService = _unityContainer.Resolve<IFooService>();
+            var userService = _unityContainer.Resolve<IBooService>();
             return controller.Name + dataService.Name + userService.Name;
         }
     }

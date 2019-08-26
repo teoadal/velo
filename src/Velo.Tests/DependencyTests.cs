@@ -33,12 +33,12 @@ namespace Velo
                 .AddSingleton<JConverter>()
                 .AddSingleton<IConfiguration, Configuration>()
                 .Configure(dataRepository => dataRepository
-                    .Contracts<IRepository, IDataRepository>()
-                    .Implementation<DataRepository>()
+                    .Contracts<IRepository, IFooRepository>()
+                    .Implementation<FooRepository>()
                     .Singleton())
                 .Configure(userRepository => userRepository
-                    .Contracts<IRepository, IUserRepository>()
-                    .Implementation<UserRepository>()
+                    .Contracts<IRepository, IBooRepository>()
+                    .Implementation<BooRepository>()
                     .Singleton())
                 .BuildContainer();
 
@@ -88,20 +88,21 @@ namespace Velo
         [Fact]
         public void Inject_By_Name()
         {
-            const string dataRepositoryName = "dataRepository";
-            const string userRepositoryName = "userRepository";
+            const string booRepositoryName = "booRepository";
+            const string fooRepositoryName = "fooRepository";
+            
             var container = new DependencyBuilder()
                 .AddSingleton<JConverter>()
                 .AddSingleton<IConfiguration, Configuration>()
                 .AddSingleton<ISession, Session>()
-                .AddSingleton<IRepository, DataRepository>(dataRepositoryName)
-                .AddSingleton<IRepository, UserRepository>(userRepositoryName)
+                .AddSingleton<IRepository, BooRepository>(booRepositoryName)
+                .AddSingleton<IRepository, FooRepository>(fooRepositoryName)
                 .BuildContainer();
 
             var repositoryCollection = container.Activate<RepositoryCollection>();
             
-            Assert.IsType<DataRepository>(repositoryCollection.DataRepository);
-            Assert.IsType<UserRepository>(repositoryCollection.UserRepository);
+            Assert.IsType<BooRepository>(repositoryCollection.BooRepository);
+            Assert.IsType<FooRepository>(repositoryCollection.FooRepository);
         }
         
         [Fact]
@@ -114,10 +115,10 @@ namespace Velo
                 .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
                 .AddSingleton<IConfiguration>(provider => new Configuration())
                 .AddFactory<ISession, Session>()
-                .AddSingleton<IDataService, DataService>()
-                .AddSingleton<IDataRepository, DataRepository>()
-                .AddSingleton<IUserService, UserService>()
-                .AddSingleton<IUserRepository, UserRepository>()
+                .AddSingleton<IFooService, FooService>()
+                .AddSingleton<IFooRepository, FooRepository>()
+                .AddSingleton<IBooService, BooService>()
+                .AddSingleton<IBooRepository, BooRepository>()
                 .AddSingleton<SomethingController>()
                 .BuildContainer();
 
@@ -128,36 +129,37 @@ namespace Velo
         [Fact]
         public void Resolve_By_Name()
         {
-            const string dataRepositoryName = "dataRepository";
-            const string userRepositoryName = "userRepository";
+            const string booRepositoryName = "booRepository";
+            const string fooRepositoryName = "fooRepository";
+            
             var container = new DependencyBuilder()
                 .AddSingleton<JConverter>()
                 .AddSingleton<IConfiguration, Configuration>()
                 .AddSingleton<ISession, Session>()
-                .AddSingleton<IRepository, DataRepository>(dataRepositoryName)
-                .AddSingleton<IRepository, UserRepository>(userRepositoryName)
+                .AddSingleton<IRepository, BooRepository>(booRepositoryName)
+                .AddSingleton<IRepository, FooRepository>(fooRepositoryName)
                 .BuildContainer();
 
-            var dataRepository = container.Resolve<IRepository>(dataRepositoryName);
-            var userRepository = container.Resolve<IRepository>(userRepositoryName);
+            var booRepository = container.Resolve<IRepository>(booRepositoryName);
+            var fooRepository = container.Resolve<IRepository>(fooRepositoryName);
 
-            Assert.IsType<DataRepository>(dataRepository);
-            Assert.IsType<UserRepository>(userRepository);
+            Assert.IsType<BooRepository>(booRepository);
+            Assert.IsType<FooRepository>(fooRepository);
         }
 
         [Fact]
         public void Resolve_Named_Without_Name()
         {
-            const string dataRepositoryName = "dataRepository";
+            const string fooRepositoryName = "fooRepository";
             var container = new DependencyBuilder()
                 .AddSingleton<JConverter>()
                 .AddSingleton<IConfiguration, Configuration>()
                 .AddSingleton<ISession, Session>()
-                .AddSingleton<IRepository, DataRepository>(dataRepositoryName)
+                .AddSingleton<IRepository, FooRepository>(fooRepositoryName)
                 .BuildContainer();
 
-            var dataRepository = container.Resolve<IRepository>();
-            Assert.IsType<DataRepository>(dataRepository);
+            var repository = container.Resolve<IRepository>();
+            Assert.IsType<FooRepository>(repository);
         }
 
         [Fact]
@@ -173,9 +175,10 @@ namespace Velo
                 .BuildContainer();
 
             var repositories = container.Resolve<IRepository[]>();
-            Assert.Equal(2, repositories.Length);
-            Assert.Contains(repositories, r => r.GetType() == typeof(DataRepository));
-            Assert.Contains(repositories, r => r.GetType() == typeof(UserRepository));
+            Assert.Equal(3, repositories.Length);
+            Assert.Contains(repositories, r => r.GetType() == typeof(BooRepository));
+            Assert.Contains(repositories, r => r.GetType() == typeof(FooRepository));
+            Assert.Contains(repositories, r => r.GetType() == typeof(OtherFooRepository));
         }
 
         [Fact]

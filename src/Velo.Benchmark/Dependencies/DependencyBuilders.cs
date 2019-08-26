@@ -27,11 +27,11 @@ namespace Velo.Benchmark.Dependencies
             builder.Register(ctx => new Configuration()).As<IConfiguration>().SingleInstance();
             builder.RegisterType<Session>().As<ISession>();
 
-            builder.RegisterType<DataService>().As<IDataService>().SingleInstance();
-            builder.RegisterType<DataRepository>().As<IDataRepository>().SingleInstance();
+            builder.RegisterType<FooService>().As<IFooService>().SingleInstance();
+            builder.RegisterType<FooRepository>().As<IFooRepository>().SingleInstance();
 
-            builder.RegisterType<UserService>().As<IUserService>().SingleInstance();
-            builder.RegisterType<UserRepository>().As<IUserRepository>().SingleInstance();
+            builder.RegisterType<BooService>().As<IBooService>().SingleInstance();
+            builder.RegisterType<BooRepository>().As<IBooRepository>().SingleInstance();
 
             builder.RegisterType<SomethingController>().SingleInstance();
 
@@ -48,11 +48,11 @@ namespace Velo.Benchmark.Dependencies
                 Component.For<IConfiguration>().UsingFactoryMethod(() => new Configuration()).LifeStyle.Singleton, 
                 Component.For<ISession>().ImplementedBy<Session>().LifeStyle.Transient,
                 
-                Component.For<IDataService>().ImplementedBy<DataService>().LifeStyle.Singleton,
-                Component.For<IDataRepository>().ImplementedBy<DataRepository>().LifeStyle.Singleton,
+                Component.For<IFooService>().ImplementedBy<FooService>().LifeStyle.Singleton,
+                Component.For<IFooRepository>().ImplementedBy<FooRepository>().LifeStyle.Singleton,
                 
-                Component.For<IUserService>().ImplementedBy<UserService>().LifeStyle.Singleton,
-                Component.For<IUserRepository>().ImplementedBy<UserRepository>().LifeStyle.Singleton,
+                Component.For<IBooService>().ImplementedBy<BooService>().LifeStyle.Singleton,
+                Component.For<IBooRepository>().ImplementedBy<BooRepository>().LifeStyle.Singleton,
                 
                 Component.For<SomethingController>().LifeStyle.Singleton
             );
@@ -68,11 +68,11 @@ namespace Velo.Benchmark.Dependencies
                 .AddSingleton<IConfiguration>(provider => new Configuration())
                 .AddTransient<ISession, Session>()
                 
-                .AddSingleton<IDataService, DataService>()
-                .AddSingleton<IDataRepository, DataRepository>()
+                .AddSingleton<IFooService, FooService>()
+                .AddSingleton<IFooRepository, FooRepository>()
                 
-                .AddSingleton<IUserService, UserService>()
-                .AddSingleton<IUserRepository, UserRepository>()
+                .AddSingleton<IBooService, BooService>()
+                .AddSingleton<IBooRepository, BooRepository>()
                 
                 .AddSingleton<SomethingController>();
         }
@@ -89,11 +89,11 @@ namespace Velo.Benchmark.Dependencies
                 .RegisterSingleton<IConfiguration>(provider => new Configuration())
                 .RegisterTransient<ISession, Session>()
                 
-                .RegisterSingleton<IDataService, DataService>()
-                .RegisterSingleton<IDataRepository, DataRepository>()
+                .RegisterSingleton<IFooService, FooService>()
+                .RegisterSingleton<IFooRepository, FooRepository>()
                 
-                .RegisterSingleton<IUserService, UserService>()
-                .RegisterSingleton<IUserRepository, UserRepository>()
+                .RegisterSingleton<IBooService, BooService>()
+                .RegisterSingleton<IBooRepository, BooRepository>()
                 
                 .RegisterSingleton<SomethingController>();
 
@@ -111,11 +111,11 @@ namespace Velo.Benchmark.Dependencies
             container.Register(typeof(IConfiguration), () => new Configuration(), Lifestyle.Singleton);
             container.RegisterSingleton<ISession, Session>();
 
-            container.RegisterSingleton<IDataService, DataService>();
-            container.RegisterSingleton<IDataRepository, DataRepository>();
+            container.RegisterSingleton<IFooService, FooService>();
+            container.RegisterSingleton<IFooRepository, FooRepository>();
 
-            container.RegisterSingleton<IUserService, UserService>();
-            container.RegisterSingleton<IUserRepository, UserRepository>();
+            container.RegisterSingleton<IBooService, BooService>();
+            container.RegisterSingleton<IBooRepository, BooRepository>();
                 
             container.RegisterSingleton<SomethingController>();
             
@@ -132,11 +132,11 @@ namespace Velo.Benchmark.Dependencies
                 .AddSingleton<IConfiguration>(provider => new Configuration())
                 .AddFactory<ISession, Session>()
                 
-                .AddSingleton<IDataService, DataService>()
-                .AddSingleton<IDataRepository, DataRepository>()
+                .AddSingleton<IFooService, FooService>()
+                .AddSingleton<IFooRepository, FooRepository>()
                 
-                .AddSingleton<IUserService, UserService>()
-                .AddSingleton<IUserRepository, UserRepository>()
+                .AddSingleton<IBooService, BooService>()
+                .AddSingleton<IBooRepository, BooRepository>()
                 
                 .AddSingleton<SomethingController>();
         }
@@ -151,11 +151,11 @@ namespace Velo.Benchmark.Dependencies
                 .RegisterFactory<IConfiguration>(ctx => new Configuration(), new SingletonLifetimeManager())
                 .RegisterFactory<ISession>(ctx => new Session(ctx.Resolve<JConverter>()))
                 
-                .RegisterSingleton<IDataService, DataService>()
-                .RegisterSingleton<IDataRepository, DataRepository>()
+                .RegisterSingleton<IFooService, FooService>()
+                .RegisterSingleton<IFooRepository, FooRepository>()
                 
-                .RegisterSingleton<IUserService, UserService>()
-                .RegisterSingleton<IUserRepository, UserRepository>()
+                .RegisterSingleton<IBooService, BooService>()
+                .RegisterSingleton<IBooRepository, BooRepository>()
                 
                 .RegisterSingleton<SomethingController>();
         }

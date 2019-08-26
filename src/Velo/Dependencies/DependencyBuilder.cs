@@ -32,7 +32,7 @@ namespace Velo.Dependencies
             var contract = Typeof<TContract>.Raw;
             var dependency = new ActivatorFactory(new[] {contract}, contract);
 
-            RegisterResolver(contract, dependency);
+            RegisterResolver(dependency);
             return this;
         }
 
@@ -42,7 +42,7 @@ namespace Velo.Dependencies
             var contract = Typeof<TContract>.Raw;
             var dependency = new ActivatorFactory(new[] {contract}, typeof(TImplementation));
 
-            RegisterResolver(contract, dependency);
+            RegisterResolver(dependency);
             return this;
         }
 
@@ -52,7 +52,7 @@ namespace Velo.Dependencies
             var contract = Typeof<TContract>.Raw;
             var dependency = new BuilderFactory<TContract>(new[] {contract}, builder);
 
-            RegisterResolver(contract, dependency);
+            RegisterResolver(dependency);
             return this;
         }
 
@@ -83,7 +83,7 @@ namespace Velo.Dependencies
             var contract = Typeof<TContract>.Raw;
             var dependency = new InstanceSingleton(new[] {contract}, instance);
 
-            RegisterResolver(contract, dependency);
+            RegisterResolver(dependency);
             return this;
         }
 
@@ -94,7 +94,7 @@ namespace Velo.Dependencies
             var contract = Typeof<TContract>.Raw;
             var dependency = new SimpleDependency(contract, contract);
 
-            RegisterResolver(contract, dependency, name);
+            RegisterResolver(dependency, name);
             return this;
         }
 
@@ -104,25 +104,26 @@ namespace Velo.Dependencies
             var contract = Typeof<TContract>.Raw;
             var dependency = new SimpleDependency(contract, typeof(TImplementation));
 
-            RegisterResolver(contract, dependency, name);
+            RegisterResolver(dependency, name);
             return this;
         }
 
-        public DependencyBuilder AddSingleton<TContract>(Func<DependencyContainer, TContract> builder, string name = null)
+        public DependencyBuilder AddSingleton<TContract>(Func<DependencyContainer, TContract> builder,
+            string name = null)
             where TContract : class
         {
             var contract = Typeof<TContract>.Raw;
             var dependency = new BuilderSingleton<TContract>(new[] {contract}, builder);
 
-            RegisterResolver(contract, dependency, name);
+            RegisterResolver(dependency, name);
             return this;
         }
 
         public DependencyBuilder AddSingleton(Type contract, Type implementation, string name = null)
         {
             var dependency = new SimpleDependency(contract, implementation);
-            
-            RegisterResolver(contract, dependency, name);
+
+            RegisterResolver(dependency, name);
             return this;
         }
 
@@ -135,7 +136,7 @@ namespace Velo.Dependencies
             var contract = Typeof<TContract>.Raw;
             var dependency = new SimpleDependency(contract, contract);
 
-            RegisterResolver(contract, dependency, name, true);
+            RegisterResolver(dependency, name, true);
             return this;
         }
 
@@ -145,7 +146,7 @@ namespace Velo.Dependencies
             var contract = Typeof<TContract>.Raw;
             var dependency = new SimpleDependency(contract, typeof(TImplementation));
 
-            RegisterResolver(contract, dependency, name, true);
+            RegisterResolver(dependency, name, true);
             return this;
         }
 
@@ -155,7 +156,7 @@ namespace Velo.Dependencies
             var contract = Typeof<TContract>.Raw;
             var dependency = new BuilderSingleton<TContract>(new[] {contract}, builder);
 
-            RegisterResolver(contract, dependency, name, true);
+            RegisterResolver(dependency, name, true);
             return this;
         }
 
@@ -190,10 +191,9 @@ namespace Velo.Dependencies
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void RegisterResolver(Type contract, IDependency dependency, string dependencyName = null,
-            bool isScopeDependency = false)
+        private void RegisterResolver(IDependency dependency, string name = null, bool isScope = false)
         {
-            var resolver = new DependencyResolver(dependency, dependencyName, isScopeDependency);
+            var resolver = new DependencyResolver(dependency, name, isScope);
             _resolvers.Add(resolver);
         }
     }
