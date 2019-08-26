@@ -45,5 +45,10 @@ namespace Velo.Dependencies.Singletons
             _instance = container.Activate(_implementation, _constructor);
             return _instance;
         }
+        
+        public override string ToString()
+        {
+            return $"Dependency for {_contract.Name}";
+        }
     }
 }

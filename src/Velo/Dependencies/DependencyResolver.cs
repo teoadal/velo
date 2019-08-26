@@ -21,7 +21,9 @@ namespace Velo.Dependencies
 
         public bool Applicable(Type requestedType, string parameterName = null)
         {
-            return _dependencyName == parameterName && _dependency.Applicable(requestedType);
+            return _dependencyName == null || parameterName == null
+                ? _dependency.Applicable(requestedType)
+                : _dependencyName == parameterName && _dependency.Applicable(requestedType); 
         }
 
         public void Destroy()

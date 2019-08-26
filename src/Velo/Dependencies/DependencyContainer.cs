@@ -10,18 +10,18 @@ namespace Velo.Dependencies
 {
     public sealed class DependencyContainer
     {
-        private readonly DependencyResolver[] _dependencies;
-        private readonly Dictionary<Type, DependencyResolver> _concreteResolvers;
+        private readonly Dictionary<ResolveDescription, DependencyResolver> _concreteResolvers;
+        private readonly DependencyResolver[] _resolvers;
 
-        internal DependencyContainer(List<DependencyResolver> resolvers, Dictionary<Type, DependencyResolver> concreteResolvers)
+        internal DependencyContainer(List<DependencyResolver> resolvers)
         {
             var containerType = Typeof<DependencyContainer>.Raw;
             var containerResolver = new DependencyResolver(new InstanceSingleton(new[] {containerType}, this));
             
             resolvers.Add(containerResolver);
 
-            _dependencies = resolvers.ToArray();
-            _concreteResolvers = concreteResolvers;
+            _concreteResolvers = new Dictionary<ResolveDescription, DependencyResolver>();
+            _resolvers = resolvers.ToArray();
         }
 
         public T Activate<T>() where T : class
@@ -43,7 +43,7 @@ namespace Velo.Dependencies
                 var parameter = parameters[i];
                 var required = !parameter.HasDefaultValue;
 
-                resolvedParameters[i] = Resolve(parameter.ParameterType, required);
+                resolvedParameters[i] = Resolve(parameter.ParameterType, parameter.Name, required);
             }
 
             return constructor.Invoke(resolvedParameters);
@@ -53,33 +53,34 @@ namespace Velo.Dependencies
         {
             _concreteResolvers.Clear();
 
-            foreach (var dependency in _dependencies)
+            foreach (var dependency in _resolvers)
             {
                 dependency.Destroy();
             }
         }
 
-        public T Resolve<T>() where T : class
+        public T Resolve<T>(string name = null) where T : class
         {
-            return (T) Resolve(Typeof<T>.Raw);
+            return (T) Resolve(Typeof<T>.Raw, name);
         }
 
-        public object Resolve(Type type, bool throwInNotExists = true)
+        public object Resolve(Type type, string name = null, bool throwInNotExists = true)
         {
-            if (_concreteResolvers.TryGetValue(type, out var resolver))
+            var description = new ResolveDescription(type, name);
+            if (_concreteResolvers.TryGetValue(description, out var resolver))
             {
                 return resolver.Resolve(type, this);
             }
 
-            var dependencies = _dependencies;
-            for (var i = 0; i < dependencies.Length; i++)
+            var resolvers = _resolvers;
+            for (var i = 0; i < resolvers.Length; i++)
             {
-                var dependency = dependencies[i];
-                if (!dependency.Applicable(type)) continue;
+                resolver = resolvers[i];
+                if (!resolver.Applicable(type, name)) continue;
 
-                _concreteResolvers.Add(type, dependency);
+                _concreteResolvers.Add(description, resolver);
 
-                return dependency.Resolve(type, this);
+                return resolver.Resolve(type, this);
             }
 
             if (throwInNotExists)
@@ -94,6 +95,27 @@ namespace Velo.Dependencies
         public DependencyScope StartScope([CallerMemberName] string name = "")
         {
             return new DependencyScope(name);
+        }
+        
+        private readonly struct ResolveDescription : IEquatable<ResolveDescription>
+        {
+            private readonly int _hash;
+            
+            public ResolveDescription(Type type, string name)
+            {
+                unchecked
+                {
+                    _hash = name?.GetHashCode() ?? 1;
+                    _hash = type.GetHashCode() ^ _hash;
+                }
+            }
+
+            public override int GetHashCode() => _hash;
+
+            public bool Equals(ResolveDescription other)
+            {
+                return _hash == other._hash;
+            }
         }
     }
 }

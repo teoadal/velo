@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 namespace Velo.Dependencies
 {
@@ -30,5 +31,11 @@ namespace Velo.Dependencies
         }
 
         public abstract object Resolve(Type requestedType, DependencyContainer container);
+
+        public override string ToString()
+        {
+            var contractNames = string.Join(",", _contracts.Select(c => c.Name));
+            return $"Dependency for {contractNames}";
+        }
     }
 }

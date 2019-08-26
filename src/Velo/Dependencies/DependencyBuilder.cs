@@ -11,12 +11,10 @@ namespace Velo.Dependencies
 {
     public sealed class DependencyBuilder
     {
-        private readonly Dictionary<Type, DependencyResolver> _concreteResolvers;
         private readonly List<DependencyResolver> _resolvers;
 
         public DependencyBuilder(int capacity = 50)
         {
-            _concreteResolvers = new Dictionary<Type, DependencyResolver>(capacity);
             _resolvers = new List<DependencyResolver>(capacity);
         }
 
@@ -166,7 +164,7 @@ namespace Velo.Dependencies
         public DependencyContainer BuildContainer()
         {
             AddDependency(new ArrayFactory(_resolvers));
-            return new DependencyContainer(_resolvers, _concreteResolvers);
+            return new DependencyContainer(_resolvers);
         }
 
         public DependencyBuilder Configure(Action<DependencyConfigurator> configure)
@@ -196,13 +194,7 @@ namespace Velo.Dependencies
             bool isScopeDependency = false)
         {
             var resolver = new DependencyResolver(dependency, dependencyName, isScopeDependency);
-
             _resolvers.Add(resolver);
-
-            if (!_concreteResolvers.ContainsKey(contract))
-            {
-                _concreteResolvers.Add(contract, resolver);
-            }
         }
     }
 }
