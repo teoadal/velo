@@ -28,7 +28,6 @@ var foo = compiledMapper.Map(source);
 |          AutoMapper |  1,267.2 us |  10.499 us |   8.197 us |  1.00 |   312.5 KB |
 |    Velo_BasicMapper | 12,320.1 us | 116.795 us | 109.250 us |  9.72 |  3437.5 KB |
 | **Velo_CompiledMapper** |    348.6 us |   4.400 us |   4.116 us |  **0.28** |   **312.5 KB** |
-|                     |             |            |            |       |            |
 
 ## Serialization/Deserialization
 
@@ -50,23 +49,21 @@ var json = _converter.Serialize(data);
 
 |      Method |     Mean |     Error |    StdDev | Ratio | Allocated |
 |------------ |---------:|----------:|----------:|------:|----------:|
-|  Newtonsoft | 60.63 ms | 1.5445 ms | 3.0486 ms |  1.00 |  25.44 MB |
+|  **Newtonsoft** | 60.63 ms | 1.5445 ms | 3.0486 ms |  **1.00** |  **25.44 MB** |
 |    FastJson | 61.34 ms | 0.8764 ms | 0.8198 ms |  0.99 |  60.75 MB |
 | Simple_Json | 65.97 ms | 1.1127 ms | 1.0408 ms |  1.06 |     72 MB |
 |    SpanJson | 16.57 ms | 0.1236 ms | 0.1095 ms |  0.27 |    4.4 MB |
 |        **Velo** | 21.48 ms | 0.1737 ms | 0.1625 ms |  **0.35** |   **5.93 MB** |
-|             |          |           |           |       |           |
 
 ### Deserialization benchmark
 
 |      Method |      Mean |     Error |    StdDev | Ratio | Allocated |
 |------------ |----------:|----------:|----------:|------:|----------:|
-|  Newtonsoft |  77.19 ms | 1.1383 ms | 1.0648 ms |  1.00 |  35.47 MB |
+|  **Newtonsoft** |  77.19 ms | 1.1383 ms | 1.0648 ms |  **1.00** |  **35.47 MB** |
 |    FastJson |  75.51 ms | 1.1730 ms | 1.0973 ms |  0.98 |  48.81 MB |
 | Simple_Json | 143.76 ms | 2.8330 ms | 2.5114 ms |  1.86 | 667.02 MB |
 |    SpanJson |  15.48 ms | 0.2174 ms | 0.2033 ms |  0.20 |   2.75 MB |
 |        **Velo** |  41.96 ms | 0.5851 ms | 0.5473 ms |  **0.54** |  **12.36 MB** |
-|             |           |           |           |       |           |
 
 
 ## Dependency Injection
@@ -107,7 +104,7 @@ var converterSingleton = container.Resolve<JConverter>();
 |------------- |-----------:|----------:|----------:|-------:|----------:|
 |      Autofac |  44.170 us | 0.8341 us | 0.9930 us |  18.38 |  32.46 KB |
 |       Castle | 300.474 us | 4.3010 us | 4.0232 us | 123.92 |  84.32 KB |
-|         Core |   2.410 us | 0.0481 us | 0.0842 us |   1.00 |   3.55 KB |
+|         **Core** |   2.410 us | 0.0481 us | 0.0842 us |   **1.00** |   **3.55 KB** |
 |  LightInject |  12.365 us | 0.2160 us | 0.2020 us |   5.10 |  23.74 KB |
 | SimpleInject | 362.265 us | 7.3623 us | 8.7643 us | 150.73 |  37.44 KB |
 |         **Velo** |   1.407 us | 0.0251 us | 0.0234 us |   **0.58** |   **2.38 KB** |
@@ -119,7 +116,7 @@ var converterSingleton = container.Resolve<JConverter>();
 |------------- |----------:|----------:|----------:|------:|----------:|
 |      Autofac | 906.55 ns |  8.382 ns |  7.430 ns |  5.74 |    1736 B |
 |       Castle | 914.03 ns | 14.751 ns | 12.318 ns |  5.78 |    1256 B |
-|         Core | 158.08 ns |  1.671 ns |  1.396 ns |  1.00 |     224 B |
+|         **Core** | 158.08 ns |  1.671 ns |  1.396 ns |  **1.00** |     **224 B** |
 |  LightInject |  89.96 ns |  1.370 ns |  1.281 ns |  0.57 |     224 B |
 | SimpleInject | 138.69 ns |  2.739 ns |  2.562 ns |  0.88 |     224 B |
 |         **Velo** | 143.04 ns |  2.901 ns |  4.429 ns |  **0.92** |     **224 B** |
