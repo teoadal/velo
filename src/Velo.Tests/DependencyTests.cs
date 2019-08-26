@@ -148,6 +148,27 @@ namespace Velo
         }
 
         [Fact]
+        public void Resolve_Generic_By_Name()
+        {
+            const string fooRepositoryName = "fooRepository";
+            const string otherFooRepositoryName = "otherFooRepository";
+            
+            var container = new DependencyBuilder()
+                .AddSingleton<JConverter>()
+                .AddSingleton<IConfiguration, Configuration>()
+                .AddSingleton<ISession, Session>()
+                .AddSingleton<IRepository<Foo>, FooRepository>(fooRepositoryName)
+                .AddSingleton<IRepository<Foo>, OtherFooRepository>(otherFooRepositoryName)
+                .BuildContainer();
+
+            var fooRepository = container.Resolve<IRepository<Foo>>(fooRepositoryName);
+            var otherFooRepository = container.Resolve<IRepository<Foo>>(otherFooRepositoryName);
+
+            Assert.IsType<FooRepository>(fooRepository);
+            Assert.IsType<OtherFooRepository>(otherFooRepository);
+        }
+        
+        [Fact]
         public void Resolve_Named_Without_Name()
         {
             const string fooRepositoryName = "fooRepository";
