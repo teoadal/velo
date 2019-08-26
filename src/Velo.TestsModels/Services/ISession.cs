@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics;
-
 using Velo.Serialization;
 
 namespace Velo.TestsModels.Services
@@ -8,7 +7,7 @@ namespace Velo.TestsModels.Services
     public interface ISession
     {
         Guid Id { get; }
-        
+
         JConverter Converter { get; }
     }
 
@@ -16,9 +15,9 @@ namespace Velo.TestsModels.Services
     public class Session : ISession
     {
         public JConverter Converter { get; }
-     
+
         public Guid Id { get; }
-        
+
         public Session(JConverter converter)
         {
             Converter = converter;

@@ -15,7 +15,7 @@ namespace Velo.TestsModels.Services
             Configuration = configuration;
             Session = session;
         }
-        
+
         public Boo GetElement(int id)
         {
             throw new System.NotImplementedException();

@@ -1,5 +1,4 @@
 using System;
-
 using Velo.Mapping;
 
 namespace Velo.TestsModels.Services

@@ -6,7 +6,6 @@ namespace Velo.TestsModels.Services
     {
         public CircularDependencyService(CircularDependencyService service)
         {
-            
         }
     }
 }

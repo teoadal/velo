@@ -6,7 +6,7 @@ namespace Velo.TestsModels.Services
 
         ISession Session { get; }
     }
-    
+
     public interface IRepository<TElement> : IRepository
     {
         TElement GetElement(int id);
