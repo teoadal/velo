@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Velo.Dependencies.Factories;
+
 using Velo.Dependencies.Singletons;
 using Velo.Utils;
 
@@ -10,19 +10,18 @@ namespace Velo.Dependencies
 {
     public sealed class DependencyContainer
     {
-        private readonly IDependency[] _dependencies;
-        private readonly Dictionary<Type, IDependency> _resolvedDependencies;
+        private readonly DependencyResolver[] _dependencies;
+        private readonly Dictionary<Type, DependencyResolver> _concreteResolvers;
 
-        private readonly Stack<Type> _resolveStack;
-
-        internal DependencyContainer(List<IDependency> dependencies, Dictionary<Type, IDependency> resolvedDependencies)
+        internal DependencyContainer(List<DependencyResolver> resolvers, Dictionary<Type, DependencyResolver> concreteResolvers)
         {
-            dependencies.Add(new InstanceSingleton(new[] {Typeof<DependencyContainer>.Raw}, this));
-            dependencies.Add(new ArrayFactory(dependencies));
+            var containerType = Typeof<DependencyContainer>.Raw;
+            var containerResolver = new DependencyResolver(new InstanceSingleton(new[] {containerType}, this));
+            
+            resolvers.Add(containerResolver);
 
-            _dependencies = dependencies.ToArray();
-            _resolvedDependencies = resolvedDependencies;
-            _resolveStack = new Stack<Type>(dependencies.Count);
+            _dependencies = resolvers.ToArray();
+            _concreteResolvers = concreteResolvers;
         }
 
         public T Activate<T>() where T : class
@@ -52,7 +51,7 @@ namespace Velo.Dependencies
 
         public void Destroy()
         {
-            _resolvedDependencies.Clear();
+            _concreteResolvers.Clear();
 
             foreach (var dependency in _dependencies)
             {
@@ -67,14 +66,9 @@ namespace Velo.Dependencies
 
         public object Resolve(Type type, bool throwInNotExists = true)
         {
-            CheckCircularDependency(type);
-            RegisterDependencyCall(type);
-
-            if (_resolvedDependencies.TryGetValue(type, out var resolver))
+            if (_concreteResolvers.TryGetValue(type, out var resolver))
             {
-                var resolved = resolver.Resolve(type, this);
-                RegisterDependencyResolve();
-                return resolved;
+                return resolver.Resolve(type, this);
             }
 
             var dependencies = _dependencies;
@@ -83,11 +77,9 @@ namespace Velo.Dependencies
                 var dependency = dependencies[i];
                 if (!dependency.Applicable(type)) continue;
 
-                _resolvedDependencies.Add(type, dependency);
+                _concreteResolvers.Add(type, dependency);
 
-                var resolved = dependency.Resolve(type, this);
-                RegisterDependencyResolve();
-                return resolved;
+                return dependency.Resolve(type, this);
             }
 
             if (throwInNotExists)
@@ -95,7 +87,6 @@ namespace Velo.Dependencies
                 throw new InvalidOperationException($"Dependency with type '{type}' is not registered");
             }
 
-            RegisterDependencyResolve();
             return null;
         }
 
@@ -103,26 +94,6 @@ namespace Velo.Dependencies
         public DependencyScope StartScope([CallerMemberName] string name = "")
         {
             return new DependencyScope(name);
-        }
-
-        private void CheckCircularDependency(Type type)
-        {
-            if (_resolveStack.Contains(type))
-            {
-                throw new InvalidOperationException($"Detected circular dependency {type}");
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void RegisterDependencyCall(Type type)
-        {
-            _resolveStack.Push(type);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void RegisterDependencyResolve()
-        {
-            _resolveStack.Pop();
         }
     }
 }

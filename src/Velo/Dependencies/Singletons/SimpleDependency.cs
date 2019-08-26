@@ -11,15 +11,13 @@ namespace Velo.Dependencies.Singletons
         private readonly Type _contract;
         private readonly Type _implementation;
         private readonly bool _isDisposable;
-        private readonly bool _scopeDependency;
 
         private object _instance;
 
-        public SimpleDependency(Type contract, Type implementation, bool scopeDependency = false)
+        public SimpleDependency(Type contract, Type implementation)
         {
             _contract = contract;
             _implementation = implementation;
-            _scopeDependency = scopeDependency;
 
             _constructor = ReflectionUtils.GetConstructor(implementation);
             _isDisposable = _implementation.IsAssignableFrom(typeof(IDisposable));
@@ -44,8 +42,6 @@ namespace Velo.Dependencies.Singletons
         {
             if (_instance != null) return _instance;
 
-            if (_scopeDependency) DependencyScope.Add(this);
-            
             _instance = container.Activate(_implementation, _constructor);
             return _instance;
         }

@@ -6,11 +6,11 @@ namespace Velo.Dependencies.Factories
 {
     internal sealed class ArrayFactory : IDependency
     {
-        private readonly IDependency[] _dependencies;
+        private readonly DependencyResolver[] _resolvers;
 
-        public ArrayFactory(List<IDependency> dependencies)
+        public ArrayFactory(List<DependencyResolver> dependencies)
         {
-            _dependencies = dependencies.ToArray();
+            _resolvers = dependencies.ToArray();
         }
 
         public bool Applicable(Type requestedType)
@@ -32,9 +32,9 @@ namespace Velo.Dependencies.Factories
             }
 
             var elements = new List<object>();
-            for (var i = 0; i < _dependencies.Length; i++)
+            for (var i = 0; i < _resolvers.Length; i++)
             {
-                var dependency = _dependencies[i];
+                var dependency = _resolvers[i];
                 if (!dependency.Applicable(elementType)) continue;
 
                 var resolved = dependency.Resolve(elementType, container);

@@ -7,16 +7,13 @@ namespace Velo.Dependencies.Singletons
     {
         private readonly Func<DependencyContainer, T> _builder;
         private readonly bool _isDisposable;
-        private readonly bool _scopeDependency;
 
         private T _instance;
 
-        public BuilderSingleton(Type[] contracts, Func<DependencyContainer, T> builder, bool scopeDependency = false) 
+        public BuilderSingleton(Type[] contracts, Func<DependencyContainer, T> builder)
             : base(contracts)
         {
             _builder = builder;
-            _scopeDependency = scopeDependency;
-            
             _isDisposable = typeof(T).IsAssignableFrom(typeof(IDisposable));
         }
 
@@ -34,8 +31,6 @@ namespace Velo.Dependencies.Singletons
         {
             if (_instance != null) return _instance;
 
-            if (_scopeDependency) DependencyScope.Add(this);
-            
             _instance = _builder(container);
             return _instance;
         }

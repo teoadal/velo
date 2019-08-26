@@ -11,38 +11,21 @@ namespace Velo.Dependencies
 {
     public sealed class DependencyBuilder
     {
-        private readonly Dictionary<Type, IDependency> _concreteDependency;
-        private readonly List<IDependency> _dependencies;
+        private readonly Dictionary<Type, DependencyResolver> _concreteResolvers;
+        private readonly List<DependencyResolver> _resolvers;
 
         public DependencyBuilder(int capacity = 50)
         {
-            _concreteDependency = new Dictionary<Type, IDependency>(capacity);
-            _dependencies = new List<IDependency>(capacity);
+            _concreteResolvers = new Dictionary<Type, DependencyResolver>(capacity);
+            _resolvers = new List<DependencyResolver>(capacity);
         }
-
-        #region AddDependency
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public DependencyBuilder AddDependency(IDependency dependency)
         {
-            _dependencies.Add(dependency);
+            _resolvers.Add(new DependencyResolver(dependency));
             return this;
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public DependencyBuilder AddDependency(Type contract, IDependency dependency)
-        {
-            if (!_concreteDependency.ContainsKey(contract))
-            {
-                _concreteDependency.Add(contract, dependency);
-            }
-
-            _dependencies.Add(dependency);
-
-            return this;
-        }
-
-        #endregion
 
         #region AddFactory
 
@@ -51,7 +34,8 @@ namespace Velo.Dependencies
             var contract = Typeof<TContract>.Raw;
             var dependency = new ActivatorFactory(new[] {contract}, contract);
 
-            return AddDependency(contract, dependency);
+            RegisterResolver(contract, dependency);
+            return this;
         }
 
         public DependencyBuilder AddFactory<TContract, TImplementation>()
@@ -60,7 +44,8 @@ namespace Velo.Dependencies
             var contract = Typeof<TContract>.Raw;
             var dependency = new ActivatorFactory(new[] {contract}, typeof(TImplementation));
 
-            return AddDependency(contract, dependency);
+            RegisterResolver(contract, dependency);
+            return this;
         }
 
         public DependencyBuilder AddFactory<TContract>(Func<DependencyContainer, TContract> builder)
@@ -69,7 +54,8 @@ namespace Velo.Dependencies
             var contract = Typeof<TContract>.Raw;
             var dependency = new BuilderFactory<TContract>(new[] {contract}, builder);
 
-            return AddDependency(contract, dependency);
+            RegisterResolver(contract, dependency);
+            return this;
         }
 
         #endregion
@@ -88,7 +74,7 @@ namespace Velo.Dependencies
 
         public DependencyBuilder AddGenericScope(Type genericType)
         {
-            return AddDependency(new GenericSingleton(genericType, true));
+            return AddDependency(new GenericSingleton(genericType));
         }
 
         #endregion
@@ -99,78 +85,88 @@ namespace Velo.Dependencies
             var contract = Typeof<TContract>.Raw;
             var dependency = new InstanceSingleton(new[] {contract}, instance);
 
-            return AddDependency(contract, dependency);
+            RegisterResolver(contract, dependency);
+            return this;
         }
 
         #region AddSingleton
 
-        public DependencyBuilder AddSingleton<TContract>()
+        public DependencyBuilder AddSingleton<TContract>(string name = null)
         {
             var contract = Typeof<TContract>.Raw;
             var dependency = new SimpleDependency(contract, contract);
 
-            return AddDependency(contract, dependency);
+            RegisterResolver(contract, dependency, name);
+            return this;
         }
 
-        public DependencyBuilder AddSingleton<TContract, TImplementation>()
+        public DependencyBuilder AddSingleton<TContract, TImplementation>(string name = null)
             where TImplementation : TContract
         {
             var contract = Typeof<TContract>.Raw;
             var dependency = new SimpleDependency(contract, typeof(TImplementation));
 
-            return AddDependency(contract, dependency);
+            RegisterResolver(contract, dependency, name);
+            return this;
         }
 
-        public DependencyBuilder AddSingleton<TContract>(Func<DependencyContainer, TContract> builder)
+        public DependencyBuilder AddSingleton<TContract>(Func<DependencyContainer, TContract> builder, string name = null)
             where TContract : class
         {
             var contract = Typeof<TContract>.Raw;
             var dependency = new BuilderSingleton<TContract>(new[] {contract}, builder);
 
-            return AddDependency(contract, dependency);
+            RegisterResolver(contract, dependency, name);
+            return this;
         }
 
-        public DependencyBuilder AddSingleton(Type contract, Type implementation)
+        public DependencyBuilder AddSingleton(Type contract, Type implementation, string name = null)
         {
             var dependency = new SimpleDependency(contract, implementation);
-            return AddDependency(contract, dependency);
+            
+            RegisterResolver(contract, dependency, name);
+            return this;
         }
 
         #endregion
 
         #region AddScope
 
-        public DependencyBuilder AddScope<TContract>()
+        public DependencyBuilder AddScope<TContract>(string name = null)
         {
             var contract = Typeof<TContract>.Raw;
-            var dependency = new SimpleDependency(contract, contract, true);
+            var dependency = new SimpleDependency(contract, contract);
 
-            return AddDependency(contract, dependency);
+            RegisterResolver(contract, dependency, name, true);
+            return this;
         }
 
-        public DependencyBuilder AddScope<TContract, TImplementation>()
+        public DependencyBuilder AddScope<TContract, TImplementation>(string name = null)
             where TImplementation : TContract
         {
             var contract = Typeof<TContract>.Raw;
-            var dependency = new SimpleDependency(contract, typeof(TImplementation), true);
+            var dependency = new SimpleDependency(contract, typeof(TImplementation));
 
-            return AddDependency(contract, dependency);
+            RegisterResolver(contract, dependency, name, true);
+            return this;
         }
 
-        public DependencyBuilder AddScope<TContract>(Func<DependencyContainer, TContract> builder)
+        public DependencyBuilder AddScope<TContract>(Func<DependencyContainer, TContract> builder, string name = null)
             where TContract : class
         {
             var contract = Typeof<TContract>.Raw;
-            var dependency = new BuilderSingleton<TContract>(new[] {contract}, builder, true);
+            var dependency = new BuilderSingleton<TContract>(new[] {contract}, builder);
 
-            return AddDependency(contract, dependency);
+            RegisterResolver(contract, dependency, name, true);
+            return this;
         }
 
         #endregion
 
         public DependencyContainer BuildContainer()
         {
-            return new DependencyContainer(_dependencies, _concreteDependency);
+            AddDependency(new ArrayFactory(_resolvers));
+            return new DependencyContainer(_resolvers, _concreteResolvers);
         }
 
         public DependencyBuilder Configure(Action<DependencyConfigurator> configure)
@@ -179,8 +175,10 @@ namespace Velo.Dependencies
 
             configure(configurator);
 
-            var dependency = configurator.Build();
-            return AddDependency(dependency);
+            var resolver = configurator.Build();
+            _resolvers.Add(resolver);
+
+            return this;
         }
 
         public DependencyBuilder Scan(Action<AssemblyScanner> configure)
@@ -191,6 +189,20 @@ namespace Velo.Dependencies
             configurator.Scan();
 
             return this;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void RegisterResolver(Type contract, IDependency dependency, string dependencyName = null,
+            bool isScopeDependency = false)
+        {
+            var resolver = new DependencyResolver(dependency, dependencyName, isScopeDependency);
+
+            _resolvers.Add(resolver);
+
+            if (!_concreteResolvers.ContainsKey(contract))
+            {
+                _concreteResolvers.Add(contract, resolver);
+            }
         }
     }
 }

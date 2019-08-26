@@ -6,14 +6,12 @@ namespace Velo.Dependencies.Singletons
     internal sealed class GenericSingleton : IDependency
     {
         private readonly Type _genericType;
-        private readonly bool _scopeDependency;
         
         private readonly Dictionary<Type, object> _instances;
 
-        public GenericSingleton(Type genericType, bool scopeDependency = false)
+        public GenericSingleton(Type genericType)
         {
             _genericType = genericType;
-            _scopeDependency = scopeDependency;
             _instances = new Dictionary<Type, object>();
         }
 
@@ -43,8 +41,6 @@ namespace Velo.Dependencies.Singletons
                 return existsInstance;
             }
 
-            if (_scopeDependency) DependencyScope.Add(this);
-            
             var instance = container.Activate(requestedType);
             _instances.Add(requestedType, instance);
 

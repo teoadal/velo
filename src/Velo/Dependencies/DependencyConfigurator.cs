@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+
+using Velo.Dependencies.Factories;
 using Velo.Dependencies.Singletons;
 using Velo.Utils;
 
@@ -12,7 +14,8 @@ namespace Velo.Dependencies
         private readonly List<Type> _contracts;
         private Type _implementation;
         private object _instance;
-        private bool _scope;
+        private string _name;
+        private bool _isScope;
         private bool _singleton;
 
         public DependencyConfigurator()
@@ -99,10 +102,16 @@ namespace Velo.Dependencies
             return this;
         }
 
+        public DependencyConfigurator Name(string name)
+        {
+            _name = name;
+            return this;
+        }
+        
         public DependencyConfigurator Scope(bool value = true)
         {
             _singleton = value;
-            _scope = value;
+            _isScope = value;
 
             return this;
         }
@@ -113,34 +122,59 @@ namespace Velo.Dependencies
             return this;
         }
 
-        internal IDependency Build()
+        internal DependencyResolver Build()
         {
             var contracts = _contracts.ToArray();
-            _contracts.Clear();
 
-            if (_singleton)
+            IDependency dependency;
+            if (_instance != null) dependency = new InstanceSingleton(contracts, _instance);
+            else if (_singleton) dependency = BuildSingletonDependency(contracts);
+            else dependency = BuildFactoryDependency(contracts);
+            
+            return new DependencyResolver(dependency, _name, _isScope);
+        }
+
+        private static Exception InconsistentConfiguration()
+        {
+            return new InvalidOperationException("Inconsistent dependency configuration");
+        }
+
+        private IDependency BuildSingletonDependency(Type[] contracts)
+        {
+            if (_builder != null)
             {
-                if (_builder != null)
-                {
-                    var builderResult = _builder.GetType().GetGenericArguments()[1];
-                    var builderType = typeof(BuilderSingleton<>).MakeGenericType(builderResult);
-                    return (IDependency) Activator.CreateInstance(builderType, contracts, _builder, _scope);
-                }
+                var builderResult = _builder.GetType().GetGenericArguments()[1];
+                var builderType = typeof(BuilderSingleton<>).MakeGenericType(builderResult);
+                
+                return (IDependency) Activator.CreateInstance(builderType, contracts, _builder);
+            }
 
-                if (_implementation != null)
-                {
-                    return contracts.Length == 1
-                        ? (IDependency) new SimpleDependency(contracts[0], _implementation, _scope)
-                        : new ActivatorSingleton(contracts, _implementation, _scope);
-                }
+            if (_implementation != null)
+            {
+                return contracts.Length == 1
+                    ? (IDependency) new SimpleDependency(contracts[0], _implementation)
+                    : new ActivatorSingleton(contracts, _implementation);
             }
 
             throw new NotImplementedException();
         }
-
-        private Exception InconsistentConfiguration()
+        
+        private IDependency BuildFactoryDependency(Type[] contracts)
         {
-            return new InvalidOperationException("Inconsistent dependency configuration");
+            if (_builder != null)
+            {
+                var builderResult = _builder.GetType().GetGenericArguments()[1];
+                var builderType = typeof(BuilderFactory<>).MakeGenericType(builderResult);
+                
+                return (IDependency) Activator.CreateInstance(builderType, contracts, _builder);
+            }
+
+            if (_implementation != null)
+            {
+                return new ActivatorFactory(contracts, _implementation);
+            }
+
+            throw InconsistentConfiguration();
         }
     }
 }
