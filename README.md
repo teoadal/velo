@@ -104,7 +104,7 @@ var container = new DependencyBuilder()
 ```cs
 var repositories = container.Resolve<IRepository[]>();
 var session = container.Resolve<ISession>();
-var otherSession = container.Resolve<ISession>();
+var otherSession = container.Resolve<ISession>(); // registered as Factory
 var converterSingleton = container.Resolve<JConverter>();
 ```
 
