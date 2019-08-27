@@ -9,6 +9,7 @@
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <PackageTags>mapper, json, serializer, deserializer, dependencyinjection, ioc, di</PackageTags>
         <Title>Velo</Title>
+        <Description>Simple implementations of IoC-Container, Mapper and JSON Serializer/Deserializer</Description>
         <Authors>teoadal</Authors>
         <Company>teoadal</Company>
         <Product>teoadal</Product>
