@@ -6,6 +6,14 @@ Velo - это набор простейших реализаций извест�
 
 Я вас предупредил.
 
+## Install from nuget
+
+Install Velo with the following command:
+
+```ini
+Install-Package Velo
+```
+
 ## Mapper
 
 ```cs
