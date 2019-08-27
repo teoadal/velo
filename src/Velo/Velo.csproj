@@ -8,6 +8,8 @@
         <PackageTags>mapper, json, serializer, deserializer, dependencyinjection, ioc, di</PackageTags>
         <Title>Velo</Title>
         <Authors>teoadal</Authors>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageLicenseUrl>https://licenses.nuget.org/MIT</PackageLicenseUrl>
     </PropertyGroup>
 
 </Project>
