@@ -10,8 +10,7 @@ namespace Velo.Dependencies.Singletons
 
         private T _instance;
 
-        public BuilderSingleton(Type[] contracts, Func<DependencyContainer, T> builder)
-            : base(contracts)
+        public BuilderSingleton(Type[] contracts, Func<DependencyContainer, T> builder) : base(contracts)
         {
             _builder = builder;
             _isDisposable = typeof(T).IsAssignableFrom(typeof(IDisposable));

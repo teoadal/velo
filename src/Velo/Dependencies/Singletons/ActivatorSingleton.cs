@@ -1,6 +1,5 @@
 using System;
 using System.Reflection;
-
 using Velo.Utils;
 
 namespace Velo.Dependencies.Singletons
@@ -13,8 +12,7 @@ namespace Velo.Dependencies.Singletons
 
         private object _instance;
 
-        public ActivatorSingleton(Type[] contracts, Type implementation) 
-            : base(contracts)
+        public ActivatorSingleton(Type[] contracts, Type implementation) : base(contracts)
         {
             _implementation = implementation;
 
