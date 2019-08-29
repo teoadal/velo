@@ -20,7 +20,7 @@ namespace Velo.Dependencies.Singletons
             _implementation = implementation;
 
             _constructor = ReflectionUtils.GetConstructor(implementation);
-            _isDisposable = _implementation.IsAssignableFrom(typeof(IDisposable));
+            _isDisposable = ReflectionUtils.IsDisposableType(implementation);
         }
 
         public bool Applicable(Type contract)

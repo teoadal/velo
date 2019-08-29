@@ -7,6 +7,8 @@ namespace Velo.TestsModels.Services
     {
         IConfiguration Configuration { get; }
 
+        bool Disposed { get; }
+        
         IMapper<Foo> Mapper { get; }
 
         string Name { get; }
@@ -14,10 +16,12 @@ namespace Velo.TestsModels.Services
         IFooRepository Repository { get; }
     }
 
-    public class FooService : IFooService
+    public class FooService : IFooService, IDisposable
     {
         public IConfiguration Configuration { get; }
 
+        public bool Disposed { get; set; }
+        
         public IMapper<Foo> Mapper { get; }
 
         public string Name { get; }
@@ -30,6 +34,11 @@ namespace Velo.TestsModels.Services
             Mapper = mapper;
             Name = Guid.NewGuid().ToString("N");
             Repository = repository;
+        }
+
+        public void Dispose()
+        {
+            Disposed = true;
         }
     }
 }

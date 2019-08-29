@@ -20,7 +20,7 @@ namespace Velo.Dependencies
             
             resolvers.Add(containerResolver);
 
-            _concreteResolvers = new Dictionary<ResolverDescription, DependencyResolver>();
+            _concreteResolvers = new Dictionary<ResolverDescription, DependencyResolver>(resolvers.Count);
             _resolvers = resolvers.ToArray();
         }
 

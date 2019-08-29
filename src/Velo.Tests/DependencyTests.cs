@@ -21,6 +21,26 @@ namespace Velo
 
             Assert.Throws<InvalidOperationException>(() => container.Resolve<CircularDependencyService>());
         }
+
+        [Fact]
+        public void Destroy()
+        {
+            var container = new DependencyBuilder()
+                .AddSingleton<JConverter>()
+                .AddFactory<ISession, Session>()
+                .AddSingleton<IConfiguration, Configuration>()
+                .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
+                .AddSingleton<IFooRepository, FooRepository>()
+                .AddSingleton<IFooService, FooService>()
+                .BuildContainer();
+
+            var service = container.Resolve<IFooService>();
+            Assert.False(service.Disposed);
+            
+            container.Destroy();
+            
+            Assert.True(service.Disposed);
+        }
         
         [Fact]
         public void Factory_Activator()

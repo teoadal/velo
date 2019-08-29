@@ -5,6 +5,8 @@ namespace Velo.Utils
 {
     internal static class ReflectionUtils
     {
+        private static readonly Type DisposableInterfaceType = typeof(IDisposable);
+        
         public static ConstructorInfo GetConstructor(Type type)
         {
             if (type.IsAbstract) throw new InvalidOperationException("Type is abstract");
@@ -12,6 +14,11 @@ namespace Velo.Utils
             
             var availableConstructors = type.GetConstructors();
             return availableConstructors[0];
+        }
+
+        public static bool IsDisposableType(Type type)
+        {
+            return DisposableInterfaceType.IsAssignableFrom(type);
         }
     }
 }
