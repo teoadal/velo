@@ -17,6 +17,7 @@ namespace Velo.Dependencies
         private string _name;
         private bool _scope;
         private bool _singleton;
+        private bool _transient;
 
         public DependencyConfigurator()
         {
@@ -49,7 +50,7 @@ namespace Velo.Dependencies
 
         public DependencyConfigurator Builder<T>(Func<DependencyContainer, T> builder)
         {
-            if (_implementation != null) throw InconsistentConfiguration();
+            if (_implementation != null) throw InconsistentConfiguration("implementation already exists");
 
             if (_contracts.Count > 0)
             {
@@ -75,7 +76,7 @@ namespace Velo.Dependencies
         {
             if (_implementation != null || _builder != null || _instance != null)
             {
-                throw InconsistentConfiguration();
+                throw InconsistentConfiguration("implementation, builder or instance already set");
             }
 
             if (_contracts.Count > 0)
@@ -95,7 +96,7 @@ namespace Velo.Dependencies
         {
             if (_implementation != null || _builder != null || _instance != null)
             {
-                throw InconsistentConfiguration();
+                throw InconsistentConfiguration("implementation, builder or instance already set");
             }
 
             _instance = instance;
@@ -110,6 +111,11 @@ namespace Velo.Dependencies
         
         public DependencyConfigurator Scope(bool value = true)
         {
+            if (_singleton || _transient)
+            {
+                throw InconsistentConfiguration("already configured as singleton or transient");
+            }
+
             _singleton = value;
             _scope = value;
 
@@ -118,25 +124,36 @@ namespace Velo.Dependencies
 
         public DependencyConfigurator Singleton(bool value = true)
         {
+            if (_transient) throw InconsistentConfiguration("already configured as transient");
+            
             _singleton = value;
             return this;
         }
 
+        public DependencyConfigurator Transient(bool value = true)
+        {
+            if (_singleton) throw InconsistentConfiguration("already configured as singleton");
+            
+            _transient = value;
+            return this;
+        }
+        
         internal DependencyResolver Build()
         {
-            var contracts = _contracts.ToArray();
+            var contracts = CollectContracts();
 
             IDependency dependency;
             if (_instance != null) dependency = new InstanceSingleton(contracts, _instance);
             else if (_singleton) dependency = BuildSingletonDependency(contracts);
-            else dependency = BuildTransientDependency(contracts);
+            else if (_transient) dependency = BuildTransientDependency(contracts);
+            else throw InconsistentConfiguration("lifetime not configured");
             
             return new DependencyResolver(dependency, _name, _scope);
         }
 
-        private static Exception InconsistentConfiguration()
+        private static Exception InconsistentConfiguration(string message)
         {
-            return new InvalidOperationException("Inconsistent dependency configuration");
+            return new InvalidOperationException($"Inconsistent dependency configuration: {message}");
         }
 
         private IDependency BuildSingletonDependency(Type[] contracts)
@@ -174,7 +191,17 @@ namespace Velo.Dependencies
                 return new ActivatorTransient(contracts, _implementation);
             }
 
-            throw InconsistentConfiguration();
+            throw InconsistentConfiguration("invalid transient configuration");
+        }
+
+        private Type[] CollectContracts()
+        {
+            if (_contracts.Count > 0) return _contracts.ToArray();
+
+            if (_instance != null) return new[] {_instance.GetType()};
+            if (_implementation != null) return new[] {_implementation};
+
+            throw InconsistentConfiguration("set contracts");
         }
     }
 }
