@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-using Velo.Dependencies.Factories;
 using Velo.Dependencies.Singletons;
+using Velo.Dependencies.Transients;
 using Velo.Utils;
 
 namespace Velo.Dependencies
@@ -15,7 +15,7 @@ namespace Velo.Dependencies
         private Type _implementation;
         private object _instance;
         private string _name;
-        private bool _isScope;
+        private bool _scope;
         private bool _singleton;
 
         public DependencyConfigurator()
@@ -111,7 +111,7 @@ namespace Velo.Dependencies
         public DependencyConfigurator Scope(bool value = true)
         {
             _singleton = value;
-            _isScope = value;
+            _scope = value;
 
             return this;
         }
@@ -129,9 +129,9 @@ namespace Velo.Dependencies
             IDependency dependency;
             if (_instance != null) dependency = new InstanceSingleton(contracts, _instance);
             else if (_singleton) dependency = BuildSingletonDependency(contracts);
-            else dependency = BuildFactoryDependency(contracts);
+            else dependency = BuildTransientDependency(contracts);
             
-            return new DependencyResolver(dependency, _name, _isScope);
+            return new DependencyResolver(dependency, _name, _scope);
         }
 
         private static Exception InconsistentConfiguration()
@@ -159,19 +159,19 @@ namespace Velo.Dependencies
             throw new NotImplementedException();
         }
         
-        private IDependency BuildFactoryDependency(Type[] contracts)
+        private IDependency BuildTransientDependency(Type[] contracts)
         {
             if (_builder != null)
             {
                 var builderResult = _builder.GetType().GetGenericArguments()[1];
-                var builderType = typeof(BuilderFactory<>).MakeGenericType(builderResult);
+                var builderType = typeof(BuilderTransient<>).MakeGenericType(builderResult);
                 
                 return (IDependency) Activator.CreateInstance(builderType, contracts, _builder);
             }
 
             if (_implementation != null)
             {
-                return new ActivatorFactory(contracts, _implementation);
+                return new ActivatorTransient(contracts, _implementation);
             }
 
             throw InconsistentConfiguration();

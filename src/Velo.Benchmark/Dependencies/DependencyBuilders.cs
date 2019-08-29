@@ -130,7 +130,7 @@ namespace Velo.Benchmark.Dependencies
                 .AddSingleton<IMapper<Boo>, CompiledMapper<Boo>>()
                 .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
                 .AddSingleton<IConfiguration>(ctx => new Configuration())
-                .AddFactory<ISession, Session>()
+                .AddTransient<ISession, Session>()
                 
                 .AddSingleton<IFooService, FooService>()
                 .AddSingleton<IFooRepository, FooRepository>()

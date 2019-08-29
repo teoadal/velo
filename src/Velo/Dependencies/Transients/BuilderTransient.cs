@@ -1,13 +1,13 @@
 using System;
 
-namespace Velo.Dependencies.Factories
+namespace Velo.Dependencies.Transients
 {
-    internal sealed class BuilderFactory<T> : Dependency
+    internal sealed class BuilderTransient<T> : Dependency
         where T : class
     {
         private readonly Func<DependencyContainer, T> _builder;
 
-        public BuilderFactory(Type[] contracts, Func<DependencyContainer, T> builder) : base(contracts)
+        public BuilderTransient(Type[] contracts, Func<DependencyContainer, T> builder) : base(contracts)
         {
             _builder = builder;
         }

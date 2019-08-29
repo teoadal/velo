@@ -7,16 +7,16 @@ namespace Velo.Dependencies
     {
         private readonly string _dependencyName;
         private readonly IDependency _dependency;
-        private readonly bool _isScopeDependency;
+        private readonly bool _scopeDependency;
 
         private bool _alreadyInScope;
         private bool _resolveInProgress;
 
-        public DependencyResolver(IDependency dependency, string dependencyName = null, bool isScopeDependency = false)
+        public DependencyResolver(IDependency dependency, string dependencyName = null, bool scopeDependency = false)
         {
             _dependencyName = dependencyName;
             _dependency = dependency;
-            _isScopeDependency = isScopeDependency;
+            _scopeDependency = scopeDependency;
         }
 
         public bool Applicable(Type requestedType, string parameterName = null)
@@ -59,7 +59,7 @@ namespace Velo.Dependencies
         {
             _resolveInProgress = false;
 
-            if (!_isScopeDependency || _alreadyInScope) return;
+            if (!_scopeDependency || _alreadyInScope) return;
 
             DependencyScope.Register(this);
             _alreadyInScope = true;

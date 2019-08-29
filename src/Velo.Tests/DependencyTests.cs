@@ -6,6 +6,7 @@ using Velo.Mapping;
 using Velo.Serialization;
 using Velo.TestsModels;
 using Velo.TestsModels.Services;
+
 using Xunit;
 
 namespace Velo
@@ -13,76 +14,10 @@ namespace Velo
     public class DependencyTests
     {
         [Fact]
-        public void Circular_Dependency_Detection()
+        public void Array_Factory()
         {
             var container = new DependencyBuilder()
-                .AddSingleton<CircularDependencyService>()
-                .BuildContainer();
-
-            Assert.Throws<InvalidOperationException>(() => container.Resolve<CircularDependencyService>());
-        }
-
-        [Fact]
-        public void Destroy()
-        {
-            var container = new DependencyBuilder()
-                .AddSingleton<JConverter>()
-                .AddFactory<ISession, Session>()
-                .AddSingleton<IConfiguration, Configuration>()
-                .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
-                .AddSingleton<IFooRepository, FooRepository>()
-                .AddSingleton<IFooService, FooService>()
-                .BuildContainer();
-
-            var service = container.Resolve<IFooService>();
-            Assert.False(service.Disposed);
-            
-            container.Destroy();
-            
-            Assert.True(service.Disposed);
-        }
-        
-        [Fact]
-        public void Destroy_After_End_Scope()
-        {
-            var container = new DependencyBuilder()
-                .AddSingleton<JConverter>()
-                .AddFactory<ISession, Session>()
-                .AddSingleton<IConfiguration, Configuration>()
-                .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
-                .AddSingleton<IFooRepository, FooRepository>()
-                .AddScope<IFooService, FooService>()
-                .BuildContainer();
-
-            IFooService service;
-            using (container.StartScope())
-            {
-                service = container.Resolve<IFooService>();
-                Assert.False(service.Disposed);
-            }
-            
-            Assert.True(service.Disposed);
-        }
-        
-        [Fact]
-        public void Factory_Activator()
-        {
-            var container = new DependencyBuilder()
-                .AddSingleton<JConverter>()
-                .AddFactory<ISession, Session>()
-                .BuildContainer();
-
-            var first = container.Resolve<ISession>();
-            var second = container.Resolve<ISession>();
-
-            Assert.NotSame(first, second);
-        }
-
-        [Fact]
-        public void Factory_Array()
-        {
-            var container = new DependencyBuilder()
-                .AddFactory<ISession, Session>()
+                .AddTransient<ISession, Session>()
                 .AddSingleton<JConverter>()
                 .AddSingleton<IConfiguration, Configuration>()
                 .Configure(dataRepository => dataRepository
@@ -112,30 +47,55 @@ namespace Velo
         }
 
         [Fact]
-        public void Factory_Builder()
+        public void Circular_Dependency_Detection()
         {
             var container = new DependencyBuilder()
-                .AddSingleton<JConverter>()
-                .AddFactory<ISession>(ctx => new Session(ctx.Resolve<JConverter>()))
+                .AddSingleton<CircularDependencyService>()
                 .BuildContainer();
 
-            var first = container.Resolve<ISession>();
-            var second = container.Resolve<ISession>();
-
-            Assert.NotSame(first, second);
+            Assert.Throws<InvalidOperationException>(() => container.Resolve<CircularDependencyService>());
         }
 
         [Fact]
-        public void Factory_Generic()
+        public void Destroy()
         {
             var container = new DependencyBuilder()
-                .AddGenericFactory(typeof(List<>))
+                .AddSingleton<JConverter>()
+                .AddTransient<ISession, Session>()
+                .AddSingleton<IConfiguration, Configuration>()
+                .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
+                .AddSingleton<IFooRepository, FooRepository>()
+                .AddSingleton<IFooService, FooService>()
                 .BuildContainer();
 
-            var first = container.Resolve<List<int>>();
-            var second = container.Resolve<List<int>>();
+            var service = container.Resolve<IFooService>();
+            Assert.False(service.Disposed);
 
-            Assert.NotSame(first, second);
+            container.Destroy();
+
+            Assert.True(service.Disposed);
+        }
+
+        [Fact]
+        public void Destroy_After_End_Scope()
+        {
+            var container = new DependencyBuilder()
+                .AddSingleton<JConverter>()
+                .AddTransient<ISession, Session>()
+                .AddSingleton<IConfiguration, Configuration>()
+                .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
+                .AddSingleton<IFooRepository, FooRepository>()
+                .AddScope<IFooService, FooService>()
+                .BuildContainer();
+
+            IFooService service;
+            using (container.StartScope())
+            {
+                service = container.Resolve<IFooService>();
+                Assert.False(service.Disposed);
+            }
+
+            Assert.True(service.Disposed);
         }
 
         [Fact]
@@ -143,7 +103,7 @@ namespace Velo
         {
             const string booRepositoryName = "booRepository";
             const string fooRepositoryName = "fooRepository";
-            
+
             var container = new DependencyBuilder()
                 .AddSingleton<JConverter>()
                 .AddSingleton<IConfiguration, Configuration>()
@@ -153,11 +113,11 @@ namespace Velo
                 .BuildContainer();
 
             var repositoryCollection = container.Activate<RepositoryCollection>();
-            
+
             Assert.IsType<BooRepository>(repositoryCollection.BooRepository);
             Assert.IsType<FooRepository>(repositoryCollection.FooRepository);
         }
-        
+
         [Fact]
         public void Resolve()
         {
@@ -167,7 +127,7 @@ namespace Velo
                 .AddSingleton<IMapper<Boo>, CompiledMapper<Boo>>()
                 .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
                 .AddSingleton<IConfiguration>(provider => new Configuration())
-                .AddFactory<ISession, Session>()
+                .AddTransient<ISession, Session>()
                 .AddSingleton<IFooService, FooService>()
                 .AddSingleton<IFooRepository, FooRepository>()
                 .AddSingleton<IBooService, BooService>()
@@ -184,7 +144,7 @@ namespace Velo
         {
             const string booRepositoryName = "booRepository";
             const string fooRepositoryName = "fooRepository";
-            
+
             var container = new DependencyBuilder()
                 .AddSingleton<JConverter>()
                 .AddSingleton<IConfiguration, Configuration>()
@@ -205,7 +165,7 @@ namespace Velo
         {
             const string fooRepositoryName = "fooRepository";
             const string otherFooRepositoryName = "otherFooRepository";
-            
+
             var container = new DependencyBuilder()
                 .AddSingleton<JConverter>()
                 .AddSingleton<IConfiguration, Configuration>()
@@ -220,7 +180,7 @@ namespace Velo
             Assert.IsType<FooRepository>(fooRepository);
             Assert.IsType<OtherFooRepository>(otherFooRepository);
         }
-        
+
         [Fact]
         public void Resolve_Named_Without_Name()
         {
@@ -241,7 +201,7 @@ namespace Velo
         {
             var container = new DependencyBuilder()
                 .AddSingleton<IConfiguration, Configuration>()
-                .AddFactory<ISession, Session>()
+                .AddTransient<ISession, Session>()
                 .AddSingleton<JConverter>()
                 .Scan(scanner => scanner
                     .Assembly(typeof(IRepository).Assembly)
@@ -260,7 +220,7 @@ namespace Velo
         {
             var container = new DependencyBuilder()
                 .AddSingleton<IConfiguration, Configuration>()
-                .AddFactory<ISession, Session>()
+                .AddTransient<ISession, Session>()
                 .AddSingleton<JConverter>()
                 .Scan(scanner => scanner
                     .Assembly(typeof(IRepository).Assembly)
@@ -269,11 +229,11 @@ namespace Velo
 
             var booRepository = container.Resolve<IRepository<Boo>>();
             Assert.NotNull(booRepository);
-            
+
             var fooRepository = container.Resolve<IRepository<Foo>>();
             Assert.NotNull(fooRepository);
         }
-        
+
         [Fact]
         public void Scope()
         {
@@ -288,7 +248,7 @@ namespace Velo
                 firstScopeSession = container.Resolve<ISession>();
                 Assert.Same(firstScopeSession, container.Resolve<ISession>());
             }
-            
+
             using (container.StartScope())
             {
                 var secondScopeSession = container.Resolve<ISession>();
@@ -348,6 +308,47 @@ namespace Velo
             var second = container.Resolve<JConverter>();
 
             Assert.Same(first, second);
+        }
+        
+        [Fact]
+        public void Transient_Activator()
+        {
+            var container = new DependencyBuilder()
+                .AddSingleton<JConverter>()
+                .AddTransient<ISession, Session>()
+                .BuildContainer();
+
+            var first = container.Resolve<ISession>();
+            var second = container.Resolve<ISession>();
+
+            Assert.NotSame(first, second);
+        }
+
+        [Fact]
+        public void Transient_Builder()
+        {
+            var container = new DependencyBuilder()
+                .AddSingleton<JConverter>()
+                .AddTransient<ISession>(ctx => new Session(ctx.Resolve<JConverter>()))
+                .BuildContainer();
+
+            var first = container.Resolve<ISession>();
+            var second = container.Resolve<ISession>();
+
+            Assert.NotSame(first, second);
+        }
+
+        [Fact]
+        public void Transient_Generic()
+        {
+            var container = new DependencyBuilder()
+                .AddGenericTransient(typeof(List<>))
+                .BuildContainer();
+
+            var first = container.Resolve<List<int>>();
+            var second = container.Resolve<List<int>>();
+
+            Assert.NotSame(first, second);
         }
     }
 }

@@ -1,12 +1,12 @@
 using System;
 
-namespace Velo.Dependencies.Factories
+namespace Velo.Dependencies.Transients
 {
-    internal sealed class GenericFactory : IDependency
+    internal sealed class GenericTransient : IDependency
     {
         private readonly Type _genericType;
 
-        public GenericFactory(Type genericType)
+        public GenericTransient(Type genericType)
         {
             _genericType = genericType;
         }
