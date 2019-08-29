@@ -23,9 +23,9 @@ namespace Velo.Dependencies.Singletons
             _isDisposable = _implementation.IsAssignableFrom(typeof(IDisposable));
         }
 
-        public bool Applicable(Type requestedType)
+        public bool Applicable(Type contract)
         {
-            return _contract == requestedType;
+            return _contract == contract;
         }
 
         public void Destroy()
@@ -38,7 +38,7 @@ namespace Velo.Dependencies.Singletons
             _instance = null;
         }
 
-        public object Resolve(Type requestedType, DependencyContainer container)
+        public object Resolve(Type contract, DependencyContainer container)
         {
             if (_instance != null) return _instance;
 

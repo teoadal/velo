@@ -10,7 +10,7 @@ namespace Velo.Dependencies
 {
     public sealed class DependencyContainer
     {
-        private readonly Dictionary<ResolveDescription, DependencyResolver> _concreteResolvers;
+        private readonly Dictionary<ResolverDescription, DependencyResolver> _concreteResolvers;
         private readonly DependencyResolver[] _resolvers;
 
         internal DependencyContainer(List<DependencyResolver> resolvers)
@@ -20,7 +20,7 @@ namespace Velo.Dependencies
             
             resolvers.Add(containerResolver);
 
-            _concreteResolvers = new Dictionary<ResolveDescription, DependencyResolver>();
+            _concreteResolvers = new Dictionary<ResolverDescription, DependencyResolver>();
             _resolvers = resolvers.ToArray();
         }
 
@@ -59,33 +59,33 @@ namespace Velo.Dependencies
             }
         }
 
-        public T Resolve<T>(string name = null) where T : class
+        public TContract Resolve<TContract>(string name = null) where TContract : class
         {
-            return (T) Resolve(Typeof<T>.Raw, name);
+            return (TContract) Resolve(Typeof<TContract>.Raw, name);
         }
 
-        public object Resolve(Type type, string name = null, bool throwInNotExists = true)
+        public object Resolve(Type contract, string name = null, bool throwInNotExists = true)
         {
-            var description = new ResolveDescription(type, name);
+            var description = new ResolverDescription(contract, name);
             if (_concreteResolvers.TryGetValue(description, out var resolver))
             {
-                return resolver.Resolve(type, this);
+                return resolver.Resolve(contract, this);
             }
 
             var resolvers = _resolvers;
             for (var i = 0; i < resolvers.Length; i++)
             {
                 resolver = resolvers[i];
-                if (!resolver.Applicable(type, name)) continue;
+                if (!resolver.Applicable(contract, name)) continue;
 
                 _concreteResolvers.Add(description, resolver);
 
-                return resolver.Resolve(type, this);
+                return resolver.Resolve(contract, this);
             }
 
             if (throwInNotExists)
             {
-                throw new InvalidOperationException($"Dependency with type '{type}' is not registered");
+                throw new InvalidOperationException($"Dependency for contract '{contract}' is not registered");
             }
 
             return null;
@@ -97,11 +97,11 @@ namespace Velo.Dependencies
             return new DependencyScope(name);
         }
         
-        private readonly struct ResolveDescription : IEquatable<ResolveDescription>
+        private readonly struct ResolverDescription : IEquatable<ResolverDescription>
         {
             private readonly int _hash;
             
-            public ResolveDescription(Type type, string name)
+            public ResolverDescription(Type type, string name)
             {
                 unchecked
                 {
@@ -112,7 +112,7 @@ namespace Velo.Dependencies
 
             public override int GetHashCode() => _hash;
 
-            public bool Equals(ResolveDescription other)
+            public bool Equals(ResolverDescription other)
             {
                 return _hash == other._hash;
             }

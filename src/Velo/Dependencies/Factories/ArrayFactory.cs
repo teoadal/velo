@@ -13,22 +13,22 @@ namespace Velo.Dependencies.Factories
             _resolvers = dependencies.ToArray();
         }
 
-        public bool Applicable(Type requestedType)
+        public bool Applicable(Type contract)
         {
-            return requestedType.IsArray;
+            return contract.IsArray;
         }
 
         public void Destroy()
         {
         }
 
-        public object Resolve(Type requestedType, DependencyContainer container)
+        public object Resolve(Type contract, DependencyContainer container)
         {
-            var elementType = requestedType.GetElementType();
+            var elementType = contract.GetElementType();
 
             if (elementType == null)
             {
-                throw new InvalidDataException($"Invalid array type {requestedType}");
+                throw new InvalidDataException($"Invalid array type {contract}");
             }
 
             var elements = new List<object>();

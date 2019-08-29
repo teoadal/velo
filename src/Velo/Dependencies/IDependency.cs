@@ -4,10 +4,10 @@ namespace Velo.Dependencies
 {
     public interface IDependency
     {
-        bool Applicable(Type requestedType);
+        bool Applicable(Type contract);
 
         void Destroy();
         
-        object Resolve(Type requestedType, DependencyContainer container);
+        object Resolve(Type contract, DependencyContainer container);
     }
 }

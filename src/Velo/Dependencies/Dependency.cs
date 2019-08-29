@@ -12,12 +12,12 @@ namespace Velo.Dependencies
             _contracts = contracts;
         }
 
-        public bool Applicable(Type requestedType)
+        public bool Applicable(Type contract)
         {
             var contracts = _contracts;
             for (var i = 0; i < contracts.Length; i++)
             {
-                if (contracts[i] == requestedType)
+                if (contracts[i] == contract)
                 {
                     return true;
                 }
@@ -30,7 +30,7 @@ namespace Velo.Dependencies
         {
         }
 
-        public abstract object Resolve(Type requestedType, DependencyContainer container);
+        public abstract object Resolve(Type contract, DependencyContainer container);
 
         public override string ToString()
         {

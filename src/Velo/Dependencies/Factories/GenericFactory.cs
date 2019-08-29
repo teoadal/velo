@@ -11,18 +11,18 @@ namespace Velo.Dependencies.Factories
             _genericType = genericType;
         }
 
-        public bool Applicable(Type requestedType)
+        public bool Applicable(Type contract)
         {
-            return requestedType.IsGenericType && requestedType.GetGenericTypeDefinition() == _genericType;
+            return contract.IsGenericType && contract.GetGenericTypeDefinition() == _genericType;
         }
 
         public void Destroy()
         {
         }
 
-        public object Resolve(Type requestedType, DependencyContainer container)
+        public object Resolve(Type contract, DependencyContainer container)
         {
-            return container.Activate(requestedType);
+            return container.Activate(contract);
         }
     }
 }

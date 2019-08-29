@@ -12,7 +12,7 @@ namespace Velo.Dependencies.Factories
             _builder = builder;
         }
 
-        public override object Resolve(Type requestedType, DependencyContainer container)
+        public override object Resolve(Type contract, DependencyContainer container)
         {
             return _builder(container);
         }

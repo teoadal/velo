@@ -15,9 +15,9 @@ namespace Velo.Dependencies.Singletons
             _instances = new Dictionary<Type, object>();
         }
 
-        public bool Applicable(Type requestedType)
+        public bool Applicable(Type contract)
         {
-            return requestedType.IsGenericType && requestedType.GetGenericTypeDefinition() == _genericType;
+            return contract.IsGenericType && contract.GetGenericTypeDefinition() == _genericType;
         }
 
         public void Destroy()
@@ -34,15 +34,15 @@ namespace Velo.Dependencies.Singletons
             _instances.Clear();
         }
 
-        public object Resolve(Type requestedType, DependencyContainer container)
+        public object Resolve(Type contract, DependencyContainer container)
         {
-            if (_instances.TryGetValue(requestedType, out var existsInstance))
+            if (_instances.TryGetValue(contract, out var existsInstance))
             {
                 return existsInstance;
             }
 
-            var instance = container.Activate(requestedType);
-            _instances.Add(requestedType, instance);
+            var instance = container.Activate(contract);
+            _instances.Add(contract, instance);
 
             return instance;
         }

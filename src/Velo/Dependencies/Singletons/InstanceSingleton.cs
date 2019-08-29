@@ -23,7 +23,7 @@ namespace Velo.Dependencies.Singletons
             _instance = null;
         }
 
-        public override object Resolve(Type requestedType, DependencyContainer container)
+        public override object Resolve(Type contract, DependencyContainer container)
         {
             return _instance;
         }
