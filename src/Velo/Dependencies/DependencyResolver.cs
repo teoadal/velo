@@ -43,11 +43,6 @@ namespace Velo.Dependencies
             return resolved;
         }
 
-        public override string ToString()
-        {
-            return _dependency.ToString();
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void StartResolving()
         {
@@ -68,6 +63,11 @@ namespace Velo.Dependencies
 
             DependencyScope.Register(this);
             _alreadyInScope = true;
+        }
+        
+        public override string ToString()
+        {
+            return _dependency.ToString();
         }
     }
 }

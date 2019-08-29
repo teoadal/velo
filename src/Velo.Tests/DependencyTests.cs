@@ -43,6 +43,28 @@ namespace Velo
         }
         
         [Fact]
+        public void Destroy_After_End_Scope()
+        {
+            var container = new DependencyBuilder()
+                .AddSingleton<JConverter>()
+                .AddFactory<ISession, Session>()
+                .AddSingleton<IConfiguration, Configuration>()
+                .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
+                .AddSingleton<IFooRepository, FooRepository>()
+                .AddScope<IFooService, FooService>()
+                .BuildContainer();
+
+            IFooService service;
+            using (container.StartScope())
+            {
+                service = container.Resolve<IFooService>();
+                Assert.False(service.Disposed);
+            }
+            
+            Assert.True(service.Disposed);
+        }
+        
+        [Fact]
         public void Factory_Activator()
         {
             var container = new DependencyBuilder()
