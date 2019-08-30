@@ -43,7 +43,9 @@ namespace Velo.Dependencies
                 var parameter = parameters[i];
                 var required = !parameter.HasDefaultValue;
 
-                resolvedParameters[i] = Resolve(parameter.ParameterType, parameter.Name, required);
+                var contract = parameter.ParameterType;
+                var resolver = GetResolver(contract, parameter.Name, required);
+                resolvedParameters[i] = resolver?.Resolve(contract, this);
             }
 
             return constructor.Invoke(resolvedParameters);
@@ -59,18 +61,11 @@ namespace Velo.Dependencies
             }
         }
 
-        public TContract Resolve<TContract>(string name = null) where TContract : class
-        {
-            return (TContract) Resolve(Typeof<TContract>.Raw, name);
-        }
-
-        public object Resolve(Type contract, string name = null, bool throwInNotExists = true)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public DependencyResolver GetResolver(Type contract, string name = null, bool throwInNotRegistered = true)
         {
             var description = new ResolverDescription(contract, name);
-            if (_concreteResolvers.TryGetValue(description, out var resolver))
-            {
-                return resolver.Resolve(contract, this);
-            }
+            if (_concreteResolvers.TryGetValue(description, out var resolver)) return resolver;
 
             var resolvers = _resolvers;
             for (var i = 0; i < resolvers.Length; i++)
@@ -80,15 +75,29 @@ namespace Velo.Dependencies
 
                 _concreteResolvers.Add(description, resolver);
 
-                return resolver.Resolve(contract, this);
+                return resolver;
             }
-
-            if (throwInNotExists)
+            
+            if (throwInNotRegistered)
             {
                 throw new InvalidOperationException($"Dependency for contract '{contract}' is not registered");
             }
 
             return null;
+        }
+        
+        public TContract Resolve<TContract>(string name = null) where TContract : class
+        {
+            var contract = Typeof<TContract>.Raw;
+            
+            var resolver = GetResolver(contract, name);
+            return (TContract) resolver?.Resolve(contract, this);
+        }
+
+        public object Resolve(Type contract, string name = null, bool throwInNotRegistered = true)
+        {
+            var resolver = GetResolver(contract, name, throwInNotRegistered);
+            return resolver?.Resolve(contract, this);
         }
 
         // ReSharper disable once MemberCanBeMadeStatic.Global

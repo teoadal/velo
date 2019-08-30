@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace Velo.Dependencies
 {
-    internal sealed class DependencyResolver
+    public sealed class DependencyResolver
     {
         private readonly string _dependencyName;
         private readonly IDependency _dependency;
@@ -12,7 +12,7 @@ namespace Velo.Dependencies
         private bool _alreadyInScope;
         private bool _resolveInProgress;
 
-        public DependencyResolver(IDependency dependency, string dependencyName = null, bool scopeDependency = false)
+        internal DependencyResolver(IDependency dependency, string dependencyName = null, bool scopeDependency = false)
         {
             _dependencyName = dependencyName;
             _dependency = dependency;
