@@ -38,14 +38,14 @@ var foo = compiledMapper.Map(source);
 
 ## Serialization/Deserialization
 
-### Десериализация
+### Deserialization
 
 ```cs
 var converter = new JConverter();
 var deserialized = _converter.Deserialize<Boo[]>(json);
 ```
 
-### Сериализация
+### Serialization
 
 ```cs
 var converter = new JConverter();
