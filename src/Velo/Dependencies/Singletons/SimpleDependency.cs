@@ -42,7 +42,21 @@ namespace Velo.Dependencies.Singletons
         {
             if (_instance != null) return _instance;
 
-            _instance = container.Activate(_implementation, _constructor);
+            var parameters = _constructor.GetParameters();
+            
+            var resolvedParameters = new object[parameters.Length];
+            for (var i = 0; i < parameters.Length; i++)
+            {
+                var parameter = parameters[i];
+        
+                var parameterType = parameter.ParameterType;
+                var parameterName = parameter.Name;
+                var required = !parameter.HasDefaultValue;
+
+                resolvedParameters[i] = container.Resolve(parameterType, parameterName, required);
+            }
+            
+            _instance = _constructor.Invoke(resolvedParameters);
             return _instance;
         }
         

@@ -59,7 +59,7 @@ namespace Velo.Dependencies
         {
             _resolveInProgress = false;
 
-            if (!_scopeDependency || _alreadyInScope) return;
+            if (_scopeDependency || _alreadyInScope) return;
 
             DependencyScope.Register(this);
             _alreadyInScope = true;
