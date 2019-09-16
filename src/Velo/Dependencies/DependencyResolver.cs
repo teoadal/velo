@@ -19,11 +19,11 @@ namespace Velo.Dependencies
             _scopeDependency = scopeDependency;
         }
 
-        public bool Applicable(Type requestedType, string parameterName = null)
+        public bool Applicable(Type contract, string parameterName = null)
         {
             return _dependencyName == null || parameterName == null
-                ? _dependency.Applicable(requestedType)
-                : _dependencyName == parameterName && _dependency.Applicable(requestedType); 
+                ? _dependency.Applicable(contract)
+                : _dependencyName == parameterName && _dependency.Applicable(contract); 
         }
 
         public void Destroy()
@@ -32,11 +32,11 @@ namespace Velo.Dependencies
             _alreadyInScope = false;
         }
 
-        public object Resolve(Type requestedType, DependencyContainer container)
+        public object Resolve(Type contract, DependencyContainer container)
         {
             StartResolving();
 
-            var resolved = _dependency.Resolve(requestedType, container);
+            var resolved = _dependency.Resolve(contract, container);
 
             ResolvingComplete();
 
