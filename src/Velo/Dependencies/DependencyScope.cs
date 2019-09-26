@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Velo.Dependencies.Resolvers;
 
 namespace Velo.Dependencies
 {
@@ -12,7 +13,7 @@ namespace Velo.Dependencies
         [ThreadStatic] 
         private static DependencyScope _current;
 
-        private List<DependencyResolver> _scopeResolvers;
+        private List<IDependencyResolver> _scopeResolvers;
         private DependencyScope _parent;
 
         private bool _disposed;
@@ -23,10 +24,10 @@ namespace Velo.Dependencies
 
             _parent = _current;
             _current = this;
-            _scopeResolvers = new List<DependencyResolver>();
+            _scopeResolvers = new List<IDependencyResolver>();
         }
 
-        internal static void Register(DependencyResolver resolver)
+        internal static void Register(IDependencyResolver resolver)
         {
             if (_current == null)
             {
