@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Velo.Dependencies.Resolvers;
+using Velo.Utils;
 
 namespace Velo.Dependencies
 {
@@ -10,14 +11,13 @@ namespace Velo.Dependencies
 
         public readonly string Name;
 
-        [ThreadStatic] 
-        private static DependencyScope _current;
+        [ThreadStatic] private static DependencyScope _current;
 
         private List<IDependencyResolver> _scopeResolvers;
         private DependencyScope _parent;
 
         private bool _disposed;
-        
+
         internal DependencyScope(string name)
         {
             Name = name;
@@ -29,23 +29,15 @@ namespace Velo.Dependencies
 
         internal static void Register(IDependencyResolver resolver)
         {
-            if (_current == null)
-            {
-                throw new InvalidOperationException("Scope is not started");
-            }
-            
-            if (_current._disposed)
-            {
-                throw new ObjectDisposedException(nameof(DependencyScope));
-            }
+            if (_current == null) throw Error.InvalidOperation("Scope is not started");
+            if (_current._disposed) throw Error.Disposed(nameof(DependencyScope));
 
             var scopeDependencies = _current._scopeResolvers;
-
             if (scopeDependencies.Contains(resolver))
             {
-                throw new InvalidOperationException($"Dependency {resolver} already exists in scope {_current}");
+                throw Error.InvalidOperation($"Dependency {resolver} already exists in scope {_current}");
             }
-            
+
             scopeDependencies.Add(resolver);
         }
 

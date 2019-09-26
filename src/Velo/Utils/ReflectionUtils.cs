@@ -9,8 +9,8 @@ namespace Velo.Utils
         
         public static ConstructorInfo GetConstructor(Type type)
         {
-            if (type.IsAbstract) throw new InvalidOperationException("Type is abstract");
-            if (type.IsInterface) throw new InvalidOperationException("Type is interface");
+            if (type.IsAbstract) throw Error.InvalidOperation("Type is abstract");
+            if (type.IsInterface) throw Error.InvalidOperation("Type is interface");
             
             var availableConstructors = type.GetConstructors();
             return availableConstructors[0];

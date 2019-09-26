@@ -9,7 +9,6 @@ namespace Velo.Dependencies.Singletons
     {
         private readonly ConstructorInfo _constructor;
         private readonly Type _contract;
-        private readonly Type _implementation;
         private readonly bool _isDisposable;
 
         private object _instance;
@@ -17,8 +16,7 @@ namespace Velo.Dependencies.Singletons
         public SimpleDependency(Type contract, Type implementation)
         {
             _contract = contract;
-            _implementation = implementation;
-
+            
             _constructor = ReflectionUtils.GetConstructor(implementation);
             _isDisposable = ReflectionUtils.IsDisposableType(implementation);
         }

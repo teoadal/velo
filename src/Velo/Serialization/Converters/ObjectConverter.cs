@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 
 using Velo.Serialization.Tokenization;
+using Velo.Utils;
 
 namespace Velo.Serialization.Converters
 {
@@ -103,7 +104,7 @@ namespace Velo.Serialization.Converters
 
             if (serializeMethod == null)
             {
-                throw new InvalidOperationException($"Bad converter for type {property.PropertyType}");
+                throw Error.BadConverter(property.PropertyType);
             }
 
             var converter = Expression.Constant(propertyValueConverter, converterType);
@@ -128,7 +129,7 @@ namespace Velo.Serialization.Converters
 
             if (deserializeMethod == null)
             {
-                throw new InvalidOperationException($"Bad converter for type {property.PropertyType}");
+                throw Error.BadConverter(property.PropertyType);
             }
 
             var converter = Expression.Constant(propertyValueConverter, converterType);

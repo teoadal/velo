@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-
+using Velo.Dependencies.Resolvers;
 using Velo.Dependencies.Singletons;
 using Velo.Utils;
 
@@ -10,17 +10,17 @@ namespace Velo.Dependencies
 {
     public sealed class DependencyContainer
     {
-        private readonly Dictionary<ResolverDescription, DependencyResolver> _concreteResolvers;
-        private readonly DependencyResolver[] _resolvers;
+        private readonly Dictionary<ResolverDescription, IDependencyResolver> _concreteResolvers;
+        private readonly IDependencyResolver[] _resolvers;
 
-        internal DependencyContainer(List<DependencyResolver> resolvers)
+        internal DependencyContainer(List<IDependencyResolver> resolvers)
         {
             var containerType = Typeof<DependencyContainer>.Raw;
-            var containerResolver = new DependencyResolver(new InstanceSingleton(new[] {containerType}, this));
+            var containerResolver = new DefaultResolver(new InstanceSingleton(new[] {containerType}, this));
             
             resolvers.Add(containerResolver);
 
-            _concreteResolvers = new Dictionary<ResolverDescription, DependencyResolver>(resolvers.Count);
+            _concreteResolvers = new Dictionary<ResolverDescription, IDependencyResolver>(resolvers.Count);
             _resolvers = resolvers.ToArray();
         }
 
@@ -62,7 +62,7 @@ namespace Velo.Dependencies
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public DependencyResolver GetResolver(Type contract, string name = null, bool throwInNotRegistered = true)
+        public IDependencyResolver GetResolver(Type contract, string name = null, bool throwInNotRegistered = true)
         {
             var description = new ResolverDescription(contract, name);
             if (_concreteResolvers.TryGetValue(description, out var resolver)) return resolver;
@@ -80,7 +80,7 @@ namespace Velo.Dependencies
             
             if (throwInNotRegistered)
             {
-                throw new InvalidOperationException($"Dependency for contract '{contract}' is not registered");
+                throw Error.InvalidOperation($"Dependency for contract '{contract}' is not registered");
             }
 
             return null;
@@ -110,12 +110,12 @@ namespace Velo.Dependencies
         {
             private readonly int _hash;
             
-            public ResolverDescription(Type type, string name)
+            public ResolverDescription(Type contract, string name)
             {
                 unchecked
                 {
                     _hash = name?.GetHashCode() ?? 1;
-                    _hash = type.GetHashCode() ^ _hash;
+                    _hash = contract.GetHashCode() ^ _hash;
                 }
             }
 

@@ -1,7 +1,7 @@
-using System;
 using System.Text;
 
 using Velo.Serialization.Tokenization;
+using Velo.Utils;
 
 namespace Velo.Serialization.Converters
 {
@@ -18,7 +18,7 @@ namespace Velo.Serialization.Converters
                 case JsonTokenType.False:
                     return false;
                 default:
-                    throw new InvalidOperationException($"Invalid boolean token '{token}'");
+                    throw Error.InvalidOperation($"Invalid boolean token '{token}'");
             }
         }
 

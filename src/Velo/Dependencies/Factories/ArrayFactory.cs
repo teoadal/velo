@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
+using Velo.Dependencies.Resolvers;
+using Velo.Utils;
 
 namespace Velo.Dependencies.Factories
 {
     internal sealed class ArrayFactory : IDependency
     {
-        private readonly DependencyResolver[] _resolvers;
+        private readonly IDependencyResolver[] _resolvers;
 
-        public ArrayFactory(List<DependencyResolver> dependencies)
+        public ArrayFactory(List<IDependencyResolver> dependencies)
         {
             _resolvers = dependencies.ToArray();
         }
@@ -25,11 +26,7 @@ namespace Velo.Dependencies.Factories
         public object Resolve(Type contract, DependencyContainer container)
         {
             var elementType = contract.GetElementType();
-
-            if (elementType == null)
-            {
-                throw new InvalidDataException($"Invalid array type {contract}");
-            }
+            if (elementType == null) throw Error.InvalidData($"Invalid array type {contract}");
 
             var elements = new List<object>();
             for (var i = 0; i < _resolvers.Length; i++)

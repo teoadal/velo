@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-
+using Velo.Dependencies.Resolvers;
 using Velo.Dependencies.Singletons;
 using Velo.Dependencies.Transients;
 using Velo.Utils;
@@ -41,7 +41,7 @@ namespace Velo.Dependencies
         {
             if (_implementation != null && !_implementation.IsAssignableFrom(contract))
             {
-                throw new InvalidOperationException($"{contract} is not assignable from {_implementation}");
+                throw Error.InvalidOperation($"{contract} is not assignable from {_implementation}");
             }
 
             _contracts.Add(contract);
@@ -50,7 +50,7 @@ namespace Velo.Dependencies
 
         public DependencyConfigurator Builder<T>(Func<DependencyContainer, T> builder)
         {
-            if (_implementation != null) throw InconsistentConfiguration("implementation already exists");
+            if (_implementation != null) throw Error.InconsistentOperation("implementation already exists");
 
             if (_contracts.Count > 0)
             {
@@ -58,7 +58,7 @@ namespace Velo.Dependencies
                 foreach (var contract in _contracts)
                 {
                     if (contract.IsAssignableFrom(implementation)) continue;
-                    throw new InvalidOperationException($"{contract} is not assignable from {implementation}");
+                    throw Error.InvalidOperation($"{contract} is not assignable from {implementation}");
                 }
             }
 
@@ -76,7 +76,7 @@ namespace Velo.Dependencies
         {
             if (_implementation != null || _builder != null || _instance != null)
             {
-                throw InconsistentConfiguration("implementation, builder or instance already set");
+                throw Error.InconsistentOperation("implementation, builder or instance already set");
             }
 
             if (_contracts.Count > 0)
@@ -84,7 +84,7 @@ namespace Velo.Dependencies
                 foreach (var contract in _contracts)
                 {
                     if (contract.IsAssignableFrom(implementation)) continue;
-                    throw new InvalidOperationException($"{contract} is not assignable from {implementation}");
+                    throw Error.InvalidOperation($"{contract} is not assignable from {implementation}");
                 }
             }
 
@@ -96,7 +96,7 @@ namespace Velo.Dependencies
         {
             if (_implementation != null || _builder != null || _instance != null)
             {
-                throw InconsistentConfiguration("implementation, builder or instance already set");
+                throw Error.InconsistentOperation("implementation, builder or instance already set");
             }
 
             _instance = instance;
@@ -113,7 +113,7 @@ namespace Velo.Dependencies
         {
             if (_singleton || _transient)
             {
-                throw InconsistentConfiguration("already configured as singleton or transient");
+                throw Error.InconsistentOperation("already configured as singleton or transient");
             }
 
             _singleton = value;
@@ -124,7 +124,10 @@ namespace Velo.Dependencies
 
         public DependencyConfigurator Singleton(bool value = true)
         {
-            if (_transient) throw InconsistentConfiguration("already configured as transient");
+            if (_transient)
+            {
+                throw Error.InconsistentOperation("already configured as transient");
+            }
             
             _singleton = value;
             return this;
@@ -132,13 +135,16 @@ namespace Velo.Dependencies
 
         public DependencyConfigurator Transient(bool value = true)
         {
-            if (_singleton) throw InconsistentConfiguration("already configured as singleton");
+            if (_singleton)
+            {
+                throw Error.InconsistentOperation("already configured as singleton");
+            }
             
             _transient = value;
             return this;
         }
         
-        internal DependencyResolver Build()
+        internal IDependencyResolver Build()
         {
             var contracts = CollectContracts();
 
@@ -146,14 +152,11 @@ namespace Velo.Dependencies
             if (_instance != null) dependency = new InstanceSingleton(contracts, _instance);
             else if (_singleton) dependency = BuildSingletonDependency(contracts);
             else if (_transient) dependency = BuildTransientDependency(contracts);
-            else throw InconsistentConfiguration("lifetime not configured");
-            
-            return new DependencyResolver(dependency, _name, _scope);
-        }
+            else throw Error.InconsistentOperation("Lifetime not configured");
 
-        private static Exception InconsistentConfiguration(string message)
-        {
-            return new InvalidOperationException($"Inconsistent dependency configuration: {message}");
+            return _scope
+                ? (IDependencyResolver) new ScopeResolver(dependency, _name)
+                : new DefaultResolver(dependency, _name);
         }
 
         private IDependency BuildSingletonDependency(Type[] contracts)
@@ -173,7 +176,7 @@ namespace Velo.Dependencies
                     : new ActivatorSingleton(contracts, _implementation);
             }
 
-            throw new NotImplementedException();
+            throw Error.InconsistentOperation("invalid singleton configuration");
         }
         
         private IDependency BuildTransientDependency(Type[] contracts)
@@ -191,7 +194,7 @@ namespace Velo.Dependencies
                 return new ActivatorTransient(contracts, _implementation);
             }
 
-            throw InconsistentConfiguration("invalid transient configuration");
+            throw Error.InconsistentOperation("invalid transient configuration");
         }
 
         private Type[] CollectContracts()
@@ -201,7 +204,7 @@ namespace Velo.Dependencies
             if (_instance != null) return new[] {_instance.GetType()};
             if (_implementation != null) return new[] {_implementation};
 
-            throw InconsistentConfiguration("set contracts");
+            throw Error.InconsistentOperation("set contracts");
         }
     }
 }

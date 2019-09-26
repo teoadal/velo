@@ -1,8 +1,8 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Velo.Utils;
 
 namespace Velo.Serialization.Tokenization
 {
@@ -89,7 +89,7 @@ namespace Velo.Serialization.Tokenization
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void EnsureNotDisposed()
         {
-            if (_disposed) throw new ObjectDisposedException(nameof(JsonTokenizer));
+            if (_disposed) throw Error.Disposed(nameof(JsonTokenizer));
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-
 using Velo.Dependencies.Factories;
+using Velo.Dependencies.Resolvers;
 using Velo.Dependencies.Scan;
 using Velo.Dependencies.Singletons;
 using Velo.Dependencies.Transients;
@@ -12,20 +12,25 @@ namespace Velo.Dependencies
 {
     public sealed class DependencyBuilder
     {
-        private readonly List<DependencyResolver> _resolvers;
+        private readonly List<IDependencyResolver> _resolvers;
 
         public DependencyBuilder(int capacity = 50)
         {
-            _resolvers = new List<DependencyResolver>(capacity);
+            _resolvers = new List<IDependencyResolver>(capacity);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public DependencyBuilder AddDependency(IDependency dependency, string name = null, bool scopeDependency = false)
         {
-            _resolvers.Add(new DependencyResolver(dependency, name, scopeDependency));
+            var resolver = scopeDependency
+                ? (IDependencyResolver) new ScopeResolver(dependency, name)
+                : new DefaultResolver(dependency, name);
+
+            _resolvers.Add(resolver);
+            
             return this;
         }
-        
+
         #region AddGeneric
 
         public DependencyBuilder AddGenericScope(Type genericType)
