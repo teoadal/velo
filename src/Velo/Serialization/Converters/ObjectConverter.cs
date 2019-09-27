@@ -72,7 +72,7 @@ namespace Velo.Serialization.Converters
         {
             if (_equalityComparer.Equals(instance, default))
             {
-                builder.Append(JsonTokenizer.NullValue);
+                builder.Append(JsonTokenizer.TOKEN_NULL_VALUE);
                 return;
             }
 

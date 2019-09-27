@@ -44,7 +44,7 @@ namespace Velo.Serialization.Converters
         {
             if (array == null)
             {
-                builder.Append(JsonTokenizer.NullValue);
+                builder.Append(JsonTokenizer.TOKEN_NULL_VALUE);
                 return;
             }
 

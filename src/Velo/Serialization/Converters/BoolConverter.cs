@@ -24,7 +24,7 @@ namespace Velo.Serialization.Converters
 
         public void Serialize(bool value, StringBuilder builder)
         {
-            builder.Append(value ? JsonTokenizer.TrueValue : JsonTokenizer.FalseValue);
+            builder.Append(value ? JsonTokenizer.TOKEN_TRUE_VALUE : JsonTokenizer.TOKEN_FALSE_VALUE);
         }
 
         void IJsonConverter.Serialize(object value, StringBuilder builder) => Serialize((bool) value, builder);

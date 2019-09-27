@@ -319,6 +319,39 @@ namespace Velo
         }
 
         [Fact]
+        public void Scope_Nested()
+        {
+            var container = new DependencyBuilder()
+                .AddSingleton<JConverter>()
+                .AddScope<ISession, Session>()
+                .BuildContainer();
+            
+            using (container.StartScope())
+            {
+                var session = container.Resolve<ISession>();
+                Assert.Same(session, container.Resolve<ISession>());
+
+                using (container.StartScope())
+                {
+                    Assert.Same(session, container.Resolve<ISession>());
+                }
+                
+                Assert.Same(session, container.Resolve<ISession>());
+            }
+        }
+
+        [Fact]
+        public void Scope_Throw_If_Resolve_WithoutScope()
+        {
+            var container = new DependencyBuilder()
+                .AddSingleton<JConverter>()
+                .AddScope<ISession, Session>()
+                .BuildContainer();
+
+            Assert.Throws<InvalidOperationException>(() => container.Resolve<ISession>());
+        }
+        
+        [Fact]
         public void Singleton_Activator()
         {
             var container = new DependencyBuilder()
