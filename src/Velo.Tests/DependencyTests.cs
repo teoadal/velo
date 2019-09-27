@@ -12,6 +12,23 @@ namespace Velo
     public class DependencyTests
     {
         [Fact]
+        public void Activate()
+        {
+            var container = new DependencyBuilder()
+                .AddInstance(new JConverter())
+                .AddTransient<ISession, Session>()
+                .AddSingleton<IConfiguration, Configuration>()
+                .BuildContainer();
+
+            var repository1 = container.Activate<BooRepository>();
+            var repository2 = container.Activate<BooRepository>();
+            
+            Assert.NotSame(repository1, repository2);
+            Assert.Same(repository1.Configuration, repository2.Configuration);
+            Assert.NotSame(repository1.Session, repository2.Session);
+        }
+
+        [Fact]
         public void Array_Factory()
         {
             var container = new DependencyBuilder()
@@ -116,6 +133,25 @@ namespace Velo
             Assert.NotSame(instance1, instance2);
         }
 
+        [Fact]
+        public void CreateActivator()
+        {
+            var container = new DependencyBuilder()
+                .AddInstance(new JConverter())
+                .AddTransient<ISession, Session>()
+                .AddSingleton<IConfiguration, Configuration>()
+                .BuildContainer();
+
+            var activator = container.CreateActivator<BooRepository>();
+            
+            var repository1 = activator();
+            var repository2 = activator();
+            
+            Assert.NotSame(repository1, repository2);
+            Assert.Same(repository1.Configuration, repository2.Configuration);
+            Assert.NotSame(repository1.Session, repository2.Session);
+        }
+        
         [Fact]
         public void Destroy()
         {

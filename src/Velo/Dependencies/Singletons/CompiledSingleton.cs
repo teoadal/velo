@@ -6,7 +6,7 @@ namespace Velo.Dependencies.Singletons
 {
     internal sealed class CompiledSingleton : Dependency
     {
-        private Func<DependencyContainer, object> _builder;
+        private Func<object> _builder;
         private readonly ConstructorInfo _constructor;
         private readonly bool _isDisposable;
 
@@ -33,7 +33,7 @@ namespace Velo.Dependencies.Singletons
             if (_instance != null) return _instance;
             
             if (_builder == null) _builder = container.CreateActivator<object>(_constructor);
-            _instance = _builder(container);
+            _instance = _builder();
             return _instance;
         }
     }

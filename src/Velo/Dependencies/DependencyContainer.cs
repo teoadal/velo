@@ -55,12 +55,12 @@ namespace Velo.Dependencies
             return constructor.Invoke(resolvedParameters);
         }
 
-        public Func<DependencyContainer, T> CreateActivator<T>(ConstructorInfo constructor = null)
+        public Func<T> CreateActivator<T>(ConstructorInfo constructor = null)
         {
             var resultType = typeof(T);
             if (constructor == null) constructor = ReflectionUtils.GetConstructor(resultType);
                 
-            var containerParameter = Expression.Parameter(typeof(DependencyContainer), "container");
+            var container = Expression.Constant(this);
 
             var parameters = constructor.GetParameters();
             var resolvedParameters = new Expression[parameters.Length];
@@ -76,7 +76,7 @@ namespace Velo.Dependencies
                 var resolvedParameter = parameterResolver == null
                     ? (Expression) Expression.Default(parameterType)
                     : Expression.Call(Expression.Constant(parameterResolver), ResolveMethod,
-                        Expression.Constant(parameterType), containerParameter);
+                        Expression.Constant(parameterType), container);
 
                 resolvedParameters[i] = Expression.Convert(resolvedParameter, parameterType);
             }
@@ -88,7 +88,7 @@ namespace Velo.Dependencies
                 body = Expression.Convert(body, resultType);
             }
             
-            return Expression.Lambda<Func<DependencyContainer, T>>(body, containerParameter).Compile();
+            return Expression.Lambda<Func<T>>(body).Compile();
         }
         
         public void Destroy()
