@@ -47,6 +47,7 @@ namespace Velo.Dependencies.Scan
             return UseScanner(scanner);
         }
         
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AssemblyScanner UseScanner(IDependencyScanner scanner)
         {
             _scanners.Add(scanner);

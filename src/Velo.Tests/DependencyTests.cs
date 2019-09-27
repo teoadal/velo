@@ -420,6 +420,20 @@ namespace Velo
         }
 
         [Fact]
+        public void Transient_Activator_Compiled()
+        {
+            var container = new DependencyBuilder()
+                .AddSingleton<JConverter>()
+                .AddTransient<ISession, Session>(compile: true)
+                .BuildContainer();
+
+            var first = container.Resolve<ISession>();
+            var second = container.Resolve<ISession>();
+
+            Assert.NotSame(first, second);
+        }
+        
+        [Fact]
         public void Transient_Builder()
         {
             var container = new DependencyBuilder()
