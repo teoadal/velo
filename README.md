@@ -8,7 +8,7 @@ Velo - это набор простейших реализаций извест�
 
 ## Install from nuget
 
-Install Velo with the following command:
+Install Velo with the following command [from nuget](https://www.nuget.org/packages/Velo/):
 
 ```ini
 Install-Package Velo
