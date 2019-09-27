@@ -61,19 +61,25 @@ namespace Velo.Dependencies
 
         #region AddScope
 
-        public DependencyBuilder AddScope<TContract>(string name = null)
+        public DependencyBuilder AddScope<TContract>(string name = null, bool compile = false)
         {
             var contract = Typeof<TContract>.Raw;
-            var dependency = new SimpleDependency(contract, contract);
+            var dependency = compile
+                ? (IDependency) new CompiledSingleton(new[] {contract}, contract)
+                : new SimpleDependency(contract, contract);
 
             return AddDependency(dependency, name, true);
         }
 
-        public DependencyBuilder AddScope<TContract, TImplementation>(string name = null)
+        public DependencyBuilder AddScope<TContract, TImplementation>(string name = null, bool compile = false)
             where TImplementation : TContract
         {
             var contract = Typeof<TContract>.Raw;
-            var dependency = new SimpleDependency(contract, typeof(TImplementation));
+            var implementation = typeof(TImplementation);
+            
+            var dependency = compile
+                ? (IDependency) new CompiledSingleton(new[] {contract}, implementation)
+                : new SimpleDependency(contract, implementation);
 
             return AddDependency(dependency, name, true);
         }

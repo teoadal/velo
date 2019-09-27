@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
-
 using Velo.Dependencies;
 using Velo.Mapping;
 using Velo.Serialization;
 using Velo.TestsModels;
 using Velo.TestsModels.Services;
-
 using Xunit;
 
 namespace Velo
@@ -65,10 +63,10 @@ namespace Velo
 
             var instance1 = container.Resolve<JConverter>();
             var instance2 = container.Resolve<JConverter>();
-            
+
             Assert.Same(instance1, instance2);
         }
-        
+
         [Fact]
         public void Configurator_Singleton()
         {
@@ -80,15 +78,15 @@ namespace Velo
 
             var instance1 = container.Resolve<JConverter>();
             var instance2 = container.Resolve<JConverter>();
-            
+
             Assert.Same(instance1, instance2);
         }
-        
+
         [Fact]
         public void Configurator_Singleton_Other()
         {
             const string dependencyName = "testDependency";
-            
+
             var container = new DependencyBuilder()
                 .Configure(c => c
                     .Contract<IMapper<Boo>>()
@@ -99,10 +97,10 @@ namespace Velo
 
             var instance1 = container.Resolve<IMapper<Boo>>();
             var instance2 = container.Resolve<IMapper<Boo>>(dependencyName);
-            
+
             Assert.Same(instance1, instance2);
         }
-        
+
         [Fact]
         public void Configurator_Transient()
         {
@@ -114,10 +112,10 @@ namespace Velo
 
             var instance1 = container.Resolve<JConverter>();
             var instance2 = container.Resolve<JConverter>();
-            
+
             Assert.NotSame(instance1, instance2);
         }
-        
+
         [Fact]
         public void Destroy()
         {
@@ -319,13 +317,35 @@ namespace Velo
         }
 
         [Fact]
+        public void Scope_Compiled()
+        {
+            var container = new DependencyBuilder()
+                .AddSingleton<JConverter>()
+                .AddScope<ISession, Session>(compile: true)
+                .BuildContainer();
+
+            ISession firstScopeSession;
+            using (container.StartScope())
+            {
+                firstScopeSession = container.Resolve<ISession>();
+                Assert.Same(firstScopeSession, container.Resolve<ISession>());
+            }
+
+            using (container.StartScope())
+            {
+                var secondScopeSession = container.Resolve<ISession>();
+                Assert.NotSame(firstScopeSession, secondScopeSession);
+            }
+        }
+
+        [Fact]
         public void Scope_Nested()
         {
             var container = new DependencyBuilder()
                 .AddSingleton<JConverter>()
                 .AddScope<ISession, Session>()
                 .BuildContainer();
-            
+
             using (container.StartScope())
             {
                 var session = container.Resolve<ISession>();
@@ -335,7 +355,7 @@ namespace Velo
                 {
                     Assert.Same(session, container.Resolve<ISession>());
                 }
-                
+
                 Assert.Same(session, container.Resolve<ISession>());
             }
         }
@@ -350,7 +370,7 @@ namespace Velo
 
             Assert.Throws<InvalidOperationException>(() => container.Resolve<ISession>());
         }
-        
+
         [Fact]
         public void Singleton_Activator()
         {
@@ -404,7 +424,7 @@ namespace Velo
 
             Assert.Same(first, second);
         }
-        
+
         [Fact]
         public void Transient_Activator()
         {
@@ -432,7 +452,7 @@ namespace Velo
 
             Assert.NotSame(first, second);
         }
-        
+
         [Fact]
         public void Transient_Builder()
         {

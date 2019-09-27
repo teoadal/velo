@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Velo.Dependencies.Resolvers;
@@ -10,6 +11,9 @@ namespace Velo.Dependencies
 {
     public sealed class DependencyContainer
     {
+        private static readonly Type ResolverType = typeof(IDependencyResolver);
+        private static readonly MethodInfo ResolveMethod = ResolverType.GetMethod(nameof(IDependencyResolver.Resolve));
+        
         private readonly Dictionary<ResolverDescription, IDependencyResolver> _concreteResolvers;
         private readonly IDependencyResolver[] _resolvers;
 
@@ -51,6 +55,42 @@ namespace Velo.Dependencies
             return constructor.Invoke(resolvedParameters);
         }
 
+        public Func<DependencyContainer, T> CreateActivator<T>(ConstructorInfo constructor = null)
+        {
+            var resultType = typeof(T);
+            if (constructor == null) constructor = ReflectionUtils.GetConstructor(resultType);
+                
+            var containerParameter = Expression.Parameter(typeof(DependencyContainer), "container");
+
+            var parameters = constructor.GetParameters();
+            var resolvedParameters = new Expression[parameters.Length];
+            for (var i = 0; i < parameters.Length; i++)
+            {
+                var parameter = parameters[i];
+
+                var parameterType = parameter.ParameterType;
+                var parameterName = parameter.Name;
+                var required = !parameter.HasDefaultValue;
+
+                var parameterResolver = this.GetResolver(parameterType, parameterName, required);
+                var resolvedParameter = parameterResolver == null
+                    ? (Expression) Expression.Default(parameterType)
+                    : Expression.Call(Expression.Constant(parameterResolver), ResolveMethod,
+                        Expression.Constant(parameterType), containerParameter);
+
+                resolvedParameters[i] = Expression.Convert(resolvedParameter, parameterType);
+            }
+
+            Expression body = Expression.New(constructor, resolvedParameters);
+
+            if (resultType != typeof(object))
+            {
+                body = Expression.Convert(body, resultType);
+            }
+            
+            return Expression.Lambda<Func<DependencyContainer, T>>(body, containerParameter).Compile();
+        }
+        
         public void Destroy()
         {
             _concreteResolvers.Clear();
@@ -62,7 +102,7 @@ namespace Velo.Dependencies
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IDependencyResolver GetResolver(Type contract, string name = null, bool throwInNotRegistered = true)
+        private IDependencyResolver GetResolver(Type contract, string name = null, bool throwInNotRegistered = true)
         {
             var description = new ResolverDescription(contract, name);
             if (_concreteResolvers.TryGetValue(description, out var resolver)) return resolver;
@@ -85,7 +125,7 @@ namespace Velo.Dependencies
 
             return null;
         }
-        
+
         public TContract Resolve<TContract>(string name = null) where TContract : class
         {
             var contract = Typeof<TContract>.Raw;
