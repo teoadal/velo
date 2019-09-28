@@ -24,7 +24,7 @@ namespace Velo.Dependencies
         {
             var resolver = scopeDependency
                 ? (IDependencyResolver) new ScopeDependencyResolver(dependency, name)
-                : new DefaultDependencyResolver(dependency, name);
+                : new DependencyResolver(dependency, name);
 
             _resolvers.Add(resolver);
 
