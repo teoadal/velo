@@ -11,18 +11,18 @@ namespace Velo.Dependencies
 {
     public sealed class DependencyContainer
     {
-        private static readonly Type ResolverType = typeof(IResolver);
-        private static readonly MethodInfo ResolveMethod = ResolverType.GetMethod(nameof(IResolver.Resolve));
+        private static readonly Type ResolverType = typeof(IDependencyResolver);
+        private static readonly MethodInfo ResolveMethod = ResolverType.GetMethod(nameof(IDependencyResolver.Resolve));
 
-        private readonly Dictionary<Type, IResolver> _concreteResolvers;
-        private readonly IResolver[] _resolvers;
+        private readonly Dictionary<Type, IDependencyResolver> _concreteResolvers;
+        private readonly IDependencyResolver[] _resolvers;
 
-        internal DependencyContainer(List<IResolver> resolvers)
+        internal DependencyContainer(List<IDependencyResolver> resolvers)
         {
             var containerResolver = new DefaultDependencyResolver(new InstanceSingleton(this));
             resolvers.Add(containerResolver);
 
-            _concreteResolvers = new Dictionary<Type, IResolver>(resolvers.Count);
+            _concreteResolvers = new Dictionary<Type, IDependencyResolver>(resolvers.Count);
             _resolvers = resolvers.ToArray();
         }
 
@@ -120,7 +120,7 @@ namespace Velo.Dependencies
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private IResolver GetResolver(Type contract, string name = null, bool throwInNotRegistered = true)
+        private IDependencyResolver GetResolver(Type contract, string name = null, bool throwInNotRegistered = true)
         {
             if (_concreteResolvers.TryGetValue(contract, out var concreteResolver))
             {

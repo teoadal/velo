@@ -2,7 +2,7 @@ using System;
 
 namespace Velo.Dependencies.Resolvers
 {
-    public interface IResolver
+    public interface IDependencyResolver
     {
         bool Applicable(Type contract, string parameterName = null);
         
