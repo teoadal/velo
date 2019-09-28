@@ -8,6 +8,8 @@ namespace Velo.Dependencies.Resolvers
         private readonly IDependency _dependency;
         private readonly int _hash;
 
+        private bool _resolveInProgress;
+        
         public ScopeResolver(IDependency dependency, string dependencyName = null)
             : base(dependency, dependencyName)
         {
@@ -30,9 +32,14 @@ namespace Velo.Dependencies.Resolvers
                 return existsInstance;
             }
 
+            if (_resolveInProgress) throw Error.CircularDependency(_dependency);
+
+            _resolveInProgress = true;
+            
             var instance = _dependency.Resolve(contract, container);
             currentScope.Add(this, instance);
 
+            _resolveInProgress = false;
             return instance;
         }
 

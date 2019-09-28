@@ -66,13 +66,13 @@ namespace Velo
         }
 
         [Fact]
-        public void Circular_Dependency_Detection()
+        public void Circular_Dependency()
         {
             var container = new DependencyBuilder()
                 .AddSingleton<CircularDependencyService>()
                 .BuildContainer();
 
-            Assert.Throws<InvalidOperationException>(() => container.Resolve<CircularDependencyService>());
+            Assert.Throws<TypeAccessException>(() => container.Resolve<CircularDependencyService>());
         }
 
         [Fact]
@@ -371,6 +371,19 @@ namespace Velo
             {
                 var secondScopeSession = container.Resolve<ISession>();
                 Assert.NotSame(firstScopeSession, secondScopeSession);
+            }
+        }
+
+        [Fact]
+        public void Scope_Circular_Dependency()
+        {
+            var container = new DependencyBuilder()
+                .AddScope<CircularDependencyService>()
+                .BuildContainer();
+
+            using (container.StartScope())
+            {
+                Assert.Throws<TypeAccessException>(() => container.Resolve<CircularDependencyService>());
             }
         }
 

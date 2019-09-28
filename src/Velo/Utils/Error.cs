@@ -12,9 +12,9 @@ namespace Velo.Utils
             return new SerializationException($"Bad converter for type {type}");
         }
         
-        public static InvalidOperationException CircularDependency(IDependency dependency)
+        public static TypeAccessException CircularDependency(IDependency dependency)
         {
-            return new InvalidOperationException($"Detected circular dependency {dependency}");
+            return new TypeAccessException($"Detected circular dependency {dependency}");
         }
 
         public static ObjectDisposedException Disposed(string objectName)
