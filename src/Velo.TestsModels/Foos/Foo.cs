@@ -1,4 +1,4 @@
-namespace Velo.TestsModels
+namespace Velo.TestsModels.Foos
 {
     public class Foo
     {

@@ -1,6 +1,8 @@
 using System;
 
 using Velo.TestsModels;
+using Velo.TestsModels.Boos;
+using Velo.TestsModels.Foos;
 
 namespace Velo.Benchmark
 {

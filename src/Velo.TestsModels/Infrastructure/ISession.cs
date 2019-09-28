@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics;
 using Velo.Serialization;
 
-namespace Velo.TestsModels.Services
+namespace Velo.TestsModels.Infrastructure
 {
     public interface ISession
     {

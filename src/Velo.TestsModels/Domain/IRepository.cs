@@ -1,4 +1,6 @@
-namespace Velo.TestsModels.Services
+using Velo.TestsModels.Infrastructure;
+
+namespace Velo.TestsModels.Domain
 {
     public interface IRepository
     {

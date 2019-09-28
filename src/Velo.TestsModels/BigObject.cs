@@ -1,3 +1,6 @@
+using Velo.TestsModels.Boos;
+using Velo.TestsModels.Foos;
+
 namespace Velo.TestsModels
 {
     public class BigObject

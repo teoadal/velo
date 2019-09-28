@@ -3,31 +3,23 @@ using System.Collections.Generic;
 
 namespace Velo.Dependencies.Singletons
 {
-    internal sealed class GenericSingleton : IDependency
+    internal sealed class GenericSingleton : GenericDependency
     {
-        private readonly Type _genericContract;
         private readonly Type _genericImplementation;
 
         private readonly Dictionary<Type, object> _instances;
 
-        public GenericSingleton(Type genericContract, Type genericImplementation = null)
+        public GenericSingleton(Type[] genericContracts, Type genericImplementation = null) : base(genericContracts)
         {
-            _genericContract = genericContract;
             _genericImplementation = genericImplementation;
             
             _instances = new Dictionary<Type, object>();
         }
 
-        public bool Applicable(Type contract)
+        public override void Destroy()
         {
-            return contract.IsGenericType && contract.GetGenericTypeDefinition() == _genericContract;
-        }
-
-        public void Destroy()
-        {
-            foreach (var pair in _instances)
+            foreach (var instance in _instances.Values)
             {
-                var instance = pair.Value;
                 if (instance is IDisposable disposable)
                 {
                     disposable.Dispose();
@@ -37,7 +29,7 @@ namespace Velo.Dependencies.Singletons
             _instances.Clear();
         }
 
-        public object Resolve(Type contract, DependencyContainer container)
+        public override object Resolve(Type contract, DependencyContainer container)
         {
             if (_instances.TryGetValue(contract, out var existsInstance))
             {

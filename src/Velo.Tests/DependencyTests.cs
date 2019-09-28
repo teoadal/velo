@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 using Velo.Dependencies;
 using Velo.Mapping;
 using Velo.Serialization;
-using Velo.TestsModels;
-using Velo.TestsModels.Services;
+using Velo.TestsModels.Boos;
+using Velo.TestsModels.Domain;
+using Velo.TestsModels.Foos;
+using Velo.TestsModels.Infrastructure;
 using Xunit;
 
 namespace Velo

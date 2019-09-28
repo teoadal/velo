@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using Velo.Dependencies.Singletons;
 using Velo.Dependencies.Transients;
@@ -144,15 +145,9 @@ namespace Velo.Dependencies
 
             if (_implementation != null)
             {
-                if (contracts.Length > 1)
-                {
-                    return new ActivatorSingleton(contracts, _implementation);
-                }
-
-                var singleContract = contracts[0];
-                return singleContract.IsGenericTypeDefinition
-                    ? (IDependency) new GenericSingleton(singleContract, _implementation)
-                    : new SimpleDependency(singleContract, _implementation);
+                return contracts.Any(c => c.IsGenericTypeDefinition)
+                    ? (IDependency) new GenericSingleton(contracts, _implementation)
+                    : new ActivatorSingleton(contracts, _implementation);
             }
 
             throw Error.InconsistentOperation("invalid singleton configuration");

@@ -1,4 +1,8 @@
-namespace Velo.TestsModels.Services
+using Velo.TestsModels.Boos;
+using Velo.TestsModels.Foos;
+using Velo.TestsModels.Infrastructure;
+
+namespace Velo.TestsModels.Domain
 {
     public class SomethingController
     {

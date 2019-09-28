@@ -1,7 +1,8 @@
 using System;
 using Velo.Mapping;
+using Velo.TestsModels.Infrastructure;
 
-namespace Velo.TestsModels.Services
+namespace Velo.TestsModels.Boos
 {
     public interface IBooService
     {

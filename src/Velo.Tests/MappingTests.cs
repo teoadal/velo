@@ -1,7 +1,7 @@
 using AutoFixture.Xunit2;
 using Velo.Mapping;
-using Velo.TestsModels;
-
+using Velo.TestsModels.Boos;
+using Velo.TestsModels.Foos;
 using Xunit;
 
 namespace Velo

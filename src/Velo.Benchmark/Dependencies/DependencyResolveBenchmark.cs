@@ -6,7 +6,9 @@ using Microsoft.Extensions.DependencyInjection;
 using SimpleInjector;
 using Unity;
 using Velo.Dependencies;
-using Velo.TestsModels.Services;
+using Velo.TestsModels.Boos;
+using Velo.TestsModels.Domain;
+using Velo.TestsModels.Foos;
 
 namespace Velo.Benchmark.Dependencies
 {

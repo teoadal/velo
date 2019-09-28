@@ -35,17 +35,20 @@ namespace Velo.Dependencies
 
         public DependencyBuilder AddGenericScope(Type genericContract, Type genericImplementation = null)
         {
-            return AddDependency(new GenericSingleton(genericContract, genericImplementation), scopeDependency: true);
+            var contracts = new[] {genericContract};
+            return AddDependency(new GenericSingleton(contracts, genericImplementation), scopeDependency: true);
         }
 
         public DependencyBuilder AddGenericSingleton(Type genericContract, Type genericImplementation = null)
         {
-            return AddDependency(new GenericSingleton(genericContract, genericImplementation));
+            var contracts = new[] {genericContract};
+            return AddDependency(new GenericSingleton(contracts, genericImplementation));
         }
 
         public DependencyBuilder AddGenericTransient(Type genericContract, Type genericImplementation = null)
         {
-            return AddDependency(new GenericTransient(genericContract, genericImplementation));
+            var contracts = new[] {genericContract};
+            return AddDependency(new GenericTransient(contracts, genericImplementation));
         }
 
         #endregion

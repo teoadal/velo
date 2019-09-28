@@ -1,4 +1,4 @@
-namespace Velo.TestsModels.Services
+namespace Velo.TestsModels.Domain
 {
     public class CircularDependencyService
     {

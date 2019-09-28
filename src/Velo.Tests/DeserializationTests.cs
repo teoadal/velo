@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 using Velo.Serialization;
 using Velo.TestsModels;
-
+using Velo.TestsModels.Boos;
 using Xunit;
 
 namespace Velo
