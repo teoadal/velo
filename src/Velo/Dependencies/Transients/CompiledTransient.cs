@@ -14,13 +14,16 @@ namespace Velo.Dependencies.Transients
             _constructor = ReflectionUtils.GetConstructor(implementation);
         }
 
-        public override object Resolve(Type contract, DependencyContainer container)
+        public override void Init(DependencyContainer container)
         {
             if (_builder == null)
             {
                 _builder = container.CreateActivator<object>(_constructor);
             }
-            
+        }
+
+        public override object Resolve(Type contract, DependencyContainer container)
+        {
             return _builder();
         }
     }
