@@ -31,9 +31,14 @@ namespace Velo.Dependencies.Singletons
         public override object Resolve(Type contract, DependencyContainer container)
         {
             if (_instance != null) return _instance;
-            
-            if (_builder == null) _builder = container.CreateActivator<object>(_constructor);
+
+            if (_builder == null)
+            {
+                _builder = container.CreateActivator<object>(_constructor);
+            }
+
             _instance = _builder();
+
             return _instance;
         }
     }

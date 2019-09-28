@@ -16,7 +16,11 @@ namespace Velo.Dependencies.Transients
 
         public override object Resolve(Type contract, DependencyContainer container)
         {
-            if (_builder == null) _builder = container.CreateActivator<object>(_constructor);
+            if (_builder == null)
+            {
+                _builder = container.CreateActivator<object>(_constructor);
+            }
+            
             return _builder();
         }
     }

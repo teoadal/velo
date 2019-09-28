@@ -1,57 +1,25 @@
-using System;
-using Velo.Utils;
-
 namespace Velo.Dependencies.Resolvers
 {
-    internal sealed class ScopeResolver : IDependencyResolver
+    internal sealed class ScopeResolver : Resolver
     {
-        private readonly IDependency _dependency;
-        private readonly string _dependencyName;
-
         private bool _addedToScope;
-        private bool _resolveInProgress;
 
-        public ScopeResolver(IDependency dependency, string name = null)
+        public ScopeResolver(IDependency dependency, string dependencyName = null)
+            : base(dependency, dependencyName)
         {
-            _dependency = dependency;
-            _dependencyName = name;
         }
 
-        public bool Applicable(Type contract, string parameterName = null)
+        protected override void DestroyComplete()
         {
-            return _dependencyName == null || parameterName == null
-                ? _dependency.Applicable(contract)
-                : _dependencyName == parameterName && _dependency.Applicable(contract); 
-        }
-
-        public void Destroy()
-        {
-            _dependency.Destroy();
             _addedToScope = false;
         }
 
-        public object Resolve(Type contract, DependencyContainer container)
+        protected override void ResolveComplete(object resolvedInstance, DependencyContainer container)
         {
-            if (_resolveInProgress) throw Error.CircularDependency(_dependency);
-
-            _resolveInProgress = true;
+            if (_addedToScope) return;
             
-            var resolved = _dependency.Resolve(contract, container);
-            
-            if (!_addedToScope)
-            {
-                DependencyScope.Register(this);
-                _addedToScope = true;
-            }
-                
-            _resolveInProgress = false;
-            
-            return resolved;
-        }
-
-        public override string ToString()
-        {
-            return _dependency.ToString();
+            DependencyScope.Register(this);
+            _addedToScope = true;
         }
     }
 }
