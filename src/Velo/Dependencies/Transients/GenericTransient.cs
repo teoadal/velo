@@ -4,16 +4,18 @@ namespace Velo.Dependencies.Transients
 {
     internal sealed class GenericTransient : IDependency
     {
-        private readonly Type _genericType;
+        private readonly Type _genericContract;
+        private readonly Type _genericImplementation;
 
-        public GenericTransient(Type genericType)
+        public GenericTransient(Type genericContract, Type genericImplementation = null)
         {
-            _genericType = genericType;
+            _genericContract = genericContract;
+            _genericImplementation = genericImplementation;
         }
 
         public bool Applicable(Type contract)
         {
-            return contract.IsGenericType && contract.GetGenericTypeDefinition() == _genericType;
+            return contract.IsGenericType && contract.GetGenericTypeDefinition() == _genericContract;
         }
 
         public void Destroy()
@@ -22,7 +24,11 @@ namespace Velo.Dependencies.Transients
 
         public object Resolve(Type contract, DependencyContainer container)
         {
-            return container.Activate(contract);
+            var implementation = _genericImplementation == null
+                ? contract
+                : _genericImplementation.MakeGenericType(contract.GetGenericArguments());
+            
+            return container.Activate(implementation);
         }
     }
 }

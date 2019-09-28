@@ -38,7 +38,8 @@ namespace Velo.Dependencies
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public DependencyConfigurator Contract(Type contract)
         {
-            if (_implementation != null && !_implementation.IsAssignableFrom(contract) && !_implementation.IsGenericTypeDefinition)
+            if (_implementation != null && !_implementation.IsAssignableFrom(contract) &&
+                !_implementation.IsGenericTypeDefinition)
             {
                 throw Error.InvalidOperation($"{contract} is not assignable from {_implementation}");
             }
@@ -143,9 +144,15 @@ namespace Velo.Dependencies
 
             if (_implementation != null)
             {
-                return contracts.Length == 1
-                    ? (IDependency) new SimpleDependency(contracts[0], _implementation)
-                    : new ActivatorSingleton(contracts, _implementation);
+                if (contracts.Length > 1)
+                {
+                    return new ActivatorSingleton(contracts, _implementation);
+                }
+
+                var singleContract = contracts[0];
+                return singleContract.IsGenericTypeDefinition
+                    ? (IDependency) new GenericSingleton(singleContract, _implementation)
+                    : new SimpleDependency(singleContract, _implementation);
             }
 
             throw Error.InconsistentOperation("invalid singleton configuration");

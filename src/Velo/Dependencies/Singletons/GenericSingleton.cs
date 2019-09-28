@@ -5,19 +5,22 @@ namespace Velo.Dependencies.Singletons
 {
     internal sealed class GenericSingleton : IDependency
     {
-        private readonly Type _genericType;
-        
+        private readonly Type _genericContract;
+        private readonly Type _genericImplementation;
+
         private readonly Dictionary<Type, object> _instances;
 
-        public GenericSingleton(Type genericType)
+        public GenericSingleton(Type genericContract, Type genericImplementation = null)
         {
-            _genericType = genericType;
+            _genericContract = genericContract;
+            _genericImplementation = genericImplementation;
+            
             _instances = new Dictionary<Type, object>();
         }
 
         public bool Applicable(Type contract)
         {
-            return contract.IsGenericType && contract.GetGenericTypeDefinition() == _genericType;
+            return contract.IsGenericType && contract.GetGenericTypeDefinition() == _genericContract;
         }
 
         public void Destroy()
@@ -41,7 +44,12 @@ namespace Velo.Dependencies.Singletons
                 return existsInstance;
             }
 
-            var instance = container.Activate(contract);
+            var implementation = _genericImplementation == null
+                ? contract
+                : _genericImplementation.MakeGenericType(contract.GetGenericArguments());
+            
+            var instance = container.Activate(implementation);
+            
             _instances.Add(contract, instance);
 
             return instance;

@@ -105,12 +105,15 @@ namespace Velo.Dependencies
         private IDependencyResolver GetResolver(Type contract, string name = null, bool throwInNotRegistered = true)
         {
             var description = new ResolverDescription(contract, name);
-            if (_concreteResolvers.TryGetValue(description, out var resolver)) return resolver;
+            if (_concreteResolvers.TryGetValue(description, out var concreteResolver))
+            {
+                return concreteResolver;
+            }
 
             var resolvers = _resolvers;
             for (var i = 0; i < resolvers.Length; i++)
             {
-                resolver = resolvers[i];
+                var resolver = resolvers[i];
                 if (!resolver.Applicable(contract, name)) continue;
 
                 _concreteResolvers.Add(description, resolver);

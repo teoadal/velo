@@ -24,7 +24,7 @@ namespace Velo
 
             var repository1 = container.Activate<BooRepository>();
             var repository2 = container.Activate<BooRepository>();
-            
+
             Assert.NotSame(repository1, repository2);
             Assert.Same(repository1.Configuration, repository2.Configuration);
             Assert.NotSame(repository1.Session, repository2.Session);
@@ -98,15 +98,15 @@ namespace Velo
 
             var booMapper1 = container.Resolve<IMapper<Boo>>();
             var booMapper2 = container.Resolve<IMapper<Boo>>();
-            
+
             Assert.Same(booMapper1, booMapper2);
-            
+
             var fooMapper1 = container.Resolve<IMapper<Foo>>();
             var fooMapper2 = container.Resolve<IMapper<Foo>>();
-            
+
             Assert.Same(fooMapper1, fooMapper2);
         }
-        
+
         [Fact]
         public void Configurator_Singleton()
         {
@@ -166,15 +166,15 @@ namespace Velo
                 .BuildContainer();
 
             var activator = container.CreateActivator<BooRepository>();
-            
+
             var repository1 = activator();
             var repository2 = activator();
-            
+
             Assert.NotSame(repository1, repository2);
             Assert.Same(repository1.Configuration, repository2.Configuration);
             Assert.NotSame(repository1.Session, repository2.Session);
         }
-        
+
         [Fact]
         public void Destroy()
         {
@@ -311,7 +311,7 @@ namespace Velo
             Assert.Contains(repositories, r => r.GetType() == typeof(FooRepository));
             Assert.Contains(repositories, r => r.GetType() == typeof(OtherFooRepository));
         }
-        
+
         [Fact]
         public void Scan_Generic_Interface_Implementations()
         {
@@ -374,7 +374,7 @@ namespace Velo
 
             Assert.True(service.Disposed);
         }
-        
+
         [Fact]
         public void Scope_Compiled()
         {
@@ -397,6 +397,48 @@ namespace Velo
             }
         }
 
+        [Fact]
+        public void Scope_Generic()
+        {
+            var container = new DependencyBuilder()
+                .AddGenericScope(typeof(List<>))
+                .BuildContainer();
+
+            List<int> firstScopeList;
+            using (container.StartScope())
+            {
+                firstScopeList = container.Resolve<List<int>>();
+                Assert.Same(firstScopeList, container.Resolve<List<int>>());
+            }
+
+            using (container.StartScope())
+            {
+                var secondScopeList = container.Resolve<List<int>>();
+                Assert.NotSame(firstScopeList, secondScopeList);
+            }
+        }
+        
+        [Fact]
+        public void Scope_Generic_With_Contract()
+        {
+            var container = new DependencyBuilder()
+                .AddGenericScope(typeof(IList<>), typeof(List<>))
+                .BuildContainer();
+
+            IList<int> firstScopeList;
+            using (container.StartScope())
+            {
+                firstScopeList = container.Resolve<IList<int>>();
+                Assert.Same(firstScopeList, container.Resolve<IList<int>>());
+            }
+
+            using (container.StartScope())
+            {
+                var secondScopeList = container.Resolve<IList<int>>();
+                Assert.NotSame(firstScopeList, secondScopeList);
+            }
+        }
+        
         [Fact]
         public async Task Scope_MultiThreading()
         {
@@ -438,7 +480,7 @@ namespace Velo
                 Assert.NotSame(services[i], services[j]);
             }
         }
-        
+
         [Fact]
         public void Scope_Nested()
         {
@@ -507,10 +549,33 @@ namespace Velo
                 .AddGenericSingleton(typeof(CompiledMapper<>))
                 .BuildContainer();
 
-            var first = container.Resolve<CompiledMapper<Boo>>();
-            var second = container.Resolve<CompiledMapper<Boo>>();
+            var boo1 = container.Resolve<CompiledMapper<Boo>>();
+            var boo2 = container.Resolve<CompiledMapper<Boo>>();
 
-            Assert.Same(first, second);
+            Assert.Same(boo1, boo2);
+            
+            var foo1 = container.Resolve<CompiledMapper<Foo>>();
+            var foo2 = container.Resolve<CompiledMapper<Foo>>();
+
+            Assert.Same(foo1, foo2);
+        }
+
+        [Fact]
+        public void Singleton_Generic_With_Contract()
+        {
+            var container = new DependencyBuilder()
+                .AddGenericSingleton(typeof(IMapper<>), typeof(CompiledMapper<>))
+                .BuildContainer();
+
+            var boo1 = container.Resolve<IMapper<Boo>>();
+            var boo2 = container.Resolve<IMapper<Boo>>();
+
+            Assert.Same(boo1, boo2);
+            
+            var foo1 = container.Resolve<IMapper<Foo>>();
+            var foo2 = container.Resolve<IMapper<Foo>>();
+
+            Assert.Same(foo1, foo2);
         }
 
         [Fact]
@@ -577,6 +642,19 @@ namespace Velo
 
             var first = container.Resolve<List<int>>();
             var second = container.Resolve<List<int>>();
+
+            Assert.NotSame(first, second);
+        }
+        
+        [Fact]
+        public void Transient_Generic_With_Contract()
+        {
+            var container = new DependencyBuilder()
+                .AddGenericTransient(typeof(IList<>), typeof(List<>))
+                .BuildContainer();
+
+            var first = container.Resolve<IList<int>>();
+            var second = container.Resolve<IList<int>>();
 
             Assert.NotSame(first, second);
         }

@@ -29,9 +29,11 @@ namespace Velo.Dependencies.Factories
             if (elementType == null) throw Error.InvalidData($"Invalid array type {contract}");
 
             var elements = new List<object>();
-            for (var i = 0; i < _resolvers.Length; i++)
+            
+            var resolvers = _resolvers;
+            for (var i = 0; i < resolvers.Length; i++)
             {
-                var dependency = _resolvers[i];
+                var dependency = resolvers[i];
                 if (!dependency.Applicable(elementType)) continue;
 
                 var resolved = dependency.Resolve(elementType, container);

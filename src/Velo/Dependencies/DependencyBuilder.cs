@@ -33,19 +33,19 @@ namespace Velo.Dependencies
 
         #region AddGeneric
 
-        public DependencyBuilder AddGenericScope(Type genericType)
+        public DependencyBuilder AddGenericScope(Type genericContract, Type genericImplementation = null)
         {
-            return AddDependency(new GenericSingleton(genericType));
+            return AddDependency(new GenericSingleton(genericContract, genericImplementation), scopeDependency: true);
         }
 
-        public DependencyBuilder AddGenericSingleton(Type genericType)
+        public DependencyBuilder AddGenericSingleton(Type genericContract, Type genericImplementation = null)
         {
-            return AddDependency(new GenericSingleton(genericType));
+            return AddDependency(new GenericSingleton(genericContract, genericImplementation));
         }
 
-        public DependencyBuilder AddGenericTransient(Type genericType)
+        public DependencyBuilder AddGenericTransient(Type genericContract, Type genericImplementation = null)
         {
-            return AddDependency(new GenericTransient(genericType));
+            return AddDependency(new GenericTransient(genericContract, genericImplementation));
         }
 
         #endregion
