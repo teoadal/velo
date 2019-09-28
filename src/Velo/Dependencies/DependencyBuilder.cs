@@ -36,19 +36,25 @@ namespace Velo.Dependencies
         public DependencyBuilder AddGenericScope(Type genericContract, Type genericImplementation = null)
         {
             var contracts = new[] {genericContract};
-            return AddDependency(new GenericSingleton(contracts, genericImplementation), scopeDependency: true);
+
+            var dependency = new GenericSingleton(contracts, genericImplementation);
+            return AddDependency(dependency, scopeDependency: true);
         }
 
         public DependencyBuilder AddGenericSingleton(Type genericContract, Type genericImplementation = null)
         {
             var contracts = new[] {genericContract};
-            return AddDependency(new GenericSingleton(contracts, genericImplementation));
+
+            var dependency = new GenericSingleton(contracts, genericImplementation);
+            return AddDependency(dependency);
         }
 
         public DependencyBuilder AddGenericTransient(Type genericContract, Type genericImplementation = null)
         {
             var contracts = new[] {genericContract};
-            return AddDependency(new GenericTransient(contracts, genericImplementation));
+
+            var dependency = new GenericTransient(contracts, genericImplementation);
+            return AddDependency(dependency);
         }
 
         #endregion
@@ -57,33 +63,28 @@ namespace Velo.Dependencies
             where TContract : class
         {
             var contract = Typeof<TContract>.Raw;
-            var dependency = new InstanceSingleton(new[] {contract}, instance);
 
+            var dependency = new InstanceSingleton(new[] {contract}, instance);
             return AddDependency(dependency);
         }
 
         #region AddScope
 
-        public DependencyBuilder AddScope<TContract>(string name = null, bool compile = false)
+        public DependencyBuilder AddScope<TContract>(string name = null)
         {
             var contract = Typeof<TContract>.Raw;
-            var dependency = compile
-                ? (IDependency) new CompiledSingleton(new[] {contract}, contract)
-                : new SimpleDependency(contract, contract);
 
+            var dependency = new CompiledSingleton(new[] {contract}, contract);
             return AddDependency(dependency, name, true);
         }
 
-        public DependencyBuilder AddScope<TContract, TImplementation>(string name = null, bool compile = false)
+        public DependencyBuilder AddScope<TContract, TImplementation>(string name = null)
             where TImplementation : TContract
         {
             var contract = Typeof<TContract>.Raw;
             var implementation = typeof(TImplementation);
 
-            var dependency = compile
-                ? (IDependency) new CompiledSingleton(new[] {contract}, implementation)
-                : new SimpleDependency(contract, implementation);
-
+            var dependency = new CompiledSingleton(new[] {contract}, implementation);
             return AddDependency(dependency, name, true);
         }
 
@@ -91,8 +92,8 @@ namespace Velo.Dependencies
             where TContract : class
         {
             var contract = Typeof<TContract>.Raw;
-            var dependency = new BuilderSingleton<TContract>(new[] {contract}, builder);
 
+            var dependency = new BuilderSingleton<TContract>(new[] {contract}, builder);
             return AddDependency(dependency, name, true);
         }
 
@@ -103,17 +104,18 @@ namespace Velo.Dependencies
         public DependencyBuilder AddSingleton<TContract>(string name = null)
         {
             var contract = Typeof<TContract>.Raw;
-            var dependency = new SimpleDependency(contract, contract);
 
+            var dependency = new ActivatorSingleton(new[] {contract}, contract);
             return AddDependency(dependency, name);
         }
 
         public DependencyBuilder AddSingleton<TContract, TImplementation>(string name = null)
             where TImplementation : TContract
         {
-            var contract = Typeof<TContract>.Raw;
-            var dependency = new SimpleDependency(contract, typeof(TImplementation));
+            var contracts = new[] {Typeof<TContract>.Raw};
+            var implementation = typeof(TImplementation);
 
+            var dependency = new ActivatorSingleton(contracts, implementation);
             return AddDependency(dependency, name);
         }
 
@@ -122,15 +124,14 @@ namespace Velo.Dependencies
             where TContract : class
         {
             var contract = Typeof<TContract>.Raw;
-            var dependency = new BuilderSingleton<TContract>(new[] {contract}, builder);
 
+            var dependency = new BuilderSingleton<TContract>(new[] {contract}, builder);
             return AddDependency(dependency, name);
         }
 
         public DependencyBuilder AddSingleton(Type contract, Type implementation, string name = null)
         {
-            var dependency = new SimpleDependency(contract, implementation);
-
+            var dependency = new ActivatorSingleton(new[] {contract}, implementation);
             return AddDependency(dependency, name);
         }
 
@@ -138,26 +139,21 @@ namespace Velo.Dependencies
 
         #region AddTransient
 
-        public DependencyBuilder AddTransient<TContract>(string name = null, bool compile = false)
+        public DependencyBuilder AddTransient<TContract>(string name = null)
         {
             var contract = Typeof<TContract>.Raw;
-            var dependency = compile
-                ? (IDependency) new CompiledTransient(new[] {contract}, contract)
-                : new ActivatorTransient(new[] {contract}, contract);
 
+            var dependency = new CompiledTransient(new[] {contract}, contract);
             return AddDependency(dependency, name);
         }
 
-        public DependencyBuilder AddTransient<TContract, TImplementation>(string name = null, bool compile = false)
+        public DependencyBuilder AddTransient<TContract, TImplementation>(string name = null)
             where TImplementation : TContract
         {
             var contracts = new[] {Typeof<TContract>.Raw};
             var implementation = typeof(TImplementation);
 
-            var dependency = compile
-                ? (IDependency) new CompiledTransient(contracts, implementation)
-                : new ActivatorTransient(contracts, implementation);
-
+            var dependency = new CompiledTransient(contracts, implementation);
             return AddDependency(dependency, name);
         }
 
@@ -175,7 +171,15 @@ namespace Velo.Dependencies
         public DependencyContainer BuildContainer()
         {
             AddDependency(new ArrayFactory(_resolvers));
-            return new DependencyContainer(_resolvers);
+            
+            var container = new DependencyContainer(_resolvers);
+
+            foreach (var resolver in _resolvers)
+            {
+                resolver.Init(container);
+            }
+
+            return container;
         }
 
         public DependencyBuilder Configure(Action<DependencyConfigurator> configure)

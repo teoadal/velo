@@ -397,28 +397,6 @@ namespace Velo
         }
 
         [Fact]
-        public void Scope_Compiled()
-        {
-            var container = new DependencyBuilder()
-                .AddSingleton<JConverter>()
-                .AddScope<ISession, Session>(compile: true)
-                .BuildContainer();
-
-            ISession firstScopeSession;
-            using (container.StartScope())
-            {
-                firstScopeSession = container.Resolve<ISession>();
-                Assert.Same(firstScopeSession, container.Resolve<ISession>());
-            }
-
-            using (container.StartScope())
-            {
-                var secondScopeSession = container.Resolve<ISession>();
-                Assert.NotSame(firstScopeSession, secondScopeSession);
-            }
-        }
-
-        [Fact]
         public void Scope_Generic()
         {
             var container = new DependencyBuilder()
@@ -613,7 +591,7 @@ namespace Velo
         }
 
         [Fact]
-        public void Transient_Activator()
+        public void Transient()
         {
             var container = new DependencyBuilder()
                 .AddSingleton<JConverter>()
@@ -625,21 +603,7 @@ namespace Velo
 
             Assert.NotSame(first, second);
         }
-
-        [Fact]
-        public void Transient_Activator_Compiled()
-        {
-            var container = new DependencyBuilder()
-                .AddSingleton<JConverter>()
-                .AddTransient<ISession, Session>(compile: true)
-                .BuildContainer();
-
-            var first = container.Resolve<ISession>();
-            var second = container.Resolve<ISession>();
-
-            Assert.NotSame(first, second);
-        }
-
+        
         [Fact]
         public void Transient_Builder()
         {

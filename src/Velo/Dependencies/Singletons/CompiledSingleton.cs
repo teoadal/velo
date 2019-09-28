@@ -18,6 +18,14 @@ namespace Velo.Dependencies.Singletons
             _isDisposable = ReflectionUtils.IsDisposableType(implementation);
         }
 
+        public override void Init(DependencyContainer container)
+        {
+            if (_builder == null)
+            {
+                _builder = container.CreateActivator<object>(_constructor);
+            }
+        }
+
         public override void Destroy()
         {
             if (_isDisposable)
@@ -32,13 +40,7 @@ namespace Velo.Dependencies.Singletons
         {
             if (_instance != null) return _instance;
 
-            if (_builder == null)
-            {
-                _builder = container.CreateActivator<object>(_constructor);
-            }
-
             _instance = _builder();
-
             return _instance;
         }
     }

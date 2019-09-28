@@ -26,6 +26,11 @@ namespace Velo.Dependencies.Resolvers
                 : _dependencyName == parameterName && _dependency.Applicable(contract);
         }
 
+        public void Init(DependencyContainer container)
+        {
+            _dependency.Init(container);
+        }
+
         public void Destroy()
         {
             _dependency.Destroy();

@@ -30,6 +30,10 @@ namespace Velo.Dependencies
         {
         }
 
+        public virtual void Init(DependencyContainer container)
+        {
+        }
+
         public abstract object Resolve(Type contract, DependencyContainer container);
 
         public override string ToString()
