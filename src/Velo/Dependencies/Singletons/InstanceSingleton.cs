@@ -7,6 +7,11 @@ namespace Velo.Dependencies.Singletons
         private object _instance;
         private readonly bool _isDisposable;
 
+        public InstanceSingleton(object instance) 
+            : this(new []{ instance.GetType()}, instance)
+        {
+        }
+        
         public InstanceSingleton(Type[] contracts, object instance) : base(contracts)
         {
             _instance = instance;

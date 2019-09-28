@@ -1,10 +1,10 @@
 namespace Velo.Dependencies.Resolvers
 {
-    internal sealed class ScopeResolver : Resolver
+    internal sealed class ScopeDependencyResolver : DependencyResolver
     {
         private bool _addedToScope;
 
-        public ScopeResolver(IDependency dependency, string dependencyName = null)
+        public ScopeDependencyResolver(IDependency dependency, string dependencyName = null)
             : base(dependency, dependencyName)
         {
         }

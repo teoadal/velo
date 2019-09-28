@@ -23,8 +23,8 @@ namespace Velo.Dependencies
         public DependencyBuilder AddDependency(IDependency dependency, string name = null, bool scopeDependency = false)
         {
             var resolver = scopeDependency
-                ? (IResolver) new ScopeResolver(dependency, name)
-                : new DefaultResolver(dependency, name);
+                ? (IResolver) new ScopeDependencyResolver(dependency, name)
+                : new DefaultDependencyResolver(dependency, name);
 
             _resolvers.Add(resolver);
 

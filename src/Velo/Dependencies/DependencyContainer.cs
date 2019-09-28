@@ -19,9 +19,7 @@ namespace Velo.Dependencies
 
         internal DependencyContainer(List<IResolver> resolvers)
         {
-            var containerType = Typeof<DependencyContainer>.Raw;
-            var containerResolver = new DefaultResolver(new InstanceSingleton(new[] {containerType}, this));
-
+            var containerResolver = new DefaultDependencyResolver(new InstanceSingleton(this));
             resolvers.Add(containerResolver);
 
             _concreteResolvers = new Dictionary<Type, IResolver>(resolvers.Count);
