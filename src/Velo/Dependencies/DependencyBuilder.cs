@@ -58,21 +58,27 @@ namespace Velo.Dependencies
 
         #region AddScope
 
-        public DependencyBuilder AddScope<TContract>(string name = null)
+        public DependencyBuilder AddScope<TContract>(string name = null, bool compiled = true)
         {
             var contract = Typeof<TContract>.Raw;
 
-            var dependency = new CompiledTransient(new[] {contract}, contract);
+            var dependency = compiled
+                ? (IDependency) new CompiledTransient(new[] {contract}, contract)
+                : new ActivatorTransient(new[] {contract}, contract);
+            
             return Register(dependency, name, true);
         }
 
-        public DependencyBuilder AddScope<TContract, TImplementation>(string name = null)
+        public DependencyBuilder AddScope<TContract, TImplementation>(string name = null, bool compiled = true)
             where TImplementation : TContract
         {
-            var contract = Typeof<TContract>.Raw;
+            var contracts = new[] {Typeof<TContract>.Raw};
             var implementation = typeof(TImplementation);
 
-            var dependency = new CompiledTransient(new[] {contract}, implementation);
+            var dependency = compiled
+                ? (IDependency) new CompiledTransient(contracts, implementation)
+                : new ActivatorTransient(contracts, implementation);
+            
             return Register(dependency, name, true);
         }
 
@@ -127,21 +133,27 @@ namespace Velo.Dependencies
 
         #region AddTransient
 
-        public DependencyBuilder AddTransient<TContract>(string name = null)
+        public DependencyBuilder AddTransient<TContract>(string name = null, bool compiled = true)
         {
             var contract = Typeof<TContract>.Raw;
 
-            var dependency = new CompiledTransient(new[] {contract}, contract);
+            var dependency = compiled
+                ? (IDependency) new CompiledTransient(new[] {contract}, contract)
+                : new ActivatorTransient(new[] {contract}, contract);
+            
             return Register(dependency, name);
         }
 
-        public DependencyBuilder AddTransient<TContract, TImplementation>(string name = null)
+        public DependencyBuilder AddTransient<TContract, TImplementation>(string name = null, bool compiled = true)
             where TImplementation : TContract
         {
             var contracts = new[] {Typeof<TContract>.Raw};
             var implementation = typeof(TImplementation);
 
-            var dependency = new CompiledTransient(contracts, implementation);
+            var dependency = compiled
+                ? (IDependency) new CompiledTransient(contracts, implementation)
+                : new ActivatorTransient(contracts, implementation);
+            
             return Register(dependency, name);
         }
 
