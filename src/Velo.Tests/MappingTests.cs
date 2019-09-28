@@ -1,3 +1,4 @@
+using AutoFixture.Xunit2;
 using Velo.Mapping;
 using Velo.TestsModels;
 
@@ -7,17 +8,17 @@ namespace Velo
 {
     public class MappingTests
     {
-        [Fact]
-        public void BasicMapper_Foo_To_Boo()
+        [Theory, AutoData]
+        public void BasicMapper_Foo_To_Boo(bool boolValue, float floatValue, int intValue, double doubleValue)
         {
             var basicMapper = new BasicMapper<Foo>();
 
             var source = new Boo
             {
-                Bool = true,
-                Float = 1f,
-                Int = 11,
-                Double = 123d
+                Bool = boolValue,
+                Float = floatValue,
+                Int = intValue,
+                Double = doubleValue
             };
 
             var foo = basicMapper.Map(source);
@@ -27,16 +28,16 @@ namespace Velo
             Assert.Equal(source.Int, foo.Int);
         }
 
-        [Fact]
-        public void BasicMapper_Anonymous_To_Foo()
+        [Theory, AutoData]
+        public void BasicMapper_Anonymous_To_Foo(bool boolValue, float floatValue, int intValue)
         {
             var basicMapper = new BasicMapper<Foo>();
 
             var source = new
             {
-                Bool = true,
-                Float = 2f,
-                Int = 22
+                Bool = boolValue,
+                Float = floatValue,
+                Int = intValue
             };
 
             var foo = basicMapper.Map(source);
@@ -46,16 +47,16 @@ namespace Velo
             Assert.Equal(source.Int, foo.Int);
         }
 
-        [Fact]
-        public void CompiledMapper_Foo_To_Boo()
+        [Theory, AutoData]
+        public void CompiledMapper_Foo_To_Boo(bool boolValue, float floatValue, int intValue)
         {
             var compiledMapper = new CompiledMapper<Foo>();
 
             var source = new Boo
             {
-                Bool = true,
-                Float = 1f,
-                Int = 11
+                Bool = boolValue,
+                Float = floatValue,
+                Int = intValue
             };
 
             var foo = compiledMapper.Map(source);
@@ -65,16 +66,16 @@ namespace Velo
             Assert.Equal(source.Int, foo.Int);
         }
 
-        [Fact]
-        public void CompiledMapper_Anonymous_To_Foo()
+        [Theory, AutoData]
+        public void CompiledMapper_Anonymous_To_Foo(bool boolValue, float floatValue, int intValue)
         {
             var compiledMapper = new CompiledMapper<Foo>();
 
             var source = new
             {
-                Bool = true,
-                Float = 2f,
-                Int = 22
+                Bool = boolValue,
+                Float = floatValue,
+                Int = intValue
             };
 
             var foo = compiledMapper.Map(source);

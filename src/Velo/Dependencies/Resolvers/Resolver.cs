@@ -7,14 +7,16 @@ namespace Velo.Dependencies.Resolvers
     {
         private readonly IDependency _dependency;
         private readonly string _dependencyName;
+        private readonly object _lockObject;
 
         private bool _resolveInProgress;
 
         protected Resolver(IDependency dependency, string dependencyName)
         {
             _dependency = dependency;
-
             _dependencyName = dependencyName;
+
+            _lockObject = new object();
         }
 
         public bool Applicable(Type contract, string parameterName = null)
@@ -31,17 +33,20 @@ namespace Velo.Dependencies.Resolvers
 
         public object Resolve(Type contract, DependencyContainer container)
         {
-            if (_resolveInProgress) throw Error.CircularDependency(_dependency);
+            using (Lock.Enter(_lockObject))
+            {
+                if (_resolveInProgress) throw Error.CircularDependency(_dependency);
+                
+                _resolveInProgress = true;
 
-            _resolveInProgress = true;
+                var resolved = _dependency.Resolve(contract, container);
 
-            var resolved = _dependency.Resolve(contract, container);
+                ResolveComplete(resolved, container);
 
-            ResolveComplete(resolved, container);
+                _resolveInProgress = false;
 
-            _resolveInProgress = false;
-
-            return resolved;
+                return resolved;
+            }
         }
 
         protected virtual void DestroyComplete()

@@ -76,7 +76,7 @@ namespace Velo.Dependencies
         {
             var contract = Typeof<TContract>.Raw;
             var implementation = typeof(TImplementation);
-            
+
             var dependency = compile
                 ? (IDependency) new CompiledSingleton(new[] {contract}, implementation)
                 : new SimpleDependency(contract, implementation);
@@ -181,8 +181,8 @@ namespace Velo.Dependencies
 
             configure(configurator);
 
-            var resolver = configurator.Build();
-            _resolvers.Add(resolver);
+            var (dependency, scope, name) = configurator.Build();
+            AddDependency(dependency, scope, name);
 
             return this;
         }

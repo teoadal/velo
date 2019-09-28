@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Velo.Dependencies;
 using Velo.Mapping;
 using Velo.Serialization;
@@ -85,6 +87,27 @@ namespace Velo
         }
 
         [Fact]
+        public void Configurator_Singleton_Generic()
+        {
+            var container = new DependencyBuilder()
+                .Configure(c => c
+                    .Contract(typeof(IMapper<>))
+                    .Implementation(typeof(CompiledMapper<>))
+                    .Singleton())
+                .BuildContainer();
+
+            var booMapper1 = container.Resolve<IMapper<Boo>>();
+            var booMapper2 = container.Resolve<IMapper<Boo>>();
+            
+            Assert.Same(booMapper1, booMapper2);
+            
+            var fooMapper1 = container.Resolve<IMapper<Foo>>();
+            var fooMapper2 = container.Resolve<IMapper<Foo>>();
+            
+            Assert.Same(fooMapper1, fooMapper2);
+        }
+        
+        [Fact]
         public void Configurator_Singleton()
         {
             var container = new DependencyBuilder()
@@ -168,28 +191,6 @@ namespace Velo
             Assert.False(service.Disposed);
 
             container.Destroy();
-
-            Assert.True(service.Disposed);
-        }
-
-        [Fact]
-        public void Destroy_After_End_Scope()
-        {
-            var container = new DependencyBuilder()
-                .AddSingleton<JConverter>()
-                .AddTransient<ISession, Session>()
-                .AddSingleton<IConfiguration, Configuration>()
-                .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
-                .AddSingleton<IFooRepository, FooRepository>()
-                .AddScope<IFooService, FooService>()
-                .BuildContainer();
-
-            IFooService service;
-            using (container.StartScope())
-            {
-                service = container.Resolve<IFooService>();
-                Assert.False(service.Disposed);
-            }
 
             Assert.True(service.Disposed);
         }
@@ -310,7 +311,7 @@ namespace Velo
             Assert.Contains(repositories, r => r.GetType() == typeof(FooRepository));
             Assert.Contains(repositories, r => r.GetType() == typeof(OtherFooRepository));
         }
-
+        
         [Fact]
         public void Scan_Generic_Interface_Implementations()
         {
@@ -353,6 +354,28 @@ namespace Velo
         }
 
         [Fact]
+        public void Scope_Destroy_After_End()
+        {
+            var container = new DependencyBuilder()
+                .AddSingleton<JConverter>()
+                .AddTransient<ISession, Session>()
+                .AddSingleton<IConfiguration, Configuration>()
+                .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
+                .AddSingleton<IFooRepository, FooRepository>()
+                .AddScope<IFooService, FooService>()
+                .BuildContainer();
+
+            IFooService service;
+            using (container.StartScope())
+            {
+                service = container.Resolve<IFooService>();
+                Assert.False(service.Disposed);
+            }
+
+            Assert.True(service.Disposed);
+        }
+        
+        [Fact]
         public void Scope_Compiled()
         {
             var container = new DependencyBuilder()
@@ -374,6 +397,48 @@ namespace Velo
             }
         }
 
+        [Fact]
+        public async Task Scope_MultiThreading()
+        {
+            var container = new DependencyBuilder()
+                .AddScope<IFooRepository, FooRepository>()
+                .AddScope<IFooService, FooService>()
+                .AddScope<ISession, Session>()
+                .AddSingleton<JConverter>()
+                .AddSingleton<IConfiguration, Configuration>()
+                .Configure(c => c
+                    .Contract(typeof(IMapper<>))
+                    .Implementation(typeof(CompiledMapper<>))
+                    .Singleton())
+                .BuildContainer();
+
+            const int taskCount = 10;
+
+            var fooServices = new ConcurrentBag<IFooService>();
+            var tasks = new Task[taskCount];
+            for (var i = 0; i < tasks.Length; i++)
+            {
+                tasks[i] = Task.Run(() =>
+                {
+                    using (container.StartScope())
+                    {
+                        var repository = container.Resolve<IFooService>();
+                        fooServices.Add(repository);
+                    }
+                });
+            }
+
+            await Task.WhenAll(tasks);
+
+            var services = fooServices.ToArray();
+            for (var i = 0; i < services.Length; i++)
+            for (var j = 0; j < services.Length; i++)
+            {
+                if (i == j) continue;
+                Assert.NotSame(services[i], services[j]);
+            }
+        }
+        
         [Fact]
         public void Scope_Nested()
         {
