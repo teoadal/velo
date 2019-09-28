@@ -72,7 +72,7 @@ namespace Velo.Dependencies
                 var parameterName = parameter.Name;
                 var required = !parameter.HasDefaultValue;
 
-                var parameterResolver = this.GetResolver(parameterType, parameterName, required);
+                var parameterResolver = GetResolver(parameterType, parameterName, required);
                 var resolvedParameter = parameterResolver == null
                     ? (Expression) Expression.Default(parameterType)
                     : Expression.Call(Expression.Constant(parameterResolver), ResolveMethod,

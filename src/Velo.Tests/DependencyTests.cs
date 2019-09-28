@@ -144,6 +144,25 @@ namespace Velo
         }
 
         [Fact]
+        public void Configurator_Two_Contracts_Singleton()
+        {
+            var container = new DependencyBuilder()
+                .AddSingleton<IConfiguration, Configuration>()
+                .AddSingleton<ISession, Session>()
+                .AddSingleton<JConverter>()
+                .Configure(c => c
+                    .Contracts<IBooRepository, IRepository>()
+                    .Implementation<BooRepository>()
+                    .Singleton())
+                .BuildContainer();
+
+            var instance1 = container.Resolve<IRepository>();
+            var instance2 = container.Resolve<IBooRepository>();
+
+            Assert.Same(instance1, instance2);
+        }
+        
+        [Fact]
         public void Configurator_Transient()
         {
             var container = new DependencyBuilder()

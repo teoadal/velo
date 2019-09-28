@@ -165,7 +165,9 @@ namespace Velo.Dependencies
 
             if (_implementation != null)
             {
-                return new ActivatorTransient(contracts, _implementation);
+                return contracts.Any(c => c.IsGenericTypeDefinition)
+                    ? (IDependency) new GenericTransient(contracts, _implementation)
+                    : new ActivatorTransient(contracts, _implementation);
             }
 
             throw Error.InconsistentOperation("invalid transient configuration");
