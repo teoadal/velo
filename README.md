@@ -79,18 +79,16 @@ var json = _converter.Serialize(data);
 
 ```cs
 var container = new DependencyBuilder()
-    .AddFactory<ISession, Session>()
+    .AddScope<SomethingController>()
+    .AddSingleton<IFooService, FooService>()
     .AddSingleton<JConverter>("converter")
+    .AddSingleton(typof(IMapper<>), typeof(CompiledMapper<>))
     .AddSingleton<IConfiguration>(ctx => new Configuration())
+    .AddTransient<ISession, Session>()
     .Configure(dataRepository => dataRepository
         .Contracts<IRepository, IFooRepository>()
         .Implementation<FooRepository>()
         .Singleton())
-    .Configure(userRepository => userRepository
-        .Contracts<IRepository, IBooRepository>()
-        .Implementation<BooRepository>()
-        .Singleton())
-    .AddScope<SomethingController>()
     .BuildContainer();
 ```
 
@@ -98,22 +96,24 @@ var container = new DependencyBuilder()
 
 ```cs
 var container = new DependencyBuilder()
-    .AddSingleton<IConfiguration, Configuration>()
-    .AddFactory<ISession, Session>()
-    .AddSingleton<JConverter>()
     .Scan(scanner => scanner
         .Assembly(typeof(IRepository).Assembly)
-        .RegisterGenericInterfaceAsSingleton(typeof(IRepository<>)))
-    .BuildContainer();
+        .RegisterGenericInterfaceAsSingleton(typeof(IRepository<>)));
 ```
 
 ### Resolve dependency
 
 ```cs
-var repositories = container.Resolve<IRepository[]>();
-var session = container.Resolve<ISession>();
-var otherSession = container.Resolve<ISession>(); // registered as Factory
+var repositoryArray = container.Resolve<IRepository[]>();
 var converterSingleton = container.Resolve<JConverter>();
+
+// registered as Transient
+var session = container.Resolve<ISession>();
+var otherSession = container.Resolve<ISession>();
+
+// registered by name
+var booRepository = container.Resolve<IRepository>("booRepository");
+var fooRepository = container.Resolve<IRepository>("fooRepository");
 ```
 
 ### Use scope
