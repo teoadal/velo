@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Resources;
 using Velo.Dependencies.Resolvers;
 using Velo.Utils;
 
@@ -15,7 +14,7 @@ namespace Velo.Dependencies
         [ThreadStatic] private static DependencyScope _current;
         
         private DependencyScope _parent;
-        private List<IDependencyResolver> _scopeResolvers;
+        private Dictionary<IDependencyResolver, object> _scopeInstances;
         private bool _disposed;
 
         internal DependencyScope(string name)
@@ -24,22 +23,22 @@ namespace Velo.Dependencies
 
             _parent = _current;
             _current = this;
-            _scopeResolvers = new List<IDependencyResolver>();
+            
+            _scopeInstances = new Dictionary<IDependencyResolver, object>();
         }
 
-        internal bool Contains(IDependencyResolver resolver)
+        internal void Add(IDependencyResolver resolver, object instance)
         {
-            if (_scopeResolvers.Contains(resolver)) return true;
-            return _parent?.Contains(resolver) ?? false;
+            if (_current._disposed) throw Error.Disposed(nameof(DependencyScope));
+            _scopeInstances.Add(resolver, instance);
         }
-        
-        internal bool TryAdd(IDependencyResolver resolver)
+
+        internal bool TryGetInstance(IDependencyResolver resolver, out object instance)
         {
             if (_current._disposed) throw Error.Disposed(nameof(DependencyScope));
 
-            if (Contains(resolver)) return false;
-            _scopeResolvers.Add(resolver);
-            return true;
+            if (_scopeInstances.TryGetValue(resolver, out instance)) return true;
+            return _parent?.TryGetInstance(resolver, out instance) ?? false;
         }
 
         public void Dispose()
@@ -50,13 +49,17 @@ namespace Velo.Dependencies
             _disposed = true;
             _parent = null;
 
-            foreach (var resolver in _scopeResolvers)
+            foreach (var pair in _scopeInstances)
             {
+                var resolver = pair.Key;
                 resolver.Destroy();
+
+                var instance = pair.Value;
+                if (instance is IDisposable disposable) disposable.Dispose();
             }
 
-            _scopeResolvers.Clear();
-            _scopeResolvers = null;
+            _scopeInstances.Clear();
+            _scopeInstances = null;
         }
 
         public override string ToString()

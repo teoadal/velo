@@ -19,26 +19,14 @@ namespace Velo.Dependencies
             _resolvers = new List<IDependencyResolver>(capacity);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public DependencyBuilder AddDependency(IDependency dependency, string name = null, bool scopeDependency = false)
-        {
-            var resolver = scopeDependency
-                ? (IDependencyResolver) new ScopeDependencyResolver(dependency, name)
-                : new DependencyResolver(dependency, name);
-
-            _resolvers.Add(resolver);
-
-            return this;
-        }
-
         #region AddGeneric
 
         public DependencyBuilder AddGenericScope(Type genericContract, Type genericImplementation = null)
         {
             var contracts = new[] {genericContract};
 
-            var dependency = new GenericSingleton(contracts, genericImplementation);
-            return AddDependency(dependency, scopeDependency: true);
+            var dependency = new GenericTransient(contracts, genericImplementation);
+            return Register(dependency, scopeDependency: true);
         }
 
         public DependencyBuilder AddGenericSingleton(Type genericContract, Type genericImplementation = null)
@@ -46,7 +34,7 @@ namespace Velo.Dependencies
             var contracts = new[] {genericContract};
 
             var dependency = new GenericSingleton(contracts, genericImplementation);
-            return AddDependency(dependency);
+            return Register(dependency);
         }
 
         public DependencyBuilder AddGenericTransient(Type genericContract, Type genericImplementation = null)
@@ -54,7 +42,7 @@ namespace Velo.Dependencies
             var contracts = new[] {genericContract};
 
             var dependency = new GenericTransient(contracts, genericImplementation);
-            return AddDependency(dependency);
+            return Register(dependency);
         }
 
         #endregion
@@ -65,7 +53,7 @@ namespace Velo.Dependencies
             var contract = Typeof<TContract>.Raw;
 
             var dependency = new InstanceSingleton(new[] {contract}, instance);
-            return AddDependency(dependency);
+            return Register(dependency);
         }
 
         #region AddScope
@@ -74,8 +62,8 @@ namespace Velo.Dependencies
         {
             var contract = Typeof<TContract>.Raw;
 
-            var dependency = new CompiledSingleton(new[] {contract}, contract);
-            return AddDependency(dependency, name, true);
+            var dependency = new CompiledTransient(new[] {contract}, contract);
+            return Register(dependency, name, true);
         }
 
         public DependencyBuilder AddScope<TContract, TImplementation>(string name = null)
@@ -84,8 +72,8 @@ namespace Velo.Dependencies
             var contract = Typeof<TContract>.Raw;
             var implementation = typeof(TImplementation);
 
-            var dependency = new CompiledSingleton(new[] {contract}, implementation);
-            return AddDependency(dependency, name, true);
+            var dependency = new CompiledTransient(new[] {contract}, implementation);
+            return Register(dependency, name, true);
         }
 
         public DependencyBuilder AddScope<TContract>(Func<DependencyContainer, TContract> builder, string name = null)
@@ -93,8 +81,8 @@ namespace Velo.Dependencies
         {
             var contract = Typeof<TContract>.Raw;
 
-            var dependency = new BuilderSingleton<TContract>(new[] {contract}, builder);
-            return AddDependency(dependency, name, true);
+            var dependency = new BuilderTransient<TContract>(new[] {contract}, builder);
+            return Register(dependency, name, true);
         }
 
         #endregion
@@ -106,7 +94,7 @@ namespace Velo.Dependencies
             var contract = Typeof<TContract>.Raw;
 
             var dependency = new ActivatorSingleton(new[] {contract}, contract);
-            return AddDependency(dependency, name);
+            return Register(dependency, name);
         }
 
         public DependencyBuilder AddSingleton<TContract, TImplementation>(string name = null)
@@ -116,7 +104,7 @@ namespace Velo.Dependencies
             var implementation = typeof(TImplementation);
 
             var dependency = new ActivatorSingleton(contracts, implementation);
-            return AddDependency(dependency, name);
+            return Register(dependency, name);
         }
 
         public DependencyBuilder AddSingleton<TContract>(Func<DependencyContainer, TContract> builder,
@@ -126,13 +114,13 @@ namespace Velo.Dependencies
             var contract = Typeof<TContract>.Raw;
 
             var dependency = new BuilderSingleton<TContract>(new[] {contract}, builder);
-            return AddDependency(dependency, name);
+            return Register(dependency, name);
         }
 
         public DependencyBuilder AddSingleton(Type contract, Type implementation, string name = null)
         {
             var dependency = new ActivatorSingleton(new[] {contract}, implementation);
-            return AddDependency(dependency, name);
+            return Register(dependency, name);
         }
 
         #endregion
@@ -144,7 +132,7 @@ namespace Velo.Dependencies
             var contract = Typeof<TContract>.Raw;
 
             var dependency = new CompiledTransient(new[] {contract}, contract);
-            return AddDependency(dependency, name);
+            return Register(dependency, name);
         }
 
         public DependencyBuilder AddTransient<TContract, TImplementation>(string name = null)
@@ -154,7 +142,7 @@ namespace Velo.Dependencies
             var implementation = typeof(TImplementation);
 
             var dependency = new CompiledTransient(contracts, implementation);
-            return AddDependency(dependency, name);
+            return Register(dependency, name);
         }
 
         public DependencyBuilder AddTransient<TContract>(Func<DependencyContainer, TContract> builder)
@@ -163,15 +151,15 @@ namespace Velo.Dependencies
             var contract = Typeof<TContract>.Raw;
             var dependency = new BuilderTransient<TContract>(new[] {contract}, builder);
 
-            return AddDependency(dependency);
+            return Register(dependency);
         }
 
         #endregion
 
         public DependencyContainer BuildContainer()
         {
-            AddDependency(new ArrayFactory(_resolvers));
-            
+            Register(new ArrayFactory(_resolvers));
+
             var container = new DependencyContainer(_resolvers);
 
             foreach (var resolver in _resolvers)
@@ -189,7 +177,7 @@ namespace Velo.Dependencies
             configure(configurator);
 
             var (dependency, scope, name) = configurator.Build();
-            AddDependency(dependency, scope, name);
+            Register(dependency, scope, name);
 
             return this;
         }
@@ -200,6 +188,18 @@ namespace Velo.Dependencies
 
             configure(configurator);
             configurator.Scan();
+
+            return this;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private DependencyBuilder Register(IDependency dependency, string name = null, bool scopeDependency = false)
+        {
+            var resolver = scopeDependency
+                ? (IDependencyResolver) new ScopeResolver(dependency, name)
+                : new DefaultResolver(dependency, name);
+
+            _resolvers.Add(resolver);
 
             return this;
         }

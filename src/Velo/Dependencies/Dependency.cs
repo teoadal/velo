@@ -39,7 +39,7 @@ namespace Velo.Dependencies
         public override string ToString()
         {
             var contractNames = string.Join(",", _contracts.Select(c => c.Name));
-            return $"Dependency for {contractNames}";
+            return $"{contractNames} ({GetType().Name})";
         }
     }
 }

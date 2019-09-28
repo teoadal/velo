@@ -161,7 +161,7 @@ namespace Velo
 
             Assert.Same(instance1, instance2);
         }
-        
+
         [Fact]
         public void Configurator_Transient()
         {
@@ -416,7 +416,7 @@ namespace Velo
                 Assert.NotSame(firstScopeList, secondScopeList);
             }
         }
-        
+
         [Fact]
         public void Scope_Generic_With_Contract()
         {
@@ -437,7 +437,7 @@ namespace Velo
                 Assert.NotSame(firstScopeList, secondScopeList);
             }
         }
-        
+
         [Fact]
         public void Scope_Many()
         {
@@ -473,7 +473,7 @@ namespace Velo
         }
 
         [Fact]
-        public async Task Scope_MultiThreading()
+        public void Scope_MultiThreading()
         {
             var container = new DependencyBuilder()
                 .AddScope<IFooService, FooService>()
@@ -503,7 +503,7 @@ namespace Velo
             }
 
             Task.WaitAll(tasks);
-            
+
             var services = fooServices.ToArray();
             for (var i = 0; i < services.Length; i++)
             for (var j = 0; j < services.Length; j++)
@@ -512,7 +512,7 @@ namespace Velo
                 Assert.NotSame(services[i], services[j]);
             }
         }
-        
+
         [Fact]
         public void Scope_Nested()
         {
@@ -585,7 +585,7 @@ namespace Velo
             var boo2 = container.Resolve<CompiledMapper<Boo>>();
 
             Assert.Same(boo1, boo2);
-            
+
             var foo1 = container.Resolve<CompiledMapper<Foo>>();
             var foo2 = container.Resolve<CompiledMapper<Foo>>();
 
@@ -603,7 +603,7 @@ namespace Velo
             var boo2 = container.Resolve<IMapper<Boo>>();
 
             Assert.Same(boo1, boo2);
-            
+
             var foo1 = container.Resolve<IMapper<Foo>>();
             var foo2 = container.Resolve<IMapper<Foo>>();
 
@@ -636,7 +636,7 @@ namespace Velo
 
             Assert.NotSame(first, second);
         }
-        
+
         [Fact]
         public void Transient_Builder()
         {
@@ -663,7 +663,7 @@ namespace Velo
 
             Assert.NotSame(first, second);
         }
-        
+
         [Fact]
         public void Transient_Generic_With_Contract()
         {
