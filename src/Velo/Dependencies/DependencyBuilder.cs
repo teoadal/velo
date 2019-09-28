@@ -12,18 +12,18 @@ namespace Velo.Dependencies
 {
     public sealed class DependencyBuilder
     {
-        private readonly List<IDependencyResolver> _resolvers;
+        private readonly List<IResolver> _resolvers;
 
         public DependencyBuilder(int capacity = 50)
         {
-            _resolvers = new List<IDependencyResolver>(capacity);
+            _resolvers = new List<IResolver>(capacity);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public DependencyBuilder AddDependency(IDependency dependency, string name = null, bool scopeDependency = false)
         {
             var resolver = scopeDependency
-                ? (IDependencyResolver) new ScopeResolver(dependency, name)
+                ? (IResolver) new ScopeResolver(dependency, name)
                 : new DefaultResolver(dependency, name);
 
             _resolvers.Add(resolver);

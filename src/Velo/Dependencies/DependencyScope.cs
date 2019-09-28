@@ -12,10 +12,9 @@ namespace Velo.Dependencies
         public readonly string Name;
 
         [ThreadStatic] private static DependencyScope _current;
-
-        private List<IDependencyResolver> _scopeResolvers;
+        
         private DependencyScope _parent;
-
+        private List<IResolver> _scopeResolvers;
         private bool _disposed;
 
         internal DependencyScope(string name)
@@ -24,10 +23,10 @@ namespace Velo.Dependencies
 
             _parent = _current;
             _current = this;
-            _scopeResolvers = new List<IDependencyResolver>();
+            _scopeResolvers = new List<IResolver>();
         }
 
-        internal static void Register(IDependencyResolver resolver)
+        internal static void Register(IResolver resolver)
         {
             if (_current == null) throw Error.InvalidOperation("Scope is not started");
             if (_current._disposed) throw Error.Disposed(nameof(DependencyScope));

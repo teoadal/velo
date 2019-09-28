@@ -11,20 +11,20 @@ namespace Velo.Dependencies
 {
     public sealed class DependencyContainer
     {
-        private static readonly Type ResolverType = typeof(IDependencyResolver);
-        private static readonly MethodInfo ResolveMethod = ResolverType.GetMethod(nameof(IDependencyResolver.Resolve));
-        
-        private readonly Dictionary<ResolverDescription, IDependencyResolver> _concreteResolvers;
-        private readonly IDependencyResolver[] _resolvers;
+        private static readonly Type ResolverType = typeof(IResolver);
+        private static readonly MethodInfo ResolveMethod = ResolverType.GetMethod(nameof(IResolver.Resolve));
 
-        internal DependencyContainer(List<IDependencyResolver> resolvers)
+        private readonly Dictionary<Type, IResolver> _concreteResolvers;
+        private readonly IResolver[] _resolvers;
+
+        internal DependencyContainer(List<IResolver> resolvers)
         {
             var containerType = Typeof<DependencyContainer>.Raw;
             var containerResolver = new DefaultResolver(new InstanceSingleton(new[] {containerType}, this));
-            
+
             resolvers.Add(containerResolver);
 
-            _concreteResolvers = new Dictionary<ResolverDescription, IDependencyResolver>(resolvers.Count);
+            _concreteResolvers = new Dictionary<Type, IResolver>(resolvers.Count);
             _resolvers = resolvers.ToArray();
         }
 
@@ -59,7 +59,7 @@ namespace Velo.Dependencies
         {
             var resultType = typeof(T);
             if (constructor == null) constructor = ReflectionUtils.GetConstructor(resultType);
-                
+
             var container = Expression.Constant(this);
 
             var parameters = constructor.GetParameters();
@@ -87,10 +87,10 @@ namespace Velo.Dependencies
             {
                 body = Expression.Convert(body, resultType);
             }
-            
+
             return Expression.Lambda<Func<T>>(body).Compile();
         }
-        
+
         public void Destroy()
         {
             _concreteResolvers.Clear();
@@ -101,38 +101,10 @@ namespace Velo.Dependencies
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private IDependencyResolver GetResolver(Type contract, string name = null, bool throwInNotRegistered = true)
-        {
-            var description = new ResolverDescription(contract, name);
-            if (_concreteResolvers.TryGetValue(description, out var concreteResolver))
-            {
-                return concreteResolver;
-            }
-
-            var resolvers = _resolvers;
-            for (var i = 0; i < resolvers.Length; i++)
-            {
-                var resolver = resolvers[i];
-                if (!resolver.Applicable(contract, name)) continue;
-
-                _concreteResolvers.Add(description, resolver);
-
-                return resolver;
-            }
-            
-            if (throwInNotRegistered)
-            {
-                throw Error.InvalidOperation($"Dependency for contract '{contract}' is not registered");
-            }
-
-            return null;
-        }
-
         public TContract Resolve<TContract>(string name = null) where TContract : class
         {
             var contract = Typeof<TContract>.Raw;
-            
+
             var resolver = GetResolver(contract, name);
             return (TContract) resolver?.Resolve(contract, this);
         }
@@ -148,26 +120,32 @@ namespace Velo.Dependencies
         {
             return new DependencyScope(name);
         }
-        
-        private readonly struct ResolverDescription : IEquatable<ResolverDescription>
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private IResolver GetResolver(Type contract, string name = null, bool throwInNotRegistered = true)
         {
-            private readonly int _hash;
-            
-            public ResolverDescription(Type contract, string name)
+            if (_concreteResolvers.TryGetValue(contract, out var concreteResolver))
             {
-                unchecked
-                {
-                    _hash = name?.GetHashCode() ?? 1;
-                    _hash = contract.GetHashCode() ^ _hash;
-                }
+                return concreteResolver;
             }
 
-            public override int GetHashCode() => _hash;
-
-            public bool Equals(ResolverDescription other)
+            var resolvers = _resolvers;
+            for (var i = 0; i < resolvers.Length; i++)
             {
-                return _hash == other._hash;
+                var resolver = resolvers[i];
+                if (!resolver.Applicable(contract, name)) continue;
+
+                _concreteResolvers.Add(contract, resolver);
+
+                return resolver;
             }
+
+            if (throwInNotRegistered)
+            {
+                throw Error.InvalidOperation($"Dependency for contract '{contract}' is not registered");
+            }
+
+            return null;
         }
     }
 }

@@ -3,7 +3,7 @@ using Velo.Utils;
 
 namespace Velo.Dependencies.Resolvers
 {
-    internal abstract class Resolver : IDependencyResolver
+    internal abstract class Resolver : IResolver
     {
         private readonly IDependency _dependency;
         private readonly string _dependencyName;

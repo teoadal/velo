@@ -7,9 +7,9 @@ namespace Velo.Dependencies.Factories
 {
     internal sealed class ArrayFactory : IDependency
     {
-        private readonly IDependencyResolver[] _resolvers;
+        private readonly IResolver[] _resolvers;
 
-        public ArrayFactory(List<IDependencyResolver> dependencies)
+        public ArrayFactory(List<IResolver> dependencies)
         {
             _resolvers = dependencies.ToArray();
         }
