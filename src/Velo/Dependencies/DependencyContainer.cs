@@ -122,20 +122,23 @@ namespace Velo.Dependencies
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private IDependencyResolver GetResolver(Type contract, string name = null, bool throwInNotRegistered = true)
         {
-            if (_concreteResolvers.TryGetValue(contract, out var concreteResolver))
+            using (Lock.Enter(_concreteResolvers))
             {
-                return concreteResolver;
-            }
+                if (_concreteResolvers.TryGetValue(contract, out var concreteResolver))
+                {
+                    return concreteResolver;
+                }
 
-            var resolvers = _resolvers;
-            for (var i = 0; i < resolvers.Length; i++)
-            {
-                var resolver = resolvers[i];
-                if (!resolver.Applicable(contract, name)) continue;
+                var resolvers = _resolvers;
+                for (var i = 0; i < resolvers.Length; i++)
+                {
+                    var resolver = resolvers[i];
+                    if (!resolver.Applicable(contract, name)) continue;
 
-                _concreteResolvers.Add(contract, resolver);
+                    _concreteResolvers.Add(contract, resolver);
 
-                return resolver;
+                    return resolver;
+                }
             }
 
             if (throwInNotRegistered)

@@ -54,10 +54,6 @@ namespace Velo.Dependencies.Resolvers
             }
         }
 
-        protected virtual void DestroyComplete()
-        {
-        }
-
         protected virtual void ResolveComplete(object resolvedInstance, DependencyContainer container)
         {
         }

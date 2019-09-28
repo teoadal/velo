@@ -439,7 +439,7 @@ namespace Velo
         }
         
         [Fact]
-        public async Task Scope_MultiThreading()
+        public void Scope_Many()
         {
             var container = new DependencyBuilder()
                 .AddScope<IFooRepository, FooRepository>()
@@ -453,33 +453,66 @@ namespace Velo
                     .Singleton())
                 .BuildContainer();
 
-            const int taskCount = 10;
+            const int scopesCount = 10;
+
+            var fooServices = new IFooService[scopesCount];
+            for (var i = 0; i < fooServices.Length; i++)
+            {
+                using (container.StartScope())
+                {
+                    fooServices[i] = container.Resolve<IFooService>();
+                }
+            }
+
+            for (var i = 0; i < fooServices.Length; i++)
+            for (var j = 0; j < fooServices.Length; j++)
+            {
+                if (i == j) continue;
+                Assert.NotSame(fooServices[i], fooServices[j]);
+            }
+        }
+
+        [Fact]
+        public async Task Scope_MultiThreading()
+        {
+            var container = new DependencyBuilder()
+                .AddScope<IFooService, FooService>()
+                .AddSingleton<IFooRepository, FooRepository>()
+                .AddSingleton<ISession, Session>()
+                .AddSingleton<JConverter>()
+                .AddSingleton<IConfiguration, Configuration>()
+                .Configure(c => c
+                    .Contract(typeof(IMapper<>))
+                    .Implementation(typeof(CompiledMapper<>))
+                    .Singleton())
+                .BuildContainer();
+
+            const int scopesCount = 10;
 
             var fooServices = new ConcurrentBag<IFooService>();
-            var tasks = new Task[taskCount];
-            for (var i = 0; i < tasks.Length; i++)
+            var tasks = new Task[scopesCount];
+            for (var i = 0; i < scopesCount; i++)
             {
                 tasks[i] = Task.Run(() =>
                 {
                     using (container.StartScope())
                     {
-                        var repository = container.Resolve<IFooService>();
-                        fooServices.Add(repository);
+                        fooServices.Add(container.Resolve<IFooService>());
                     }
                 });
             }
 
-            await Task.WhenAll(tasks);
-
+            Task.WaitAll(tasks);
+            
             var services = fooServices.ToArray();
             for (var i = 0; i < services.Length; i++)
-            for (var j = 0; j < services.Length; i++)
+            for (var j = 0; j < services.Length; j++)
             {
                 if (i == j) continue;
                 Assert.NotSame(services[i], services[j]);
             }
         }
-
+        
         [Fact]
         public void Scope_Nested()
         {

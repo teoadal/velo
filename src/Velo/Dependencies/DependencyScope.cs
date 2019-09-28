@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Resources;
 using Velo.Dependencies.Resolvers;
 using Velo.Utils;
 
@@ -26,18 +27,19 @@ namespace Velo.Dependencies
             _scopeResolvers = new List<IDependencyResolver>();
         }
 
-        internal static void Register(IDependencyResolver resolver)
+        internal bool Contains(IDependencyResolver resolver)
         {
-            if (_current == null) throw Error.InvalidOperation("Scope is not started");
+            if (_scopeResolvers.Contains(resolver)) return true;
+            return _parent?.Contains(resolver) ?? false;
+        }
+        
+        internal bool TryAdd(IDependencyResolver resolver)
+        {
             if (_current._disposed) throw Error.Disposed(nameof(DependencyScope));
 
-            var scopeDependencies = _current._scopeResolvers;
-            if (scopeDependencies.Contains(resolver))
-            {
-                throw Error.InvalidOperation($"Dependency {resolver} already exists in scope {_current}");
-            }
-
-            scopeDependencies.Add(resolver);
+            if (Contains(resolver)) return false;
+            _scopeResolvers.Add(resolver);
+            return true;
         }
 
         public void Dispose()
@@ -48,9 +50,9 @@ namespace Velo.Dependencies
             _disposed = true;
             _parent = null;
 
-            foreach (var dependency in _scopeResolvers)
+            foreach (var resolver in _scopeResolvers)
             {
-                dependency.Destroy();
+                resolver.Destroy();
             }
 
             _scopeResolvers.Clear();

@@ -1,25 +1,20 @@
+using Velo.Utils;
+
 namespace Velo.Dependencies.Resolvers
 {
     internal sealed class ScopeDependencyResolver : DependencyResolver
     {
-        private bool _addedToScope;
-
         public ScopeDependencyResolver(IDependency dependency, string dependencyName = null)
             : base(dependency, dependencyName)
         {
         }
 
-        protected override void DestroyComplete()
-        {
-            _addedToScope = false;
-        }
-
         protected override void ResolveComplete(object resolvedInstance, DependencyContainer container)
         {
-            if (_addedToScope) return;
+            var currentScope = DependencyScope.Current;
+            if (currentScope == null) throw Error.InvalidOperation("Scope is not started");
             
-            DependencyScope.Register(this);
-            _addedToScope = true;
+            if (!currentScope.TryAdd(this)) throw Error.InvalidOperation($"{this} already added in scope");
         }
     }
 }

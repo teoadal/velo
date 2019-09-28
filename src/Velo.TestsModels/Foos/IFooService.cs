@@ -6,6 +6,8 @@ namespace Velo.TestsModels.Foos
 {
     public interface IFooService
     {
+        Guid Id { get; }
+        
         IConfiguration Configuration { get; }
 
         bool Disposed { get; }
@@ -19,6 +21,8 @@ namespace Velo.TestsModels.Foos
 
     public class FooService : IFooService, IDisposable
     {
+        public Guid Id { get; }
+        
         public IConfiguration Configuration { get; }
 
         public bool Disposed { get; set; }
@@ -31,6 +35,7 @@ namespace Velo.TestsModels.Foos
 
         public FooService(IConfiguration configuration, IMapper<Foo> mapper, IFooRepository repository)
         {
+            Id = Guid.NewGuid();
             Configuration = configuration;
             Mapper = mapper;
             Name = Guid.NewGuid().ToString("N");
@@ -40,6 +45,11 @@ namespace Velo.TestsModels.Foos
         public void Dispose()
         {
             Disposed = true;
+        }
+
+        public override string ToString()
+        {
+            return Id.ToString();
         }
     }
 }
