@@ -39,7 +39,7 @@ namespace Velo.Dependencies
             if (_resolveInProgress.Add(dependency)) return;
             throw Error.CircularDependency(dependency);
         }
-
+        
         internal void ResolvingComplete(IDependency dependency)
         {
             _resolveInProgress.Remove(dependency);
