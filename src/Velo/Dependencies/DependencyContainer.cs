@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -11,22 +12,23 @@ namespace Velo.Dependencies
 {
     public sealed class DependencyContainer
     {
-        private static readonly Type ResolverType = typeof(IDependency);
-        private static readonly MethodInfo ResolveMethod = ResolverType.GetMethod(nameof(IDependency.Resolve));
+        private static readonly Type DependencyType = typeof(IDependency);
+        private static readonly MethodInfo ResolveMethod = DependencyType.GetMethod(nameof(IDependency.Resolve));
 
-        private readonly Dictionary<Type, IDependency> _concreteResolvers;
-        private readonly IDependency[] _resolvers;
-        private readonly Dictionary<string, IDependency> _resolversWithName;
+        private readonly ConcurrentDictionary<Type, IDependency> _concreteDependencies;
+        private readonly IDependency[] _dependencies;
+        private readonly Dictionary<string, IDependency> _dependencyByName;
+        private readonly Func<Type, IDependency> _findDependency;
 
-        internal DependencyContainer(List<IDependency> resolvers,
-            Dictionary<string, IDependency> resolversWithName)
+        internal DependencyContainer(List<IDependency> dependencies, Dictionary<string, IDependency> dependencyByName)
         {
             var containerResolver = new DefaultResolver(new InstanceSingleton(this));
-            resolvers.Add(containerResolver);
+            dependencies.Add(containerResolver);
 
-            _concreteResolvers = new Dictionary<Type, IDependency>(resolvers.Count);
-            _resolvers = resolvers.ToArray();
-            _resolversWithName = resolversWithName;
+            _concreteDependencies = new ConcurrentDictionary<Type, IDependency>(Environment.ProcessorCount, dependencies.Count);
+            _dependencies = dependencies.ToArray();
+            _dependencyByName = dependencyByName;
+            _findDependency = FindDependency;
         }
 
         public T Activate<T>() where T : class
@@ -49,8 +51,8 @@ namespace Velo.Dependencies
                 var required = !parameter.HasDefaultValue;
 
                 var contract = parameter.ParameterType;
-                var resolver = GetResolver(contract, parameter.Name, required);
-                resolvedParameters[i] = resolver?.Resolve(contract, this);
+                var dependency = GetDependency(contract, parameter.Name, required);
+                resolvedParameters[i] = dependency?.Resolve(contract, this);
             }
 
             return constructor.Invoke(resolvedParameters);
@@ -73,13 +75,13 @@ namespace Velo.Dependencies
                 var parameterName = parameter.Name;
                 var required = !parameter.HasDefaultValue;
 
-                var parameterResolver = GetResolver(parameterType, parameterName, required);
-                var resolvedParameter = parameterResolver == null
+                var parameterDependency = GetDependency(parameterType, parameterName, required);
+                var resolveCall = parameterDependency == null
                     ? (Expression) Expression.Default(parameterType)
-                    : Expression.Call(Expression.Constant(parameterResolver), ResolveMethod,
+                    : Expression.Call(Expression.Constant(parameterDependency), ResolveMethod,
                         Expression.Constant(parameterType), container);
 
-                resolvedParameters[i] = Expression.Convert(resolvedParameter, parameterType);
+                resolvedParameters[i] = Expression.Convert(resolveCall, parameterType);
             }
 
             Expression body = Expression.New(constructor, resolvedParameters);
@@ -94,9 +96,9 @@ namespace Velo.Dependencies
 
         public void Destroy()
         {
-            _concreteResolvers.Clear();
+            _concreteDependencies.Clear();
 
-            foreach (var dependency in _resolvers)
+            foreach (var dependency in _dependencies)
             {
                 dependency.Destroy();
             }
@@ -106,14 +108,14 @@ namespace Velo.Dependencies
         {
             var contract = Typeof<TContract>.Raw;
 
-            var resolver = GetResolver(contract, name);
-            return (TContract) resolver?.Resolve(contract, this);
+            var dependency = GetDependency(contract, name);
+            return (TContract) dependency?.Resolve(contract, this);
         }
 
         public object Resolve(Type contract, string name = null, bool throwInNotRegistered = true)
         {
-            var resolver = GetResolver(contract, name, throwInNotRegistered);
-            return resolver?.Resolve(contract, this);
+            var dependency = GetDependency(contract, name, throwInNotRegistered);
+            return dependency?.Resolve(contract, this);
         }
 
         // ReSharper disable once MemberCanBeMadeStatic.Global
@@ -123,38 +125,36 @@ namespace Velo.Dependencies
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private IDependency GetResolver(Type contract, string name = null, bool throwInNotRegistered = true)
+        private IDependency GetDependency(Type contract, string name = null, bool throwInNotRegistered = true)
         {
-            if (name != null && _resolversWithName.TryGetValue(name, out var nameResolver))
+            if (name != null && _dependencyByName.TryGetValue(name, out var dependencyWithName))
             {
-                if (nameResolver.Applicable(contract))
+                if (dependencyWithName.Applicable(contract))
                 {
-                    return nameResolver;
+                    return dependencyWithName;
                 }
             }
 
-            using (Lock.Enter(_concreteResolvers))
-            {
-                if (_concreteResolvers.TryGetValue(contract, out var concreteResolver))
-                {
-                    return concreteResolver;
-                }
+            var dependency = _concreteDependencies.GetOrAdd(contract, _findDependency);
 
-                var resolvers = _resolvers;
-                for (var i = 0; i < resolvers.Length; i++)
-                {
-                    var resolver = resolvers[i];
-                    if (!resolver.Applicable(contract)) continue;
-
-                    _concreteResolvers.Add(contract, resolver);
-
-                    return resolver;
-                }
-            }
-
-            if (throwInNotRegistered)
+            if (dependency == null && throwInNotRegistered)
             {
                 throw Error.InvalidOperation($"Dependency for contract '{contract}' is not registered");
+            }
+
+            return dependency;
+        }
+
+        private IDependency FindDependency(Type contract)
+        {
+            var dependencies = _dependencies;
+            for (var i = 0; i < dependencies.Length; i++)
+            {
+                var dependency = dependencies[i];
+                if (dependency.Applicable(contract))
+                {
+                    return dependency;
+                }
             }
 
             return null;

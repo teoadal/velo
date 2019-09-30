@@ -7,7 +7,7 @@ namespace Velo.Dependencies.Resolvers
     {
         private readonly IDependency _dependency;
         private readonly int _hash;
-        private readonly Func<IDependency, Type, DependencyContainer, object> _resolveInstance;
+        private readonly Func<IDependency, ResolveContext, object> _resolveInstance;
 
         public ScopeResolver(IDependency dependency) : base(dependency)
         {
@@ -21,12 +21,13 @@ namespace Velo.Dependencies.Resolvers
             var currentScope = DependencyScope.Current;
             if (currentScope == null) throw Error.InvalidOperation("Scope is not started");
 
-            return currentScope.GetOrAdd(this, _dependency, contract, container, _resolveInstance);
+            var context = new ResolveContext(_dependency, contract, container);
+            return currentScope.GetOrAdd(this, _resolveInstance, context);
         }
 
-        private static object ResolveInstance(IDependency dependency, Type contract, DependencyContainer container)
+        private static object ResolveInstance(IDependency dependency, ResolveContext context)
         {
-            return dependency.Resolve(contract, container);
+            return context.Dependency.Resolve(context.Contract, context.Container);
         }
 
         public override bool Equals(object obj)
@@ -35,5 +36,19 @@ namespace Velo.Dependencies.Resolvers
         }
 
         public override int GetHashCode() => _hash;
+
+        private readonly struct ResolveContext
+        {
+            public readonly IDependency Dependency;
+            public readonly Type Contract;
+            public readonly DependencyContainer Container;
+
+            public ResolveContext(IDependency dependency, Type contract, DependencyContainer container)
+            {
+                Dependency = dependency;
+                Contract = contract;
+                Container = container;
+            }
+        }
     }
 }

@@ -44,13 +44,8 @@ namespace Velo.Dependencies
 
             return instance;
         }
-
-        /// <summary>
-        /// Use for reduce allocation
-        /// </summary>
-        /// <exception cref="ObjectDisposedException"></exception>
-        public object GetOrAdd<T1, T2, T3>(IDependency dependency, T1 arg1, T2 arg2, T3 arg3,
-            Func<T1, T2, T3, object> builder)
+        
+        public object GetOrAdd<TArg>(IDependency dependency, Func<IDependency, TArg, object> builder, TArg builderArg)
         {
             if (_disposed) throw Error.Disposed(nameof(DependencyScope));
 
@@ -58,7 +53,7 @@ namespace Velo.Dependencies
 
             BeginResolving(dependency);
 
-            var instance = builder(arg1, arg2, arg3);
+            var instance = builder(dependency, builderArg);
             _dependencies.Add(dependency, instance);
 
             ResolvingComplete(dependency);
