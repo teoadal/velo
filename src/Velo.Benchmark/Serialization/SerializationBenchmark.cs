@@ -1,37 +1,31 @@
 using System;
-
 using BenchmarkDotNet.Attributes;
-
 using fastJSON;
-
 using Newtonsoft.Json;
-
 using Velo.Serialization;
 using Velo.TestsModels;
-
 using JsonSerializer = SpanJson.JsonSerializer;
 
-namespace Velo.Benchmark
+namespace Velo.Benchmark.Serialization
 {
     [CoreJob]
     [MeanColumn, MemoryDiagnoser]
-    public class DeserializationBenchmark
+    public class SerializationBenchmark
     {
         [Params(10000, 10003)] 
         public int Count;
 
-        private string[] _dataset;
+        private BigObject[] _dataset;
         private JConverter _converter;
 
         [GlobalSetup]
         public void Init()
         {
             var random = new Random(123);
-            _dataset = new string[Count];
+            _dataset = new BigObject[Count];
             for (var i = 0; i < _dataset.Length; i++)
             {
-                var instance = TestDataBuilder.CreateBigObject(random);
-                _dataset[i] = JsonConvert.SerializeObject(instance);
+                _dataset[i] = TestDataBuilder.CreateBigObject(random);
             }
 
             _converter = new JConverter();
@@ -46,8 +40,8 @@ namespace Velo.Benchmark
             for (var i = 0; i < _dataset.Length; i++)
             {
                 var element = _dataset[i];
-                var deserialized = JsonConvert.DeserializeObject<BigObject>(element);
-                stub += deserialized.Int;
+                var serialized = JsonConvert.SerializeObject(element);
+                stub += serialized.Length;
             }
 
             return stub;
@@ -61,8 +55,8 @@ namespace Velo.Benchmark
             for (var i = 0; i < _dataset.Length; i++)
             {
                 var element = _dataset[i];
-                var deserialized = JSON.ToObject<BigObject>(element);
-                stub += deserialized.Int;
+                var serialized = JSON.ToJSON(element);
+                stub += serialized.Length;
             }
 
             return stub;
@@ -76,13 +70,13 @@ namespace Velo.Benchmark
             for (var i = 0; i < _dataset.Length; i++)
             {
                 var element = _dataset[i];
-                var deserialized = SimpleJson.SimpleJson.DeserializeObject<BigObject>(element);
-                stub += deserialized.Int;
+                var serialized = SimpleJson.SimpleJson.SerializeObject(element);
+                stub += serialized.Length;
             }
 
             return stub;
         }
-
+        
         [Benchmark]
         public long SpanJson()
         {
@@ -91,8 +85,8 @@ namespace Velo.Benchmark
             for (var i = 0; i < _dataset.Length; i++)
             {
                 var element = _dataset[i];
-                var deserialized = JsonSerializer.Generic.Utf16.Deserialize<BigObject>(element);
-                stub += deserialized.Int;
+                var serialized = JsonSerializer.Generic.Utf16.Serialize(element);
+                stub += serialized.Length;
             }
 
             return stub;
@@ -106,8 +100,8 @@ namespace Velo.Benchmark
             for (var i = 0; i < _dataset.Length; i++)
             {
                 var element = _dataset[i];
-                var deserialized = _converter.Deserialize<BigObject>(element);
-                stub += deserialized.Int;
+                var serialized = _converter.Serialize(element);
+                stub += serialized.Length;
             }
 
             return stub;
