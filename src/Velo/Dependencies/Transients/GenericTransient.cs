@@ -6,9 +6,13 @@ namespace Velo.Dependencies.Transients
     {
         private readonly Type _genericImplementation;
 
-        public GenericTransient(Type[] genericContracts, Type genericImplementation = null): base(genericContracts)
+        public GenericTransient(Type[] genericContracts, Type genericImplementation = null) : base(genericContracts)
         {
             _genericImplementation = genericImplementation;
+        }
+
+        public override void Destroy()
+        {
         }
 
         public override object Resolve(Type contract, DependencyContainer container)
@@ -16,7 +20,7 @@ namespace Velo.Dependencies.Transients
             var implementation = _genericImplementation == null
                 ? contract
                 : _genericImplementation.MakeGenericType(contract.GetGenericArguments());
-            
+
             return container.Activate(implementation);
         }
     }

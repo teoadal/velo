@@ -39,7 +39,7 @@ namespace Velo.Dependencies
         }
 
         public abstract object Resolve(Type contract, DependencyContainer container);
-        
+
         public override string ToString()
         {
             var contractNames = string.Join(",", _genericContracts.Select(c => c.Name));

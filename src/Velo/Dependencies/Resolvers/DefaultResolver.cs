@@ -8,8 +8,6 @@ namespace Velo.Dependencies.Resolvers
         private readonly IDependency _dependency;
         private readonly object _lockObject;
         
-        private bool _resolveInProgress;
-
         public DefaultResolver(IDependency dependency): base(dependency)
         {
             _dependency = dependency;
