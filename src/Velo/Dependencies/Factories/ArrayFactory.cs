@@ -6,11 +6,11 @@ namespace Velo.Dependencies.Factories
 {
     internal sealed class ArrayFactory : IDependency
     {
-        private readonly IDependency[] _resolvers;
+        private readonly IDependency[] _dependencies;
 
         public ArrayFactory(List<IDependency> dependencies)
         {
-            _resolvers = dependencies.ToArray();
+            _dependencies = dependencies.ToArray();
         }
 
         public bool Applicable(Type contract)
@@ -33,10 +33,10 @@ namespace Velo.Dependencies.Factories
 
             var elements = new List<object>();
 
-            var resolvers = _resolvers;
-            for (var i = 0; i < resolvers.Length; i++)
+            var dependencies = _dependencies;
+            for (var i = 0; i < dependencies.Length; i++)
             {
-                var dependency = resolvers[i];
+                var dependency = dependencies[i];
                 if (!dependency.Applicable(elementType)) continue;
 
                 var resolved = dependency.Resolve(elementType, container);
