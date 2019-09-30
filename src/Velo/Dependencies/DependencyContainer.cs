@@ -25,7 +25,8 @@ namespace Velo.Dependencies
             var containerResolver = new DefaultResolver(new InstanceSingleton(this));
             dependencies.Add(containerResolver);
 
-            _concreteDependencies = new ConcurrentDictionary<Type, IDependency>(Environment.ProcessorCount, dependencies.Count);
+            _concreteDependencies =
+                new ConcurrentDictionary<Type, IDependency>(Environment.ProcessorCount, dependencies.Count);
             _dependencies = dependencies.ToArray();
             _dependencyByName = dependencyByName;
             _findDependency = FindDependency;
@@ -104,14 +105,13 @@ namespace Velo.Dependencies
             }
         }
 
-        public TContract Resolve<TContract>(string name = null) where TContract : class
+        public TContract Resolve<TContract>(string name = null, bool throwInNotRegistered = true)
+            where TContract : class
         {
-            var contract = Typeof<TContract>.Raw;
-
-            var dependency = GetDependency(contract, name);
-            return (TContract) dependency?.Resolve(contract, this);
+            return (TContract) Resolve(Typeof<TContract>.Raw, name, throwInNotRegistered);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public object Resolve(Type contract, string name = null, bool throwInNotRegistered = true)
         {
             var dependency = GetDependency(contract, name, throwInNotRegistered);
