@@ -39,12 +39,12 @@ namespace Velo.Dependencies
             if (_resolveInProgress.Add(dependency)) return;
             throw Error.CircularDependency(dependency);
         }
-        
+
         internal void ResolvingComplete(IDependency dependency)
         {
             _resolveInProgress.Remove(dependency);
         }
-        
+
         internal bool TryGetInstance(IDependency dependency, out object instance)
         {
             if (_current._disposed) throw Error.Disposed(nameof(DependencyScope));
