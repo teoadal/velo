@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Velo.Utils;
 
 namespace Velo.Dependencies
@@ -28,24 +29,36 @@ namespace Velo.Dependencies
             _resolveInProgress = new HashSet<IDependency>();
         }
 
-        internal void Add(IDependency dependency, object instance)
+        public object GetOrAdd(IDependency dependency, Func<IDependency, object> builder)
         {
-            if (_current._disposed) throw Error.Disposed(nameof(DependencyScope));
+            if (_disposed) throw Error.Disposed(nameof(DependencyScope));
+            
+            if (TryGetInstance(dependency, out var exists)) return exists;
+            
+            BeginResolving(dependency);
+
+            var instance = builder(dependency);
             _dependencies.Add(dependency, instance);
+            
+            ResolvingComplete(dependency);
+
+            return instance;
         }
 
-        internal void BeginResolving(IDependency dependency)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void BeginResolving(IDependency dependency)
         {
             if (_resolveInProgress.Add(dependency)) return;
             throw Error.CircularDependency(dependency);
         }
 
-        internal void ResolvingComplete(IDependency dependency)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ResolvingComplete(IDependency dependency)
         {
             _resolveInProgress.Remove(dependency);
         }
-
-        internal bool TryGetInstance(IDependency dependency, out object instance)
+        
+        private bool TryGetInstance(IDependency dependency, out object instance)
         {
             if (_current._disposed) throw Error.Disposed(nameof(DependencyScope));
 

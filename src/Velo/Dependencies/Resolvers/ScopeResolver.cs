@@ -19,19 +19,7 @@ namespace Velo.Dependencies.Resolvers
             var currentScope = DependencyScope.Current;
             if (currentScope == null) throw Error.InvalidOperation("Scope is not started");
 
-            if (currentScope.TryGetInstance(this, out var existsInstance))
-            {
-                return existsInstance;
-            }
-
-            currentScope.BeginResolving(this);
-
-            var instance = _dependency.Resolve(contract, container);
-            currentScope.Add(this, instance);
-
-            currentScope.ResolvingComplete(this);
-
-            return instance;
+            return currentScope.GetOrAdd(this, _ => _dependency.Resolve(contract, container));
         }
 
         public override bool Equals(object obj)
