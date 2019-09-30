@@ -1,21 +1,26 @@
+using System;
+using System.Diagnostics;
 using AutoFixture.Xunit2;
-
 using Newtonsoft.Json;
-
 using Velo.Serialization;
 using Velo.TestsModels;
 using Velo.TestsModels.Boos;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Velo
 {
-    public class DeserializationTests
+    public class DeserializationTests: IDisposable
     {
         private readonly JConverter _converter;
+        private readonly ITestOutputHelper _output;
+        private readonly Stopwatch _stopwatch;
 
-        public DeserializationTests()
+        public DeserializationTests(ITestOutputHelper output)
         {
             _converter = new JConverter();
+            _output = output;
+            _stopwatch = Stopwatch.StartNew();
         }
 
         [Theory, AutoData]
@@ -180,6 +185,11 @@ namespace Velo
 
             var deserialized = _converter.Deserialize<BigObject>(json);
             Assert.Null(deserialized);
+        }
+
+        public void Dispose()
+        {
+            _output.WriteLine($"Elapsed {_stopwatch.ElapsedMilliseconds} ms");
         }
     }
 }

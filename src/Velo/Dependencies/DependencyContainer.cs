@@ -22,13 +22,12 @@ namespace Velo.Dependencies
 
         internal DependencyContainer(List<IDependency> dependencies, Dictionary<string, IDependency> dependencyByName)
         {
-            var containerResolver = new DefaultResolver(new InstanceSingleton(this));
-            dependencies.Add(containerResolver);
-
-            _concreteDependencies =
-                new ConcurrentDictionary<Type, IDependency>(Environment.ProcessorCount, dependencies.Count);
-            _dependencies = dependencies.ToArray();
             _dependencyByName = dependencyByName;
+            
+            dependencies.Add(new DefaultResolver(new InstanceSingleton(this)));
+
+            _concreteDependencies = new ConcurrentDictionary<Type, IDependency>(Environment.ProcessorCount, dependencies.Count);
+            _dependencies = dependencies.ToArray();
             _findDependency = FindDependency;
         }
 

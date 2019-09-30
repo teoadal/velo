@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Velo.Dependencies;
 using Velo.Mapping;
@@ -10,11 +11,21 @@ using Velo.TestsModels.Domain;
 using Velo.TestsModels.Foos;
 using Velo.TestsModels.Infrastructure;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Velo
 {
-    public class DependencyTests
+    public class DependencyTests : IDisposable
     {
+        private readonly ITestOutputHelper _output;
+        private readonly Stopwatch _stopwatch;
+
+        public DependencyTests(ITestOutputHelper output)
+        {
+            _output = output;
+            _stopwatch = Stopwatch.StartNew();
+        }
+
         [Fact]
         public void Activate()
         {
@@ -688,6 +699,11 @@ namespace Velo
             var second = container.Resolve<IList<int>>();
 
             Assert.NotSame(first, second);
+        }
+
+        public void Dispose()
+        {
+            _output.WriteLine($"Elapsed {_stopwatch.ElapsedMilliseconds} ms");
         }
     }
 }

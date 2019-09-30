@@ -1,13 +1,25 @@
+using System;
+using System.Diagnostics;
 using AutoFixture.Xunit2;
 using Velo.Mapping;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Foos;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Velo
 {
-    public class MappingTests
+    public class MappingTests: IDisposable
     {
+        private readonly ITestOutputHelper _output;
+        private readonly Stopwatch _stopwatch;
+
+        public MappingTests(ITestOutputHelper output)
+        {
+            _output = output;
+            _stopwatch = Stopwatch.StartNew();
+        }
+        
         [Theory, AutoData]
         public void BasicMapper_Foo_To_Boo(bool boolValue, float floatValue, int intValue, double doubleValue)
         {
@@ -83,6 +95,11 @@ namespace Velo
             Assert.Equal(source.Bool, foo.Bool);
             Assert.Equal(source.Float, foo.Float);
             Assert.Equal(source.Int, foo.Int);
+        }
+
+        public void Dispose()
+        {
+            _output.WriteLine($"Elapsed {_stopwatch.ElapsedMilliseconds} ms");
         }
     }
 }

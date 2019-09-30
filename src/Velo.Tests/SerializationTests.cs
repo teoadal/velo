@@ -1,21 +1,25 @@
+using System;
+using System.Diagnostics;
 using AutoFixture.Xunit2;
-
 using Newtonsoft.Json;
-
 using Velo.Serialization;
 using Velo.TestsModels;
-
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Velo
 {
-    public class SerializationTests
+    public class SerializationTests: IDisposable
     {
         private readonly JConverter _converter;
+        private readonly ITestOutputHelper _output;
+        private readonly Stopwatch _stopwatch;
 
-        public SerializationTests()
+        public SerializationTests(ITestOutputHelper output)
         {
             _converter = new JConverter();
+            _output = output;
+            _stopwatch = Stopwatch.StartNew();
         }
 
         [Theory, AutoData]
@@ -48,6 +52,12 @@ namespace Velo
             Assert.Equal(source.Double, deserialized.Double);
             Assert.Equal(source.Int, deserialized.Int);
             Assert.Equal(source.String, deserialized.String);
+        }
+
+
+        public void Dispose()
+        {
+            _output.WriteLine($"Elapsed {_stopwatch.ElapsedMilliseconds} ms");
         }
     }
 }
