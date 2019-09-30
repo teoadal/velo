@@ -1,23 +1,21 @@
 using System;
+using Velo.Utils;
 
 namespace Velo.Dependencies.Resolvers
 {
-    internal abstract class DependencyResolver : IDependencyResolver
+    internal abstract class DependencyResolver : IDependency
     {
         private readonly IDependency _dependency;
-        private readonly string _dependencyName;
+        private bool _resolveInProgress;
 
-        protected DependencyResolver(IDependency dependency, string dependencyName)
+        protected DependencyResolver(IDependency dependency)
         {
             _dependency = dependency;
-            _dependencyName = dependencyName;
         }
 
-        public bool Applicable(Type contract, string parameterName = null)
+        public bool Applicable(Type contract)
         {
-            return _dependencyName == null || parameterName == null
-                ? _dependency.Applicable(contract)
-                : _dependencyName == parameterName && _dependency.Applicable(contract);
+            return _dependency.Applicable(contract);
         }
 
         public void Init(DependencyContainer container)
@@ -31,6 +29,17 @@ namespace Velo.Dependencies.Resolvers
         }
 
         public abstract object Resolve(Type contract, DependencyContainer container);
+
+        protected void BeginResolving()
+        {
+            if (_resolveInProgress) throw Error.CircularDependency(_dependency);
+            _resolveInProgress = true;
+        }
+
+        protected void ResolvingComplete()
+        {
+            _resolveInProgress = false;
+        }
         
         public override string ToString()
         {

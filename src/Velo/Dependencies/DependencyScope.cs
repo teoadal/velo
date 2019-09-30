@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Velo.Dependencies.Resolvers;
 using Velo.Utils;
 
 namespace Velo.Dependencies
@@ -12,10 +11,11 @@ namespace Velo.Dependencies
         public readonly string Name;
 
         [ThreadStatic] private static DependencyScope _current;
-        
-        private DependencyScope _parent;
-        private Dictionary<IDependencyResolver, object> _scopeInstances;
+
+        private readonly Dictionary<IDependency, object> _dependencies;
         private bool _disposed;
+        private DependencyScope _parent;
+        private readonly HashSet<IDependency> _resolveInProgress;
 
         internal DependencyScope(string name)
         {
@@ -23,22 +23,34 @@ namespace Velo.Dependencies
 
             _parent = _current;
             _current = this;
-            
-            _scopeInstances = new Dictionary<IDependencyResolver, object>();
+
+            _dependencies = new Dictionary<IDependency, object>();
+            _resolveInProgress = new HashSet<IDependency>();
         }
 
-        internal void Add(IDependencyResolver resolver, object instance)
+        internal void Add(IDependency dependency, object instance)
         {
             if (_current._disposed) throw Error.Disposed(nameof(DependencyScope));
-            _scopeInstances.Add(resolver, instance);
+            _dependencies.Add(dependency, instance);
         }
 
-        internal bool TryGetInstance(IDependencyResolver resolver, out object instance)
+        internal void BeginResolving(IDependency dependency)
+        {
+            if (_resolveInProgress.Add(dependency)) return;
+            throw Error.CircularDependency(dependency);
+        }
+
+        internal void ResolvingComplete(IDependency dependency)
+        {
+            _resolveInProgress.Remove(dependency);
+        }
+        
+        internal bool TryGetInstance(IDependency dependency, out object instance)
         {
             if (_current._disposed) throw Error.Disposed(nameof(DependencyScope));
 
-            if (_scopeInstances.TryGetValue(resolver, out instance)) return true;
-            return _parent?.TryGetInstance(resolver, out instance) ?? false;
+            if (_dependencies.TryGetValue(dependency, out instance)) return true;
+            return _parent?.TryGetInstance(dependency, out instance) ?? false;
         }
 
         public void Dispose()
@@ -49,7 +61,7 @@ namespace Velo.Dependencies
             _disposed = true;
             _parent = null;
 
-            foreach (var pair in _scopeInstances)
+            foreach (var pair in _dependencies)
             {
                 var resolver = pair.Key;
                 resolver.Destroy();
@@ -58,8 +70,7 @@ namespace Velo.Dependencies
                 if (instance is IDisposable disposable) disposable.Dispose();
             }
 
-            _scopeInstances.Clear();
-            _scopeInstances = null;
+            _dependencies.Clear();
         }
 
         public override string ToString()

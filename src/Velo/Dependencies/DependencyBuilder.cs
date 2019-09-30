@@ -12,11 +12,18 @@ namespace Velo.Dependencies
 {
     public sealed class DependencyBuilder
     {
-        private readonly List<IDependencyResolver> _resolvers;
+        private readonly List<IDependency> _dependencies;
+        private readonly Dictionary<string, IDependency> _dependenciesWithName;
 
         public DependencyBuilder(int capacity = 50)
         {
-            _resolvers = new List<IDependencyResolver>(capacity);
+            _dependencies = new List<IDependency>(capacity);
+            _dependenciesWithName = new Dictionary<string, IDependency>(capacity / 10);
+        }
+
+        public DependencyBuilder AddDependency(IDependency dependency, string name = null)
+        {
+            return Register(dependency, name);
         }
 
         #region AddGeneric
@@ -65,7 +72,7 @@ namespace Velo.Dependencies
             var dependency = compiled
                 ? (IDependency) new CompiledTransient(new[] {contract}, contract)
                 : new ActivatorTransient(new[] {contract}, contract);
-            
+
             return Register(dependency, name, true);
         }
 
@@ -78,7 +85,7 @@ namespace Velo.Dependencies
             var dependency = compiled
                 ? (IDependency) new CompiledTransient(contracts, implementation)
                 : new ActivatorTransient(contracts, implementation);
-            
+
             return Register(dependency, name, true);
         }
 
@@ -140,7 +147,7 @@ namespace Velo.Dependencies
             var dependency = compiled
                 ? (IDependency) new CompiledTransient(new[] {contract}, contract)
                 : new ActivatorTransient(new[] {contract}, contract);
-            
+
             return Register(dependency, name);
         }
 
@@ -153,7 +160,7 @@ namespace Velo.Dependencies
             var dependency = compiled
                 ? (IDependency) new CompiledTransient(contracts, implementation)
                 : new ActivatorTransient(contracts, implementation);
-            
+
             return Register(dependency, name);
         }
 
@@ -170,11 +177,11 @@ namespace Velo.Dependencies
 
         public DependencyContainer BuildContainer()
         {
-            Register(new ArrayFactory(_resolvers));
+            Register(new ArrayFactory(_dependencies));
 
-            var container = new DependencyContainer(_resolvers);
+            var container = new DependencyContainer(_dependencies, _dependenciesWithName);
 
-            foreach (var resolver in _resolvers)
+            foreach (var resolver in _dependencies)
             {
                 resolver.Init(container);
             }
@@ -208,10 +215,15 @@ namespace Velo.Dependencies
         private DependencyBuilder Register(IDependency dependency, string name = null, bool scopeDependency = false)
         {
             var resolver = scopeDependency
-                ? (IDependencyResolver) new ScopeResolver(dependency, name)
-                : new DefaultResolver(dependency, name);
+                ? (IDependency) new ScopeResolver(dependency)
+                : new DefaultResolver(dependency);
 
-            _resolvers.Add(resolver);
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                _dependenciesWithName.Add(name, resolver);
+            }
+
+            _dependencies.Add(resolver);
 
             return this;
         }

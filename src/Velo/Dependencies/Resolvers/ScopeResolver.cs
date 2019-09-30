@@ -8,18 +8,10 @@ namespace Velo.Dependencies.Resolvers
         private readonly IDependency _dependency;
         private readonly int _hash;
 
-        private bool _resolveInProgress;
-        
-        public ScopeResolver(IDependency dependency, string dependencyName = null)
-            : base(dependency, dependencyName)
+        public ScopeResolver(IDependency dependency) : base(dependency)
         {
             _dependency = dependency;
-
-            unchecked
-            {
-                _hash = dependency.GetHashCode();
-                _hash ^= dependencyName?.GetHashCode() ?? 1;
-            }
+            _hash = dependency.GetHashCode();
         }
 
         public override object Resolve(Type contract, DependencyContainer container)
@@ -32,14 +24,13 @@ namespace Velo.Dependencies.Resolvers
                 return existsInstance;
             }
 
-            if (_resolveInProgress) throw Error.CircularDependency(_dependency);
+            currentScope.BeginResolving(this);
 
-            _resolveInProgress = true;
-            
             var instance = _dependency.Resolve(contract, container);
             currentScope.Add(this, instance);
 
-            _resolveInProgress = false;
+            currentScope.ResolvingComplete(this);
+
             return instance;
         }
 

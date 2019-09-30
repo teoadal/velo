@@ -1,15 +1,14 @@
 using System;
 using System.Collections.Generic;
-using Velo.Dependencies.Resolvers;
 using Velo.Utils;
 
 namespace Velo.Dependencies.Factories
 {
     internal sealed class ArrayFactory : IDependency
     {
-        private readonly IDependencyResolver[] _resolvers;
+        private readonly IDependency[] _resolvers;
 
-        public ArrayFactory(List<IDependencyResolver> dependencies)
+        public ArrayFactory(List<IDependency> dependencies)
         {
             _resolvers = dependencies.ToArray();
         }

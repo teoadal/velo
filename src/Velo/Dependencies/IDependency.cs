@@ -6,10 +6,10 @@ namespace Velo.Dependencies
     {
         bool Applicable(Type contract);
 
-        void Destroy();
-
         void Init(DependencyContainer container);
         
+        void Destroy();
+
         object Resolve(Type contract, DependencyContainer container);
     }
 }

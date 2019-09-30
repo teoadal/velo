@@ -10,8 +10,7 @@ namespace Velo.Dependencies.Resolvers
         
         private bool _resolveInProgress;
 
-        public DefaultResolver(IDependency dependency, string dependencyName = null)
-            : base(dependency, dependencyName)
+        public DefaultResolver(IDependency dependency): base(dependency)
         {
             _dependency = dependency;
             _lockObject = new object();
@@ -21,11 +20,11 @@ namespace Velo.Dependencies.Resolvers
         {
             using (Lock.Enter(_lockObject))
             {
-                if (_resolveInProgress) throw Error.CircularDependency(_dependency);
+                BeginResolving();
                 
-                _resolveInProgress = true;
                 var resolved = _dependency.Resolve(contract, container);
-                _resolveInProgress = false;
+                
+                ResolvingComplete();
 
                 return resolved;
             }

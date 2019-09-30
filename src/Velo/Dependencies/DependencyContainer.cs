@@ -11,19 +11,22 @@ namespace Velo.Dependencies
 {
     public sealed class DependencyContainer
     {
-        private static readonly Type ResolverType = typeof(IDependencyResolver);
-        private static readonly MethodInfo ResolveMethod = ResolverType.GetMethod(nameof(IDependencyResolver.Resolve));
+        private static readonly Type ResolverType = typeof(IDependency);
+        private static readonly MethodInfo ResolveMethod = ResolverType.GetMethod(nameof(IDependency.Resolve));
 
-        private readonly Dictionary<Type, IDependencyResolver> _concreteResolvers;
-        private readonly IDependencyResolver[] _resolvers;
+        private readonly Dictionary<Type, IDependency> _concreteResolvers;
+        private readonly IDependency[] _resolvers;
+        private readonly Dictionary<string, IDependency> _resolversWithName;
 
-        internal DependencyContainer(List<IDependencyResolver> resolvers)
+        internal DependencyContainer(List<IDependency> resolvers,
+            Dictionary<string, IDependency> resolversWithName)
         {
             var containerResolver = new DefaultResolver(new InstanceSingleton(this));
             resolvers.Add(containerResolver);
 
-            _concreteResolvers = new Dictionary<Type, IDependencyResolver>(resolvers.Count);
+            _concreteResolvers = new Dictionary<Type, IDependency>(resolvers.Count);
             _resolvers = resolvers.ToArray();
+            _resolversWithName = resolversWithName;
         }
 
         public T Activate<T>() where T : class
@@ -120,8 +123,16 @@ namespace Velo.Dependencies
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private IDependencyResolver GetResolver(Type contract, string name = null, bool throwInNotRegistered = true)
+        private IDependency GetResolver(Type contract, string name = null, bool throwInNotRegistered = true)
         {
+            if (name != null && _resolversWithName.TryGetValue(name, out var nameResolver))
+            {
+                if (nameResolver.Applicable(contract))
+                {
+                    return nameResolver;
+                }
+            }
+
             using (Lock.Enter(_concreteResolvers))
             {
                 if (_concreteResolvers.TryGetValue(contract, out var concreteResolver))
@@ -133,7 +144,7 @@ namespace Velo.Dependencies
                 for (var i = 0; i < resolvers.Length; i++)
                 {
                     var resolver = resolvers[i];
-                    if (!resolver.Applicable(contract, name)) continue;
+                    if (!resolver.Applicable(contract)) continue;
 
                     _concreteResolvers.Add(contract, resolver);
 
