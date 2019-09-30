@@ -10,7 +10,7 @@ using Velo.Utils;
 
 namespace Velo.Dependencies
 {
-    public sealed class DependencyContainer
+    public sealed class DependencyContainer : IServiceProvider
     {
         private static readonly Type DependencyType = typeof(IDependency);
         private static readonly MethodInfo ResolveMethod = DependencyType.GetMethod(nameof(IDependency.Resolve));
@@ -159,5 +159,7 @@ namespace Velo.Dependencies
 
             return null;
         }
+
+        object IServiceProvider.GetService(Type type) => Resolve(type);
     }
 }
