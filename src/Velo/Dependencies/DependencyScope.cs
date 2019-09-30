@@ -32,17 +32,46 @@ namespace Velo.Dependencies
         public object GetOrAdd(IDependency dependency, Func<IDependency, object> builder)
         {
             if (_disposed) throw Error.Disposed(nameof(DependencyScope));
-            
+
             if (TryGetInstance(dependency, out var exists)) return exists;
-            
+
             BeginResolving(dependency);
 
             var instance = builder(dependency);
             _dependencies.Add(dependency, instance);
-            
+
             ResolvingComplete(dependency);
 
             return instance;
+        }
+
+        /// <summary>
+        /// Use for reduce allocation
+        /// </summary>
+        /// <exception cref="ObjectDisposedException"></exception>
+        public object GetOrAdd<T1, T2, T3>(IDependency dependency, T1 arg1, T2 arg2, T3 arg3,
+            Func<T1, T2, T3, object> builder)
+        {
+            if (_disposed) throw Error.Disposed(nameof(DependencyScope));
+
+            if (TryGetInstance(dependency, out var exists)) return exists;
+
+            BeginResolving(dependency);
+
+            var instance = builder(arg1, arg2, arg3);
+            _dependencies.Add(dependency, instance);
+
+            ResolvingComplete(dependency);
+
+            return instance;
+        }
+
+        public bool TryGetInstance(IDependency dependency, out object instance)
+        {
+            if (_current._disposed) throw Error.Disposed(nameof(DependencyScope));
+
+            if (_dependencies.TryGetValue(dependency, out instance)) return true;
+            return _parent?.TryGetInstance(dependency, out instance) ?? false;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -56,14 +85,6 @@ namespace Velo.Dependencies
         private void ResolvingComplete(IDependency dependency)
         {
             _resolveInProgress.Remove(dependency);
-        }
-        
-        private bool TryGetInstance(IDependency dependency, out object instance)
-        {
-            if (_current._disposed) throw Error.Disposed(nameof(DependencyScope));
-
-            if (_dependencies.TryGetValue(dependency, out instance)) return true;
-            return _parent?.TryGetInstance(dependency, out instance) ?? false;
         }
 
         public void Dispose()
