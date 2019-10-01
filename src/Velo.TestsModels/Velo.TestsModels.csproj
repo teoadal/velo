@@ -13,4 +13,13 @@
       <Folder Include="Services" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Update="Boos\CreateBooHandler.cs">
+        <DependentUpon>CreateBoo.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Boos\GetBooHandler.cs">
+        <DependentUpon>GetBoo.cs</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
 </Project>

@@ -23,10 +23,11 @@ namespace Velo.Dependencies
         internal DependencyContainer(List<IDependency> dependencies, Dictionary<string, IDependency> dependencyByName)
         {
             _dependencyByName = dependencyByName;
-            
+
             dependencies.Add(new DefaultResolver(new InstanceSingleton(this)));
 
-            _concreteDependencies = new ConcurrentDictionary<Type, IDependency>(Environment.ProcessorCount, dependencies.Count);
+            _concreteDependencies =
+                new ConcurrentDictionary<Type, IDependency>(Environment.ProcessorCount, dependencies.Count);
             _dependencies = dependencies.ToArray();
             _findDependency = FindDependency;
         }
@@ -104,27 +105,8 @@ namespace Velo.Dependencies
             }
         }
 
-        public TContract Resolve<TContract>(string name = null, bool throwInNotRegistered = true)
-            where TContract : class
-        {
-            return (TContract) Resolve(Typeof<TContract>.Raw, name, throwInNotRegistered);
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public object Resolve(Type contract, string name = null, bool throwInNotRegistered = true)
-        {
-            var dependency = GetDependency(contract, name, throwInNotRegistered);
-            return dependency?.Resolve(contract, this);
-        }
-
-        // ReSharper disable once MemberCanBeMadeStatic.Global
-        public DependencyScope StartScope([CallerMemberName] string name = "")
-        {
-            return new DependencyScope(name);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private IDependency GetDependency(Type contract, string name = null, bool throwInNotRegistered = true)
+        public IDependency GetDependency(Type contract, string name = null, bool throwInNotRegistered = true)
         {
             if (name != null && _dependencyByName.TryGetValue(name, out var dependencyWithName))
             {
@@ -142,6 +124,25 @@ namespace Velo.Dependencies
             }
 
             return dependency;
+        }
+
+        public TContract Resolve<TContract>(string name = null, bool throwInNotRegistered = true)
+            where TContract : class
+        {
+            return (TContract) Resolve(Typeof<TContract>.Raw, name, throwInNotRegistered);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public object Resolve(Type contract, string name = null, bool throwInNotRegistered = true)
+        {
+            var dependency = GetDependency(contract, name, throwInNotRegistered);
+            return dependency?.Resolve(contract, this);
+        }
+
+        // ReSharper disable once MemberCanBeMadeStatic.Global
+        public DependencyScope StartScope([CallerMemberName] string name = "")
+        {
+            return new DependencyScope(name);
         }
 
         private IDependency FindDependency(Type contract)
