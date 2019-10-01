@@ -43,7 +43,7 @@ namespace Velo
             var repository = _container.Resolve<IBooRepository>();
             repository.AddElement(new Boo {Id = id});
 
-            var boo = _bus.Ask<GetBoo, Boo>(new GetBoo {Id = id});
+            var boo = _bus.Ask(new GetBoo {Id = id});
 
             Assert.Equal(id, boo.Id);
         }
@@ -67,11 +67,22 @@ namespace Velo
             var repository = container.Resolve<IBooRepository>();
             repository.AddElement(new Boo {Id = id});
 
-            var boo = bus.Ask<GetBoo, Boo>(new GetBoo {Id = id});
+            var boo = bus.Ask(new GetBoo {Id = id});
 
             Assert.Equal(id, boo.Id);
         }
 
+        [Theory, AutoData]
+        public void Ask_Concrete(int id)
+        {
+            var repository = _container.Resolve<IBooRepository>();
+            repository.AddElement(new Boo {Id = id});
+
+            var boo = _bus.Ask<GetBoo, Boo>(new GetBoo {Id = id});
+
+            Assert.Equal(id, boo.Id);
+        }
+        
         [Theory, AutoData]
         public void Execute(int id, bool boolean, int number)
         {
@@ -124,7 +135,7 @@ namespace Velo
         {
             var bus = new Bus(new DependencyBuilder().BuildContainer());
 
-            Assert.Throws<KeyNotFoundException>(() => bus.Ask<GetBoo, Boo>(new GetBoo()));
+            Assert.Throws<KeyNotFoundException>(() => bus.Ask(new GetBoo()));
         }
 
         public void Dispose()

@@ -6,25 +6,31 @@ namespace Velo.CQRS
 {
     public sealed class Bus
     {
-        private readonly CommandProcessorsCollection _commandProcessorses;
-        private readonly QueryHandlerCollection _queryHandlers;
+        private readonly CommandProcessorsCollection _commandProcessors;
+        private readonly QueryProcessorsCollection _queryProcessors;
 
         public Bus(DependencyContainer container)
         {
-            _commandProcessorses = new CommandProcessorsCollection(container);
-            _queryHandlers = new QueryHandlerCollection(container);
+            _commandProcessors = new CommandProcessorsCollection(container);
+            _queryProcessors = new QueryProcessorsCollection(container);
         }
 
-        public TResult Ask<TQuery, TResult>(TQuery query) where TQuery : IQuery<TResult>
+        public TResult Ask<TResult>(IQuery<TResult> query)
         {
-            var queryHandler = _queryHandlers.GetHandler<TQuery, TResult>();
-            return queryHandler.Execute(query);
+            var processor = _queryProcessors.GetProcessor(query);
+            return processor.Execute(query);
         }
 
+        public TResult Ask<TQuery, TResult>(TQuery query) where TQuery: IQuery<TResult>
+        {
+            var processor = _queryProcessors.GetHandler<TQuery, TResult>();
+            return processor.Execute(query);
+        }
+        
         public void Execute<TCommand>(TCommand command) where TCommand : ICommand
         {
-            var commandHandler = _commandProcessorses.GetProcessor<TCommand>();
-            commandHandler.Execute(command);
+            var processor = _commandProcessors.GetProcessor<TCommand>();
+            processor.Execute(command);
         }
     }
 }
