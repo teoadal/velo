@@ -19,6 +19,11 @@ namespace Velo.TestsModels.Foos
             Session = session;
         }
 
+        public void AddElement(Foo element)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public Foo GetElement(int id)
         {
             throw new System.NotImplementedException();
@@ -35,6 +40,11 @@ namespace Velo.TestsModels.Foos
         {
             Configuration = configuration;
             Session = session;
+        }
+
+        public void AddElement(Foo element)
+        {
+            throw new System.NotImplementedException();
         }
 
         public Foo GetElement(int id)
