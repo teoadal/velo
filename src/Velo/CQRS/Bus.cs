@@ -6,12 +6,12 @@ namespace Velo.CQRS
 {
     public sealed class Bus
     {
-        private readonly CommandHandlerCollection _commandHandlers;
+        private readonly CommandProcessorsCollection _commandProcessorses;
         private readonly QueryHandlerCollection _queryHandlers;
 
         public Bus(DependencyContainer container)
         {
-            _commandHandlers = new CommandHandlerCollection(container);
+            _commandProcessorses = new CommandProcessorsCollection(container);
             _queryHandlers = new QueryHandlerCollection(container);
         }
 
@@ -23,7 +23,7 @@ namespace Velo.CQRS
 
         public void Execute<TCommand>(TCommand command) where TCommand : ICommand
         {
-            var commandHandler = _commandHandlers.GetProcessor<TCommand>();
+            var commandHandler = _commandProcessorses.GetProcessor<TCommand>();
             commandHandler.Execute(command);
         }
     }
