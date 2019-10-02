@@ -14,10 +14,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Update="Boos\CreateBooHandler.cs">
+      <Compile Update="Boos\Emitting\CreateBooHandler.cs">
         <DependentUpon>CreateBoo.cs</DependentUpon>
       </Compile>
-      <Compile Update="Boos\GetBooHandler.cs">
+      <Compile Update="Boos\Emitting\GetBooHandler.cs">
         <DependentUpon>GetBoo.cs</DependentUpon>
       </Compile>
     </ItemGroup>

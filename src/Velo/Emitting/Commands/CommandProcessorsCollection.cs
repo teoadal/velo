@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Velo.Dependencies;
 using Velo.Utils;
 
-namespace Velo.CQRS.Commands
+namespace Velo.Emitting.Commands
 {
     internal sealed class CommandProcessorsCollection
     {

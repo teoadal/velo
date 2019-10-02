@@ -1,11 +1,11 @@
 using System;
-using Velo.CQRS.Commands;
-using Velo.CQRS.Queries;
 using Velo.Dependencies;
+using Velo.Emitting.Commands;
+using Velo.Emitting.Queries;
 
-namespace Velo.CQRS
+namespace Velo.Emitting
 {
-    public static class BusDependencies
+    public static class EmitterExtensions
     {
         public static DependencyBuilder AddCommandHandler<THandler>(this DependencyBuilder builder)
             where THandler : ICommandHandler
@@ -14,7 +14,7 @@ namespace Velo.CQRS
         }
 
         public static DependencyBuilder AddCommandHandler<TCommand>(this DependencyBuilder builder,
-            Action<HandlerContext, TCommand> handler)
+            Action<EmitterContext, TCommand> handler)
             where TCommand : ICommand
         {
             return builder.AddSingleton<ICommandHandler>(ctx => new AnonymousCommandHandler<TCommand>(ctx, handler));
@@ -27,15 +27,15 @@ namespace Velo.CQRS
         }
 
         public static DependencyBuilder AddQueryHandler<TQuery, TResult>(this DependencyBuilder builder,
-            Func<HandlerContext, TQuery, TResult> handler)
+            Func<EmitterContext, TQuery, TResult> handler)
             where TQuery : IQuery<TResult>
         {
             return builder.AddSingleton<IQueryHandler>(ctx => new AnonymousQueryHandler<TQuery, TResult>(ctx, handler));
         }
 
-        public static DependencyBuilder UseBus(this DependencyBuilder builder)
+        public static DependencyBuilder UseEmitter(this DependencyBuilder builder)
         {
-            return builder.AddSingleton(ctx => new Bus(ctx));
+            return builder.AddSingleton(ctx => new Emitter(ctx));
         }
     }
 }

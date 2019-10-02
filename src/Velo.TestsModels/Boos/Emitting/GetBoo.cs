@@ -1,6 +1,6 @@
-using Velo.CQRS.Queries;
+using Velo.Emitting.Queries;
 
-namespace Velo.TestsModels.Boos
+namespace Velo.TestsModels.Boos.Emitting
 {
     public class GetBoo : IQuery<Boo>
     {

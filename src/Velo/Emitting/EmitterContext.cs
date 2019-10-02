@@ -2,14 +2,17 @@ using System.Collections.Generic;
 using Velo.Dependencies;
 using Velo.Utils;
 
-namespace Velo.CQRS
+namespace Velo.Emitting
 {
-    public class HandlerContext
+    public class EmitterContext
     {
+        public Emitter Emitter => _emitter ?? (_emitter = Resolve<Emitter>());
+
         private readonly DependencyContainer _container;
         private readonly Dictionary<int, IDependency> _dependencies;
+        private Emitter _emitter;
 
-        internal HandlerContext(DependencyContainer container)
+        internal EmitterContext(DependencyContainer container)
         {
             _container = container;
             _dependencies = new Dictionary<int, IDependency>(0);
@@ -24,7 +27,7 @@ namespace Velo.CQRS
             {
                 return (T) existsDependency.Resolve(type, _container);
             }
-            
+
             var dependency = _container.GetDependency(type);
             _dependencies.Add(typeId, dependency);
 

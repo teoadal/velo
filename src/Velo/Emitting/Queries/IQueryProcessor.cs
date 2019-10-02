@@ -1,4 +1,4 @@
-namespace Velo.CQRS.Queries
+namespace Velo.Emitting.Queries
 {
     internal interface IQueryProcessor<TResult> : IQueryProcessor
     {

@@ -2,24 +2,25 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using AutoFixture.Xunit2;
-using Velo.CQRS;
 using Velo.Dependencies;
+using Velo.Emitting;
 using Velo.Serialization;
 using Velo.TestsModels.Boos;
+using Velo.TestsModels.Boos.Emitting;
 using Velo.TestsModels.Infrastructure;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Velo
 {
-    public class CqrsTests : IDisposable
+    public class EmittingTests : IDisposable
     {
-        private readonly Bus _bus;
+        private readonly Emitter _emitter;
         private readonly DependencyContainer _container;
         private readonly ITestOutputHelper _output;
         private readonly Stopwatch _stopwatch;
 
-        public CqrsTests(ITestOutputHelper output)
+        public EmittingTests(ITestOutputHelper output)
         {
             _container = new DependencyBuilder()
                 .AddSingleton<IConfiguration, Configuration>()
@@ -28,10 +29,10 @@ namespace Velo
                 .AddSingleton<IBooRepository, BooRepository>()
                 .AddCommandHandler<CreateBooHandler>()
                 .AddQueryHandler<GetBooHandler>()
-                .UseBus()
+                .UseEmitter()
                 .BuildContainer();
 
-            _bus = _container.Resolve<Bus>();
+            _emitter = _container.Resolve<Emitter>();
 
             _output = output;
             _stopwatch = Stopwatch.StartNew();
@@ -43,7 +44,7 @@ namespace Velo
             var repository = _container.Resolve<IBooRepository>();
             repository.AddElement(new Boo {Id = id});
 
-            var boo = _bus.Ask(new GetBoo {Id = id});
+            var boo = _emitter.Ask(new GetBoo {Id = id});
 
             Assert.Equal(id, boo.Id);
         }
@@ -59,10 +60,10 @@ namespace Velo
                 .AddQueryHandler<GetBoo, Boo>((ctx, payload) => ctx
                     .Resolve<IBooRepository>()
                     .GetElement(payload.Id))
-                .UseBus()
+                .UseEmitter()
                 .BuildContainer();
 
-            var bus = new Bus(container);
+            var bus = new Emitter(container);
 
             var repository = container.Resolve<IBooRepository>();
             repository.AddElement(new Boo {Id = id});
@@ -78,7 +79,7 @@ namespace Velo
             var repository = _container.Resolve<IBooRepository>();
             repository.AddElement(new Boo {Id = id});
 
-            var boo = _bus.Ask<GetBoo, Boo>(new GetBoo {Id = id});
+            var boo = _emitter.Ask<GetBoo, Boo>(new GetBoo {Id = id});
 
             Assert.Equal(id, boo.Id);
         }
@@ -86,7 +87,7 @@ namespace Velo
         [Theory, AutoData]
         public void Execute(int id, bool boolean, int number)
         {
-            _bus.Execute(new CreateBoo {Id = id, Bool = boolean, Int = number});
+            _emitter.Execute(new CreateBoo {Id = id, Bool = boolean, Int = number});
 
             var repository = _container.Resolve<IBooRepository>();
             var boo = repository.GetElement(id);
@@ -107,10 +108,10 @@ namespace Velo
                 .AddCommandHandler<CreateBoo>((ctx, payload) => ctx
                     .Resolve<IBooRepository>()
                     .AddElement(new Boo {Id = payload.Id, Bool = payload.Bool, Int = payload.Int}))
-                .UseBus()
+                .UseEmitter()
                 .BuildContainer();
 
-            var bus = new Bus(container);
+            var bus = new Emitter(container);
 
             bus.Execute(new CreateBoo {Id = id, Bool = boolean, Int = number});
 
@@ -125,7 +126,7 @@ namespace Velo
         [Fact]
         public void Throw_CommandHandler_Not_Registered()
         {
-            var bus = new Bus(new DependencyBuilder().BuildContainer());
+            var bus = new Emitter(new DependencyBuilder().BuildContainer());
 
             Assert.Throws<KeyNotFoundException>(() => bus.Execute(new CreateBoo()));
         }
@@ -133,7 +134,7 @@ namespace Velo
         [Fact]
         public void Throw_QueryHandler_Not_Registered()
         {
-            var bus = new Bus(new DependencyBuilder().BuildContainer());
+            var bus = new Emitter(new DependencyBuilder().BuildContainer());
 
             Assert.Throws<KeyNotFoundException>(() => bus.Ask(new GetBoo()));
         }

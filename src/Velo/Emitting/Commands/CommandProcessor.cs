@@ -1,7 +1,7 @@
 using System;
 using Velo.Ordering;
 
-namespace Velo.CQRS.Commands
+namespace Velo.Emitting.Commands
 {
     internal sealed class CommandProcessor<TCommand> : ICommandProcessor<TCommand>
         where TCommand : ICommand
@@ -19,13 +19,14 @@ namespace Velo.CQRS.Commands
         public void Execute(TCommand command)
         {
             var handlers = _handlers;
+            var context = new HandlerContext<TCommand>(command);
 
             // ReSharper disable once ForCanBeConvertedToForeach
             for (var i = 0; i < handlers.Length; i++)
             {
-                handlers[i].Execute(command);
+                handlers[i].Execute(context);
 
-                if (command.StopPropagation)
+                if (context.StopPropagation)
                 {
                     break;
                 }

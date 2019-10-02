@@ -1,4 +1,4 @@
-namespace Velo.CQRS.Commands
+namespace Velo.Emitting.Commands
 {
     internal interface ICommandProcessor<in TCommand> : ICommandProcessor
         where TCommand : ICommand

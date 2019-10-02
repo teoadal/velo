@@ -1,6 +1,6 @@
-using Velo.CQRS.Commands;
+using Velo.Emitting.Commands;
 
-namespace Velo.TestsModels.Boos
+namespace Velo.TestsModels.Boos.Emitting
 {
     public class CreateBoo : ICommand
     {

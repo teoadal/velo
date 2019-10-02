@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Velo.Dependencies;
 using Velo.Utils;
 
-namespace Velo.CQRS.Queries
+namespace Velo.Emitting.Queries
 {
     internal sealed class QueryProcessorsCollection
     {

@@ -1,6 +1,7 @@
-using Velo.CQRS.Queries;
+using Velo.Emitting;
+using Velo.Emitting.Queries;
 
-namespace Velo.TestsModels.Boos
+namespace Velo.TestsModels.Boos.Emitting
 {
     public sealed class GetBooHandler : IQueryHandler<GetBoo, Boo>
     {
@@ -11,9 +12,10 @@ namespace Velo.TestsModels.Boos
             _repository = repository;
         }
 
-        public Boo Execute(GetBoo query)
+        public Boo Execute(HandlerContext<GetBoo> context)
         {
-            return _repository.GetElement(query.Id);
+            var payload = context.Payload;
+            return _repository.GetElement(payload.Id);
         }
     }
 }

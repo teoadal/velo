@@ -1,4 +1,4 @@
-namespace Velo.CQRS.Queries
+namespace Velo.Emitting.Queries
 {
     internal sealed class QueryProcessor<TQuery, TResult> : IQueryProcessor<TResult>
         where TQuery : IQuery<TResult>
@@ -14,7 +14,8 @@ namespace Velo.CQRS.Queries
 
         public TResult Execute(IQuery<TResult> query)
         {
-            return _handler.Execute((TQuery) query);
+            var context = new HandlerContext<TQuery>((TQuery) query);
+            return _handler.Execute(context);
         }
     }
 }
