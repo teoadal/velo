@@ -2,12 +2,11 @@ using System;
 using System.Diagnostics;
 using AutoFixture.Xunit2;
 using Newtonsoft.Json;
-using Velo.Serialization;
 using Velo.TestsModels;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo
+namespace Velo.Serialization
 {
     public class SerializationTests : IDisposable
     {

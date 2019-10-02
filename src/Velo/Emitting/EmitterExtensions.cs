@@ -33,9 +33,9 @@ namespace Velo.Emitting
             return builder.AddSingleton<IQueryHandler>(ctx => new AnonymousQueryHandler<TQuery, TResult>(ctx, handler));
         }
 
-        public static DependencyBuilder UseEmitter(this DependencyBuilder builder)
+        public static DependencyBuilder AddEmitter(this DependencyBuilder builder)
         {
-            return builder.AddSingleton(ctx => new Emitter(ctx));
+            return builder.AddSingleton<Emitter>();
         }
     }
 }
