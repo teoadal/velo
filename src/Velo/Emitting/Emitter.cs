@@ -24,7 +24,7 @@ namespace Velo.Emitting
         public TResult Ask<TQuery, TResult>(TQuery query) where TQuery : IQuery<TResult>
         {
             var processor = _queryProcessors.GetHandler<TQuery, TResult>();
-            
+
             var context = new HandlerContext<TQuery>(query);
             return processor.Execute(context);
         }

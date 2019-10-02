@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-
 using Velo.Serialization.Converters;
 using Velo.Serialization.Tokenization;
 
@@ -11,8 +10,7 @@ namespace Velo.Serialization
 {
     public sealed class JConverter
     {
-        [ThreadStatic] 
-        private static StringBuilder _buffer;
+        [ThreadStatic] private static StringBuilder _buffer;
         private readonly Dictionary<Type, IJsonConverter> _converters;
 
         public JConverter(CultureInfo culture = null)
@@ -79,6 +77,15 @@ namespace Velo.Serialization
 
                 var arrayConverterType = typeof(ArrayConverter<>).MakeGenericType(arrayElementType);
                 return (IJsonConverter) Activator.CreateInstance(arrayConverterType, arrayElementConverter);
+            }
+
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
+            {
+                var listElementType = type.GetGenericArguments()[0];
+                var listElementConverter = GetOrBuildConverter(listElementType);
+
+                var arrayConverterType = typeof(ArrayConverter<>).MakeGenericType(listElementType);
+                return (IJsonConverter) Activator.CreateInstance(arrayConverterType, listElementConverter);
             }
 
             var objectPropertyConverters = type

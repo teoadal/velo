@@ -5,20 +5,20 @@ using Velo.Serialization.Tokenization;
 
 namespace Velo.Serialization.Converters
 {
-    internal sealed class ArrayConverter<TElement> : IJsonConverter<TElement[]>
+    internal sealed class ListConverter<TElement> : IJsonConverter<List<TElement>>
     {
         [ThreadStatic] private static List<TElement> _buffer;
         private readonly IJsonConverter<TElement> _elementConverter;
 
-        public ArrayConverter(IJsonConverter<TElement> elementConverter)
+        public ListConverter(IJsonConverter<TElement> elementConverter)
         {
             _elementConverter = elementConverter;
         }
 
-        public TElement[] Deserialize(JsonTokenizer tokenizer)
+        public List<TElement> Deserialize(JsonTokenizer tokenizer)
         {
             if (_buffer == null) _buffer = new List<TElement>(10);
-            
+
             while (tokenizer.MoveNext())
             {
                 var token = tokenizer.Current;
@@ -31,18 +31,17 @@ namespace Velo.Serialization.Converters
                 _buffer.Add(element);
             }
 
-            var array = new TElement[_buffer.Count];
-            for (var i = 0; i < array.Length; i++)
-                array[i] = _buffer[i];
-
+            var list = new List<TElement>(_buffer.Count);
+            list.AddRange(_buffer);
+            
             _buffer.Clear();
-
-            return array;
+            
+            return list;
         }
 
-        public void Serialize(TElement[] array, StringBuilder builder)
+        public void Serialize(List<TElement> list, StringBuilder builder)
         {
-            if (array == null)
+            if (list == null)
             {
                 builder.Append(JsonTokenizer.TOKEN_NULL_VALUE);
                 return;
@@ -50,15 +49,19 @@ namespace Velo.Serialization.Converters
 
             builder.Append('[');
 
-            for (var i = 0; i < array.Length; i++)
+            var first = true;
+            foreach (var element in list)
             {
-                if (i > 0) builder.Append(',');
-                _elementConverter.Serialize(array[i], builder);
+                if (first) first = false;
+                else builder.Append(',');
+
+                _elementConverter.Serialize(element, builder);
             }
 
             builder.Append("]");
         }
 
-        void IJsonConverter.Serialize(object value, StringBuilder builder) => Serialize((TElement[]) value, builder);
+        void IJsonConverter.Serialize(object value, StringBuilder builder) =>
+            Serialize((List<TElement>) value, builder);
     }
 }

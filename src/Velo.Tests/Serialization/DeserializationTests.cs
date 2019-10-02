@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
 using AutoFixture.Xunit2;
 using Newtonsoft.Json;
 using Velo.TestsModels;
@@ -61,6 +64,27 @@ namespace Velo.Serialization
             for (var i = 0; i < array.Length; i++)
             {
                 Assert.Equal(array[i], deserialized[i]);
+            }
+        }
+
+        [Theory, AutoData]
+        public void Deserialize_Array_MultiThreading(int[][] arrays)
+        {
+            var jsons = arrays.Select(JsonConvert.SerializeObject).ToArray();
+
+            var tasks = new Task[arrays.Length];
+            for (var i = 0; i < jsons.Length; i++)
+            {
+                var array = arrays[i];
+                var json = jsons[i];
+                tasks[i] = Task.Run(() =>
+                {
+                    var deserialized = _converter.Deserialize<int[]>(json);
+                    for (var index = 0; index < array.Length; index++)
+                    {
+                        Assert.Equal(array[index], deserialized[index]);
+                    }
+                });
             }
         }
 
