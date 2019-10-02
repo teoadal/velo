@@ -8,6 +8,7 @@ namespace Velo.Serialization.Converters
     internal sealed class ArrayConverter<TElement> : IJsonConverter<TElement[]>
     {
         [ThreadStatic] private static List<TElement> _buffer;
+        
         private readonly IJsonConverter<TElement> _elementConverter;
 
         public ArrayConverter(IJsonConverter<TElement> elementConverter)
