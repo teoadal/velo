@@ -26,8 +26,7 @@ namespace Velo.Dependencies
 
             dependencies.Add(new DefaultResolver(new InstanceSingleton(this)));
 
-            _concreteDependencies =
-                new ConcurrentDictionary<Type, IDependency>(Environment.ProcessorCount, dependencies.Count);
+            _concreteDependencies = new ConcurrentDictionary<Type, IDependency>(Environment.ProcessorCount, dependencies.Count);
             _dependencies = dependencies.ToArray();
             _findDependency = FindDependency;
         }

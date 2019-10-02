@@ -1,32 +1,37 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
+using System.Reflection;
 using System.Text;
 using Velo.Serialization.Converters;
 using Velo.Serialization.Tokenization;
+using Velo.Utils;
 
 namespace Velo.Serialization
 {
     public sealed class JConverter
     {
         [ThreadStatic] private static StringBuilder _buffer;
-        private readonly Dictionary<Type, IJsonConverter> _converters;
+
+        private readonly Func<Type, IJsonConverter> _buildConverter;
+        private readonly ConcurrentDictionary<Type, IJsonConverter> _converters;
 
         public JConverter(CultureInfo culture = null)
         {
             if (culture == null) culture = CultureInfo.InvariantCulture;
 
-            _converters = new Dictionary<Type, IJsonConverter>
+            _buildConverter = BuildConverter;
+            _converters = new ConcurrentDictionary<Type, IJsonConverter>(new[]
             {
-                {typeof(bool), new BoolConverter()},
-                {typeof(DateTime), new DateTimeConverter(culture)},
-                {typeof(double), new DoubleConverter(culture)},
-                {typeof(float), new FloatConverter(culture)},
-                {typeof(Guid), new GuidConverter()},
-                {typeof(int), new IntConverter()},
-                {typeof(string), new StringConverter()}
-            };
+                new KeyValuePair<Type, IJsonConverter>(typeof(bool), new BoolConverter()),
+                new KeyValuePair<Type, IJsonConverter>(typeof(DateTime), new DateTimeConverter(culture)),
+                new KeyValuePair<Type, IJsonConverter>(typeof(double), new DoubleConverter(culture)),
+                new KeyValuePair<Type, IJsonConverter>(typeof(float), new FloatConverter(culture)),
+                new KeyValuePair<Type, IJsonConverter>(typeof(Guid), new GuidConverter()),
+                new KeyValuePair<Type, IJsonConverter>(typeof(int), new IntConverter()),
+                new KeyValuePair<Type, IJsonConverter>(typeof(string), new StringConverter()),
+            });
         }
 
         public TOut Deserialize<TOut>(string source)
@@ -34,7 +39,7 @@ namespace Velo.Serialization
             if (_buffer == null) _buffer = new StringBuilder(200);
 
             var outType = typeof(TOut);
-            var converter = GetOrBuildConverter(outType);
+            var converter = _converters.GetOrAdd(outType, _buildConverter);
             using (var tokenizer = new JsonTokenizer(source, _buffer))
             {
                 if (outType.IsPrimitive || outType == typeof(string)) tokenizer.MoveNext();
@@ -49,7 +54,7 @@ namespace Velo.Serialization
             if (_buffer == null) _buffer = new StringBuilder(200);
 
             var type = source.GetType();
-            var converter = GetOrBuildConverter(type);
+            var converter = _converters.GetOrAdd(type, BuildConverter);
 
             converter.Serialize(source, _buffer);
 
@@ -61,11 +66,7 @@ namespace Velo.Serialization
         public void PrepareConverterFor<TSource>()
         {
             var sourceType = typeof(TSource);
-
-            if (!_converters.ContainsKey(sourceType)) return;
-
-            var converter = BuildConverter(sourceType);
-            _converters.Add(sourceType, converter);
+            _converters.GetOrAdd(sourceType, _buildConverter);
         }
 
         private IJsonConverter BuildConverter(Type type)
@@ -73,7 +74,8 @@ namespace Velo.Serialization
             if (type.IsArray)
             {
                 var arrayElementType = type.GetElementType();
-                var arrayElementConverter = GetOrBuildConverter(arrayElementType);
+                if (arrayElementType == null) throw Error.InvalidData($"Bad array type {type}");
+                var arrayElementConverter = _converters.GetOrAdd(arrayElementType, _buildConverter);
 
                 var arrayConverterType = typeof(ArrayConverter<>).MakeGenericType(arrayElementType);
                 return (IJsonConverter) Activator.CreateInstance(arrayConverterType, arrayElementConverter);
@@ -82,28 +84,24 @@ namespace Velo.Serialization
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
             {
                 var listElementType = type.GetGenericArguments()[0];
-                var listElementConverter = GetOrBuildConverter(listElementType);
+                var listElementConverter = _converters.GetOrAdd(listElementType, _buildConverter);
 
                 var arrayConverterType = typeof(ArrayConverter<>).MakeGenericType(listElementType);
                 return (IJsonConverter) Activator.CreateInstance(arrayConverterType, listElementConverter);
             }
 
-            var objectPropertyConverters = type
-                .GetProperties()
-                .ToDictionary(p => p, p => GetOrBuildConverter(p.PropertyType));
+            var objectProperties = type.GetProperties();
+            var objectPropertyConverters = new Dictionary<PropertyInfo, IJsonConverter>(objectProperties.Length);
+
+            // ReSharper disable once ForCanBeConvertedToForeach
+            for (var i = 0; i < objectProperties.Length; i++)
+            {
+                var property = objectProperties[i];
+                objectPropertyConverters.Add(property, _converters.GetOrAdd(property.PropertyType, _buildConverter));
+            }
 
             var objectConverterType = typeof(ObjectConverter<>).MakeGenericType(type);
             return (IJsonConverter) Activator.CreateInstance(objectConverterType, objectPropertyConverters);
-        }
-
-        private IJsonConverter GetOrBuildConverter(Type type)
-        {
-            if (_converters.TryGetValue(type, out var exists)) return exists;
-
-            var converter = BuildConverter(type);
-            _converters.Add(type, converter);
-
-            return converter;
         }
     }
 }

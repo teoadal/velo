@@ -44,17 +44,17 @@ namespace Velo.Mapping
         public void PrepareConverterFor<TSource>()
         {
             var sourceType = typeof(TSource);
-            
+
             if (!_converters.ContainsKey(sourceType)) return;
 
             var converter = BuildConverter(sourceType);
             _converters.Add(sourceType, converter);
         }
-        
+
         private Func<object, TOut> BuildConverter(Type sourceType)
         {
             var parameter = Expression.Parameter(typeof(object), "source");
-            
+
             var sourceInstance = Expression.Variable(sourceType, "typedSource");
             var outInstance = Expression.Variable(_outType, "outInstance");
 
@@ -63,8 +63,10 @@ namespace Velo.Mapping
                 Expression.Assign(sourceInstance, Expression.Convert(parameter, sourceType)),
                 Expression.Assign(outInstance, Expression.New(_outConstructor))
             };
-            
+
             var sourceProperties = sourceType.GetProperties();
+
+            // ReSharper disable once ForCanBeConvertedToForeach
             for (var i = 0; i < sourceProperties.Length; i++)
             {
                 var sourceProperty = sourceProperties[i];
@@ -73,13 +75,13 @@ namespace Velo.Mapping
                 {
                     var sourceValue = Expression.Property(sourceInstance, sourceProperty);
                     var outValue = Expression.Property(outInstance, outProperty);
-                    
+
                     expressions.Add(Expression.Assign(outValue, sourceValue));
                 }
             }
 
             expressions.Add(outInstance); // return
-            
+
             var body = Expression.Block(new[] {sourceInstance, outInstance}, expressions);
             return Expression.Lambda<Func<object, TOut>>(body, parameter).Compile();
         }
