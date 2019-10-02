@@ -9,7 +9,7 @@ using Xunit.Abstractions;
 
 namespace Velo
 {
-    public class MappingTests: IDisposable
+    public class MappingTests : IDisposable
     {
         private readonly ITestOutputHelper _output;
         private readonly Stopwatch _stopwatch;
@@ -19,7 +19,7 @@ namespace Velo
             _output = output;
             _stopwatch = Stopwatch.StartNew();
         }
-        
+
         [Theory, AutoData]
         public void BasicMapper_Foo_To_Boo(bool boolValue, float floatValue, int intValue, double doubleValue)
         {

@@ -16,8 +16,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Velo.TestsModels\Velo.TestsModels.csproj" />
-      <ProjectReference Include="..\Velo\Velo.csproj" />
+        <ProjectReference Include="..\Velo.TestsModels\Velo.TestsModels.csproj" />
+        <ProjectReference Include="..\Velo\Velo.csproj" />
     </ItemGroup>
 
 </Project>

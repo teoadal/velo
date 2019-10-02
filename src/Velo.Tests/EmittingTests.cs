@@ -83,7 +83,7 @@ namespace Velo
 
             Assert.Equal(id, boo.Id);
         }
-        
+
         [Theory, AutoData]
         public void Execute(int id, bool boolean, int number)
         {

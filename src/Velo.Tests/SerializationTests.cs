@@ -9,7 +9,7 @@ using Xunit.Abstractions;
 
 namespace Velo
 {
-    public class SerializationTests: IDisposable
+    public class SerializationTests : IDisposable
     {
         private readonly JConverter _converter;
         private readonly ITestOutputHelper _output;
