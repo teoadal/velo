@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using AutoFixture.Xunit2;
 using Velo.Patching;
@@ -21,16 +22,44 @@ namespace Velo
             _output = output;
             _stopwatch = Stopwatch.StartNew();
         }
-        
+
+        [Fact]
+        public void AddValue()
+        {
+            const int item = 4;
+            var boo = new Boo {Values = new List<int> {1, 2, 3}};
+
+            _builder.CreatePatch<Boo>()
+                .AddValue(b => b.Values, item)
+                .Apply(boo);
+
+            Assert.NotNull(boo.Values);
+            Assert.Contains(item, boo.Values);
+        }
+
+        [Fact]
+        public void AddValue_NotInitialized()
+        {
+            const int item = 4;
+            var boo = new Boo();
+
+            _builder.CreatePatch<Boo>()
+                .AddValue(b => b.Values, item)
+                .Apply(boo);
+
+            Assert.NotNull(boo.Values);
+            Assert.Contains(item, boo.Values);
+        }
+
         [Theory, AutoData]
         public void Decrement(Boo boo)
         {
             var initValue = boo.Int;
 
-            var path = _builder.CreatePatch<Boo>()
-                .Decrement(b => b.Int);
+            _builder.CreatePatch<Boo>()
+                .Decrement(b => b.Int)
+                .Apply(boo);
 
-            path.Apply(boo);
             Assert.Equal(initValue - 1, boo.Int);
         }
 
@@ -39,24 +68,23 @@ namespace Velo
         {
             var initValue = boo.Int;
 
-            var path = _builder.CreatePatch<Boo>()
-                .Increment(b => b.Int);
+            _builder.CreatePatch<Boo>()
+                .Increment(b => b.Int)
+                .Apply(boo);
 
-            path.Apply(boo);
-            Assert.Equal(initValue - 1, boo.Int);
+            Assert.Equal(initValue + 1, boo.Int);
         }
 
         [Theory, AutoData]
         public void SetValue(Boo first, Boo second)
         {
-            var patch = _builder.CreatePatch<Boo>()
+            _builder.CreatePatch<Boo>()
                 .SetValue(b => b.Bool, second.Bool)
                 .SetValue(b => b.Double, second.Double)
                 .SetValue(b => b.Float, second.Float)
                 .SetValue(b => b.Id, second.Id)
-                .SetValue(b => b.Int, second.Int);
-
-            patch.Apply(first);
+                .SetValue(b => b.Int, second.Int)
+                .Apply(first);
 
             Assert.Equal(second.Bool, first.Bool);
             Assert.Equal(second.Double, first.Double);

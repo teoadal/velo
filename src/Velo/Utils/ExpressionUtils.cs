@@ -1,33 +1,74 @@
 using System;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Velo.Utils
 {
-    internal static class ExpressionUtils
+    public static class ExpressionUtils
     {
-        public static Action<T> BuildDecrement<T, TValue>(Expression<Func<T, TValue>> path)
+        private static readonly Type VoidType = typeof(void);
+        private static readonly Expression VoidResult = Expression.Default(VoidType);
+
+        public static Delegate BuildInitializer(Type owner, PropertyInfo propertyInfo)
         {
-            throw new NotImplementedException();
+            var instance = Expression.Parameter(owner, "instance");
+            var property = Expression.Property(instance, propertyInfo);
+            
+            var constructor = ReflectionUtils.GetConstructor(propertyInfo.PropertyType);
+            var assign = Expression.Assign(property, constructor == null
+                ? (Expression) Expression.Default(propertyInfo.PropertyType)
+                : Expression.New(constructor));
+
+            var body = Expression.Block(
+                assign, 
+                VoidResult);
+
+            return Expression.Lambda(body, instance).Compile();
         }
 
-        public static Func<T, TValue> BuildGetter<T, TValue>(Expression<Func<T, TValue>> path)
+        public static Delegate BuildDecrement(Type owner, PropertyInfo propertyInfo)
         {
-            throw new NotImplementedException();
+            var instance = Expression.Parameter(owner, "instance");
+            var property = Expression.Property(instance, propertyInfo);
+
+            var body = Expression.Block(
+                Expression.Assign(property, Expression.Decrement(property)),
+                VoidResult);
+
+            return Expression.Lambda(body, instance).Compile();
         }
 
-        public static Action<T> BuildIncrement<T, TValue>(Expression<Func<T, TValue>> path)
+        public static Delegate BuildIncrement(Type owner, PropertyInfo propertyInfo)
         {
-            throw new NotImplementedException();
+            var instance = Expression.Parameter(owner, "instance");
+            var property = Expression.Property(instance, propertyInfo);
+
+            var body = Expression.Block(
+                Expression.Assign(property, Expression.Increment(property)),
+                VoidResult);
+
+            return Expression.Lambda(body, instance).Compile();
         }
 
-        public static Action<T> BuildInitializer<T, TValue>(Expression<Func<T, TValue>> path)
+        public static Delegate BuildGetter(Type owner, PropertyInfo propertyInfo)
         {
-            throw new NotImplementedException();
+            var instance = Expression.Parameter(owner, "instance");
+
+            var body = Expression.Property(instance, propertyInfo);
+            return Expression.Lambda(body, instance).Compile();
         }
 
-        public static Action<T, TValue> BuildSetter<T, TValue>(Expression<Func<T, TValue>> path)
+        public static Delegate BuildSetter(Type owner, PropertyInfo propertyInfo)
         {
-            throw new NotImplementedException();
+            var instance = Expression.Parameter(owner, "instance");
+            var value = Expression.Parameter(propertyInfo.PropertyType, "value");
+            var property = Expression.Property(instance, propertyInfo);
+
+            var body = Expression.Block(
+                Expression.Assign(property, value),
+                VoidResult);
+
+            return Expression.Lambda(body, instance, value).Compile();
         }
     }
 }

@@ -19,14 +19,14 @@ namespace Velo.Utils
 
             return array;
         }
-        
+
         public static ConstructorInfo GetConstructor(Type type)
         {
             if (type.IsAbstract) throw Error.InvalidOperation("Type is abstract");
             if (type.IsInterface) throw Error.InvalidOperation("Type is interface");
 
             var availableConstructors = type.GetTypeInfo().DeclaredConstructors;
-            return availableConstructors.FirstOrDefault();
+            return availableConstructors.FirstOrDefault(constructor => !constructor.IsStatic);
         }
 
         public static Type[] GetGenericInterfaceParameters(Type type, Type genericInterface)
