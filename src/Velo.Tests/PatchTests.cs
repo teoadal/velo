@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using AutoFixture.Xunit2;
 using Velo.Patching;
+using Velo.Patching.Actions;
 using Velo.TestsModels.Boos;
 using Xunit;
 using Xunit.Abstractions;
@@ -102,6 +103,40 @@ namespace Velo
         }
 
         [Theory, AutoData]
+        public void Assign_Builder(Boo boo)
+        {
+            _builder.CreatePatch<Boo>()
+                .Assign(b => b.Bool, b => b.Int > b.Id)
+                .Apply(boo);
+
+            Assert.Equal(boo.Int > boo.Id, boo.Bool);
+        }
+
+        [Theory, AutoData]
+        public void Clear(List<int> values)
+        {
+            var boo = new Boo {Values = values};
+
+            _builder.CreatePatch<Boo>()
+                .ClearValues(b => b.Values)
+                .Apply(boo);
+
+            Assert.Empty(boo.Values);
+        }
+
+        [Fact]
+        public void Clear_Notinitialized()
+        {
+            var boo = new Boo();
+
+            _builder.CreatePatch<Boo>()
+                .ClearValues(b => b.Values)
+                .Apply(boo);
+
+            Assert.Null(boo.Values);
+        }
+
+        [Theory, AutoData]
         public void Decrement(Boo boo)
         {
             var initValue = boo.Int;
@@ -113,6 +148,18 @@ namespace Velo
             Assert.Equal(initValue - 1, boo.Int);
         }
 
+        [Theory, AutoData]
+        public void Execute(Boo boo, int remove)
+        {
+            boo.Values.Add(remove);
+            
+            _builder.CreatePatch<Boo>()
+                .Execute(new RemoveValuePatch<Boo, int>(b => b.Values, remove))
+                .Apply(boo);
+            
+            Assert.DoesNotContain(remove, boo.Values);
+        }
+        
         [Theory, AutoData]
         public void Increment(Boo boo)
         {

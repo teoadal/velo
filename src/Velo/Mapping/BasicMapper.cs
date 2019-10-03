@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace Velo.Mapping
 {
-    public sealed class BasicMapper<TOut> : IMapper<TOut>
+    internal sealed class BasicMapper<TOut> : IMapper<TOut>
     {
         private readonly Func<TOut> _activator;
         private readonly Dictionary<string, PropertyInfo> _outProperties;
