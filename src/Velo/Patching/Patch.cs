@@ -67,6 +67,12 @@ namespace Velo.Patching
             return Execute(new DecrementPatch<T>(decrement));
         }
 
+        public Patch<T> Drop<TValue>(Expression<Func<T, TValue>> path)
+        {
+            var setter = _patchObject.GetSetter(path);
+            return Execute(new AssignPatch<T, TValue>(setter, default));
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Patch<T> Execute(IPatchAction<T> patch)
         {
@@ -77,7 +83,7 @@ namespace Velo.Patching
         public Patch<T> Increment<TValue>(Expression<Func<T, TValue>> path)
         {
             var increment = _patchObject.GetIncrement(path);
-            return Execute(new IncrementPatch<T, TValue>(increment));
+            return Execute(new IncrementPatch<T>(increment));
         }
 
         public Patch<T> RemoveValue<TValue>(Func<T, ICollection<TValue>> collection, TValue value)

@@ -149,17 +149,37 @@ namespace Velo
         }
 
         [Theory, AutoData]
+        public void Drop(Boo boo)
+        {
+            _builder.CreatePatch<Boo>()
+                .Drop(b => b.Bool)
+                .Drop(b => b.Double)
+                .Drop(b => b.Float)
+                .Drop(b => b.Id)
+                .Drop(b => b.Int)
+                .Drop(b => b.Values)
+                .Apply(boo);
+
+            Assert.Equal(default, boo.Bool);
+            Assert.Equal(default, boo.Double);
+            Assert.Equal(default, boo.Float);
+            Assert.Equal(default, boo.Id);
+            Assert.Equal(default, boo.Int);
+            Assert.Equal(default, boo.Values);
+        }
+
+        [Theory, AutoData]
         public void Execute(Boo boo, int remove)
         {
             boo.Values.Add(remove);
-            
+
             _builder.CreatePatch<Boo>()
                 .Execute(new RemoveValuePatch<Boo, int>(b => b.Values, remove))
                 .Apply(boo);
-            
+
             Assert.DoesNotContain(remove, boo.Values);
         }
-        
+
         [Theory, AutoData]
         public void Increment(Boo boo)
         {
