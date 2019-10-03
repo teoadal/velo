@@ -1,6 +1,6 @@
 using System;
 
-namespace Velo.Patching.Actions
+namespace Velo.Patching.CommonActions
 {
     internal sealed class AssignPatch<T, TValue> : IPatchAction<T>
         where T : class

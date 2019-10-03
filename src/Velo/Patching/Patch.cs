@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
-using Velo.Patching.Actions;
+using Velo.Patching.CollectionActions;
+using Velo.Patching.CommonActions;
+using Velo.Patching.NumberActions;
 
 namespace Velo.Patching
 {

@@ -1,6 +1,6 @@
 using System;
 
-namespace Velo.Patching.Actions
+namespace Velo.Patching.NumberActions
 {
     internal sealed class IncrementPatch<T, TValue> : IPatchAction<T>
         where T : class

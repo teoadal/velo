@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Velo.Patching.Actions
+namespace Velo.Patching.CollectionActions
 {
     internal sealed class AddValuePatch<T, TValue> : IPatchAction<T>
         where T : class

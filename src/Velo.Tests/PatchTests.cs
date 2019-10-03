@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using AutoFixture.Xunit2;
 using Velo.Patching;
-using Velo.Patching.Actions;
+using Velo.Patching.CollectionActions;
 using Velo.TestsModels.Boos;
 using Xunit;
 using Xunit.Abstractions;
