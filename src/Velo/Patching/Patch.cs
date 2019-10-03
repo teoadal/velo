@@ -42,6 +42,12 @@ namespace Velo.Patching
             }
         }
 
+        public Patch<T> Assign<TValue>(Expression<Func<T, TValue>> path, TValue value)
+        {
+            var setter = _patchObject.GetSetter(path);
+            return Execute(new AssignPatch<T, TValue>(setter, value));
+        }
+        
         public Patch<T> Decrement<TValue>(Expression<Func<T, TValue>> path)
         {
             var decrement = _patchObject.GetDecrement(path);
@@ -74,12 +80,6 @@ namespace Velo.Patching
         public Patch<T> ReplaceValue<TValue>(Func<T, IList<TValue>> collection, TValue oldValue, TValue newValue)
         {
             return Execute(new ReplacePatch<T, TValue>(collection, oldValue, newValue));
-        }
-
-        public Patch<T> SetValue<TValue>(Expression<Func<T, TValue>> path, TValue value)
-        {
-            var setter = _patchObject.GetSetter(path);
-            return Execute(new SetPatch<T, TValue>(setter, value));
         }
     }
 }

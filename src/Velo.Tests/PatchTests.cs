@@ -23,11 +23,10 @@ namespace Velo
             _stopwatch = Stopwatch.StartNew();
         }
 
-        [Fact]
-        public void AddValue()
+        [Theory, AutoData]
+        public void AddValue(List<int> list, int item)
         {
-            const int item = 4;
-            var boo = new Boo {Values = new List<int> {1, 2, 3}};
+            var boo = new Boo {Values = list};
 
             _builder.CreatePatch<Boo>()
                 .AddValue(b => b.Values, item)
@@ -37,10 +36,9 @@ namespace Velo
             Assert.Contains(item, boo.Values);
         }
 
-        [Fact]
-        public void AddValue_NotInitialized()
+        [Theory, AutoData]
+        public void AddValue_NotInitialized(int item)
         {
-            const int item = 4;
             var boo = new Boo();
 
             _builder.CreatePatch<Boo>()
@@ -49,6 +47,58 @@ namespace Velo
 
             Assert.NotNull(boo.Values);
             Assert.Contains(item, boo.Values);
+        }
+
+        [Theory, AutoData]
+        public void AddValues(List<int> list, int[] add)
+        {
+            var boo = new Boo {Values = list};
+
+            _builder.CreatePatch<Boo>()
+                .AddValues(b => b.Values, add)
+                .Apply(boo);
+
+            Assert.NotNull(boo.Values);
+
+            foreach (var number in add)
+            {
+                Assert.Contains(number, boo.Values);
+            }
+        }
+
+        [Theory, AutoData]
+        public void AddValues_NotInitialized(int[] add)
+        {
+            var boo = new Boo();
+
+            _builder.CreatePatch<Boo>()
+                .AddValues(b => b.Values, add)
+                .Apply(boo);
+
+            Assert.NotNull(boo.Values);
+
+            foreach (var number in add)
+            {
+                Assert.Contains(number, boo.Values);
+            }
+        }
+
+        [Theory, AutoData]
+        public void Assign(Boo first, Boo second)
+        {
+            _builder.CreatePatch<Boo>()
+                .Assign(b => b.Bool, second.Bool)
+                .Assign(b => b.Double, second.Double)
+                .Assign(b => b.Float, second.Float)
+                .Assign(b => b.Id, second.Id)
+                .Assign(b => b.Int, second.Int)
+                .Apply(first);
+
+            Assert.Equal(second.Bool, first.Bool);
+            Assert.Equal(second.Double, first.Double);
+            Assert.Equal(second.Float, first.Float);
+            Assert.Equal(second.Id, first.Id);
+            Assert.Equal(second.Int, first.Int);
         }
 
         [Theory, AutoData]
@@ -76,21 +126,60 @@ namespace Velo
         }
 
         [Theory, AutoData]
-        public void SetValue(Boo first, Boo second)
+        public void RemoveValue(List<int> list, int item)
         {
-            _builder.CreatePatch<Boo>()
-                .SetValue(b => b.Bool, second.Bool)
-                .SetValue(b => b.Double, second.Double)
-                .SetValue(b => b.Float, second.Float)
-                .SetValue(b => b.Id, second.Id)
-                .SetValue(b => b.Int, second.Int)
-                .Apply(first);
+            list.Add(item);
+            var boo = new Boo {Values = list};
 
-            Assert.Equal(second.Bool, first.Bool);
-            Assert.Equal(second.Double, first.Double);
-            Assert.Equal(second.Float, first.Float);
-            Assert.Equal(second.Id, first.Id);
-            Assert.Equal(second.Int, first.Int);
+            _builder.CreatePatch<Boo>()
+                .RemoveValue(b => b.Values, item)
+                .Apply(boo);
+
+            Assert.NotNull(boo.Values);
+            Assert.DoesNotContain(item, boo.Values);
+        }
+
+        [Theory, AutoData]
+        public void RemoveValue_NotInitialized(int item)
+        {
+            var boo = new Boo();
+
+            _builder.CreatePatch<Boo>()
+                .RemoveValue(b => b.Values, item)
+                .Apply(boo);
+
+            Assert.Null(boo.Values);
+        }
+
+        [Theory, AutoData]
+        public void RemoveValues(List<int> list, int[] items)
+        {
+            list.AddRange(items);
+
+            var boo = new Boo {Values = list};
+
+            _builder.CreatePatch<Boo>()
+                .RemoveValues(b => b.Values, items)
+                .Apply(boo);
+
+            Assert.NotNull(boo.Values);
+
+            foreach (var item in items)
+            {
+                Assert.DoesNotContain(item, boo.Values);
+            }
+        }
+
+        [Theory, AutoData]
+        public void RemoveValues_NotInitialized(int[] items)
+        {
+            var boo = new Boo();
+
+            _builder.CreatePatch<Boo>()
+                .RemoveValues(b => b.Values, items)
+                .Apply(boo);
+
+            Assert.Null(boo.Values);
         }
 
         public void Dispose()
