@@ -5,16 +5,16 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Velo.Utils;
 
-namespace Velo.Patching
+namespace Velo.Patching.Methods
 {
-    internal sealed class PatchObject<T> : IPatchObject
+    internal sealed class PatchMethods<T> : IPatchMethods
     {
         private readonly Func<PropertyInfo, NumberMethods> _buildNumberMethods;
         private readonly Dictionary<PropertyInfo, CommonMethods> _commonMethods;
         private readonly ConcurrentDictionary<PropertyInfo, NumberMethods> _numberMethods;
         private readonly Type _type;
 
-        public PatchObject()
+        public PatchMethods()
         {
             _buildNumberMethods = BuildNumberMethods;
             _type = Typeof<T>.Raw;
@@ -34,21 +34,16 @@ namespace Velo.Patching
             }
         }
 
-        public Action<T> GetInitializer<TValue>(Expression<Func<T, TValue>> path)
+        public CommonMethods<T, TValue> GetCommonMethods<TValue>(Expression<Func<T, TValue>> path)
         {
             var member = (MemberExpression) path.Body;
             var propertyInfo = (PropertyInfo) member.Member;
 
-            var initializer = (Action<T>) _commonMethods[propertyInfo].Initializer;
-
-            if (initializer == null)
-            {
-                throw new InvalidOperationException($"" +
-                                                    $"Cannot initialize type {propertyInfo.PropertyType.Name}:" +
-                                                    " empty constructor not found");
-            }
-
-            return initializer;
+            var commonMethods = _commonMethods[propertyInfo];
+            return new CommonMethods<T, TValue>(
+                (Action<T>) commonMethods.Initializer,
+                (Func<T, TValue>) commonMethods.Getter,
+                (Action<T, TValue>) commonMethods.Setter);
         }
 
         public Action<T> GetDecrement<TValue>(Expression<Func<T, TValue>> path)
@@ -67,14 +62,6 @@ namespace Velo.Patching
 
             var numberMethod = _numberMethods.GetOrAdd(propertyInfo, _buildNumberMethods);
             return (Action<T>) numberMethod.Increment;
-        }
-
-        public Func<T, TValue> GetGetter<TValue>(Expression<Func<T, TValue>> path)
-        {
-            var member = (MemberExpression) path.Body;
-            var propertyInfo = (PropertyInfo) member.Member;
-
-            return (Func<T, TValue>) _commonMethods[propertyInfo].Getter;
         }
 
         public Action<T, TValue> GetSetter<TValue>(Expression<Func<T, TValue>> path)
@@ -129,9 +116,5 @@ namespace Velo.Patching
                 Increment = increment;
             }
         }
-    }
-
-    internal interface IPatchObject
-    {
     }
 }

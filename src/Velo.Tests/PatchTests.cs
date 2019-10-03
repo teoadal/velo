@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using AutoFixture.Xunit2;
 using Velo.Patching;
 using Velo.Patching.CollectionActions;
 using Velo.TestsModels.Boos;
+using Velo.TestsModels.Foos;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -51,6 +53,18 @@ namespace Velo
         }
 
         [Theory, AutoData]
+        public void AddValue_ToArray(int[] value, int add)
+        {
+            var foo = new Foo {Array = value};
+
+            _builder.CreatePatch<Foo>()
+                .AddValue(f => f.Array, add)
+                .Apply(foo);
+
+            Assert.Contains(add, foo.Array);
+        }
+
+        [Theory, AutoData]
         public void AddValues(List<int> values, int[] add)
         {
             var boo = new Boo {Values = values};
@@ -81,6 +95,21 @@ namespace Velo
             foreach (var number in add)
             {
                 Assert.Contains(number, boo.Values);
+            }
+        }
+
+        [Theory, AutoData]
+        public void AddValues_ToArray(int[] values, int[] add)
+        {
+            var foo = new Foo {Array = values};
+
+            _builder.CreatePatch<Foo>()
+                .AddValues(f => f.Array, add)
+                .Apply(foo);
+
+            foreach (var number in add)
+            {
+                Assert.Contains(number, foo.Array);
             }
         }
 
@@ -122,6 +151,18 @@ namespace Velo
                 .Apply(boo);
 
             Assert.Empty(boo.Values);
+        }
+
+        [Theory, AutoData]
+        public void Clear_Array(int[] values)
+        {
+            var foo = new Foo {Array = values};
+
+            _builder.CreatePatch<Foo>()
+                .ClearValues(b => b.Array)
+                .Apply(foo);
+
+            Assert.Empty(foo.Array);
         }
 
         [Fact]
@@ -219,6 +260,21 @@ namespace Velo
         }
 
         [Theory, AutoData]
+        public void RemoveValue_FromArray(int[] values, int remove)
+        {
+            values = values.Concat(new[] {remove}).ToArray();
+
+            var foo = new Foo {Array = values};
+
+            _builder.CreatePatch<Foo>()
+                .RemoveValue(f => f.Array, remove)
+                .Apply(foo);
+
+            Assert.NotNull(foo.Array);
+            Assert.DoesNotContain(remove, foo.Array);
+        }
+
+        [Theory, AutoData]
         public void RemoveValues(List<int> values, int[] remove)
         {
             values.AddRange(remove);
@@ -250,6 +306,25 @@ namespace Velo
         }
 
         [Theory, AutoData]
+        public void RemoveValues_FromArray(int[] values, int[] remove)
+        {
+            values = values.Concat(remove).ToArray();
+
+            var foo = new Foo {Array = values};
+
+            _builder.CreatePatch<Foo>()
+                .RemoveValues(b => b.Array, remove)
+                .Apply(foo);
+
+            Assert.NotNull(foo.Array);
+
+            foreach (var item in remove)
+            {
+                Assert.DoesNotContain(item, foo.Array);
+            }
+        }
+
+        [Theory, AutoData]
         public void ReplaceValue(List<int> values, int oldValue, int newValue)
         {
             values.Add(oldValue);
@@ -262,6 +337,21 @@ namespace Velo
 
             Assert.DoesNotContain(oldValue, boo.Values);
             Assert.Contains(newValue, boo.Values);
+        }
+
+        [Theory, AutoData]
+        public void ReplaceValue_InArray(int[] values, int oldValue, int newValue)
+        {
+            values = values.Concat(new[] {oldValue}).ToArray();
+
+            var foo = new Foo {Array = values};
+
+            _builder.CreatePatch<Foo>()
+                .ReplaceValue(f => f.Array, oldValue, newValue)
+                .Apply(foo);
+
+            Assert.DoesNotContain(oldValue, foo.Array);
+            Assert.Contains(newValue, foo.Array);
         }
 
         public void Dispose()

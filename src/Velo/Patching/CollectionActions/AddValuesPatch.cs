@@ -3,14 +3,15 @@ using System.Collections.Generic;
 
 namespace Velo.Patching.CollectionActions
 {
-    internal sealed class AddValuesPatch<T, TValue> : IPatchAction<T>
+    internal sealed class AddValuesPatch<T, TCollection, TValue> : IPatchAction<T>
         where T : class
+        where TCollection: ICollection<TValue>
     {
         private readonly Action<T> _initializer;
-        private readonly Func<T, ICollection<TValue>> _getter;
+        private readonly Func<T, TCollection> _getter;
         private readonly TValue[] _values;
 
-        public AddValuesPatch(Action<T> initializer, Func<T, ICollection<TValue>> getter, TValue[] values)
+        public AddValuesPatch(Action<T> initializer, Func<T, TCollection> getter, TValue[] values)
         {
             _initializer = initializer;
             _getter = getter;

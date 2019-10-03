@@ -7,5 +7,7 @@ namespace Velo.TestsModels.Foos
         public float Float { get; set; }
 
         public int Int { get; set; }
+        
+        public int[] Array { get; set; }
     }
 }
