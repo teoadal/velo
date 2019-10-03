@@ -39,7 +39,16 @@ namespace Velo.Patching
             var member = (MemberExpression) path.Body;
             var propertyInfo = (PropertyInfo) member.Member;
 
-            return (Action<T>) _commonMethods[propertyInfo].Initializer;
+            var initializer = (Action<T>) _commonMethods[propertyInfo].Initializer;
+
+            if (initializer == null)
+            {
+                throw new InvalidOperationException($"" +
+                                                    $"Cannot initialize type {propertyInfo.PropertyType.Name}:" +
+                                                    " empty constructor not found");
+            }
+
+            return initializer;
         }
 
         public Action<T> GetDecrement<TValue>(Expression<Func<T, TValue>> path)
@@ -78,8 +87,12 @@ namespace Velo.Patching
 
         private CommonMethods BuildCommonMethods(PropertyInfo property)
         {
+            var initializer = ReflectionUtils.HasEmptyConstructor(property.PropertyType)
+                ? ExpressionUtils.BuildInitializer(_type, property)
+                : null;
+
             return new CommonMethods(
-                ExpressionUtils.BuildInitializer(_type, property),
+                initializer,
                 ExpressionUtils.BuildGetter(_type, property),
                 ExpressionUtils.BuildSetter(_type, property));
         }
