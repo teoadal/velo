@@ -24,35 +24,35 @@ namespace Velo
         }
 
         [Theory, AutoData]
-        public void AddValue(List<int> list, int item)
+        public void AddValue(List<int> value, int add)
         {
-            var boo = new Boo {Values = list};
+            var boo = new Boo {Values = value};
 
             _builder.CreatePatch<Boo>()
-                .AddValue(b => b.Values, item)
+                .AddValue(b => b.Values, add)
                 .Apply(boo);
 
             Assert.NotNull(boo.Values);
-            Assert.Contains(item, boo.Values);
+            Assert.Contains(add, boo.Values);
         }
 
         [Theory, AutoData]
-        public void AddValue_NotInitialized(int item)
+        public void AddValue_NotInitialized(int add)
         {
             var boo = new Boo();
 
             _builder.CreatePatch<Boo>()
-                .AddValue(b => b.Values, item)
+                .AddValue(b => b.Values, add)
                 .Apply(boo);
 
             Assert.NotNull(boo.Values);
-            Assert.Contains(item, boo.Values);
+            Assert.Contains(add, boo.Values);
         }
 
         [Theory, AutoData]
-        public void AddValues(List<int> list, int[] add)
+        public void AddValues(List<int> values, int[] add)
         {
-            var boo = new Boo {Values = list};
+            var boo = new Boo {Values = values};
 
             _builder.CreatePatch<Boo>()
                 .AddValues(b => b.Values, add)
@@ -126,60 +126,75 @@ namespace Velo
         }
 
         [Theory, AutoData]
-        public void RemoveValue(List<int> list, int item)
+        public void RemoveValue(List<int> values, int remove)
         {
-            list.Add(item);
-            var boo = new Boo {Values = list};
+            values.Add(remove);
+            var boo = new Boo {Values = values};
 
             _builder.CreatePatch<Boo>()
-                .RemoveValue(b => b.Values, item)
+                .RemoveValue(b => b.Values, remove)
                 .Apply(boo);
 
             Assert.NotNull(boo.Values);
-            Assert.DoesNotContain(item, boo.Values);
+            Assert.DoesNotContain(remove, boo.Values);
         }
 
         [Theory, AutoData]
-        public void RemoveValue_NotInitialized(int item)
+        public void RemoveValue_NotInitialized(int remove)
         {
             var boo = new Boo();
 
             _builder.CreatePatch<Boo>()
-                .RemoveValue(b => b.Values, item)
+                .RemoveValue(b => b.Values, remove)
                 .Apply(boo);
 
             Assert.Null(boo.Values);
         }
 
         [Theory, AutoData]
-        public void RemoveValues(List<int> list, int[] items)
+        public void RemoveValues(List<int> values, int[] remove)
         {
-            list.AddRange(items);
+            values.AddRange(remove);
 
-            var boo = new Boo {Values = list};
+            var boo = new Boo {Values = values};
 
             _builder.CreatePatch<Boo>()
-                .RemoveValues(b => b.Values, items)
+                .RemoveValues(b => b.Values, remove)
                 .Apply(boo);
 
             Assert.NotNull(boo.Values);
 
-            foreach (var item in items)
+            foreach (var item in remove)
             {
                 Assert.DoesNotContain(item, boo.Values);
             }
         }
 
         [Theory, AutoData]
-        public void RemoveValues_NotInitialized(int[] items)
+        public void RemoveValues_NotInitialized(int[] remove)
         {
             var boo = new Boo();
 
             _builder.CreatePatch<Boo>()
-                .RemoveValues(b => b.Values, items)
+                .RemoveValues(b => b.Values, remove)
                 .Apply(boo);
 
             Assert.Null(boo.Values);
+        }
+
+        [Theory, AutoData]
+        public void ReplaceValue(List<int> values, int oldValue, int newValue)
+        {
+            values.Add(oldValue);
+
+            var boo = new Boo {Values = values};
+
+            _builder.CreatePatch<Boo>()
+                .ReplaceValue(b => b.Values, oldValue, newValue)
+                .Apply(boo);
+
+            Assert.DoesNotContain(oldValue, boo.Values);
+            Assert.Contains(newValue, boo.Values);
         }
 
         public void Dispose()

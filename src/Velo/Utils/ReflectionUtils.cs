@@ -29,6 +29,15 @@ namespace Velo.Utils
             return availableConstructors.FirstOrDefault(constructor => !constructor.IsStatic);
         }
 
+        public static ConstructorInfo GetEmptyConstructor(Type type)
+        {
+            if (type.IsAbstract) throw Error.InvalidOperation("Type is abstract");
+            if (type.IsInterface) throw Error.InvalidOperation("Type is interface");
+
+            var availableConstructors = type.GetTypeInfo().DeclaredConstructors;
+            return availableConstructors.FirstOrDefault(c => !c.IsStatic && c.GetParameters().Length == 0);
+        }
+        
         public static bool HasEmptyConstructor(Type type)
         {
             var availableConstructors = type.GetTypeInfo().DeclaredConstructors;

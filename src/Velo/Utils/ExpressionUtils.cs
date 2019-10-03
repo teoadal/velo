@@ -13,14 +13,14 @@ namespace Velo.Utils
         {
             var instance = Expression.Parameter(owner, "instance");
             var property = Expression.Property(instance, propertyInfo);
-            
-            var constructor = ReflectionUtils.GetConstructor(propertyInfo.PropertyType);
+
+            var constructor = ReflectionUtils.GetEmptyConstructor(propertyInfo.PropertyType);
             var assign = Expression.Assign(property, constructor == null
                 ? (Expression) Expression.Default(propertyInfo.PropertyType)
                 : Expression.New(constructor));
 
             var body = Expression.Block(
-                assign, 
+                assign,
                 VoidResult);
 
             return Expression.Lambda(body, instance).Compile();
