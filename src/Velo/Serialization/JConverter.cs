@@ -86,7 +86,7 @@ namespace Velo.Serialization
                 var listElementType = type.GetGenericArguments()[0];
                 var listElementConverter = _converters.GetOrAdd(listElementType, _buildConverter);
 
-                var arrayConverterType = typeof(ArrayConverter<>).MakeGenericType(listElementType);
+                var arrayConverterType = typeof(ListConverter<>).MakeGenericType(listElementType);
                 return (IJsonConverter) Activator.CreateInstance(arrayConverterType, listElementConverter);
             }
 
@@ -97,7 +97,8 @@ namespace Velo.Serialization
             for (var i = 0; i < objectProperties.Length; i++)
             {
                 var property = objectProperties[i];
-                objectPropertyConverters.Add(property, _converters.GetOrAdd(property.PropertyType, _buildConverter));
+                var propertyConverter = _converters.GetOrAdd(property.PropertyType, _buildConverter);
+                objectPropertyConverters.Add(property, propertyConverter);
             }
 
             var objectConverterType = typeof(ObjectConverter<>).MakeGenericType(type);
