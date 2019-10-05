@@ -262,7 +262,7 @@ namespace Velo
         [Theory, AutoData]
         public void RemoveValue_FromArray(int[] values, int remove)
         {
-            values = values.Concat(new[] {remove}).ToArray();
+            values = values.Prepend(remove).ToArray();
 
             var foo = new Foo {Array = values};
 
@@ -342,7 +342,7 @@ namespace Velo
         [Theory, AutoData]
         public void ReplaceValue_InArray(int[] values, int oldValue, int newValue)
         {
-            values = values.Concat(new[] {oldValue}).ToArray();
+            values = values.Prepend(oldValue).ToArray();
 
             var foo = new Foo {Array = values};
 
