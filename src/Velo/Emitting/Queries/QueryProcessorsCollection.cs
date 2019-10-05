@@ -7,6 +7,11 @@ namespace Velo.Emitting.Queries
 {
     internal sealed class QueryProcessorsCollection
     {
+        private static readonly Type AsyncHandlerGenericType = typeof(IAsyncQueryHandler<,>);
+        private static readonly Type AsyncProcessorGenericType = typeof(AsyncQueryProcessor<,>);
+        private static readonly Type HandlerGenericType = typeof(IQueryHandler<,>);
+        private static readonly Type ProcessorGenericType = typeof(QueryProcessor<,>);
+
         private readonly Dictionary<(int, int), IQueryProcessor> _processors;
 
         public QueryProcessorsCollection(DependencyContainer container)
@@ -14,34 +19,16 @@ namespace Velo.Emitting.Queries
             _processors = CollectProcessors(container);
         }
 
-        public IQueryHandler<TQuery, TResult> GetHandler<TQuery, TResult>() where TQuery : IQuery<TResult>
-        {
-            var queryId = Typeof<TQuery>.Id;
-            var resultId = Typeof<TResult>.Id;
-
-            var processorKey = (queryId, resultId);
-
-            // ReSharper disable once InvertIf
-            if (_processors.TryGetValue(processorKey, out var processor))
-            {
-                return (IQueryHandler<TQuery, TResult>) processor.Handler;
-            }
-
-            throw Error.NotFound($"Handler for query '{typeof(TQuery).Name}' " +
-                                 $"with result '{typeof(TResult).Name}' is not registered");
-        }
-
-        public IQueryProcessor<TResult> GetProcessor<TResult>(IQuery<TResult> query)
+        public IQueryProcessor GetProcessor<TResult>(IQuery<TResult> query)
         {
             var queryId = Typeof.GetTypeId(query.GetType());
             var resultId = Typeof<TResult>.Id;
 
             var processorKey = (queryId, resultId);
 
-            // ReSharper disable once InvertIf
             if (_processors.TryGetValue(processorKey, out var processor))
             {
-                return (IQueryProcessor<TResult>) processor;
+                return processor;
             }
 
             throw Error.NotFound($"Handler for query '{query.GetType().Name}' " +
@@ -51,8 +38,6 @@ namespace Velo.Emitting.Queries
         private static Dictionary<(int, int), IQueryProcessor> CollectProcessors(DependencyContainer container)
         {
             var handlers = container.Resolve<IQueryHandler[]>();
-            var queryHandlerGenericType = typeof(IQueryHandler<,>);
-
             var processors = new Dictionary<(int, int), IQueryProcessor>(handlers.Length);
 
             // ReSharper disable once ForCanBeConvertedToForeach
@@ -61,19 +46,31 @@ namespace Velo.Emitting.Queries
                 var handler = handlers[i];
                 var handlerType = handler.GetType();
 
-                var handlerTypes = ReflectionUtils.GetGenericInterfaceParameters(handlerType, queryHandlerGenericType);
+                var processor = CreateProcessor(handlerType, handler, out var genericTypes);
 
-                var processorType = typeof(QueryProcessor<,>).MakeGenericType(handlerTypes);
-                var processor = (IQueryProcessor) Activator.CreateInstance(processorType, handler);
-
-                var queryTypeId = Typeof.GetTypeId(handlerTypes[0]);
-                var resultTypeId = Typeof.GetTypeId(handlerTypes[1]);
+                var queryTypeId = Typeof.GetTypeId(genericTypes[0]);
+                var resultTypeId = Typeof.GetTypeId(genericTypes[1]);
                 var processorKey = (queryTypeId, resultTypeId);
 
                 processors.Add(processorKey, processor);
             }
 
             return processors;
+        }
+
+        private static IQueryProcessor CreateProcessor(Type handlerType, IQueryHandler handler, out Type[] genericTypes)
+        {
+            var isAsyncHandler = ReflectionUtils.IsGenericInterfaceImplementation(handlerType, AsyncHandlerGenericType);
+
+            genericTypes = isAsyncHandler
+                ? ReflectionUtils.GetGenericInterfaceParameters(handlerType, AsyncHandlerGenericType)
+                : ReflectionUtils.GetGenericInterfaceParameters(handlerType, HandlerGenericType);
+
+            var processorType = isAsyncHandler
+                ? AsyncProcessorGenericType.MakeGenericType(genericTypes)
+                : ProcessorGenericType.MakeGenericType(genericTypes);
+
+            return (IQueryProcessor) Activator.CreateInstance(processorType, handler);
         }
     }
 }
