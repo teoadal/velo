@@ -1,4 +1,5 @@
 using System;
+using Velo.Ordering;
 using Velo.TestsModels.Domain;
 using Velo.TestsModels.Infrastructure;
 
@@ -8,6 +9,7 @@ namespace Velo.TestsModels.Foos
     {
     }
 
+    [Order(1)]
     public class FooRepository : IFooRepository
     {
         public IConfiguration Configuration { get; }
@@ -36,6 +38,7 @@ namespace Velo.TestsModels.Foos
         }
     }
 
+    [Order(2)]
     public class OtherFooRepository : IFooRepository
     {
         public IConfiguration Configuration { get; }

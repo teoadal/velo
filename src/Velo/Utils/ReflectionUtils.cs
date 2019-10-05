@@ -25,13 +25,13 @@ namespace Velo.Utils
             var availableConstructors = type.GetTypeInfo().DeclaredConstructors;
             return availableConstructors.FirstOrDefault(c => !c.IsStatic && c.GetParameters().Length == 0);
         }
-        
+
         public static bool HasEmptyConstructor(Type type)
         {
             var availableConstructors = type.GetTypeInfo().DeclaredConstructors;
             return availableConstructors.Any(constructor => constructor.GetParameters().Length == 0);
         }
-        
+
         public static Type[] GetGenericInterfaceParameters(Type type, Type genericInterface)
         {
             var typeInterfaces = type.GetInterfaces();
@@ -70,7 +70,7 @@ namespace Velo.Utils
 
             return false;
         }
-        
+
         public static bool TryGetAttribute<TAttribute>(Type type, out TAttribute attribute)
             where TAttribute : Attribute
         {

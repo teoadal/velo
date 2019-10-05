@@ -32,6 +32,12 @@ namespace Velo.Dependencies.Scan
             _assemblies.AddRange(_assemblies);
             return this;
         }
+
+        public AssemblyScanner CurrentAssembly()
+        {
+            _assemblies.Add(System.Reflection.Assembly.GetCallingAssembly());
+            return this;
+        }
         
         public AssemblyScanner RegisterAsSingleton<TContract>()
         {
