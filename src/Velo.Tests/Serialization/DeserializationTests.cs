@@ -1,5 +1,3 @@
-using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture.Xunit2;
@@ -11,17 +9,13 @@ using Xunit.Abstractions;
 
 namespace Velo.Serialization
 {
-    public class DeserializationTests : IDisposable
+    public class DeserializationTests : TestBase
     {
         private readonly JConverter _converter;
-        private readonly ITestOutputHelper _output;
-        private readonly Stopwatch _stopwatch;
 
-        public DeserializationTests(ITestOutputHelper output)
+        public DeserializationTests(ITestOutputHelper output) : base(output)
         {
             _converter = new JConverter();
-            _output = output;
-            _stopwatch = Stopwatch.StartNew();
         }
 
         [Theory, AutoData]
@@ -29,7 +23,12 @@ namespace Velo.Serialization
         {
             var json = JsonConvert.SerializeObject(array);
 
-            var deserialized = _converter.Deserialize<Boo[]>(json);
+            Boo[] deserialized;
+            using (StartStopwatch())
+            {
+                deserialized = _converter.Deserialize<Boo[]>(json);
+            }
+
             for (var i = 0; i < array.Length; i++)
             {
                 var element = array[i];
@@ -47,7 +46,12 @@ namespace Velo.Serialization
         {
             var json = JsonConvert.SerializeObject(array);
 
-            var deserialized = _converter.Deserialize<float[]>(json);
+            float[] deserialized;
+            using (StartStopwatch())
+            {
+                deserialized = _converter.Deserialize<float[]>(json);
+            }
+
             for (var i = 0; i < array.Length; i++)
             {
                 Assert.Equal(array[i], deserialized[i]);
@@ -59,7 +63,12 @@ namespace Velo.Serialization
         {
             var json = JsonConvert.SerializeObject(array);
 
-            var deserialized = _converter.Deserialize<int[]>(json);
+            int[] deserialized;
+            using (StartStopwatch())
+            {
+                deserialized = _converter.Deserialize<int[]>(json);
+            }
+
             for (var i = 0; i < array.Length; i++)
             {
                 Assert.Equal(array[i], deserialized[i]);
@@ -92,7 +101,12 @@ namespace Velo.Serialization
         {
             var json = JsonConvert.SerializeObject(array);
 
-            var deserialized = _converter.Deserialize<string[]>(json);
+            string[] deserialized;
+            using (StartStopwatch())
+            {
+                deserialized = _converter.Deserialize<string[]>(json);
+            }
+
             for (var i = 0; i < array.Length; i++)
             {
                 Assert.Equal(array[i], deserialized[i]);
@@ -104,7 +118,11 @@ namespace Velo.Serialization
         {
             var json = JsonConvert.SerializeObject(source);
 
-            var deserialized = _converter.Deserialize<BigObject>(json);
+            BigObject deserialized;
+            using (StartStopwatch())
+            {
+                deserialized = _converter.Deserialize<BigObject>(json);
+            }
 
             if (source.Boo != null)
             {
@@ -207,11 +225,6 @@ namespace Velo.Serialization
 
             var deserialized = _converter.Deserialize<BigObject>(json);
             Assert.Null(deserialized);
-        }
-
-        public void Dispose()
-        {
-            _output.WriteLine($"Elapsed {_stopwatch.ElapsedMilliseconds} ms");
         }
     }
 }

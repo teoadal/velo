@@ -1,3 +1,4 @@
+using System;
 using Velo.TestsModels.Infrastructure;
 
 namespace Velo.TestsModels.Domain
@@ -14,5 +15,7 @@ namespace Velo.TestsModels.Domain
         void AddElement(TElement element);
         
         TElement GetElement(int id);
+
+        void UpdateElement(int id, Action<TElement> update);
     }
 }

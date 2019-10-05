@@ -1,3 +1,4 @@
+using System;
 using Velo.TestsModels.Domain;
 using Velo.TestsModels.Infrastructure;
 
@@ -21,12 +22,17 @@ namespace Velo.TestsModels.Foos
 
         public void AddElement(Foo element)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public Foo GetElement(int id)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
+        }
+
+        public void UpdateElement(int id, Action<Foo> update)
+        {
+            throw new NotImplementedException();
         }
     }
 
@@ -44,12 +50,17 @@ namespace Velo.TestsModels.Foos
 
         public void AddElement(Foo element)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public Foo GetElement(int id)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
+        }
+
+        public void UpdateElement(int id, Action<Foo> update)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -14,9 +14,9 @@ namespace Velo.Emitting.Queries
             _handler = handler;
         }
 
-        public TResult Execute(HandlerContext<TQuery> context)
+        public TResult Execute(TQuery query)
         {
-            return _handler(this, context.Payload);
+            return _handler(this, query);
         }
     }
 }

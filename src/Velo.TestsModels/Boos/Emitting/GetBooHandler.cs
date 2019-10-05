@@ -1,4 +1,3 @@
-using Velo.Emitting;
 using Velo.Emitting.Queries;
 
 namespace Velo.TestsModels.Boos.Emitting
@@ -12,10 +11,9 @@ namespace Velo.TestsModels.Boos.Emitting
             _repository = repository;
         }
 
-        public Boo Execute(HandlerContext<GetBoo> context)
+        public Boo Execute(GetBoo query)
         {
-            var payload = context.Payload;
-            return _repository.GetElement(payload.Id);
+            return _repository.GetElement(query.Id);
         }
     }
 }

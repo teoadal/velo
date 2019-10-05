@@ -1,10 +1,11 @@
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace Velo.Emitting.Queries
 {
-    internal sealed class QueryProcessor<TQuery, TResult> : IQueryProcessor<TResult>
+    internal sealed class QueryProcessor<TQuery, TResult> : IQueryProcessor<TResult>, IAsyncQueryProcessor<TResult>
         where TQuery : IQuery<TResult>
     {
-        public IQueryHandler Handler => _handler;
-
         private readonly IQueryHandler<TQuery, TResult> _handler;
 
         public QueryProcessor(IQueryHandler<TQuery, TResult> handler)
@@ -14,8 +15,12 @@ namespace Velo.Emitting.Queries
 
         public TResult Execute(IQuery<TResult> query)
         {
-            var context = new HandlerContext<TQuery>((TQuery) query);
-            return _handler.Execute(context);
+            return _handler.Execute((TQuery) query);
+        }
+
+        public Task<TResult> ExecuteAsync(IQuery<TResult> query, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(Execute(query));
         }
     }
 }

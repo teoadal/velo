@@ -1,3 +1,5 @@
+using System.Threading;
+using System.Threading.Tasks;
 using Velo.Dependencies;
 using Velo.Emitting.Commands;
 using Velo.Emitting.Queries;
@@ -17,22 +19,27 @@ namespace Velo.Emitting
 
         public TResult Ask<TResult>(IQuery<TResult> query)
         {
-            var processor = _queryProcessors.GetProcessor(query);
+            var processor = (IQueryProcessor<TResult>) _queryProcessors.GetProcessor(query);
             return processor.Execute(query);
         }
 
-        public TResult Ask<TQuery, TResult>(TQuery query) where TQuery : IQuery<TResult>
+        public Task<TResult> AskAsync<TResult>(IQuery<TResult> query, CancellationToken cancellationToken = default)
         {
-            var processor = _queryProcessors.GetHandler<TQuery, TResult>();
-
-            var context = new HandlerContext<TQuery>(query);
-            return processor.Execute(context);
+            var processor = (IAsyncQueryProcessor<TResult>) _queryProcessors.GetProcessor(query);
+            return processor.ExecuteAsync(query, cancellationToken);
         }
 
         public void Execute<TCommand>(TCommand command) where TCommand : ICommand
         {
-            var processor = _commandProcessors.GetProcessor<TCommand>();
+            var processor = (ICommandProcessor<TCommand>) _commandProcessors.GetProcessor<TCommand>();
             processor.Execute(command);
+        }
+
+        public Task ExecuteAsync<TCommand>(TCommand command, CancellationToken cancellationToken = default)
+            where TCommand : ICommand
+        {
+            var processor = (IAsyncCommandProcessor<TCommand>) _commandProcessors.GetProcessor<TCommand>();
+            return processor.ExecuteAsync(command, cancellationToken);
         }
     }
 }

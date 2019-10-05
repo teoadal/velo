@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using AutoFixture.Xunit2;
 using Velo.Patching;
@@ -12,18 +10,13 @@ using Xunit.Abstractions;
 
 namespace Velo
 {
-    public class PatchTests : IDisposable
+    public class PatchTests : TestBase
     {
         private readonly PatchBuilder _builder;
-        private readonly ITestOutputHelper _output;
-        private readonly Stopwatch _stopwatch;
 
-        public PatchTests(ITestOutputHelper output)
+        public PatchTests(ITestOutputHelper output) : base(output)
         {
             _builder = new PatchBuilder();
-
-            _output = output;
-            _stopwatch = Stopwatch.StartNew();
         }
 
         [Theory, AutoData]
@@ -352,11 +345,6 @@ namespace Velo
 
             Assert.DoesNotContain(oldValue, foo.Array);
             Assert.Contains(newValue, foo.Array);
-        }
-
-        public void Dispose()
-        {
-            _output.WriteLine($"Elapsed {_stopwatch.ElapsedMilliseconds} ms");
         }
     }
 }

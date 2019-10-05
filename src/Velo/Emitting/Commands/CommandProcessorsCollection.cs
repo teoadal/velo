@@ -1,59 +1,39 @@
 using System;
 using System.Collections.Generic;
 using Velo.Dependencies;
+using Velo.Ordering;
 using Velo.Utils;
 
 namespace Velo.Emitting.Commands
 {
     internal sealed class CommandProcessorsCollection
     {
-        private static readonly Type CommandHandlerGenericType = typeof(ICommandHandler<>);
-        private static readonly Type CommandProcessorGenericType = typeof(CommandProcessor<>);
+        private static readonly Type AsyncHandlerGenericType = typeof(IAsyncCommandHandler<>);
+        private static readonly Type HandlerGenericType = typeof(ICommandHandler<>);
+        private static readonly Type AsyncProcessorGenericType = typeof(AsyncCommandProcessor<>);
+        private static readonly Type MixedProcessorGenericType = typeof(AsyncCommandProcessor<>);
+        private static readonly Type SyncProcessorGenericType = typeof(SyncCommandProcessor<>);
         
         private readonly Dictionary<int, ICommandProcessor> _processors;
 
         public CommandProcessorsCollection(DependencyContainer container)
         {
-            var handlersByCommandType = CollectHandlersByCommandType(container);
-            
-            var processors = new Dictionary<int, ICommandProcessor>(handlersByCommandType.Count);
-            foreach (var pair in handlersByCommandType)
-            {
-                var commandType = pair.Key;
-                var processor = BuildProcessor(commandType, pair.Value);
-                
-                processors.Add(Typeof.GetTypeId(commandType), processor);
-            }
-
-            _processors = processors;
+            _processors = CollectProcessors(container);
         }
 
-        public ICommandProcessor<TCommand> GetProcessor<TCommand>() where TCommand : ICommand
+        public ICommandProcessor GetProcessor<TCommand>() where TCommand : ICommand
         {
             var commandId = Typeof<TCommand>.Id;
 
             if (_processors.TryGetValue(commandId, out var existsHandler))
             {
-                return (ICommandProcessor<TCommand>) existsHandler;
+                return existsHandler;
             }
 
             throw Error.NotFound($"Command handler for command '{typeof(TCommand).Name}' is not registered");
         }
 
-        private static ICommandProcessor BuildProcessor(Type commandType, List<ICommandHandler> handlers)
-        {
-            var commandHandlerType = CommandHandlerGenericType.MakeGenericType(commandType);
-            var handlersArray = ReflectionUtils.CreateArray(commandHandlerType, handlers);
-
-            var processorType = CommandProcessorGenericType.MakeGenericType(commandType);
-            var processorConstructor = ReflectionUtils.GetConstructor(processorType);
-            
-            var processor = (ICommandProcessor) processorConstructor.Invoke(new object[] {handlersArray});
-            return processor;
-        }
-        
-        private static Dictionary<Type, List<ICommandHandler>> CollectHandlersByCommandType(
-            DependencyContainer container)
+        private static Dictionary<int, ICommandProcessor> CollectProcessors(DependencyContainer container)
         {
             var handlers = container.Resolve<ICommandHandler[]>();
 
@@ -63,9 +43,14 @@ namespace Velo.Emitting.Commands
             for (var i = 0; i < handlers.Length; i++)
             {
                 var handler = handlers[i];
-
                 var handlerType = handler.GetType();
-                var commandType = ReflectionUtils.GetGenericInterfaceParameters(handlerType, CommandHandlerGenericType)[0];
+
+                var isAsyncHandler =
+                    ReflectionUtils.IsGenericInterfaceImplementation(handlerType, AsyncHandlerGenericType);
+
+                var commandType = isAsyncHandler
+                    ? ReflectionUtils.GetGenericInterfaceParameters(handlerType, AsyncHandlerGenericType)[0]
+                    : ReflectionUtils.GetGenericInterfaceParameters(handlerType, HandlerGenericType)[0];
 
                 if (!handlersByCommandType.TryGetValue(commandType, out var handlerGroup))
                 {
@@ -76,7 +61,50 @@ namespace Velo.Emitting.Commands
                 handlerGroup.Add(handler);
             }
 
-            return handlersByCommandType;
+            var commandHandlerComparer = new OrderAttributeComparer<ICommandHandler>();
+            var processors = new Dictionary<int, ICommandProcessor>(handlersByCommandType.Count);
+            foreach (var pair in handlersByCommandType)
+            {
+                var commandType = pair.Key;
+                var commandHandlers = pair.Value;
+                
+                commandHandlers.Sort(commandHandlerComparer);
+                
+                var processor = CreateProcessor(commandType, commandHandlers);
+                processors.Add(Typeof.GetTypeId(commandType), processor);
+            }
+
+            return processors;
+        }
+
+        private static ICommandProcessor CreateProcessor(Type commandType, List<ICommandHandler> handlers)
+        {
+            var processorGenericType = DefineGenericProcessorType(handlers);
+            var processorType = processorGenericType.MakeGenericType(commandType);
+            var processorConstructor = ReflectionUtils.GetConstructor(processorType);
+
+            var constructorParameters = new object[] {handlers};
+            var processor = (ICommandProcessor) processorConstructor.Invoke(constructorParameters);
+            return processor;
+        }
+
+        private static Type DefineGenericProcessorType(List<ICommandHandler> handlers)
+        {
+            var asyncCount = 0;
+            foreach (var handler in handlers)
+            {
+                if (ReflectionUtils.IsGenericInterfaceImplementation(handler.GetType(), AsyncHandlerGenericType))
+                {
+                    asyncCount++;
+                }
+            }
+            
+            if (asyncCount == 0) return SyncProcessorGenericType;
+            
+            var allAsync = asyncCount == handlers.Count;
+            return allAsync 
+                ? AsyncProcessorGenericType
+                : MixedProcessorGenericType;
         }
     }
 }
