@@ -45,10 +45,9 @@ namespace Velo.Dependencies
             return instance;
         }
 
-        public bool TryGetInstance(IDependency dependency, out object instance)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool TryGetInstance(IDependency dependency, out object instance)
         {
-            if (_current._disposed) throw Error.Disposed(nameof(DependencyScope));
-
             if (_dependencies.TryGetValue(dependency, out instance)) return true;
             return _parent?.TryGetInstance(dependency, out instance) ?? false;
         }

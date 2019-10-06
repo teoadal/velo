@@ -1,5 +1,7 @@
+using System;
 using Velo.Mapping;
 using Velo.Serialization;
+using Velo.TestsModels;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Domain;
 using Velo.TestsModels.Foos;
@@ -115,6 +117,30 @@ namespace Velo.Dependencies
             var instance2 = container.Resolve<JConverter>();
 
             Assert.NotSame(instance1, instance2);
+        }
+        
+        [Fact]
+        public void Dependency_Implementation()
+        {
+            var container = new DependencyBuilder()
+                .AddDependency(new RandomDependency())
+                .BuildContainer();
+
+            var random = container.Resolve<Random>();
+            Assert.NotNull(random);
+        }
+        
+        [Fact]
+        public void Dependency_Implementation_WithName()
+        {
+            const string name = "random";
+            
+            var container = new DependencyBuilder()
+                .AddDependency(new RandomDependency(), name)
+                .BuildContainer();
+
+            var random = container.Resolve<Random>(name);
+            Assert.NotNull(random);
         }
     }
 }
