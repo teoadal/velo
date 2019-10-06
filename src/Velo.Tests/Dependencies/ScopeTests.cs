@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Velo.Mapping;
 using Velo.Serialization;
+using Velo.TestsModels.Boos;
 using Velo.TestsModels.Domain;
 using Velo.TestsModels.Foos;
 using Velo.TestsModels.Infrastructure;
@@ -20,6 +21,7 @@ namespace Velo.Dependencies
         {
             _builder = new DependencyBuilder()
                 .AddScope<ISession, Session>()
+                .AddScope<IManager<Boo>>(ctx => new Manager<Boo>())
                 .AddSingleton<JConverter>()
                 .AddSingleton<IConfiguration, Configuration>()
                 .AddGenericSingleton(typeof(IMapper<>), typeof(CompiledMapper<>));
@@ -45,6 +47,27 @@ namespace Velo.Dependencies
         }
 
         [Fact]
+        public void Scope_Builder()
+        {
+            var container = _builder.BuildContainer();
+
+            IManager<Boo> firstScopeManager;
+            using (container.StartScope())
+            {
+                firstScopeManager = container.Resolve<IManager<Boo>>();
+                Assert.Same(firstScopeManager, container.Resolve<IManager<Boo>>());
+            }
+
+            Assert.True(firstScopeManager.Disposed);
+            
+            using (container.StartScope())
+            {
+                var secondScopeManager = container.Resolve<IManager<Boo>>();
+                Assert.NotSame(firstScopeManager, secondScopeManager);
+            }
+        }
+        
+        [Fact]
         public void Scope_Circular_Dependency()
         {
             var container = _builder
@@ -57,6 +80,25 @@ namespace Velo.Dependencies
             }
         }
 
+        [Fact]
+        public void Scope_Description()
+        {
+            var container = _builder
+                .AddGenericScope(typeof(List<>))
+                .BuildContainer();
+            
+            using (var scope = container.StartScope())
+            {
+                Assert.Equal(nameof(Scope_Description), scope.ToString());
+
+                const string nestedScopeName = "NestedScope";
+                using (var nestedScope = container.StartScope(nestedScopeName))
+                {
+                    Assert.Equal($"{nameof(Scope_Description)} -> {nestedScopeName}", nestedScope.ToString());
+                }
+            }
+        }
+        
         [Fact]
         public void Scope_Destroy_After_End()
         {
@@ -117,6 +159,24 @@ namespace Velo.Dependencies
             }
         }
 
+        [Fact]
+        public void Scope_Generic_Not_Generic_Contract()
+        {
+            var builder = new DependencyBuilder();
+
+            Assert.Throws<InvalidOperationException>(() =>
+                builder.AddGenericScope(typeof(IFooRepository), typeof(FooRepository)));
+        }
+        
+        [Fact]
+        public void Scope_Generic_Not_Generic_Implementation()
+        {
+            var builder = new DependencyBuilder();
+
+            Assert.Throws<InvalidOperationException>(() =>
+                builder.AddGenericScope(typeof(IRepository<>), typeof(FooRepository)));
+        }
+        
         [Fact]
         public void Scope_Many()
         {

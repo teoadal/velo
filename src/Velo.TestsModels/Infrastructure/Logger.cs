@@ -1,6 +1,6 @@
 namespace Velo.TestsModels.Infrastructure
 {
-    public interface IConfiguration
+    public class Logger : ILogger
     {
     }
 }

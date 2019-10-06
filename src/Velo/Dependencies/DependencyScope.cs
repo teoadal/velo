@@ -29,22 +29,6 @@ namespace Velo.Dependencies
             _resolveInProgress = new HashSet<IDependency>();
         }
 
-        public object GetOrAdd(IDependency dependency, Func<IDependency, object> builder)
-        {
-            if (_disposed) throw Error.Disposed(nameof(DependencyScope));
-
-            if (TryGetInstance(dependency, out var exists)) return exists;
-
-            BeginResolving(dependency);
-
-            var instance = builder(dependency);
-            _dependencies.Add(dependency, instance);
-
-            ResolvingComplete(dependency);
-
-            return instance;
-        }
-        
         public object GetOrAdd<TArg>(IDependency dependency, Func<IDependency, TArg, object> builder, TArg builderArg)
         {
             if (_disposed) throw Error.Disposed(nameof(DependencyScope));

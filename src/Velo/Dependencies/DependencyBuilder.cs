@@ -30,6 +30,9 @@ namespace Velo.Dependencies
 
         public DependencyBuilder AddGenericScope(Type genericContract, Type genericImplementation = null)
         {
+            CheckIsGenericTypeDefinition(genericContract);
+            CheckIsGenericTypeDefinition(genericImplementation);
+
             var contracts = new[] {genericContract};
 
             var dependency = new GenericTransient(contracts, genericImplementation);
@@ -38,6 +41,9 @@ namespace Velo.Dependencies
 
         public DependencyBuilder AddGenericSingleton(Type genericContract, Type genericImplementation = null)
         {
+            CheckIsGenericTypeDefinition(genericContract);
+            CheckIsGenericTypeDefinition(genericImplementation);
+
             var contracts = new[] {genericContract};
 
             var dependency = new GenericSingleton(contracts, genericImplementation);
@@ -46,6 +52,9 @@ namespace Velo.Dependencies
 
         public DependencyBuilder AddGenericTransient(Type genericContract, Type genericImplementation = null)
         {
+            CheckIsGenericTypeDefinition(genericContract);
+            CheckIsGenericTypeDefinition(genericImplementation);
+
             var contracts = new[] {genericContract};
 
             var dependency = new GenericTransient(contracts, genericImplementation);
@@ -68,10 +77,11 @@ namespace Velo.Dependencies
         public DependencyBuilder AddScope<TContract>(string name = null, bool compiled = true)
         {
             var contract = Typeof<TContract>.Raw;
-
+            var contracts = new[] {contract};
+            
             var dependency = compiled
-                ? (IDependency) new CompiledTransient(new[] {contract}, contract)
-                : new ActivatorTransient(new[] {contract}, contract);
+                ? (IDependency) new CompiledTransient(contracts, contract)
+                : new ActivatorTransient(contracts, contract);
 
             return Register(dependency, name, true);
         }
@@ -143,10 +153,11 @@ namespace Velo.Dependencies
         public DependencyBuilder AddTransient<TContract>(string name = null, bool compiled = true)
         {
             var contract = Typeof<TContract>.Raw;
+            var contracts = new[] {contract};
 
             var dependency = compiled
-                ? (IDependency) new CompiledTransient(new[] {contract}, contract)
-                : new ActivatorTransient(new[] {contract}, contract);
+                ? (IDependency) new CompiledTransient(contracts, contract)
+                : new ActivatorTransient(contracts, contract);
 
             return Register(dependency, name);
         }
@@ -226,6 +237,14 @@ namespace Velo.Dependencies
             _dependencies.Add(resolver);
 
             return this;
+        }
+
+        private static void CheckIsGenericTypeDefinition(Type type)
+        {
+            if (type != null && !type.IsGenericTypeDefinition)
+            {
+                throw Error.InvalidOperation($"{type.Name} is not generic type definition");
+            }
         }
     }
 }

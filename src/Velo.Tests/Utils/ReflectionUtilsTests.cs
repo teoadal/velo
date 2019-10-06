@@ -2,11 +2,16 @@ using System;
 using System.Collections.Generic;
 using Velo.TestsModels.Boos;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Velo.Utils
 {
-    public class ReflectionUtilsTests
+    public class ReflectionUtilsTests : TestBase
     {
+        public ReflectionUtilsTests(ITestOutputHelper output) : base(output)
+        {
+        }
+
         [Fact]
         public void GetConstructor()
         {
@@ -50,13 +55,13 @@ namespace Velo.Utils
         public void GenericInterfaceParameters()
         {
             var genericInterfaceParameters = ReflectionUtils.GetGenericInterfaceParameters(
-                typeof(Dictionary<int, string>), 
+                typeof(Dictionary<int, string>),
                 typeof(IDictionary<,>));
-            
+
             Assert.Contains(typeof(int), genericInterfaceParameters);
             Assert.Contains(typeof(string), genericInterfaceParameters);
         }
-        
+
         [Fact]
         public void GenericInterfaceParameters_Throw_Not_Interface()
         {

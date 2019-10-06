@@ -52,10 +52,5 @@ namespace Velo.Dependencies.Factories
             elements.Clear();
             return array;
         }
-
-        public override string ToString()
-        {
-            return $"Dependency for Array";
-        }
     }
 }

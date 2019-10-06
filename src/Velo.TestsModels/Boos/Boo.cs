@@ -15,5 +15,7 @@ namespace Velo.TestsModels.Boos
         public double Double { get; set; }
         
         public List<int> Values { get; set; }
+        
+        public ModelType Type { get; set; }
     }
 }

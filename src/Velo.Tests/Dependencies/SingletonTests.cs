@@ -1,6 +1,8 @@
+using System;
 using Velo.Mapping;
 using Velo.Serialization;
 using Velo.TestsModels.Boos;
+using Velo.TestsModels.Domain;
 using Velo.TestsModels.Foos;
 using Velo.TestsModels.Infrastructure;
 using Xunit;
@@ -43,6 +45,20 @@ namespace Velo.Dependencies
         }
 
         [Fact]
+        public void Singleton_Builder_Destroy()
+        {
+            var container = new DependencyBuilder()
+                .AddSingleton<IManager<Boo>>(ctx => new Manager<Boo>())
+                .BuildContainer();
+
+            var manager = container.Resolve<IManager<Boo>>();
+            
+            container.Destroy();
+
+            Assert.True(manager.Disposed);
+        }
+        
+        [Fact]
         public void Singleton_Generic()
         {
             var container = new DependencyBuilder()
@@ -60,6 +76,24 @@ namespace Velo.Dependencies
             Assert.Same(foo1, foo2);
         }
 
+        [Fact]
+        public void Singleton_Generic_Destroy()
+        {
+            var container = new DependencyBuilder()
+                .AddSingleton<ISession, Session>()
+                .AddSingleton<IConfiguration, Configuration>()
+                .AddGenericSingleton(typeof(IManager<>), typeof(Manager<>))
+                .BuildContainer();
+
+            var manager1 = container.Resolve<IManager<Boo>>();
+            var manager2 = container.Resolve<IManager<Foo>>();
+            
+            container.Destroy();
+            
+            Assert.True(manager1.Disposed);
+            Assert.True(manager2.Disposed);
+        }
+        
         [Fact]
         public void Singleton_Generic_With_Contract()
         {
@@ -79,6 +113,24 @@ namespace Velo.Dependencies
         }
 
         [Fact]
+        public void Singleton_Generic_Not_Generic_Contract()
+        {
+            var builder = new DependencyBuilder();
+
+            Assert.Throws<InvalidOperationException>(() =>
+                builder.AddGenericSingleton(typeof(IFooRepository), typeof(FooRepository)));
+        }
+        
+        [Fact]
+        public void Singleton_Generic_Not_Generic_Implementation()
+        {
+            var builder = new DependencyBuilder();
+
+            Assert.Throws<InvalidOperationException>(() =>
+                builder.AddGenericSingleton(typeof(IRepository<>), typeof(FooRepository)));
+        }
+        
+        [Fact]
         public void Singleton_Instance()
         {
             var container = new DependencyBuilder()
@@ -89,6 +141,20 @@ namespace Velo.Dependencies
             var second = container.Resolve<JConverter>();
 
             Assert.Same(first, second);
+        }
+        
+        [Fact]
+        public void Singleton_Instance_Destroy()
+        {
+            var container = new DependencyBuilder()
+                .AddInstance(new BooRepository(null, null))
+                .BuildContainer();
+
+            var repository = container.Resolve<BooRepository>();
+            
+            container.Destroy();
+            
+            Assert.True(repository.Disposed);
         }
     }
 }

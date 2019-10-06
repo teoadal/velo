@@ -119,7 +119,7 @@ namespace Velo.Dependencies
 
             if (dependency == null && throwInNotRegistered)
             {
-                throw Error.InvalidOperation($"Dependency for contract '{contract}' is not registered");
+                throw Error.NotFound($"Dependency for contract '{contract}' is not registered");
             }
 
             return dependency;

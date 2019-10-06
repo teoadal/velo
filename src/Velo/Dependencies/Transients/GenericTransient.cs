@@ -11,10 +11,6 @@ namespace Velo.Dependencies.Transients
             _genericImplementation = genericImplementation;
         }
 
-        public override void Destroy()
-        {
-        }
-
         public override object Resolve(Type contract, DependencyContainer container)
         {
             var implementation = _genericImplementation == null

@@ -1,8 +1,10 @@
 using System;
+using System.Diagnostics;
 using Velo.Utils;
 
 namespace Velo.Dependencies.Resolvers
 {
+    [DebuggerDisplay("{GetType().Name} for {_dependency}")]
     internal abstract class DependencyResolver : IDependency
     {
         private readonly IDependency _dependency;
@@ -39,11 +41,6 @@ namespace Velo.Dependencies.Resolvers
         protected void ResolvingComplete()
         {
             _resolveInProgress = false;
-        }
-        
-        public override string ToString()
-        {
-            return $"{GetType().Name} for {_dependency}";
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Velo.Mapping;
 using Velo.Serialization;
 using Velo.TestsModels.Boos;
@@ -20,6 +21,17 @@ namespace Velo.Dependencies
                 .AddSingleton<JConverter>()
                 .AddSingleton<IConfiguration, Configuration>()
                 .AddSingleton<ISession, Session>();
+        }
+
+        [Fact]
+        public void As_ServiceProvider()
+        {
+            IServiceProvider container = _builder.BuildContainer();
+
+            var session = container.GetService(typeof(ISession));
+
+            Assert.NotNull(session);
+            Assert.IsAssignableFrom<ISession>(session);
         }
 
         [Fact]
@@ -75,6 +87,58 @@ namespace Velo.Dependencies
             container.Destroy();
 
             Assert.True(service.Disposed);
+        }
+
+        [Fact]
+        public void GetDependency()
+        {
+            var container = _builder.BuildContainer();
+
+            var contract = typeof(ISession);
+            var dependency = container.GetDependency(contract);
+            var session = dependency.Resolve(contract, container);
+
+            Assert.NotNull(dependency);
+            Assert.NotNull(session);
+            Assert.IsAssignableFrom<ISession>(session);
+        }
+
+        [Fact]
+        public void GetDependency_By_Name()
+        {
+            const string booRepositoryName = "booRepository";
+            const string fooRepositoryName = "fooRepository";
+
+            var container = _builder
+                .AddSingleton<IRepository, BooRepository>(booRepositoryName)
+                .AddSingleton<IRepository, FooRepository>(fooRepositoryName)
+                .BuildContainer();
+
+            var contract = typeof(IRepository);
+
+            var booDependency = container.GetDependency(contract, booRepositoryName);
+            Assert.IsType<BooRepository>(booDependency.Resolve(contract, container));
+
+            var fooDependency = container.GetDependency(contract, fooRepositoryName);
+            Assert.IsType<FooRepository>(fooDependency.Resolve(contract, container));
+        }
+
+        [Fact]
+        public void GetDependency_Not_Registered()
+        {
+            var container = _builder.BuildContainer();
+
+            var dependency = container.GetDependency(typeof(IManager<>), throwInNotRegistered: false);
+
+            Assert.Null(dependency);
+        }
+
+        [Fact]
+        public void GetDependency_Throw_Not_Registered()
+        {
+            var container = _builder.BuildContainer();
+
+            Assert.Throws<KeyNotFoundException>(() => container.GetDependency(typeof(IManager<>)));
         }
 
         [Fact]

@@ -1,4 +1,5 @@
 using System;
+using Velo.Utils;
 
 namespace Velo.Dependencies.Singletons
 {
@@ -15,7 +16,7 @@ namespace Velo.Dependencies.Singletons
         public InstanceSingleton(Type[] contracts, object instance) : base(contracts)
         {
             _instance = instance;
-            _isDisposable = instance.GetType().IsAssignableFrom(typeof(IDisposable));
+            _isDisposable = ReflectionUtils.IsDisposableType(instance.GetType());
         }
 
         public override void Destroy()

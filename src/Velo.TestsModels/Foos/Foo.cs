@@ -9,5 +9,7 @@ namespace Velo.TestsModels.Foos
         public int Int { get; set; }
         
         public int[] Array { get; set; }
+        
+        public ModelType Type { get; set; }
     }
 }

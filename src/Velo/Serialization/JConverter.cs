@@ -81,6 +81,12 @@ namespace Velo.Serialization
                 return (IJsonConverter) Activator.CreateInstance(arrayConverterType, arrayElementConverter);
             }
 
+            if (type.IsEnum)
+            {
+                var enumConverterType = typeof(EnumConverter<>).MakeGenericType(type);
+                return (IJsonConverter) Activator.CreateInstance(enumConverterType);
+            }
+            
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
             {
                 var listElementType = type.GetGenericArguments()[0];
@@ -89,7 +95,7 @@ namespace Velo.Serialization
                 var arrayConverterType = typeof(ListConverter<>).MakeGenericType(listElementType);
                 return (IJsonConverter) Activator.CreateInstance(arrayConverterType, listElementConverter);
             }
-
+            
             var objectProperties = type.GetProperties();
             var objectPropertyConverters = new Dictionary<PropertyInfo, IJsonConverter>(objectProperties.Length);
 
