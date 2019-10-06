@@ -42,7 +42,7 @@ namespace Velo.Serialization
             var converter = _converters.GetOrAdd(outType, _buildConverter);
             using (var tokenizer = new JsonTokenizer(source, _buffer))
             {
-                if (outType.IsPrimitive || outType == typeof(string)) tokenizer.MoveNext();
+                if (outType.IsPrimitive || converter.IsPrimitive) tokenizer.MoveNext();
 
                 var typedConverter = (IJsonConverter<TOut>) converter;
                 return typedConverter.Deserialize(tokenizer);

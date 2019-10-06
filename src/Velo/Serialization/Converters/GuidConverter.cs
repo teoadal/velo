@@ -7,6 +7,8 @@ namespace Velo.Serialization.Converters
 {
     internal sealed class GuidConverter : IJsonConverter<Guid>
     {
+        public bool IsPrimitive => true;
+        
         public Guid Deserialize(JsonTokenizer tokenizer)
         {
             var token = tokenizer.Current;
@@ -15,7 +17,9 @@ namespace Velo.Serialization.Converters
 
         public void Serialize(Guid value, StringBuilder builder)
         {
+            builder.Append('"');
             builder.Append(value.ToString());
+            builder.Append('"');
         }
 
         void IJsonConverter.Serialize(object value, StringBuilder builder) => Serialize((Guid) value, builder);

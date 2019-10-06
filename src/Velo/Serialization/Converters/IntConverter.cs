@@ -6,6 +6,8 @@ namespace Velo.Serialization.Converters
 {
     internal sealed class IntConverter : IJsonConverter<int>
     {
+        public bool IsPrimitive => true;
+        
         public int Deserialize(JsonTokenizer tokenizer)
         {
             var token = tokenizer.Current;

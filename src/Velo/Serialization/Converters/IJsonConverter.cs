@@ -6,6 +6,8 @@ namespace Velo.Serialization.Converters
 {
     internal interface IJsonConverter
     {
+        bool IsPrimitive { get; }
+        
         void Serialize(object value, StringBuilder builder);
     }
 

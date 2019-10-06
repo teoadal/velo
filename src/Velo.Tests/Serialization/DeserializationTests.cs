@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture.Xunit2;
@@ -225,6 +226,28 @@ namespace Velo.Serialization
 
             var deserialized = _converter.Deserialize<BigObject>(json);
             Assert.Null(deserialized);
+        }
+
+        [Fact]
+        public void Deserialize_DateTime()
+        {
+            var source = DateTime.Now;
+
+            var json = JsonConvert.SerializeObject(source);
+
+            var deserialized = _converter.Deserialize<DateTime>(json);
+            Assert.Equal(source, deserialized);
+        }
+        
+        [Fact]
+        public void Deserialize_Guid()
+        {
+            var source = Guid.NewGuid();
+
+            var json = JsonConvert.SerializeObject(source);
+
+            var deserialized = _converter.Deserialize<Guid>(json);
+            Assert.Equal(source, deserialized);
         }
     }
 }

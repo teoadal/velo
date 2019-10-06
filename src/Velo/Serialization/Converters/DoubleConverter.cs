@@ -7,6 +7,8 @@ namespace Velo.Serialization.Converters
 {
     internal sealed class DoubleConverter : IJsonConverter<double>
     {
+        public bool IsPrimitive => true;
+        
         private readonly CultureInfo _cultureInfo;
 
         public DoubleConverter(CultureInfo cultureInfo)

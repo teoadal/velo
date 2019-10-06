@@ -10,7 +10,7 @@ namespace Velo.Utils
 
         public static ConstructorInfo GetConstructor(Type type)
         {
-            if (type.IsAbstract) throw Error.InvalidOperation("Type is abstract");
+            if (type.IsAbstract) throw Error.InvalidOperation("Type is abstract or static");
             if (type.IsInterface) throw Error.InvalidOperation("Type is interface");
 
             var availableConstructors = type.GetTypeInfo().DeclaredConstructors;
@@ -19,7 +19,7 @@ namespace Velo.Utils
 
         public static ConstructorInfo GetEmptyConstructor(Type type)
         {
-            if (type.IsAbstract) throw Error.InvalidOperation("Type is abstract");
+            if (type.IsAbstract) throw Error.InvalidOperation("Type is abstract or static");
             if (type.IsInterface) throw Error.InvalidOperation("Type is interface");
 
             var availableConstructors = type.GetTypeInfo().DeclaredConstructors;
@@ -34,6 +34,11 @@ namespace Velo.Utils
 
         public static Type[] GetGenericInterfaceParameters(Type type, Type genericInterface)
         {
+            if (!genericInterface.IsInterface)
+            {
+                throw Error.InvalidOperation($"Is not interface");
+            }
+            
             var typeInterfaces = type.GetInterfaces();
 
             // ReSharper disable once ForCanBeConvertedToForeach

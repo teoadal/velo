@@ -1,3 +1,4 @@
+using System;
 using AutoFixture.Xunit2;
 using Newtonsoft.Json;
 using Velo.TestsModels;
@@ -49,6 +50,28 @@ namespace Velo.Serialization
             Assert.Equal(source.Double, deserialized.Double);
             Assert.Equal(source.Int, deserialized.Int);
             Assert.Equal(source.String, deserialized.String);
+        }
+        
+        [Fact]
+        public void Serialize_DateTime()
+        {
+            var source = DateTime.Now;
+
+            var serialized = _converter.Serialize(source);
+            var deserialized = JsonConvert.DeserializeObject<DateTime>(serialized);
+            
+            Assert.Equal(source, deserialized);
+        }
+        
+        [Fact]
+        public void Serialize_Guid()
+        {
+            var source = Guid.NewGuid();
+
+            var serialized = _converter.Serialize(source);
+            var deserialized = JsonConvert.DeserializeObject<Guid>(serialized);
+            
+            Assert.Equal(source, deserialized);
         }
     }
 }

@@ -7,6 +7,8 @@ namespace Velo.Serialization.Converters
 {
     internal sealed class ArrayConverter<TElement> : IJsonConverter<TElement[]>
     {
+        public bool IsPrimitive => false;
+        
         [ThreadStatic] private static List<TElement> _buffer;
         
         private readonly IJsonConverter<TElement> _elementConverter;
@@ -59,7 +61,7 @@ namespace Velo.Serialization.Converters
 
             builder.Append("]");
         }
-
+        
         void IJsonConverter.Serialize(object value, StringBuilder builder) => Serialize((TElement[]) value, builder);
     }
 }

@@ -8,6 +8,8 @@ namespace Velo.Serialization.Converters
 {
     internal sealed class DateTimeConverter : IJsonConverter<DateTime>
     {
+        public bool IsPrimitive => true;
+        
         private readonly CultureInfo _cultureInfo;
 
         public DateTimeConverter(CultureInfo cultureInfo)
@@ -23,7 +25,9 @@ namespace Velo.Serialization.Converters
 
         public void Serialize(DateTime value, StringBuilder builder)
         {
-            builder.Append(value.ToString(_cultureInfo));
+            builder.Append('"');
+            builder.Append(value.ToString("O", _cultureInfo));
+            builder.Append('"');
         }
 
         void IJsonConverter.Serialize(object value, StringBuilder builder) => Serialize((DateTime) value, builder);

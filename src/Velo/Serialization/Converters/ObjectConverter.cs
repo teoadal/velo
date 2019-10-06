@@ -12,6 +12,8 @@ namespace Velo.Serialization.Converters
 {
     internal sealed class ObjectConverter<TObject> : IJsonConverter<TObject>
     {
+        public bool IsPrimitive => false;
+        
         private readonly Func<TObject> _activator;
         private readonly EqualityComparer<TObject> _equalityComparer;
         private readonly Dictionary<string, Action<TObject, JsonTokenizer>> _deserializeMethods;

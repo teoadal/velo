@@ -7,6 +7,8 @@ namespace Velo.Serialization.Converters
 {
     internal sealed class FloatConverter : IJsonConverter<float>
     {
+        public bool IsPrimitive => true;
+        
         private readonly CultureInfo _cultureInfo;
 
         public FloatConverter(CultureInfo cultureInfo)

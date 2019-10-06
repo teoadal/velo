@@ -7,6 +7,8 @@ namespace Velo.Serialization.Converters
 {
     internal sealed class BoolConverter : IJsonConverter<bool>
     {
+        public bool IsPrimitive => true;
+        
         public bool Deserialize(JsonTokenizer tokenizer)
         {
             var token = tokenizer.Current;
