@@ -16,12 +16,6 @@ namespace Velo
             _stopwatch = Stopwatch.StartNew();
         }
 
-        protected StopwatchScope StartStopwatch()
-        {
-            _stopwatch = Stopwatch.StartNew();
-            return new StopwatchScope(_stopwatch);
-        }
-
         protected void WriteLine(string text, [CallerMemberName] string from = "")
         {
             _output.WriteLine(string.IsNullOrWhiteSpace(from)
@@ -40,21 +34,6 @@ namespace Velo
             {
                 var nanoseconds = 1000000000.0 * _stopwatch.ElapsedTicks / Stopwatch.Frequency;
                 _output.WriteLine($"Elapsed < 1 ms ({nanoseconds} ns)");
-            }
-        }
-
-        protected readonly struct StopwatchScope : IDisposable
-        {
-            private readonly Stopwatch _stopwatch;
-
-            public StopwatchScope(Stopwatch stopwatch)
-            {
-                _stopwatch = stopwatch;
-            }
-
-            public void Dispose()
-            {
-                _stopwatch.Stop();
             }
         }
     }

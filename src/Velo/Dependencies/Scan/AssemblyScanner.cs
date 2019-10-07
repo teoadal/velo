@@ -27,9 +27,9 @@ namespace Velo.Dependencies.Scan
             return this;
         }
 
-        public AssemblyScanner Assemblies(IEnumerable<Assembly> assembly)
+        public AssemblyScanner Assemblies(IEnumerable<Assembly> assemblies)
         {
-            _assemblies.AddRange(_assemblies);
+            _assemblies.AddRange(assemblies);
             return this;
         }
 

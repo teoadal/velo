@@ -35,10 +35,7 @@ namespace Velo.Emitting
             var emitter = container.Resolve<Emitter>();
             var repository = container.Resolve<IBooRepository>();
 
-            using (StartStopwatch())
-            {
-                emitter.Execute(new CreateBoo {Id = id, Bool = boolean, Int = number});    
-            }
+            emitter.Execute(new CreateBoo {Id = id, Bool = boolean, Int = number});
 
             var boo = repository.GetElement(id);
 

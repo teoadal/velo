@@ -17,7 +17,7 @@ namespace Velo.Dependencies
         }
 
         [Fact]
-        public void Singleton_Activator()
+        public void Activator()
         {
             var container = new DependencyBuilder()
                 .AddSingleton<JConverter>()
@@ -31,7 +31,7 @@ namespace Velo.Dependencies
         }
 
         [Fact]
-        public void Singleton_Builder()
+        public void Builder()
         {
             var container = new DependencyBuilder()
                 .AddSingleton<JConverter>()
@@ -45,7 +45,7 @@ namespace Velo.Dependencies
         }
 
         [Fact]
-        public void Singleton_Builder_Destroy()
+        public void Builder_Destroy()
         {
             var container = new DependencyBuilder()
                 .AddSingleton<IManager<Boo>>(ctx => new Manager<Boo>())
@@ -59,7 +59,7 @@ namespace Velo.Dependencies
         }
         
         [Fact]
-        public void Singleton_Generic()
+        public void Generic()
         {
             var container = new DependencyBuilder()
                 .AddGenericSingleton(typeof(CompiledMapper<>))
@@ -77,7 +77,7 @@ namespace Velo.Dependencies
         }
 
         [Fact]
-        public void Singleton_Generic_Destroy()
+        public void Generic_Destroy()
         {
             var container = new DependencyBuilder()
                 .AddSingleton<ISession, Session>()
@@ -95,7 +95,7 @@ namespace Velo.Dependencies
         }
         
         [Fact]
-        public void Singleton_Generic_With_Contract()
+        public void Generic_With_Contract()
         {
             var container = new DependencyBuilder()
                 .AddGenericSingleton(typeof(IMapper<>), typeof(CompiledMapper<>))
@@ -113,7 +113,7 @@ namespace Velo.Dependencies
         }
 
         [Fact]
-        public void Singleton_Generic_Not_Generic_Contract()
+        public void Generic_Not_Generic_Contract()
         {
             var builder = new DependencyBuilder();
 
@@ -122,7 +122,7 @@ namespace Velo.Dependencies
         }
         
         [Fact]
-        public void Singleton_Generic_Not_Generic_Implementation()
+        public void Generic_Not_Generic_Implementation()
         {
             var builder = new DependencyBuilder();
 
@@ -131,7 +131,7 @@ namespace Velo.Dependencies
         }
         
         [Fact]
-        public void Singleton_Instance()
+        public void Instance()
         {
             var container = new DependencyBuilder()
                 .AddInstance(new JConverter())
@@ -144,7 +144,7 @@ namespace Velo.Dependencies
         }
         
         [Fact]
-        public void Singleton_Instance_Destroy()
+        public void Instance_Destroy()
         {
             var container = new DependencyBuilder()
                 .AddInstance(new BooRepository(null, null))

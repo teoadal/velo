@@ -1,8 +1,6 @@
-using Velo.Emitting.Commands;
-
 namespace Velo.TestsModels.Boos.Emitting
 {
-    public class UpdateBoo : ICommand
+    public class UpdateBoo : IPolymorphicCommand
     {
         public int Id { get; set; }
         

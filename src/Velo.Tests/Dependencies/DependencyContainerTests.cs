@@ -134,6 +134,18 @@ namespace Velo.Dependencies
         }
 
         [Fact]
+        public void GetDependency_Not_Registered_ByName()
+        {
+            var container = _builder
+                .AddTransient<IRepository, BooRepository>("name")
+                .BuildContainer();
+
+            var dependency = container.GetDependency(typeof(IRepository), "differentName");
+
+            Assert.NotNull(dependency);
+        }
+        
+        [Fact]
         public void GetDependency_Throw_Not_Registered()
         {
             var container = _builder.BuildContainer();

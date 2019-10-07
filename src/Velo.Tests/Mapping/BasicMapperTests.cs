@@ -26,11 +26,7 @@ namespace Velo.Mapping
                 Double = doubleValue
             };
 
-            Foo foo;
-            using (StartStopwatch())
-            {
-                foo = _mapper.Map(source);
-            }
+            var foo = _mapper.Map(source);
 
             Assert.Equal(source.Bool, foo.Bool);
             Assert.Equal(source.Float, foo.Float);
@@ -47,11 +43,7 @@ namespace Velo.Mapping
                 Int = intValue
             };
 
-            Foo foo;
-            using (StartStopwatch())
-            {
-                foo = _mapper.Map(source);
-            }
+            var foo = _mapper.Map(source);
 
             Assert.Equal(source.Bool, foo.Bool);
             Assert.Equal(source.Float, foo.Float);

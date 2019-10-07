@@ -1,3 +1,4 @@
+using System.Reflection;
 using Velo.Serialization;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Domain;
@@ -21,7 +22,7 @@ namespace Velo.Dependencies
         }
 
         [Fact]
-        public void Scan_Assignable()
+        public void Assignable()
         {
             var container = _builder
                 .Scan(scanner => scanner
@@ -37,7 +38,33 @@ namespace Velo.Dependencies
         }
 
         [Fact]
-        public void Scan_Generic_Interface_Implementations()
+        public void Assemblies()
+        {
+            var container = _builder
+                .Scan(scanner => scanner
+                    .Assemblies(new [] { Assembly.GetExecutingAssembly(), typeof(IRepository).Assembly })
+                    .RegisterAsSingleton<IRepository>())
+                .BuildContainer();
+
+            var repositories = container.Resolve<IRepository[]>();
+            Assert.NotEmpty(repositories);
+        }
+        
+        [Fact]
+        public void CurrentAssembly()
+        {
+            var container = _builder
+                .Scan(scanner => scanner
+                    .CurrentAssembly()
+                    .RegisterAsSingleton<IRepository>())
+                .BuildContainer();
+
+            var repositories = container.Resolve<IRepository[]>();
+            Assert.Empty(repositories);
+        }
+        
+        [Fact]
+        public void Generic_Interface_Implementations()
         {
             var container = _builder
                 .Scan(scanner => scanner

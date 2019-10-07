@@ -15,7 +15,7 @@ namespace Velo.Dependencies
         }
 
         [Fact]
-        public void Array_Factory()
+        public void Array()
         {
             var container = new DependencyBuilder()
                 .AddTransient<ISession, Session>()

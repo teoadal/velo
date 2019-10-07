@@ -37,11 +37,7 @@ namespace Velo.Emitting
         {
             _repository.AddElement(new Boo {Id = id, Int = intValue});
 
-            int booInt;
-            using (StartStopwatch())
-            {
-                booInt = await _emitter.AskAsync(new GetBooInt {Id = id});
-            }
+            var booInt = await _emitter.AskAsync(new GetBooInt {Id = id});
 
             Assert.Equal(intValue, booInt);
         }
@@ -51,11 +47,7 @@ namespace Velo.Emitting
         {
             _repository.AddElement(new Boo {Id = id});
             
-            Boo boo;
-            using (StartStopwatch())
-            {
-                boo = await _emitter.AskAsync(new GetBoo {Id = id});
-            }
+            var boo = await _emitter.AskAsync(new GetBoo {Id = id});
 
             Assert.Equal(id, boo.Id);
         }

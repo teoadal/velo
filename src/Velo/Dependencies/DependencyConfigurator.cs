@@ -39,7 +39,8 @@ namespace Velo.Dependencies
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public DependencyConfigurator Contract(Type contract)
         {
-            if (_implementation != null && !_implementation.IsAssignableFrom(contract) &&
+            if (_implementation != null && 
+                !_implementation.IsAssignableFrom(contract) &&
                 !_implementation.IsGenericTypeDefinition)
             {
                 throw Error.InvalidOperation($"{contract} is not assignable from {_implementation}");
@@ -89,7 +90,7 @@ namespace Velo.Dependencies
             {
                 throw Error.InconsistentOperation("name already exists");
             }
-
+            
             _name = name;
             return this;
         }
@@ -207,8 +208,9 @@ namespace Velo.Dependencies
 
             if (_instance != null) return new[] {_instance.GetType()};
             if (_implementation != null) return new[] {_implementation};
+            if (_builder != null) return new[] {_builder.Method.ReturnType};
 
-            throw Error.InconsistentOperation("set contracts");
+                throw Error.InconsistentOperation("set contracts");
         }
     }
 }

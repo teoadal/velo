@@ -24,11 +24,7 @@ namespace Velo.Serialization
         {
             var json = JsonConvert.SerializeObject(array);
 
-            Boo[] deserialized;
-            using (StartStopwatch())
-            {
-                deserialized = _converter.Deserialize<Boo[]>(json);
-            }
+            var deserialized = _converter.Deserialize<Boo[]>(json);
 
             for (var i = 0; i < array.Length; i++)
             {
@@ -47,11 +43,7 @@ namespace Velo.Serialization
         {
             var json = JsonConvert.SerializeObject(array);
 
-            float[] deserialized;
-            using (StartStopwatch())
-            {
-                deserialized = _converter.Deserialize<float[]>(json);
-            }
+            var deserialized = _converter.Deserialize<float[]>(json);
 
             for (var i = 0; i < array.Length; i++)
             {
@@ -64,11 +56,7 @@ namespace Velo.Serialization
         {
             var json = JsonConvert.SerializeObject(array);
 
-            int[] deserialized;
-            using (StartStopwatch())
-            {
-                deserialized = _converter.Deserialize<int[]>(json);
-            }
+            var deserialized = _converter.Deserialize<int[]>(json);
 
             for (var i = 0; i < array.Length; i++)
             {
@@ -102,11 +90,7 @@ namespace Velo.Serialization
         {
             var json = JsonConvert.SerializeObject(array);
 
-            string[] deserialized;
-            using (StartStopwatch())
-            {
-                deserialized = _converter.Deserialize<string[]>(json);
-            }
+            var deserialized = _converter.Deserialize<string[]>(json);
 
             for (var i = 0; i < array.Length; i++)
             {
@@ -119,11 +103,7 @@ namespace Velo.Serialization
         {
             var json = JsonConvert.SerializeObject(source);
 
-            BigObject deserialized;
-            using (StartStopwatch())
-            {
-                deserialized = _converter.Deserialize<BigObject>(json);
-            }
+            var deserialized = _converter.Deserialize<BigObject>(json);
 
             if (source.Boo != null)
             {

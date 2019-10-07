@@ -37,11 +37,7 @@ namespace Velo.Emitting
             var repository = container.Resolve<IBooRepository>();
             repository.AddElement(new Boo {Id = id});
 
-            Boo boo;
-            using (StartStopwatch())
-            {
-                boo = emitter.Ask(new GetBoo {Id = id});    
-            }
+            var boo = emitter.Ask(new GetBoo {Id = id});
 
             Assert.Equal(id, boo.Id);
         }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -51,9 +52,36 @@ namespace Velo.Utils
                 }
             }
 
-            throw Error.NotFound($"Generic interface ${genericInterface.Name} is not implemented");
+            throw Error.NotFound($"Generic interface {genericInterface.Name} is not implemented");
         }
 
+        public static Type[] GetGenericInterfaces(Type type, Type genericInterface)
+        {
+            if (!genericInterface.IsInterface)
+            {
+                throw Error.InvalidOperation($"Is not interface");
+            }
+
+            var implementations = new List<Type>();
+            var typeInterfaces = type.GetInterfaces();
+            // ReSharper disable once ForCanBeConvertedToForeach
+            for (var i = 0; i < typeInterfaces.Length; i++)
+            {
+                var typeInterface = typeInterfaces[i];
+                if (typeInterface.IsGenericType && typeInterface.GetGenericTypeDefinition() == genericInterface)
+                {
+                    implementations.Add(typeInterface);
+                }
+            }
+
+            if (implementations.Count == 0)
+            {
+                throw Error.NotFound($"Generic interface {genericInterface.Name} is not implemented");    
+            }
+
+            return implementations.ToArray();
+        }
+        
         public static bool IsDisposableType(Type type)
         {
             return DisposableInterfaceType.IsAssignableFrom(type);

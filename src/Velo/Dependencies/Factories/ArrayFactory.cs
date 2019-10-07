@@ -34,6 +34,9 @@ namespace Velo.Dependencies.Factories
             var elements = new List<object>();
 
             var dependencies = _dependencies;
+            
+            // ReSharper disable once ForCanBeConvertedToForeach
+            // ReSharper disable once LoopCanBeConvertedToQuery
             for (var i = 0; i < dependencies.Length; i++)
             {
                 var dependency = dependencies[i];
@@ -50,6 +53,7 @@ namespace Velo.Dependencies.Factories
             }
 
             elements.Clear();
+            
             return array;
         }
     }

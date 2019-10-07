@@ -1,6 +1,6 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Velo.Dependencies;
 using Velo.Emitting.Commands;
 using Velo.Emitting.Queries;
 
@@ -11,7 +11,7 @@ namespace Velo.Emitting
         private readonly CommandProcessorsCollection _commandProcessors;
         private readonly QueryProcessorsCollection _queryProcessors;
 
-        public Emitter(DependencyContainer container)
+        public Emitter(IServiceProvider container)
         {
             _commandProcessors = new CommandProcessorsCollection(container);
             _queryProcessors = new QueryProcessorsCollection(container);

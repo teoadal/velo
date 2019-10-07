@@ -30,7 +30,7 @@ namespace Velo.Dependencies
         }
 
         [Fact]
-        public void Transient_Activator()
+        public void Activator()
         {
             var container = new DependencyBuilder()
                 .AddSingleton<JConverter>()
@@ -44,7 +44,7 @@ namespace Velo.Dependencies
         }
         
         [Fact]
-        public void Transient_Builder()
+        public void Builder()
         {
             var container = new DependencyBuilder()
                 .AddSingleton<JConverter>()
@@ -58,7 +58,7 @@ namespace Velo.Dependencies
         }
 
         [Fact]
-        public void Transient_Generic()
+        public void Generic()
         {
             var container = new DependencyBuilder()
                 .AddGenericTransient(typeof(List<>))
@@ -71,7 +71,7 @@ namespace Velo.Dependencies
         }
 
         [Fact]
-        public void Transient_Generic_With_Contract()
+        public void Generic_With_Contract()
         {
             var container = new DependencyBuilder()
                 .AddGenericTransient(typeof(IList<>), typeof(List<>))
@@ -84,7 +84,7 @@ namespace Velo.Dependencies
         }
         
         [Fact]
-        public void Transient_Generic_Not_Generic_Contract()
+        public void Generic_Not_Generic_Contract()
         {
             var builder = new DependencyBuilder();
 
@@ -93,7 +93,7 @@ namespace Velo.Dependencies
         }
         
         [Fact]
-        public void Transient_Generic_Not_Generic_Implementation()
+        public void Generic_Not_Generic_Implementation()
         {
             var builder = new DependencyBuilder();
 
@@ -102,7 +102,7 @@ namespace Velo.Dependencies
         }
         
         [Fact]
-        public void Transient_Without_Contract()
+        public void Without_Contract()
         {
             var container = new DependencyBuilder()
                 .AddSingleton<JConverter>()

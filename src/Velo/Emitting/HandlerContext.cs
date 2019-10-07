@@ -4,9 +4,9 @@ namespace Velo.Emitting
     {
         public bool StopPropagation { get; set; }
 
-        public T Payload { get; set; }
+        public T Payload { get; }
         
-        internal HandlerContext(T payload)
+        public HandlerContext(T payload)
         {
             Payload = payload;
         }

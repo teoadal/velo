@@ -47,7 +47,7 @@ namespace Velo.Dependencies
         }
 
         [Fact]
-        public void Scope_Builder()
+        public void Builder()
         {
             var container = _builder.BuildContainer();
 
@@ -68,7 +68,7 @@ namespace Velo.Dependencies
         }
         
         [Fact]
-        public void Scope_Circular_Dependency()
+        public void Circular_Dependency()
         {
             var container = _builder
                 .AddScope<CircularDependencyService>()
@@ -81,7 +81,7 @@ namespace Velo.Dependencies
         }
 
         [Fact]
-        public void Scope_Description()
+        public void Description()
         {
             var container = _builder
                 .AddGenericScope(typeof(List<>))
@@ -89,18 +89,18 @@ namespace Velo.Dependencies
             
             using (var scope = container.StartScope())
             {
-                Assert.Equal(nameof(Scope_Description), scope.ToString());
+                Assert.Equal(nameof(Description), scope.ToString());
 
                 const string nestedScopeName = "NestedScope";
                 using (var nestedScope = container.StartScope(nestedScopeName))
                 {
-                    Assert.Equal($"{nameof(Scope_Description)} -> {nestedScopeName}", nestedScope.ToString());
+                    Assert.Equal($"{nameof(Description)} -> {nestedScopeName}", nestedScope.ToString());
                 }
             }
         }
         
         [Fact]
-        public void Scope_Destroy_After_End()
+        public void Destroy_After_End()
         {
             var container = _builder
                 .AddSingleton<IFooRepository, FooRepository>()
@@ -118,7 +118,7 @@ namespace Velo.Dependencies
         }
 
         [Fact]
-        public void Scope_Generic()
+        public void Generic()
         {
             var container = _builder
                 .AddGenericScope(typeof(List<>))
@@ -139,7 +139,7 @@ namespace Velo.Dependencies
         }
 
         [Fact]
-        public void Scope_Generic_With_Contract()
+        public void Generic_With_Contract()
         {
             var container = _builder
                 .AddGenericScope(typeof(IList<>), typeof(List<>))
@@ -160,7 +160,7 @@ namespace Velo.Dependencies
         }
 
         [Fact]
-        public void Scope_Generic_Not_Generic_Contract()
+        public void Generic_Not_Generic_Contract()
         {
             var builder = new DependencyBuilder();
 
@@ -169,7 +169,7 @@ namespace Velo.Dependencies
         }
         
         [Fact]
-        public void Scope_Generic_Not_Generic_Implementation()
+        public void Generic_Not_Generic_Implementation()
         {
             var builder = new DependencyBuilder();
 
@@ -178,7 +178,7 @@ namespace Velo.Dependencies
         }
         
         [Fact]
-        public void Scope_Many()
+        public void Many()
         {
             var container = _builder
                 .AddScope<IFooRepository, FooRepository>()
@@ -205,7 +205,7 @@ namespace Velo.Dependencies
         }
 
         [Fact]
-        public void Scope_MultiThreading()
+        public void MultiThreading()
         {
             var container = _builder
                 .AddScope<IFooService, FooService>()
@@ -239,7 +239,7 @@ namespace Velo.Dependencies
         }
 
         [Fact]
-        public void Scope_Nested()
+        public void Nested()
         {
             var container = _builder.BuildContainer();
 
@@ -258,7 +258,7 @@ namespace Velo.Dependencies
         }
 
         [Fact]
-        public void Scope_Throw_If_Resolve_WithoutScope()
+        public void Throw_If_Resolve_WithoutScope()
         {
             var container = _builder.BuildContainer();
 

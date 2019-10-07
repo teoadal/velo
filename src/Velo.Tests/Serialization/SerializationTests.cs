@@ -21,11 +21,7 @@ namespace Velo.Serialization
         {
             var serialized = _converter.Serialize(source);
 
-            BigObject deserialized;
-            using (StartStopwatch())
-            {
-                deserialized = JsonConvert.DeserializeObject<BigObject>(serialized);
-            }
+            var deserialized = JsonConvert.DeserializeObject<BigObject>(serialized);
 
             if (source.Boo != null)
             {

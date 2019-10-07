@@ -35,10 +35,7 @@ namespace Velo.Emitting
         [Theory, AutoData]
         public void Execute(int id, bool boolean, int number)
         {
-            using (StartStopwatch())
-            {
-                _emitter.Execute(new CreateBoo {Id = id, Bool = boolean, Int = number});
-            }
+            _emitter.Execute(new CreateBoo {Id = id, Bool = boolean, Int = number});
 
             var boo = _repository.GetElement(id);
 
@@ -52,10 +49,7 @@ namespace Velo.Emitting
         {
             _repository.AddElement(new Boo {Id = id});
             
-            using (StartStopwatch())
-            {
-                await _emitter.ExecuteAsync(new UpdateBoo {Id = id, Bool = boolean, Int = number});
-            }
+            await _emitter.ExecuteAsync(new UpdateBoo {Id = id, Bool = boolean, Int = number});
 
             var boo = _repository.GetElement(id);
 
@@ -63,7 +57,7 @@ namespace Velo.Emitting
             Assert.Equal(boolean, boo.Bool);
             Assert.Equal(number, boo.Int);
         }
-        
+
         [Fact]
         public void Throw_CommandHandler_Not_Registered()
         {
