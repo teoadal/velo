@@ -81,6 +81,14 @@ namespace Velo.Serialization
                 return (IJsonConverter) Activator.CreateInstance(arrayConverterType, arrayElementConverter);
             }
 
+            var underlyingType = Nullable.GetUnderlyingType(type);
+            if (underlyingType != null)
+            {
+                var valueConverter = _converters.GetOrAdd(underlyingType, _buildConverter);
+                var nullableConverterType = typeof(NullableConverter<>).MakeGenericType(underlyingType);
+                return (IJsonConverter) Activator.CreateInstance(nullableConverterType, valueConverter);
+            }
+            
             if (type.IsEnum)
             {
                 var enumConverterType = typeof(EnumConverter<>).MakeGenericType(type);

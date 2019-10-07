@@ -249,5 +249,27 @@ namespace Velo.Serialization
             var deserialized = _converter.Deserialize<Guid>(json);
             Assert.Equal(source, deserialized);
         }
+        
+        [Fact]
+        public void Deserialize_Nullable_NotNull()
+        {
+            int? source = 25;
+
+            var json = JsonConvert.SerializeObject(source);
+
+            var deserialized = _converter.Deserialize<int?>(json);
+            Assert.Equal(source, deserialized);
+        }
+        
+        [Fact]
+        public void Deserialize_Nullable_Null()
+        {
+            int? source = null;
+
+            var json = JsonConvert.SerializeObject(source);
+
+            var deserialized = _converter.Deserialize<int?>(json);
+            Assert.Equal(source, deserialized);
+        }
     }
 }

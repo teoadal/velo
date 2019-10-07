@@ -12,6 +12,8 @@ namespace Velo.TestsModels.Boos
 
         public int Int { get; set; }
 
+        public int? IntNullable { get; set; }
+        
         public double Double { get; set; }
         
         public List<int> Values { get; set; }
