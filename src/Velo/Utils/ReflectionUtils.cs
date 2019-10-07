@@ -11,8 +11,7 @@ namespace Velo.Utils
 
         public static ConstructorInfo GetConstructor(Type type)
         {
-            if (type.IsAbstract) throw Error.InvalidOperation("Type is abstract or static");
-            if (type.IsInterface) throw Error.InvalidOperation("Type is interface");
+            CheckIsNotAbstractAndNotInterface(type);
 
             var availableConstructors = type.GetTypeInfo().DeclaredConstructors;
             return availableConstructors.FirstOrDefault(constructor => !constructor.IsStatic);
@@ -20,8 +19,7 @@ namespace Velo.Utils
 
         public static ConstructorInfo GetEmptyConstructor(Type type)
         {
-            if (type.IsAbstract) throw Error.InvalidOperation("Type is abstract or static");
-            if (type.IsInterface) throw Error.InvalidOperation("Type is interface");
+            CheckIsNotAbstractAndNotInterface(type);
 
             var availableConstructors = type.GetTypeInfo().DeclaredConstructors;
             return availableConstructors.FirstOrDefault(c => !c.IsStatic && c.GetParameters().Length == 0);
@@ -35,11 +33,13 @@ namespace Velo.Utils
 
         public static Type[] GetGenericInterfaceParameters(Type type, Type genericInterface)
         {
-            if (!genericInterface.IsInterface)
+            CheckIsGenericInterfaceTypeDefinition(genericInterface);
+
+            if (type.IsInterface && type.IsGenericType && type.GetGenericTypeDefinition() == genericInterface)
             {
-                throw Error.InvalidOperation($"Is not interface");
+                return type.GenericTypeArguments;
             }
-            
+
             var typeInterfaces = type.GetInterfaces();
 
             // ReSharper disable once ForCanBeConvertedToForeach
@@ -55,12 +55,10 @@ namespace Velo.Utils
             throw Error.NotFound($"Generic interface {genericInterface.Name} is not implemented");
         }
 
-        public static Type[] GetGenericInterfaces(Type type, Type genericInterface)
+        public static Type[] GetInheritedGenericInterfaces(Type type, params Type[] parentGenericInterfaces)
         {
-            if (!genericInterface.IsInterface)
-            {
-                throw Error.InvalidOperation($"Is not interface");
-            }
+            foreach (var parentGenericInterface in parentGenericInterfaces)
+                CheckIsGenericInterfaceTypeDefinition(parentGenericInterface);
 
             var implementations = new List<Type>();
             var typeInterfaces = type.GetInterfaces();
@@ -68,20 +66,22 @@ namespace Velo.Utils
             for (var i = 0; i < typeInterfaces.Length; i++)
             {
                 var typeInterface = typeInterfaces[i];
-                if (typeInterface.IsGenericType && typeInterface.GetGenericTypeDefinition() == genericInterface)
-                {
-                    implementations.Add(typeInterface);
-                }
+                if (!typeInterface.IsGenericType) continue;
+
+                var typeInterfaceGenericDefinition = typeInterface.GetGenericTypeDefinition();
+                if (Array.IndexOf(parentGenericInterfaces, typeInterfaceGenericDefinition) == -1) continue;
+
+                implementations.Add(typeInterface);
             }
 
             if (implementations.Count == 0)
             {
-                throw Error.NotFound($"Generic interface {genericInterface.Name} is not implemented");    
+                throw Error.NotFound($"Generic interfaces is not implemented");
             }
 
             return implementations.ToArray();
         }
-        
+
         public static bool IsDisposableType(Type type)
         {
             return DisposableInterfaceType.IsAssignableFrom(type);
@@ -89,6 +89,13 @@ namespace Velo.Utils
 
         public static bool IsGenericInterfaceImplementation(Type type, Type genericInterface)
         {
+            CheckIsGenericInterfaceTypeDefinition(genericInterface);
+
+            if (type.IsInterface && type.IsGenericType && type.GetGenericTypeDefinition() == genericInterface)
+            {
+                return true;
+            }
+
             var typeInterfaces = type.GetInterfaces();
 
             // ReSharper disable once ForCanBeConvertedToForeach
@@ -109,6 +116,27 @@ namespace Velo.Utils
         {
             attribute = type.GetCustomAttribute<TAttribute>();
             return attribute != null;
+        }
+
+        private static void CheckIsGenericInterfaceTypeDefinition(Type type)
+        {
+            if (!type.IsInterface || !type.IsGenericTypeDefinition)
+            {
+                throw Error.InvalidData($"'{type.Name}' is not generic interface definition");
+            }
+        }
+
+        private static void CheckIsNotAbstractAndNotInterface(Type type)
+        {
+            if (type.IsAbstract)
+            {
+                throw Error.InvalidOperation("Type is abstract or static");
+            }
+
+            if (type.IsInterface)
+            {
+                throw Error.InvalidOperation("Type is interface");
+            }
         }
     }
 }

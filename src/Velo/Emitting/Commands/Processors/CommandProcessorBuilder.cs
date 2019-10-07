@@ -3,17 +3,19 @@ using System.Collections.Generic;
 using Velo.Ordering;
 using Velo.Utils;
 
-namespace Velo.Emitting.Commands
+namespace Velo.Emitting.Commands.Processors
 {
     internal sealed class CommandProcessorBuilder
     {
-        private readonly Type _asyncHandlerGenericType = typeof(IAsyncCommandHandler<>);
-        private readonly Type _handlerGenericType = typeof(ICommandHandler<>);
-        private readonly Type _asyncProcessorGenericType = typeof(AsyncCommandProcessor<>);
-        private readonly Type _mixedProcessorGenericType = typeof(AsyncCommandProcessor<>);
-        private readonly Type _syncProcessorGenericType = typeof(SyncCommandProcessor<>);
+        private readonly Type _asyncHandlerGenericType;
+        private readonly Type _handlerGenericType;
+        private readonly Type _asyncProcessorGenericType;
+        private readonly Type _mixedProcessorGenericType;
+        private readonly Type _syncProcessorGenericType;
 
-        private IServiceProvider _container;
+        private readonly Type[] _handlerContracts;
+        
+        private readonly IServiceProvider _container;
 
         public CommandProcessorBuilder(IServiceProvider container)
         {
@@ -24,12 +26,13 @@ namespace Velo.Emitting.Commands
             _asyncProcessorGenericType = typeof(AsyncCommandProcessor<>);
             _mixedProcessorGenericType = typeof(AsyncCommandProcessor<>);
             _syncProcessorGenericType = typeof(SyncCommandProcessor<>);
+
+            _handlerContracts = new[] {_asyncHandlerGenericType, _handlerGenericType};
         }
 
         public Dictionary<int, ICommandProcessor> CollectProcessors()
         {
             var handlers = (ICommandHandler[]) _container.GetService(typeof(ICommandHandler[]));
-
             var handlersByCommandType = new Dictionary<Type, List<ICommandHandler>>();
 
             // ReSharper disable once ForCanBeConvertedToForeach
@@ -38,20 +41,20 @@ namespace Velo.Emitting.Commands
                 var handler = handlers[i];
                 var handlerType = handler.GetType();
 
-                var isAsyncHandler =
-                    ReflectionUtils.IsGenericInterfaceImplementation(handlerType, _asyncHandlerGenericType);
+                var foundContracts = ReflectionUtils.GetInheritedGenericInterfaces(handlerType, _handlerContracts);
 
-                var commandType = isAsyncHandler
-                    ? ReflectionUtils.GetGenericInterfaceParameters(handlerType, _asyncHandlerGenericType)[0]
-                    : ReflectionUtils.GetGenericInterfaceParameters(handlerType, _handlerGenericType)[0];
-
-                if (!handlersByCommandType.TryGetValue(commandType, out var handlerGroup))
+                // ReSharper disable once ForCanBeConvertedToForeach
+                for (var j = 0; j < foundContracts.Length; j++)
                 {
-                    handlerGroup = new List<ICommandHandler>();
-                    handlersByCommandType.Add(commandType, handlerGroup);
-                }
+                    var commandType = DefineCommandType(foundContracts[j]);
+                    if (!handlersByCommandType.TryGetValue(commandType, out var handlerGroup))
+                    {
+                        handlerGroup = new List<ICommandHandler>();
+                        handlersByCommandType.Add(commandType, handlerGroup);
+                    }
 
-                handlerGroup.Add(handler);
+                    handlerGroup.Add(handler);
+                }
             }
 
             var commandHandlerComparer = new OrderAttributeComparer<ICommandHandler>();
@@ -81,6 +84,15 @@ namespace Velo.Emitting.Commands
             return processor;
         }
 
+        private Type DefineCommandType(Type contract)
+        {
+            var isAsync = ReflectionUtils.IsGenericInterfaceImplementation(contract, _asyncHandlerGenericType);
+
+            return isAsync
+                ? ReflectionUtils.GetGenericInterfaceParameters(contract, _asyncHandlerGenericType)[0]
+                : ReflectionUtils.GetGenericInterfaceParameters(contract, _handlerGenericType)[0];
+        }
+        
         private Type DefineGenericProcessorType(List<ICommandHandler> handlers)
         {
             var asyncCount = 0;

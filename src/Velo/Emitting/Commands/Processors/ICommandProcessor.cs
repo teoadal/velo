@@ -1,6 +1,6 @@
 using System;
 
-namespace Velo.Emitting.Commands
+namespace Velo.Emitting.Commands.Processors
 {
     internal interface ICommandProcessor
     {

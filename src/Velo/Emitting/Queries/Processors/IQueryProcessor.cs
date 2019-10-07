@@ -1,4 +1,4 @@
-namespace Velo.Emitting.Queries
+namespace Velo.Emitting.Queries.Processors
 {
     internal interface IQueryProcessor
     {

@@ -2,7 +2,9 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Velo.Emitting.Commands;
+using Velo.Emitting.Commands.Processors;
 using Velo.Emitting.Queries;
+using Velo.Emitting.Queries.Processors;
 
 namespace Velo.Emitting
 {

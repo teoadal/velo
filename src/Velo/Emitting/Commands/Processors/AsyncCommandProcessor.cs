@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Velo.Utils;
 
-namespace Velo.Emitting.Commands
+namespace Velo.Emitting.Commands.Processors
 {
     internal interface IAsyncCommandProcessor<in TCommand> : ICommandProcessor
         where TCommand : ICommand

@@ -1,7 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Velo.Emitting.Queries
+namespace Velo.Emitting.Queries.Processors
 {
     internal sealed class QueryProcessor<TQuery, TResult> : IQueryProcessor<TResult>, IAsyncQueryProcessor<TResult>
         where TQuery : IQuery<TResult>

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Velo.Utils;
 
-namespace Velo.Emitting.Queries
+namespace Velo.Emitting.Queries.Processors
 {
     internal sealed class QueryProcessorsBuilder
     {
@@ -11,15 +11,20 @@ namespace Velo.Emitting.Queries
         private readonly Type _handlerGenericType;
         private readonly Type _processorGenericType;
 
+        private readonly Type[] _handlerContracts;
+        
         private readonly IServiceProvider _container;
         
         public QueryProcessorsBuilder(IServiceProvider container)
         {
             _container = container;
+            
             _asyncHandlerGenericType = typeof(IAsyncQueryHandler<,>);
             _asyncProcessorGenericType = typeof(AsyncQueryProcessor<,>);
             _handlerGenericType = typeof(IQueryHandler<,>);
             _processorGenericType = typeof(QueryProcessor<,>);
+            
+            _handlerContracts = new[] {_asyncHandlerGenericType, _handlerGenericType};
         }
         
         public Dictionary<(int, int), IQueryProcessor> CollectProcessors()
@@ -33,29 +38,35 @@ namespace Velo.Emitting.Queries
                 var handler = handlers[i];
                 var handlerType = handler.GetType();
 
-                var processor = CreateProcessor(handlerType, handler, out var genericTypes);
+                var foundContracts = ReflectionUtils.GetInheritedGenericInterfaces(handlerType, _handlerContracts);
 
-                var queryTypeId = Typeof.GetTypeId(genericTypes[0]);
-                var resultTypeId = Typeof.GetTypeId(genericTypes[1]);
-                var processorKey = (queryTypeId, resultTypeId);
+                // ReSharper disable once ForCanBeConvertedToForeach
+                for (var j = 0; j < foundContracts.Length; j++)
+                {
+                    var processor = CreateProcessor(foundContracts[j], handler, out var contractTypes);
 
-                processors.Add(processorKey, processor);
+                    var queryTypeId = Typeof.GetTypeId(contractTypes[0]);
+                    var resultTypeId = Typeof.GetTypeId(contractTypes[1]);
+                    var processorKey = (queryTypeId, resultTypeId);
+
+                    processors.Add(processorKey, processor);
+                }
             }
 
             return processors;
         }
 
-        private IQueryProcessor CreateProcessor(Type handlerType, IQueryHandler handler, out Type[] genericTypes)
+        private IQueryProcessor CreateProcessor(Type contract, IQueryHandler handler, out Type[] contractTypes)
         {
-            var isAsyncHandler = ReflectionUtils.IsGenericInterfaceImplementation(handlerType, _asyncHandlerGenericType);
+            var isAsyncHandler = ReflectionUtils.IsGenericInterfaceImplementation(contract, _asyncHandlerGenericType);
 
-            genericTypes = isAsyncHandler
-                ? ReflectionUtils.GetGenericInterfaceParameters(handlerType, _asyncHandlerGenericType)
-                : ReflectionUtils.GetGenericInterfaceParameters(handlerType, _handlerGenericType);
+            contractTypes = isAsyncHandler
+                ? ReflectionUtils.GetGenericInterfaceParameters(contract, _asyncHandlerGenericType)
+                : ReflectionUtils.GetGenericInterfaceParameters(contract, _handlerGenericType);
 
             var processorType = isAsyncHandler
-                ? _asyncProcessorGenericType.MakeGenericType(genericTypes)
-                : _processorGenericType.MakeGenericType(genericTypes);
+                ? _asyncProcessorGenericType.MakeGenericType(contractTypes)
+                : _processorGenericType.MakeGenericType(contractTypes);
 
             return (IQueryProcessor) Activator.CreateInstance(processorType, handler);
         }

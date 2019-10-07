@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Velo.Utils;
 
-namespace Velo.Emitting.Commands
+namespace Velo.Emitting.Commands.Processors
 {
     internal sealed class CommandProcessorsCollection
     {

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Velo.Utils;
 
-namespace Velo.Emitting.Queries
+namespace Velo.Emitting.Queries.Processors
 {
     internal sealed class QueryProcessorsCollection
     {

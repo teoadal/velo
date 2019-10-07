@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Velo.TestsModels.Boos;
 using Xunit;
 using Xunit.Abstractions;
@@ -65,7 +66,7 @@ namespace Velo.Utils
         [Fact]
         public void GenericInterfaceParameters_Throw_Not_Interface()
         {
-            Assert.Throws<InvalidOperationException>(() =>
+            Assert.Throws<InvalidDataException>(() =>
                 ReflectionUtils.GetGenericInterfaceParameters(typeof(Dictionary<int, int>), typeof(Dictionary<,>)));
         }
     }
