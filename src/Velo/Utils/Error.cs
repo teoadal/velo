@@ -42,5 +42,10 @@ namespace Velo.Utils
         {
             return new KeyNotFoundException(message);
         }
+
+        public static NullReferenceException Null(string message = null)
+        {
+            return new NullReferenceException(message);
+        }
     }
 }

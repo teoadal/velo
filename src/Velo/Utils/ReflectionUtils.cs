@@ -128,15 +128,8 @@ namespace Velo.Utils
 
         private static void CheckIsNotAbstractAndNotInterface(Type type)
         {
-            if (type.IsAbstract)
-            {
-                throw Error.InvalidOperation("Type is abstract or static");
-            }
-
-            if (type.IsInterface)
-            {
-                throw Error.InvalidOperation("Type is interface");
-            }
+            if (type.IsAbstract) throw Error.InvalidOperation($"'{type.Name}' is abstract or static");
+            if (type.IsInterface) throw Error.InvalidOperation($"'{type.Name}' is interface");
         }
     }
 }
