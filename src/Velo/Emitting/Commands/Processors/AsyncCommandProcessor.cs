@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,16 +12,14 @@ namespace Velo.Emitting.Commands.Processors
     {
         Task ExecuteAsync(TCommand command, CancellationToken cancellationToken);
     }
-    
-    internal sealed class AsyncCommandProcessor<TCommand>: IAsyncCommandProcessor<TCommand>, ICommandProcessor<TCommand>
-        where TCommand: ICommand
+
+    internal sealed class AsyncCommandProcessor<TCommand> : CommandProcessor<TCommand>, IAsyncCommandProcessor<TCommand>
+        where TCommand : ICommand
     {
-        private readonly Type _commandType;
         private readonly IAsyncCommandHandler<TCommand>[] _handlers;
 
         public AsyncCommandProcessor(IReadOnlyList<ICommandHandler> handlers)
         {
-            _commandType = Typeof<TCommand>.Raw;
             _handlers = new IAsyncCommandHandler<TCommand>[handlers.Count];
             for (var i = 0; i < _handlers.Length; i++)
             {
@@ -28,16 +27,11 @@ namespace Velo.Emitting.Commands.Processors
             }
         }
 
-        public bool Applicable(Type type)
-        {
-            return _commandType.IsAssignableFrom(type);
-        }
-        
-        public void Execute(TCommand command)
+        public override void Execute(TCommand command)
         {
             ExecuteAsync(command, CancellationToken.None).GetAwaiter().GetResult();
         }
-        
+
         public async Task ExecuteAsync(TCommand command, CancellationToken cancellationToken)
         {
             var context = new HandlerContext<TCommand>(command);

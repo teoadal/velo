@@ -43,5 +43,20 @@ namespace Velo.Emitting
             var processor = (IAsyncCommandProcessor<TCommand>) _commandProcessors.GetProcessor<TCommand>();
             return processor.ExecuteAsync(command, cancellationToken);
         }
+
+        public void ProcessStored()
+        {
+            var commandProcessors = _commandProcessors.Processors;
+            foreach (var commandProcessor in commandProcessors)
+            {
+                commandProcessor.ProcessStored();
+            }
+        }
+        
+        public void Store<TCommand>(TCommand command) where TCommand: ICommand
+        {
+            var processor = (ICommandProcessor<TCommand>) _commandProcessors.GetProcessor<TCommand>();
+            processor.Store(command);
+        }
     }
 }

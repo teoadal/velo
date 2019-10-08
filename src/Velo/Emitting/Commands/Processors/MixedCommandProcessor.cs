@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,24 +7,17 @@ using Velo.Utils;
 
 namespace Velo.Emitting.Commands.Processors
 {
-    internal sealed class MixedCommandProcessor<TCommand> : ICommandProcessor<TCommand>, IAsyncCommandProcessor<TCommand>
+    internal sealed class MixedCommandProcessor<TCommand> : CommandProcessor<TCommand>, IAsyncCommandProcessor<TCommand>
         where TCommand : ICommand
     {
-        private readonly Type _commandType;
         private readonly ICommandHandler[] _handlers;
 
         public MixedCommandProcessor(List<ICommandHandler> handlers)
         {
-            _commandType = Typeof<TCommand>.Raw;
             _handlers = handlers.ToArray();
         }
 
-        public bool Applicable(Type type)
-        {
-            return _commandType.IsAssignableFrom(type);
-        }
-        
-        public void Execute(TCommand command)
+        public override void Execute(TCommand command)
         {
             var context = new HandlerContext<TCommand>(command);
             var cancellationToken = CancellationToken.None;

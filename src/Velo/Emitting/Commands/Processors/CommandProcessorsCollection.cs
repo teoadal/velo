@@ -7,6 +7,8 @@ namespace Velo.Emitting.Commands.Processors
 {
     internal sealed class CommandProcessorsCollection
     {
+        public Dictionary<int, ICommandProcessor>.ValueCollection Processors => _processors.Values;
+        
         private readonly ConcurrentDictionary<Type, ICommandProcessor> _applicableProcessors;
         private readonly Dictionary<int, ICommandProcessor> _processors;
         private readonly Func<Type, ICommandProcessor> _findProcessor;
