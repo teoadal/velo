@@ -1,11 +1,10 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Velo.Emitting;
 using Velo.Emitting.Commands;
 
 namespace Velo.TestsModels.Boos.Emitting
 {
-    public class UpdateBooHandler : IAsyncCommandHandler<UpdateBoo>
+    public class UpdateBooHandler : ICommandHandler<UpdateBoo>
     {
         private readonly IBooRepository _booRepository;
 
@@ -14,13 +13,12 @@ namespace Velo.TestsModels.Boos.Emitting
             _booRepository = booRepository;
         }
 
-        public Task ExecuteAsync(HandlerContext<UpdateBoo> context, CancellationToken cancellationToken)
+        public Task ExecuteAsync(UpdateBoo command, CancellationToken cancellationToken)
         {
-            var payload = context.Payload;
-            return Task.Run(() => _booRepository.UpdateElement(payload.Id, boo =>
+            return Task.Run(() => _booRepository.UpdateElement(command.Id, boo =>
             {
-                boo.Bool = payload.Bool;
-                boo.Int = payload.Int;
+                boo.Bool = command.Bool;
+                boo.Int = command.Int;
             }), cancellationToken);
         }
     }

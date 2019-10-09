@@ -24,8 +24,7 @@ namespace Velo.Patching.ArrayActions
 
             var list = new List<TValue>();
             var values = _values;
-
-            // ReSharper disable once ForCanBeConvertedToForeach
+            
             for (var i = 0; i < array.Length; i++)
             {
                 var item = array[i];

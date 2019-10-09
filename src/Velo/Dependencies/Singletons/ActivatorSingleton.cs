@@ -1,9 +1,11 @@
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using Velo.Utils;
 
 namespace Velo.Dependencies.Singletons
 {
+    [DebuggerDisplay("Singleton {_implementation.Name}")]
     internal sealed class ActivatorSingleton : Dependency
     {
         private readonly ConstructorInfo _constructor;

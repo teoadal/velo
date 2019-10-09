@@ -1,14 +1,10 @@
 using System;
-using System.Diagnostics;
-using Velo.Utils;
 
 namespace Velo.Dependencies.Resolvers
 {
-    [DebuggerDisplay("{GetType().Name} for {_dependency}")]
     internal abstract class DependencyResolver : IDependency
     {
         private readonly IDependency _dependency;
-        private bool _resolveInProgress;
 
         protected DependencyResolver(IDependency dependency)
         {
@@ -31,16 +27,5 @@ namespace Velo.Dependencies.Resolvers
         }
 
         public abstract object Resolve(Type contract, DependencyContainer container);
-
-        protected void BeginResolving()
-        {
-            if (_resolveInProgress) throw Error.CircularDependency(_dependency);
-            _resolveInProgress = true;
-        }
-
-        protected void ResolvingComplete()
-        {
-            _resolveInProgress = false;
-        }
     }
 }

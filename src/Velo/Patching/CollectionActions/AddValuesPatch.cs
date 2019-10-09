@@ -21,9 +21,8 @@ namespace Velo.Patching.CollectionActions
         public void Apply(T instance)
         {
             var collection = GetCollection(instance);
+            
             var values = _values;
-
-            // ReSharper disable once ForCanBeConvertedToForeach
             for (var i = 0; i < values.Length; i++)
             {
                 collection.Add(values[i]);

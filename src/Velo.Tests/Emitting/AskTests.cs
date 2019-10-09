@@ -13,51 +13,73 @@ namespace Velo.Emitting
 {
     public class AskTests : TestBase
     {
-        private readonly Emitter _emitter;
-        private readonly IBooRepository _repository;
+        private readonly DependencyBuilder _builder;
         
         public AskTests(ITestOutputHelper output) : base(output)
         {
-            var container = new DependencyBuilder()
+            _builder = new DependencyBuilder()
                 .AddSingleton<IConfiguration, Configuration>()
                 .AddSingleton<ISession, Session>()
                 .AddSingleton<JConverter>()
                 .AddSingleton<IBooRepository, BooRepository>()
-                .AddQueryHandler<GetBooHandler>()
-                .AddQueryHandler<GetBooIntHandler>()
-                .AddEmitter()
+                .AddEmitter();
+        }
+
+        [Theory, AutoData]
+        public async Task Ask(int id, int number)
+        {
+            var container = _builder.AddQueryHandler<GetBooHandler>().BuildContainer();
+
+            var repository = container.Resolve<IBooRepository>();
+            var emitter = container.Resolve<Emitter>();
+            
+            repository.AddElement(new Boo {Id = id, Int = number});
+
+            var boo = await emitter.AskAsync(new GetBoo {Id = id});
+
+            Assert.Equal(id, boo.Id);
+            Assert.Equal(number, boo.Int);
+        }
+        
+        [Theory, AutoData]
+        public async Task Ask_Anonymous(int id)
+        {
+            var container = _builder
+                .AddQueryHandler<GetBoo, Boo>((ctx, payload) => ctx
+                    .Resolve<IBooRepository>()
+                    .GetElement(payload.Id))
                 .BuildContainer();
 
-            _emitter = container.Resolve<Emitter>();
-            _repository = container.Resolve<IBooRepository>();
-        }
-
-        [Theory, AutoData]
-        public async Task Ask(int id, int intValue)
-        {
-            _repository.AddElement(new Boo {Id = id, Int = intValue});
-
-            var booInt = await _emitter.AskAsync(new GetBooInt {Id = id});
-
-            Assert.Equal(intValue, booInt);
-        }
-
-        [Theory, AutoData]
-        public async Task Ask_Async(int id)
-        {
-            _repository.AddElement(new Boo {Id = id});
+            var emitter = container.Resolve<Emitter>();
+            var repository = container.Resolve<IBooRepository>();
             
-            var boo = await _emitter.AskAsync(new GetBoo {Id = id});
+            repository.AddElement(new Boo {Id = id});
+
+            var boo = await emitter.AskAsync(new GetBoo {Id = id});
 
             Assert.Equal(id, boo.Id);
         }
 
         [Fact]
+        public async Task MultipleHandler()
+        {
+            var container = _builder.AddQueryHandler<MultipleQueryHandler>().BuildContainer();
+            var commandHandler = container.Resolve<MultipleQueryHandler>();
+            var emitter = container.Resolve<Emitter>();
+
+            await emitter.AskAsync(new GetBoo());
+            await emitter.AskAsync(new GetBooInt());
+
+            Assert.True(commandHandler.GetBooCalled);
+            Assert.True(commandHandler.GetBooIntCalled);
+        }
+        
+        [Fact]
         public void Throw_QueryHandler_Not_Registered()
         {
             var bus = new Emitter(new DependencyBuilder().BuildContainer());
 
-            Assert.Throws<KeyNotFoundException>(() => bus.Ask(new GetBoo()));
+            Assert.ThrowsAsync<KeyNotFoundException>(() => bus.AskAsync(new GetBoo()));
         }
     }
 }

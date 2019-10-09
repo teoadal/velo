@@ -106,8 +106,7 @@ namespace Velo.Serialization
             
             var objectProperties = type.GetProperties();
             var objectPropertyConverters = new Dictionary<PropertyInfo, IJsonConverter>(objectProperties.Length);
-
-            // ReSharper disable once ForCanBeConvertedToForeach
+            
             for (var i = 0; i < objectProperties.Length; i++)
             {
                 var property = objectProperties[i];

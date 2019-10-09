@@ -1,10 +1,8 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Velo.Dependencies;
 using Velo.Emitting.Commands;
-using Velo.Emitting.Commands.Processors;
 using Velo.Emitting.Queries;
-using Velo.Emitting.Queries.Processors;
 
 namespace Velo.Emitting
 {
@@ -13,49 +11,42 @@ namespace Velo.Emitting
         private readonly CommandProcessorsCollection _commandProcessors;
         private readonly QueryProcessorsCollection _queryProcessors;
 
-        public Emitter(IServiceProvider container)
+        public Emitter(DependencyContainer container)
         {
             _commandProcessors = new CommandProcessorsCollection(container);
             _queryProcessors = new QueryProcessorsCollection(container);
         }
 
-        public TResult Ask<TResult>(IQuery<TResult> query)
-        {
-            var processor = (IQueryProcessor<TResult>) _queryProcessors.GetProcessor(query);
-            return processor.Execute(query);
-        }
-
         public Task<TResult> AskAsync<TResult>(IQuery<TResult> query, CancellationToken cancellationToken = default)
         {
-            var processor = (IAsyncQueryProcessor<TResult>) _queryProcessors.GetProcessor(query);
+            var processor = (IQueryProcessor<TResult>) _queryProcessors.GetProcessor(query);
             return processor.ExecuteAsync(query, cancellationToken);
-        }
-
-        public void Execute<TCommand>(TCommand command) where TCommand : ICommand
-        {
-            var processor = (ICommandProcessor<TCommand>) _commandProcessors.GetProcessor<TCommand>();
-            processor.Execute(command);
         }
 
         public Task ExecuteAsync<TCommand>(TCommand command, CancellationToken cancellationToken = default)
             where TCommand : ICommand
         {
-            var processor = (IAsyncCommandProcessor<TCommand>) _commandProcessors.GetProcessor<TCommand>();
+            var processor = (CommandProcessor<TCommand>) _commandProcessors.GetProcessor<TCommand>();
             return processor.ExecuteAsync(command, cancellationToken);
         }
 
-        public void ProcessStored()
+        public Task ProcessStoredAsync(CancellationToken cancellationToken)
         {
             var commandProcessors = _commandProcessors.Processors;
+            
+            var tasks = new Task[commandProcessors.Count];
+            var index = 0;
             foreach (var commandProcessor in commandProcessors)
             {
-                commandProcessor.ProcessStored();
+                tasks[index++] = commandProcessor.ProcessStoredAsync(cancellationToken);
             }
+
+            return Task.WhenAll(tasks);
         }
         
         public void Store<TCommand>(TCommand command) where TCommand: ICommand
         {
-            var processor = (ICommandProcessor<TCommand>) _commandProcessors.GetProcessor<TCommand>();
+            var processor = (CommandProcessor<TCommand>) _commandProcessors.GetProcessor<TCommand>();
             processor.Store(command);
         }
     }

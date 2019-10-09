@@ -16,7 +16,8 @@ namespace Velo.Dependencies
             var contracts = _contracts;
             for (var i = 0; i < contracts.Length; i++)
             {
-                if (contracts[i] == contract)
+                var existsContract = contracts[i];
+                if (existsContract == contract || contract.IsAssignableFrom(existsContract))
                 {
                     return true;
                 }

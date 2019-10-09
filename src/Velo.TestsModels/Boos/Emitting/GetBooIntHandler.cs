@@ -4,7 +4,7 @@ using Velo.Emitting.Queries;
 
 namespace Velo.TestsModels.Boos.Emitting
 {
-    public class GetBooIntHandler : IAsyncQueryHandler<GetBooInt, int>
+    public class GetBooIntHandler : IQueryHandler<GetBooInt, int>
     {
         private readonly IBooRepository _repository;
 
@@ -15,7 +15,7 @@ namespace Velo.TestsModels.Boos.Emitting
 
         public Task<int> ExecuteAsync(GetBooInt query, CancellationToken cancellationToken)
         {
-            return Task.Run(() => _repository.GetElement(query.Id).Int, cancellationToken);
+            return Task.FromResult(_repository.GetElement(query.Id).Int);
         }
     }
 }

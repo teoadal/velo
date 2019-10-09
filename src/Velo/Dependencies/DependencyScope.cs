@@ -13,36 +13,54 @@ namespace Velo.Dependencies
 
         [ThreadStatic] private static DependencyScope _current;
 
+        private readonly DependencyContainer _container;
         private readonly Dictionary<IDependency, object> _dependencies;
         private bool _disposed;
         private DependencyScope _parent;
-        private readonly HashSet<IDependency> _resolveInProgress;
+        private readonly HashSet<Type> _resolveInProgress;
 
-        internal DependencyScope(string name)
+        internal DependencyScope(DependencyContainer container, string name)
         {
             Name = name;
 
+            _container = container;
             _parent = _current;
             _current = this;
 
             _dependencies = new Dictionary<IDependency, object>();
-            _resolveInProgress = new HashSet<IDependency>();
+            _resolveInProgress = new HashSet<Type>();
         }
 
-        public object GetOrAdd<TArg>(IDependency dependency, Func<IDependency, TArg, object> builder, TArg builderArg)
+        internal object GetOrAdd(IDependency dependency, Type contract)
         {
             if (_disposed) throw Error.Disposed(nameof(DependencyScope));
 
-            if (TryGetInstance(dependency, out var exists)) return exists;
+            if (TryGetInstance(dependency, out var exists))
+            {
+                return exists;
+            }
 
-            BeginResolving(dependency);
+            BeginResolving(contract, dependency);
 
-            var instance = builder(dependency, builderArg);
+            var instance = dependency.Resolve(contract, _container);
             _dependencies.Add(dependency, instance);
 
-            ResolvingComplete(dependency);
+            ResolvingComplete(contract);
 
             return instance;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void BeginResolving(Type contract, IDependency dependency)
+        {
+            if (_resolveInProgress.Add(contract)) return;
+            throw Error.CircularDependency(dependency);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ResolvingComplete(Type contract)
+        {
+            _resolveInProgress.Remove(contract);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -51,20 +69,7 @@ namespace Velo.Dependencies
             if (_dependencies.TryGetValue(dependency, out instance)) return true;
             return _parent?.TryGetInstance(dependency, out instance) ?? false;
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void BeginResolving(IDependency dependency)
-        {
-            if (_resolveInProgress.Add(dependency)) return;
-            throw Error.CircularDependency(dependency);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ResolvingComplete(IDependency dependency)
-        {
-            _resolveInProgress.Remove(dependency);
-        }
-
+        
         public void Dispose()
         {
             if (_disposed) return;

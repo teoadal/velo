@@ -65,8 +65,6 @@ namespace Velo.Mapping
             };
 
             var sourceProperties = sourceType.GetProperties();
-
-            // ReSharper disable once ForCanBeConvertedToForeach
             for (var i = 0; i < sourceProperties.Length; i++)
             {
                 var sourceProperty = sourceProperties[i];

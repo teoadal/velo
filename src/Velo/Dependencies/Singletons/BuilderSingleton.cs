@@ -1,20 +1,24 @@
 using System;
+using System.Diagnostics;
 using Velo.Utils;
 
 namespace Velo.Dependencies.Singletons
 {
+    [DebuggerDisplay("Singleton {_type.Name}")]
     internal sealed class BuilderSingleton<T> : Dependency
         where T : class
     {
         private readonly Func<DependencyContainer, T> _builder;
         private readonly bool _isDisposable;
+        private readonly Type _type;
 
         private T _instance;
 
         public BuilderSingleton(Type[] contracts, Func<DependencyContainer, T> builder) : base(contracts)
         {
             _builder = builder;
-            _isDisposable = ReflectionUtils.IsDisposableType(typeof(T));
+            _type = typeof(T);
+            _isDisposable = ReflectionUtils.IsDisposableType(_type);
         }
 
         public override void Destroy()

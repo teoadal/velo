@@ -144,7 +144,7 @@ namespace Velo.Dependencies
 
             Assert.NotNull(dependency);
         }
-        
+
         [Fact]
         public void GetDependency_Throw_Not_Registered()
         {

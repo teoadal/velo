@@ -22,8 +22,6 @@ namespace Velo.Patching.CollectionActions
             if (collection == null) return;
 
             var values = _values;
-
-            // ReSharper disable once ForCanBeConvertedToForeach
             for (var i = 0; i < values.Length; i++)
             {
                 var value = values[i];

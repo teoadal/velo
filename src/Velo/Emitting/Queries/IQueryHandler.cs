@@ -1,9 +1,12 @@
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace Velo.Emitting.Queries
 {
-    public interface IQueryHandler<TQuery, out TResult> : IQueryHandler
+    public interface IQueryHandler<in TQuery, TResult> : IQueryHandler
         where TQuery : IQuery<TResult>
     {
-        TResult Execute(TQuery query);
+        Task<TResult> ExecuteAsync(TQuery query, CancellationToken cancellationToken);
     }
 
     public interface IQueryHandler

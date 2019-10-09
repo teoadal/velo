@@ -41,8 +41,6 @@ namespace Velo.Utils
             }
 
             var typeInterfaces = type.GetInterfaces();
-
-            // ReSharper disable once ForCanBeConvertedToForeach
             for (var i = 0; i < typeInterfaces.Length; i++)
             {
                 var typeInterface = typeInterfaces[i];
@@ -61,8 +59,8 @@ namespace Velo.Utils
                 CheckIsGenericInterfaceTypeDefinition(parentGenericInterface);
 
             var implementations = new List<Type>();
+
             var typeInterfaces = type.GetInterfaces();
-            // ReSharper disable once ForCanBeConvertedToForeach
             for (var i = 0; i < typeInterfaces.Length; i++)
             {
                 var typeInterface = typeInterfaces[i];
@@ -97,8 +95,6 @@ namespace Velo.Utils
             }
 
             var typeInterfaces = type.GetInterfaces();
-
-            // ReSharper disable once ForCanBeConvertedToForeach
             for (var i = 0; i < typeInterfaces.Length; i++)
             {
                 var typeInterface = typeInterfaces[i];

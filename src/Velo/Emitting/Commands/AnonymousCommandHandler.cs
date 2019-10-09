@@ -1,4 +1,6 @@
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Velo.Dependencies;
 
 namespace Velo.Emitting.Commands
@@ -6,17 +8,28 @@ namespace Velo.Emitting.Commands
     internal sealed class AnonymousCommandHandler<TCommand> : EmitterContext, ICommandHandler<TCommand>
         where TCommand : ICommand
     {
-        private readonly Action<EmitterContext, TCommand> _handler;
+        private readonly Func<EmitterContext, TCommand, Task> _asyncHandler;
+        private readonly Action<EmitterContext, TCommand> _syncHandler;
 
-        internal AnonymousCommandHandler(DependencyContainer container, Action<EmitterContext, TCommand> handler) :
+        internal AnonymousCommandHandler(DependencyContainer container,
+            Func<EmitterContext, TCommand, Task> asyncHandler) :
             base(container)
         {
-            _handler = handler;
+            _asyncHandler = asyncHandler;
         }
 
-        public void Execute(HandlerContext<TCommand> context)
+        internal AnonymousCommandHandler(DependencyContainer container, Action<EmitterContext, TCommand> syncHandler) :
+            base(container)
         {
-            _handler(this, context.Payload);
+            _syncHandler = syncHandler;
+        }
+
+        public Task ExecuteAsync(TCommand command, CancellationToken cancellationToken)
+        {
+            if (_asyncHandler != null) return _asyncHandler(this, command);
+
+            _syncHandler(this, command);
+            return Task.CompletedTask;
         }
     }
 }

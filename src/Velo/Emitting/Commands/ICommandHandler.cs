@@ -1,9 +1,12 @@
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace Velo.Emitting.Commands
 {
-    public interface ICommandHandler<TCommand> : ICommandHandler
+    public interface ICommandHandler<in TCommand> : ICommandHandler
         where TCommand : ICommand
     {
-        void Execute(HandlerContext<TCommand> context);
+        Task ExecuteAsync(TCommand command, CancellationToken cancellationToken);
     }
 
     public interface ICommandHandler

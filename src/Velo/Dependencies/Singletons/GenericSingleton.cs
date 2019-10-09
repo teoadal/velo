@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Velo.Dependencies.Singletons
 {
+    [DebuggerDisplay("Singleton {_genericImplementation.Name}")]
     internal sealed class GenericSingleton : GenericDependency
     {
         private readonly Type _genericImplementation;

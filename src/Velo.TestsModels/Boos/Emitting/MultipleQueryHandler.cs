@@ -1,3 +1,5 @@
+using System.Threading;
+using System.Threading.Tasks;
 using Velo.Emitting.Queries;
 
 namespace Velo.TestsModels.Boos.Emitting
@@ -7,16 +9,16 @@ namespace Velo.TestsModels.Boos.Emitting
         public bool GetBooCalled { get; private set; }
         public bool GetBooIntCalled { get; private set; }
         
-        public Boo Execute(GetBoo query)
+        public Task<Boo> ExecuteAsync(GetBoo query, CancellationToken cancellationToken)
         {
             GetBooCalled = true;
-            return default;
+            return Task.FromResult<Boo>(null);
         }
 
-        public int Execute(GetBooInt query)
+        public Task<int> ExecuteAsync(GetBooInt query, CancellationToken cancellationToken)
         {
             GetBooIntCalled = true;
-            return default;
+            return Task.FromResult(0);
         }
     }
 }

@@ -1,4 +1,5 @@
-using Velo.Emitting;
+using System.Threading;
+using System.Threading.Tasks;
 using Velo.Emitting.Commands;
 
 namespace Velo.TestsModels.Boos.Emitting
@@ -12,16 +13,20 @@ namespace Velo.TestsModels.Boos.Emitting
             _repository = repository;
         }
 
-        public void Execute(HandlerContext<CreateBoo> context)
+        public void Execute(CreateBoo command)
         {
-            var payload = context.Payload;
+        }
 
+        public Task ExecuteAsync(CreateBoo command, CancellationToken cancellationToken)
+        {
             _repository.AddElement(new Boo
             {
-                Id = payload.Id,
-                Bool = payload.Bool,
-                Int = payload.Int
+                Id = command.Id,
+                Bool = command.Bool,
+                Int = command.Int
             });
+            
+            return Task.CompletedTask;
         }
     }
 }

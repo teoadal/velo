@@ -21,9 +21,9 @@ namespace Velo.Dependencies
             _dependenciesWithName = new Dictionary<string, IDependency>(capacity / 10);
         }
 
-        public DependencyBuilder AddDependency(IDependency dependency, string name = null)
+        public DependencyBuilder AddDependency(IDependency dependency, string name = null, bool scopeDependency = false)
         {
-            return Register(dependency, name);
+            return Register(dependency, name, scopeDependency);
         }
 
         #region AddGeneric
@@ -194,7 +194,7 @@ namespace Velo.Dependencies
 
         public DependencyContainer BuildContainer()
         {
-            Register(new ArrayFactory(_dependencies));
+            Register(new ArrayFactory());
 
             var container = new DependencyContainer(_dependencies, _dependenciesWithName);
 

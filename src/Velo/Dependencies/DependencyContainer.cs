@@ -127,6 +127,23 @@ namespace Velo.Dependencies
             return dependency;
         }
 
+        public IDependency[] GetDependencies(Type contract)
+        {
+            var applicableDependencies = new List<IDependency>();
+            
+            var dependencies = _dependencies;
+            for (var i = 0; i < dependencies.Length; i++)
+            {
+                var dependency = dependencies[i];
+                if (dependency.Applicable(contract))
+                {
+                    applicableDependencies.Add(dependency);
+                }
+            }
+
+            return applicableDependencies.ToArray();
+        }
+
         public TContract Resolve<TContract>(string name = null, bool throwInNotRegistered = true)
             where TContract : class
         {
@@ -139,19 +156,16 @@ namespace Velo.Dependencies
             var dependency = GetDependency(contract, name, throwInNotRegistered);
             return dependency?.Resolve(contract, this);
         }
-
-        // ReSharper disable once MemberCanBeMadeStatic.Global
+        
         public DependencyScope StartScope([CallerMemberName] string name = "")
         {
-            return new DependencyScope(name);
+            return new DependencyScope(this, name);
         }
 
         private IDependency FindDependency(Type contract)
         {
             var dependencies = _dependencies;
             
-            // ReSharper disable once ForCanBeConvertedToForeach
-            // ReSharper disable once LoopCanBeConvertedToQuery
             for (var i = 0; i < dependencies.Length; i++)
             {
                 var dependency = dependencies[i];

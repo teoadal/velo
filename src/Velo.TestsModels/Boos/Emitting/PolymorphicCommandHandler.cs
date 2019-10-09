@@ -1,4 +1,5 @@
-using Velo.Emitting;
+using System.Threading;
+using System.Threading.Tasks;
 using Velo.Emitting.Commands;
 
 namespace Velo.TestsModels.Boos.Emitting
@@ -8,11 +9,9 @@ namespace Velo.TestsModels.Boos.Emitting
         public bool ExecuteWithCreateBooCalled { get; private set; }
         public bool ExecuteWithUpdateBooCalled { get; private set; }
 
-        public void Execute(HandlerContext<IPolymorphicCommand> context)
+        public Task ExecuteAsync(IPolymorphicCommand command, CancellationToken cancellationToken)
         {
-            var payload = context.Payload;
-
-            switch (payload)
+            switch (command)
             {
                 case CreateBoo _:
                     ExecuteWithCreateBooCalled = true;
@@ -21,6 +20,8 @@ namespace Velo.TestsModels.Boos.Emitting
                     ExecuteWithUpdateBooCalled = true;
                     break;
             }
+            
+            return Task.CompletedTask;
         }
     }
 

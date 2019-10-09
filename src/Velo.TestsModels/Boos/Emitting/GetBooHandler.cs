@@ -1,3 +1,5 @@
+using System.Threading;
+using System.Threading.Tasks;
 using Velo.Emitting.Queries;
 
 namespace Velo.TestsModels.Boos.Emitting
@@ -11,9 +13,9 @@ namespace Velo.TestsModels.Boos.Emitting
             _repository = repository;
         }
 
-        public Boo Execute(GetBoo query)
+        public Task<Boo> ExecuteAsync(GetBoo query, CancellationToken cancellationToken)
         {
-            return _repository.GetElement(query.Id);
+            return Task.FromResult(_repository.GetElement(query.Id));
         }
     }
 }

@@ -22,8 +22,7 @@ namespace Velo.Patching.Methods
             var properties = _type.GetProperties();
             _commonMethods = new Dictionary<PropertyInfo, CommonMethods>(properties.Length);
             _numberMethods = new ConcurrentDictionary<PropertyInfo, NumberMethods>();
-
-            // ReSharper disable once ForCanBeConvertedToForeach
+            
             for (var i = 0; i < properties.Length; i++)
             {
                 var property = properties[i];

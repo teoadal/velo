@@ -1,12 +1,16 @@
 using System;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using Velo.Utils;
 
 namespace Velo.Dependencies.Resolvers
 {
+    [DebuggerDisplay("{" + nameof(_dependency) + "}")]
     internal sealed class DefaultResolver : DependencyResolver
     {
         private readonly IDependency _dependency;
         private readonly object _lockObject;
+        private bool _resolveInProgress;
         
         public DefaultResolver(IDependency dependency): base(dependency)
         {
@@ -26,6 +30,19 @@ namespace Velo.Dependencies.Resolvers
 
                 return resolved;
             }
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void BeginResolving()
+        {
+            if (_resolveInProgress) throw Error.CircularDependency(_dependency);
+            _resolveInProgress = true;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ResolvingComplete()
+        {
+            _resolveInProgress = false;
         }
     }
 }
