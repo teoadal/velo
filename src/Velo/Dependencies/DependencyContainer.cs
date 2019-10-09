@@ -149,6 +149,9 @@ namespace Velo.Dependencies
         private IDependency FindDependency(Type contract)
         {
             var dependencies = _dependencies;
+            
+            // ReSharper disable once ForCanBeConvertedToForeach
+            // ReSharper disable once LoopCanBeConvertedToQuery
             for (var i = 0; i < dependencies.Length; i++)
             {
                 var dependency = dependencies[i];
