@@ -1,19 +1,12 @@
-using System.Threading;
 using Velo.Emitting;
 using Velo.Emitting.Commands;
 
 namespace Velo.TestsModels.Boos.Emitting
 {
-    public class PolymorphicCommandHandler: ICommandHandler<IPolymorphicCommand>
+    public class PolymorphicCommandHandler : ICommandHandler<IPolymorphicCommand>
     {
-        private readonly CreateBooHandler _createBooHandler;
-        private readonly UpdateBooHandler _updateBooHandler;
-
-        public PolymorphicCommandHandler(IBooRepository booRepository)
-        {
-            _createBooHandler = new CreateBooHandler(booRepository);
-            _updateBooHandler = new UpdateBooHandler(booRepository);
-        }
+        public bool ExecuteWithCreateBooCalled { get; private set; }
+        public bool ExecuteWithUpdateBooCalled { get; private set; }
 
         public void Execute(HandlerContext<IPolymorphicCommand> context)
         {
@@ -21,20 +14,17 @@ namespace Velo.TestsModels.Boos.Emitting
 
             switch (payload)
             {
-                case CreateBoo createBoo:
-                    _createBooHandler.Execute(new HandlerContext<CreateBoo>(createBoo));
+                case CreateBoo _:
+                    ExecuteWithCreateBooCalled = true;
                     break;
-                case UpdateBoo updateBoo:
-                    _updateBooHandler
-                        .ExecuteAsync(new HandlerContext<UpdateBoo>(updateBoo), CancellationToken.None)
-                        .GetAwaiter().GetResult();
+                case UpdateBoo _:
+                    ExecuteWithUpdateBooCalled = true;
                     break;
             }
         }
     }
 
-    public interface IPolymorphicCommand: ICommand
+    public interface IPolymorphicCommand : ICommand
     {
-        
     }
 }

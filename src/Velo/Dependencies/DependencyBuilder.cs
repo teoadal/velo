@@ -146,6 +146,12 @@ namespace Velo.Dependencies
             return Register(dependency, name);
         }
 
+        public DependencyBuilder AddSingleton(Type[] contracts, Type implementation, string name = null)
+        {
+            var dependency = new ActivatorSingleton(contracts, implementation);
+            return Register(dependency, name);
+        }
+        
         #endregion
 
         #region AddTransient

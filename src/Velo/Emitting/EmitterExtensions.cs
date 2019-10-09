@@ -7,10 +7,14 @@ namespace Velo.Emitting
 {
     public static class EmitterExtensions
     {
+        private static readonly Type CommandHandlerType = typeof(ICommandHandler);
+        private static readonly Type QueryHandlerType = typeof(IQueryHandler);
+        
         public static DependencyBuilder AddCommandHandler<THandler>(this DependencyBuilder builder)
             where THandler : ICommandHandler
         {
-            return builder.AddSingleton<ICommandHandler, THandler>();
+            var implementation = typeof(THandler);
+            return builder.AddSingleton(new [] { implementation, CommandHandlerType }, implementation);
         }
 
         public static DependencyBuilder AddCommandHandler<TCommand>(this DependencyBuilder builder,
@@ -23,7 +27,8 @@ namespace Velo.Emitting
         public static DependencyBuilder AddQueryHandler<THandler>(this DependencyBuilder builder)
             where THandler : IQueryHandler
         {
-            return builder.AddSingleton<IQueryHandler, THandler>();
+            var implementation = typeof(THandler);
+            return builder.AddSingleton(new [] { implementation, QueryHandlerType }, implementation);
         }
 
         public static DependencyBuilder AddQueryHandler<TQuery, TResult>(this DependencyBuilder builder,
