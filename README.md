@@ -17,7 +17,8 @@ Install-Package Velo
 ## Emitter (mediator)
 
 ```cs
-var container = _builder
+var container = new DependencyBuilder()
+    .AddEmitter()
     .Scan(scanner => scanner
         .AssemblyOf<IBooRepository>()
         .AddEmitterHandlers())
