@@ -1,7 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Velo.Dependencies;
+using Velo.Dependencies.Singletons;
+using Velo.Emitting.Queries;
 using Velo.TestsModels.Boos;
+using Velo.TestsModels.Boos.Emitting;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -56,6 +60,17 @@ namespace Velo.Utils
         public void GenericInterfaceParameters()
         {
             var genericInterfaceParameters = ReflectionUtils.GetGenericInterfaceParameters(
+                typeof(GetBooHandler),
+                typeof(IQueryHandler<,>));
+
+            Assert.Contains(typeof(GetBoo), genericInterfaceParameters);
+            Assert.Contains(typeof(Boo), genericInterfaceParameters);
+        }
+        
+        [Fact]
+        public void GenericInterfaceParameters_FirstLevelInterface()
+        {
+            var genericInterfaceParameters = ReflectionUtils.GetGenericInterfaceParameters(
                 typeof(Dictionary<int, string>),
                 typeof(IDictionary<,>));
 
@@ -64,10 +79,24 @@ namespace Velo.Utils
         }
 
         [Fact]
-        public void GenericInterfaceParameters_Throw_Not_Interface()
+        public void GenericInterfaceParameters_Throw_NotInterface()
         {
             Assert.Throws<InvalidDataException>(() =>
                 ReflectionUtils.GetGenericInterfaceParameters(typeof(Dictionary<int, int>), typeof(Dictionary<,>)));
+        }
+        
+        [Fact]
+        public void GenericInterfaceParameters_Throw_NotImplemented()
+        {
+            Assert.Throws<KeyNotFoundException>(() =>
+                ReflectionUtils.GetGenericInterfaceParameters(typeof(Dictionary<int, int>), typeof(IQueryHandler<,>)));
+        }
+        
+        [Fact]
+        public void GenericInterfaceParameters_Throw_Abstract()
+        {
+            Assert.Throws<InvalidDataException>(() =>
+                ReflectionUtils.GetGenericInterfaceParameters(typeof(ActivatorSingleton), typeof(Dependency)));
         }
     }
 }

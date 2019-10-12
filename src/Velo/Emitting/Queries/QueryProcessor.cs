@@ -13,11 +13,11 @@ namespace Velo.Emitting.Queries
         private readonly IDependency _handlerDependency;
         private readonly Type _handlerType;
 
-        public QueryProcessor(DependencyContainer container)
+        public QueryProcessor(DependencyContainer container, IDependency handlerDependency)
         {
             _container = container;
             _handlerType = typeof(IQueryHandler<TQuery, TResult>);
-            _handlerDependency = container.GetDependency(_handlerType);
+            _handlerDependency = handlerDependency;
         }
 
         public Task<TResult> ExecuteAsync(IQuery<TResult> query, CancellationToken cancellationToken)

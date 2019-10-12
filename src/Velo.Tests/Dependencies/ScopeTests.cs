@@ -258,6 +258,16 @@ namespace Velo.Dependencies
         }
 
         [Fact]
+        public void Throw_Disposed()
+        {
+            var container = _builder.BuildContainer();
+            var scope = container.StartScope();
+            scope.Dispose();
+            
+            Assert.Throws<ObjectDisposedException>(() => scope.GetOrAdd(null, null));
+        }
+        
+        [Fact]
         public void Throw_If_Resolve_WithoutScope()
         {
             var container = _builder.BuildContainer();

@@ -31,9 +31,9 @@ namespace Velo.Emitting
             var container = _builder.AddCommandHandler<CreateBooHandler>().BuildContainer();
             var emitter = container.Resolve<Emitter>();
             var repository = container.Resolve<IBooRepository>();
-            
+
             await emitter.ExecuteAsync(new CreateBoo {Id = id, Bool = boolean, Int = number});
-            
+
             var boo = repository.GetElement(id);
 
             Assert.Equal(id, boo.Id);
@@ -61,40 +61,153 @@ namespace Velo.Emitting
             Assert.Equal(boolean, boo.Bool);
             Assert.Equal(number, boo.Int);
         }
+
+        [Theory, AutoData]
+        public async Task Execute_AnonymousAsync(int id, bool boolean, int number)
+        {
+            var container = _builder
+                .AddCommandHandler<CreateBoo>((ctx, payload) => ctx
+                    .Resolve<IBooRepository>()
+                    .AddElementAsync(new Boo {Id = payload.Id, Bool = payload.Bool, Int = payload.Int}))
+                .BuildContainer();
+
+            var emitter = container.Resolve<Emitter>();
+            var repository = container.Resolve<IBooRepository>();
+
+            await emitter.ExecuteAsync(new CreateBoo {Id = id, Bool = boolean, Int = number});
+
+            var boo = repository.GetElement(id);
+
+            Assert.Equal(id, boo.Id);
+            Assert.Equal(boolean, boo.Bool);
+            Assert.Equal(number, boo.Int);
+        }
         
         [Fact]
         public async Task MultipleHandler()
         {
             var container = _builder.AddCommandHandler<MultipleCommandHandler>().BuildContainer();
-            var commandHandler = container.Resolve<MultipleCommandHandler>();
+            var multipleCommandHandler = container.Resolve<MultipleCommandHandler>();
             var emitter = container.Resolve<Emitter>();
 
             await emitter.ExecuteAsync(new CreateBoo());
             await emitter.ExecuteAsync(new UpdateBoo());
 
-            Assert.True(commandHandler.CreateBooCalled);
-            Assert.True(commandHandler.UpdateBooCalled);
+            Assert.True(multipleCommandHandler.CreateBooCalled);
+            Assert.True(multipleCommandHandler.UpdateBooCalled);
         }
-        
+
+        [Theory, AutoData]
+        public async Task MultipleHandler_With_RegularHandlers(int id, bool boolean, int number, int newNumber)
+        {
+            var container = _builder
+                .AddCommandHandler<MultipleCommandHandler>()
+                .AddCommandHandler<CreateBooHandler>()
+                .AddCommandHandler<UpdateBooHandler>()
+                .BuildContainer();
+
+            var emitter = container.Resolve<Emitter>();
+            var multipleCommandHandler = container.Resolve<MultipleCommandHandler>();
+            var repository = container.Resolve<IBooRepository>();
+
+            await emitter.ExecuteAsync(new CreateBoo {Id = id, Bool = boolean, Int = number});
+
+            var boo = repository.GetElement(id);
+
+            Assert.NotNull(boo);
+            Assert.Equal(id, boo.Id);
+            Assert.Equal(boolean, boo.Bool);
+            Assert.Equal(number, boo.Int);
+            Assert.True(multipleCommandHandler.CreateBooCalled);
+
+            await emitter.ExecuteAsync(new UpdateBoo {Id = id, Int = newNumber});
+
+            Assert.Equal(newNumber, boo.Int);
+            Assert.True(multipleCommandHandler.UpdateBooCalled);
+        }
+
         [Fact]
         public async Task PolymorphicHandler()
         {
             var container = _builder.AddCommandHandler<PolymorphicCommandHandler>().BuildContainer();
             var emitter = container.Resolve<Emitter>();
-            
+            var polymorphicHandler = container.Resolve<PolymorphicCommandHandler>();
+
             await emitter.ExecuteAsync(new CreateBoo());
             await emitter.ExecuteAsync(new UpdateBoo());
 
-            var handler = container.Resolve<PolymorphicCommandHandler>();
-            Assert.True(handler.ExecuteWithCreateBooCalled);
-            Assert.True(handler.ExecuteWithUpdateBooCalled);
+            Assert.True(polymorphicHandler.CreateBooCalled);
+            Assert.True(polymorphicHandler.UpdateBooCalled);
+        }
+
+        [Theory, AutoData]
+        public async Task PolymorphicHandler_With_RegularHandlers(int id, bool boolean, int number, int newNumber)
+        {
+            var container = _builder
+                .AddCommandHandler<PolymorphicCommandHandler>()
+                .AddCommandHandler<CreateBooHandler>()
+                .AddCommandHandler<UpdateBooHandler>()
+                .BuildContainer();
+
+            var emitter = container.Resolve<Emitter>();
+            var polymorphicHandler = container.Resolve<PolymorphicCommandHandler>();
+            var repository = container.Resolve<IBooRepository>();
+
+            await emitter.ExecuteAsync(new CreateBoo {Id = id, Bool = boolean, Int = number});
+
+            var boo = repository.GetElement(id);
+
+            Assert.NotNull(boo);
+            Assert.Equal(id, boo.Id);
+            Assert.Equal(boolean, boo.Bool);
+            Assert.Equal(number, boo.Int);
+            Assert.True(polymorphicHandler.CreateBooCalled);
+
+            await emitter.ExecuteAsync(new UpdateBoo {Id = id, Int = newNumber});
+
+            Assert.Equal(newNumber, boo.Int);
+            Assert.True(polymorphicHandler.UpdateBooCalled);
+        }
+
+        [Theory, AutoData]
+        public async Task Store(Boo[] boos)
+        {
+            var container = _builder
+                .AddCommandHandler<CreateBooHandler>()
+                .BuildContainer();
+
+            var emitter = container.Resolve<Emitter>();
+            var repository = container.Resolve<IBooRepository>();
+            
+            foreach (var boo in boos)
+            {
+                emitter.Store(new CreateBoo {Id = boo.Id, Bool = boo.Bool, Int = boo.Int});
+                Assert.False(repository.Contains(boo.Id));
+            }
+
+            WriteLine($"Stored {boos.Length} commands");
+            
+            using (StartStopwatch())
+            {
+                await emitter.ProcessStoredAsync();    
+            }
+
+            foreach (var boo in boos)
+            {
+                var actualBoo = repository.GetElement(boo.Id);
+                Assert.NotNull(actualBoo);
+                Assert.Equal(boo.Id, actualBoo.Id);
+                Assert.Equal(boo.Bool, actualBoo.Bool);
+                Assert.Equal(boo.Int, actualBoo.Int);
+            }
         }
         
         [Fact]
-        public void Throw_CommandHandler_Not_Registered()
+        public async Task Throw_Not_Registered()
         {
             var emitter = new Emitter(new DependencyBuilder().BuildContainer());
-            Assert.ThrowsAsync<KeyNotFoundException>(() => emitter.ExecuteAsync(new CreateBoo()));
+            
+            await Assert.ThrowsAsync<KeyNotFoundException>(() => emitter.ExecuteAsync(new CreateBoo()));
         }
     }
 }

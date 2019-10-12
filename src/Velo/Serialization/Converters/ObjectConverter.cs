@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Text;
 
 using Velo.Serialization.Tokenization;
-using Velo.Utils;
 
 namespace Velo.Serialization.Converters
 {
@@ -104,14 +103,10 @@ namespace Velo.Serialization.Converters
             var converterType = propertyValueConverter.GetType();
             var serializeMethod = converterType.GetMethod(serializeMethodName);
 
-            if (serializeMethod == null)
-            {
-                throw Error.BadConverter(property.PropertyType);
-            }
-
             var converter = Expression.Constant(propertyValueConverter, converterType);
             var propertyValue = Expression.Property(instance, property);
 
+            // ReSharper disable once AssignNullToNotNullAttribute
             var body = Expression.Call(converter, serializeMethod, propertyValue, builder);
             return Expression
                 .Lambda<Action<TObject, StringBuilder>>(body, instance, builder)
@@ -129,12 +124,8 @@ namespace Velo.Serialization.Converters
             var converterType = propertyValueConverter.GetType();
             var deserializeMethod = converterType.GetMethod(deserializeMethodName);
 
-            if (deserializeMethod == null)
-            {
-                throw Error.BadConverter(property.PropertyType);
-            }
-
             var converter = Expression.Constant(propertyValueConverter, converterType);
+            // ReSharper disable once AssignNullToNotNullAttribute
             var propertyValue = Expression.Call(converter, deserializeMethod, tokenizer);
 
             var body = Expression.Assign(Expression.Property(instance, property), propertyValue);

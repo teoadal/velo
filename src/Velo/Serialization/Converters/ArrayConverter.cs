@@ -27,6 +27,8 @@ namespace Velo.Serialization.Converters
                 var token = tokenizer.Current;
                 var tokenType = token.TokenType;
 
+                // ReSharper disable once ConvertIfStatementToSwitchStatement
+                if (tokenType == JsonTokenType.Null) return null;
                 if (tokenType == JsonTokenType.ArrayStart) continue;
                 if (tokenType == JsonTokenType.ArrayEnd) break;
 

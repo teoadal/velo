@@ -1,18 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.Serialization;
+using System.Reflection;
 using Velo.Dependencies;
 
 namespace Velo.Utils
 {
     internal static class Error
     {
-        public static SerializationException BadConverter(Type type)
-        {
-            return new SerializationException($"Bad converter for type {type}");
-        }
-
         public static TypeAccessException CircularDependency(IDependency dependency)
         {
             return new TypeAccessException($"Detected circular dependency {dependency}");
@@ -43,9 +38,9 @@ namespace Velo.Utils
             return new KeyNotFoundException(message);
         }
 
-        public static NullReferenceException Null(string message = null)
+        public static AmbiguousMatchException NotSingle(string message)
         {
-            return new NullReferenceException(message);
+            return new AmbiguousMatchException(message);
         }
     }
 }

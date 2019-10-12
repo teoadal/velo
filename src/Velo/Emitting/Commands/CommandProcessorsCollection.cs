@@ -29,8 +29,22 @@ namespace Velo.Emitting.Commands
 
         private ICommandProcessor FindProcessor(Type commandType)
         {
+            var handlerContract = typeof(ICommandHandler<>).MakeGenericType(commandType);
+            var handlerDependencies = _container.GetDependencies(handlerContract);
+
+            CheckDependencies(handlerDependencies, handlerContract);
+
             var processorType = typeof(CommandProcessor<>).MakeGenericType(commandType);
-            return (ICommandProcessor) Activator.CreateInstance(processorType, _container);
+            return (ICommandProcessor) Activator.CreateInstance(processorType, _container, handlerDependencies);
+        }
+
+        // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
+        private static void CheckDependencies(IDependency[] handlerDependencies, Type handlerContract)
+        {
+            if (handlerDependencies.Length == 0)
+            {
+                throw Error.NotFound($"Command handler with contract '{handlerContract.Name}' is not registered");
+            }
         }
     }
 }

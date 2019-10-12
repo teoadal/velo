@@ -13,6 +13,8 @@ namespace Velo.TestsModels.Domain
     public interface IRepository<TElement> : IRepository
     {
         void AddElement(TElement element);
+
+        bool Contains(int id);
         
         TElement GetElement(int id);
 

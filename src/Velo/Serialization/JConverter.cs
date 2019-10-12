@@ -40,9 +40,10 @@ namespace Velo.Serialization
 
             var outType = typeof(TOut);
             var converter = _converters.GetOrAdd(outType, _buildConverter);
+            
             using (var tokenizer = new JsonTokenizer(source, _buffer))
             {
-                if (outType.IsPrimitive || converter.IsPrimitive) tokenizer.MoveNext();
+                if (converter.IsPrimitive) tokenizer.MoveNext();
 
                 var typedConverter = (IJsonConverter<TOut>) converter;
                 return typedConverter.Deserialize(tokenizer);
@@ -51,6 +52,7 @@ namespace Velo.Serialization
 
         public string Serialize(object source)
         {
+            if (source == null) return JsonTokenizer.TOKEN_NULL_VALUE;
             if (_buffer == null) _buffer = new StringBuilder(200);
 
             var type = source.GetType();
@@ -100,8 +102,8 @@ namespace Velo.Serialization
                 var listElementType = type.GetGenericArguments()[0];
                 var listElementConverter = _converters.GetOrAdd(listElementType, _buildConverter);
 
-                var arrayConverterType = typeof(ListConverter<>).MakeGenericType(listElementType);
-                return (IJsonConverter) Activator.CreateInstance(arrayConverterType, listElementConverter);
+                var listConverterType = typeof(ListConverter<>).MakeGenericType(listElementType);
+                return (IJsonConverter) Activator.CreateInstance(listConverterType, listElementConverter);
             }
             
             var objectProperties = type.GetProperties();

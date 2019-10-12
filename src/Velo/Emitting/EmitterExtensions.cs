@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Velo.Dependencies;
+using Velo.Dependencies.Scan;
 using Velo.Emitting.Commands;
 using Velo.Emitting.Queries;
 
@@ -60,6 +61,11 @@ namespace Velo.Emitting
         public static DependencyBuilder AddEmitter(this DependencyBuilder builder)
         {
             return builder.AddSingleton<Emitter>();
+        }
+
+        public static AssemblyScanner AddEmitterHandlers(this AssemblyScanner scanner)
+        {
+            return scanner.UseScanner(new EmitterHandlersScanner());
         }
     }
 }

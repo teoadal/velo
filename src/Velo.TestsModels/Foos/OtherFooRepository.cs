@@ -22,6 +22,11 @@ namespace Velo.TestsModels.Foos
             throw new NotImplementedException();
         }
 
+        public bool Contains(int id)
+        {
+            throw new NotImplementedException();
+        }
+
         public Foo GetElement(int id)
         {
             throw new NotImplementedException();

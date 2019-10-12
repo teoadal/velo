@@ -14,11 +14,11 @@ namespace Velo.Emitting.Commands
         private readonly Type _handlerType;
         private readonly ConcurrentQueue<TCommand> _stored;
 
-        public CommandProcessor(DependencyContainer container)
+        public CommandProcessor(DependencyContainer container, IDependency[] handlerDependencies)
         {
             _container = container;
             _handlerType = typeof(ICommandHandler<TCommand>);
-            _handlerDependencies = container.GetDependencies(_handlerType);
+            _handlerDependencies = handlerDependencies;
 
             _stored = new ConcurrentQueue<TCommand>();
         }

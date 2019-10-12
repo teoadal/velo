@@ -13,6 +13,7 @@ namespace Velo.Mapping
         public MappingTests(ITestOutputHelper output) : base(output)
         {
             _mapper = new CompiledMapper<Foo>();
+            _mapper.PrepareConverterFor<Foo>();
         }
 
         [Theory, AutoData]

@@ -23,6 +23,13 @@ namespace Velo.Emitting
             return processor.ExecuteAsync(query, cancellationToken);
         }
 
+        public Task<TResult> AskAsync<TQuery, TResult>(TQuery query, CancellationToken cancellationToken = default)
+            where TQuery: IQuery<TResult>
+        {
+            var processor = _queryProcessors.GetProcessor<TQuery, TResult>();
+            return processor.ExecuteAsync(query, cancellationToken);
+        }
+        
         public Task ExecuteAsync<TCommand>(TCommand command, CancellationToken cancellationToken = default)
             where TCommand : ICommand
         {
@@ -30,7 +37,7 @@ namespace Velo.Emitting
             return processor.ExecuteAsync(command, cancellationToken);
         }
 
-        public Task ProcessStoredAsync(CancellationToken cancellationToken)
+        public Task ProcessStoredAsync(CancellationToken cancellationToken = default)
         {
             var commandProcessors = _commandProcessors.Processors;
             

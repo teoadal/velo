@@ -51,6 +51,19 @@ namespace Velo.Dependencies
         }
         
         [Fact]
+        public void AssemblyOf()
+        {
+            var container = _builder
+                .Scan(scanner => scanner
+                    .AssemblyOf<IRepository>()
+                    .RegisterAsSingleton<IRepository>())
+                .BuildContainer();
+
+            var repositories = container.Resolve<IRepository[]>();
+            Assert.NotEmpty(repositories);
+        }
+        
+        [Fact]
         public void CurrentAssembly()
         {
             var container = _builder
@@ -59,7 +72,7 @@ namespace Velo.Dependencies
                     .RegisterAsSingleton<IRepository>())
                 .BuildContainer();
 
-            var repositories = container.Resolve<IRepository[]>();
+            var repositories = container.Resolve<IRepository[]>(throwInNotRegistered: false);
             Assert.Empty(repositories);
         }
         

@@ -1,5 +1,4 @@
 ﻿using BenchmarkDotNet.Running;
-
 using Velo.Benchmark.Dependencies;
 using Velo.Benchmark.Serialization;
 

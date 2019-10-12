@@ -8,7 +8,7 @@ namespace Velo.Ordering
     {
         private readonly int _defaultValue;
 
-        public OrderAttributeComparer(int defaultValue = 250)
+        public OrderAttributeComparer(int defaultValue = OrderAttribute.DEFAULT_ORDER)
         {
             _defaultValue = defaultValue;
         }

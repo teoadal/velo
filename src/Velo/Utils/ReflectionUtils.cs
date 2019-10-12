@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -53,58 +52,9 @@ namespace Velo.Utils
             throw Error.NotFound($"Generic interface {genericInterface.Name} is not implemented");
         }
 
-        public static Type[] GetInheritedGenericInterfaces(Type type, params Type[] parentGenericInterfaces)
-        {
-            foreach (var parentGenericInterface in parentGenericInterfaces)
-                CheckIsGenericInterfaceTypeDefinition(parentGenericInterface);
-
-            var implementations = new List<Type>();
-
-            var typeInterfaces = type.GetInterfaces();
-            for (var i = 0; i < typeInterfaces.Length; i++)
-            {
-                var typeInterface = typeInterfaces[i];
-                if (!typeInterface.IsGenericType) continue;
-
-                var typeInterfaceGenericDefinition = typeInterface.GetGenericTypeDefinition();
-                if (Array.IndexOf(parentGenericInterfaces, typeInterfaceGenericDefinition) == -1) continue;
-
-                implementations.Add(typeInterface);
-            }
-
-            if (implementations.Count == 0)
-            {
-                throw Error.NotFound($"Generic interfaces is not implemented");
-            }
-
-            return implementations.ToArray();
-        }
-
         public static bool IsDisposableType(Type type)
         {
             return DisposableInterfaceType.IsAssignableFrom(type);
-        }
-
-        public static bool IsGenericInterfaceImplementation(Type type, Type genericInterface)
-        {
-            CheckIsGenericInterfaceTypeDefinition(genericInterface);
-
-            if (type.IsInterface && type.IsGenericType && type.GetGenericTypeDefinition() == genericInterface)
-            {
-                return true;
-            }
-
-            var typeInterfaces = type.GetInterfaces();
-            for (var i = 0; i < typeInterfaces.Length; i++)
-            {
-                var typeInterface = typeInterfaces[i];
-                if (typeInterface.IsGenericType && typeInterface.GetGenericTypeDefinition() == genericInterface)
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         public static bool TryGetAttribute<TAttribute>(Type type, out TAttribute attribute)

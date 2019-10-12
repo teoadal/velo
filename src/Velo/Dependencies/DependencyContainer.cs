@@ -28,7 +28,8 @@ namespace Velo.Dependencies
                 new[] {typeof(IServiceProvider), GetType()},
                 this)));
 
-            _concreteDependencies = new ConcurrentDictionary<Type, IDependency>(Environment.ProcessorCount, dependencies.Count);
+            _concreteDependencies =
+                new ConcurrentDictionary<Type, IDependency>(Environment.ProcessorCount, dependencies.Count);
             _dependencies = dependencies.ToArray();
             _findDependency = FindDependency;
         }
@@ -130,7 +131,7 @@ namespace Velo.Dependencies
         public IDependency[] GetDependencies(Type contract)
         {
             var applicableDependencies = new List<IDependency>();
-            
+
             var dependencies = _dependencies;
             for (var i = 0; i < dependencies.Length; i++)
             {
@@ -156,7 +157,7 @@ namespace Velo.Dependencies
             var dependency = GetDependency(contract, name, throwInNotRegistered);
             return dependency?.Resolve(contract, this);
         }
-        
+
         public DependencyScope StartScope([CallerMemberName] string name = "")
         {
             return new DependencyScope(this, name);
@@ -165,7 +166,7 @@ namespace Velo.Dependencies
         private IDependency FindDependency(Type contract)
         {
             var dependencies = _dependencies;
-            
+
             for (var i = 0; i < dependencies.Length; i++)
             {
                 var dependency = dependencies[i];

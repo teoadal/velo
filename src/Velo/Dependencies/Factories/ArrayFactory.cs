@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Concurrent;
-using Velo.Utils;
 
 namespace Velo.Dependencies.Factories
 {
@@ -29,8 +28,8 @@ namespace Velo.Dependencies.Factories
         public object Resolve(Type contract, DependencyContainer container)
         {
             var elementType = contract.GetElementType();
-            if (elementType == null) throw Error.InvalidData($"Invalid array type {contract}");
 
+            // ReSharper disable once AssignNullToNotNullAttribute
             var arrayDependencies = _arrayDependencies.GetOrAdd(elementType, container.GetDependencies);
 
             var array = Array.CreateInstance(elementType, arrayDependencies.Length);
