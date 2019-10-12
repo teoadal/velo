@@ -7,9 +7,9 @@
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/teoadal/veloimplementations</RepositoryUrl>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
-        <PackageTags>mapper, json, serializer, deserializer, dependencyinjection, ioc, di</PackageTags>
+        <PackageTags>mapper, mediator, cqrs, json, serializer, deserializer, dependencyinjection, ioc, di</PackageTags>
         <Title>Velo</Title>
-        <Description>Simple implementations of IoC-Container, Mapper and JSON Serializer/Deserializer</Description>
+        <Description>Simple implementations of IoC-Container, Mediator (or CQRS), Mapper and JSON Serializer/Deserializer</Description>
         <Authors>teoadal</Authors>
         <Company>teoadal</Company>
         <Product>teoadal</Product>
