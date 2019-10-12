@@ -68,14 +68,14 @@ var foo = compiledMapper.Map(source);
 
 ```cs
 var converter = new JConverter();
-var deserialized = _converter.Deserialize<Boo[]>(json);
+var deserialized = converter.Deserialize<Boo[]>(json);
 ```
 
 ### Serialization
 
 ```cs
 var converter = new JConverter();
-var json = _converter.Serialize(data);
+var json = converter.Serialize(data);
 ```
 
 ### Serialization benchmark
