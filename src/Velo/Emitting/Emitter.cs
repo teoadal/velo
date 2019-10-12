@@ -19,7 +19,7 @@ namespace Velo.Emitting
 
         public Task<TResult> AskAsync<TResult>(IQuery<TResult> query, CancellationToken cancellationToken = default)
         {
-            var processor = (IQueryProcessor<TResult>) _queryProcessors.GetProcessor(query);
+            var processor = _queryProcessors.GetProcessor(query);
             return processor.ExecuteAsync(query, cancellationToken);
         }
 

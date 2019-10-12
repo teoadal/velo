@@ -18,11 +18,11 @@ namespace Velo.Emitting.Queries
             _processors = new ConcurrentDictionary<Type, IQueryProcessor>();
         }
 
-        public IQueryProcessor GetProcessor<TResult>(IQuery<TResult> query)
+        public IQueryProcessor<TResult> GetProcessor<TResult>(IQuery<TResult> query)
         {
             var queryType = query.GetType();
 
-            return _processors.GetOrAdd(queryType, _findProcessor);
+            return (IQueryProcessor<TResult>) _processors.GetOrAdd(queryType, _findProcessor);
         }
         
         public QueryProcessor<TQuery, TResult> GetProcessor<TQuery, TResult>()
