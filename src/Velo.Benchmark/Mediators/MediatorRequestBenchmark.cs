@@ -76,22 +76,7 @@ namespace Velo.Benchmark.Mediators
 
             return sum;
         }
-        
-        [Benchmark]
-        public async Task<long> Emitter_Concrete()
-        {
-            long sum = 0;
-            for (var i = 0; i < Count; i++)
-            {
-                var boo = await _emitter.AskAsync<GetBoo, Boo>(new GetBoo {Id = i});
-                var booInt = await _emitter.AskAsync<GetBooInt, int>(new GetBooInt {Id = i});
 
-                sum = sum + boo.Int + booInt;
-            }
-
-            return sum;
-        }
-        
         private sealed class GetBooRequest: IRequest<Boo>
         {
             public int Id { get; set; }
