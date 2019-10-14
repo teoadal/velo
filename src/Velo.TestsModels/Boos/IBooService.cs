@@ -1,9 +1,10 @@
+using System;
 using Velo.Mapping;
 using Velo.TestsModels.Infrastructure;
 
 namespace Velo.TestsModels.Boos
 {
-    public interface IBooService
+    public interface IBooService : IDisposable
     {
         IConfiguration Configuration { get; }
 

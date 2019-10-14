@@ -1,4 +1,4 @@
-using Velo.Emitting.Queries;
+using Velo.CQRS.Queries;
 
 namespace Velo.TestsModels.Boos.Emitting
 {

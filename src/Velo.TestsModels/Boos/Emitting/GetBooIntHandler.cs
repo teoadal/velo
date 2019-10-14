@@ -1,6 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Velo.Emitting.Queries;
+using Velo.CQRS.Queries;
 
 namespace Velo.TestsModels.Boos.Emitting
 {
@@ -13,9 +13,9 @@ namespace Velo.TestsModels.Boos.Emitting
             _repository = repository;
         }
 
-        public Task<int> ExecuteAsync(GetBooInt query, CancellationToken cancellationToken)
+        public Task<int> Handle(GetBooInt request, CancellationToken cancellationToken)
         {
-            return Task.FromResult(_repository.GetElement(query.Id).Int);
+            return Task.FromResult(_repository.GetElement(request.Id).Int);
         }
     }
 }

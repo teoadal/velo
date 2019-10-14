@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Velo.Utils;
 
 namespace Velo.Mapping
 {
@@ -19,7 +20,7 @@ namespace Velo.Mapping
 
             var outInstanceConstructor = outType.GetConstructor(Array.Empty<Type>());
             _activator = outInstanceConstructor == null
-                ? throw new Exception($"Default constructor for {outType.Name} not found")
+                ? throw Error.DefaultConstructorNotFound(outType)
                 : Expression.Lambda<Func<TOut>>(Expression.New(outInstanceConstructor)).Compile();
         }
 

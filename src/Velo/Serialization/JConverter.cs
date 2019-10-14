@@ -75,12 +75,11 @@ namespace Velo.Serialization
         {
             if (type.IsArray)
             {
-                var arrayElementType = type.GetElementType();
-                if (arrayElementType == null) throw Error.InvalidData($"Bad array type {type}");
-                var arrayElementConverter = _converters.GetOrAdd(arrayElementType, _buildConverter);
+                var elementType = ReflectionUtils.GetArrayElementType(type);
+                var elementConverter = _converters.GetOrAdd(elementType, _buildConverter);
 
-                var arrayConverterType = typeof(ArrayConverter<>).MakeGenericType(arrayElementType);
-                return (IJsonConverter) Activator.CreateInstance(arrayConverterType, arrayElementConverter);
+                var arrayConverterType = typeof(ArrayConverter<>).MakeGenericType(elementType);
+                return (IJsonConverter) Activator.CreateInstance(arrayConverterType, elementConverter);
             }
 
             var underlyingType = Nullable.GetUnderlyingType(type);
@@ -97,7 +96,7 @@ namespace Velo.Serialization
                 return (IJsonConverter) Activator.CreateInstance(enumConverterType);
             }
             
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
+            if (ReflectionUtils.IsGenericTypeImplementation(type, typeof(List<>)))
             {
                 var listElementType = type.GetGenericArguments()[0];
                 var listElementConverter = _converters.GetOrAdd(listElementType, _buildConverter);

@@ -4,8 +4,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
-
+using Velo.Extensions;
 using Velo.Serialization.Tokenization;
+using Velo.Utils;
 
 namespace Velo.Serialization.Converters
 {
@@ -23,7 +24,7 @@ namespace Velo.Serialization.Converters
             var outInstanceConstructor = typeof(TObject).GetConstructor(Array.Empty<Type>());
 
             _activator = outInstanceConstructor == null
-                ? throw new Exception($"Default constructor for {typeof(TObject).Name} not found")
+                ? throw Error.DefaultConstructorNotFound(typeof(TObject))
                 : Expression.Lambda<Func<TObject>>(Expression.New(outInstanceConstructor)).Compile();
 
             _deserializeMethods = propertyConverters.ToDictionary(
@@ -80,13 +81,13 @@ namespace Velo.Serialization.Converters
             builder.Append('{');
 
             var first = true;
-            foreach (var pair in _serializeMethods)
+            foreach (var (name, action) in _serializeMethods)
             {
                 if (first) first = false;
                 else builder.Append(',');
 
-                builder.Append('"').Append(pair.Key).Append("\":");
-                pair.Value(instance, builder);
+                builder.Append('"').Append(name).Append("\":");
+                action(instance, builder);
             }
 
             builder.Append('}');

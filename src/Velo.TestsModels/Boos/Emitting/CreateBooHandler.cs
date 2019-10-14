@@ -1,6 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Velo.Emitting.Commands;
+using Velo.CQRS.Commands;
 
 namespace Velo.TestsModels.Boos.Emitting
 {
@@ -13,11 +13,7 @@ namespace Velo.TestsModels.Boos.Emitting
             _repository = repository;
         }
 
-        public void Execute(CreateBoo command)
-        {
-        }
-
-        public Task ExecuteAsync(CreateBoo command, CancellationToken cancellationToken)
+        public Task Handle(CreateBoo command, CancellationToken cancellationToken)
         {
             _repository.AddElement(new Boo
             {

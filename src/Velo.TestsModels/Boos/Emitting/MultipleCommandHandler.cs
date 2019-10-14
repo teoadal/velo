@@ -1,6 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Velo.Emitting.Commands;
+using Velo.CQRS.Commands;
 
 namespace Velo.TestsModels.Boos.Emitting
 {
@@ -9,13 +9,13 @@ namespace Velo.TestsModels.Boos.Emitting
         public bool CreateBooCalled { get; private set; }
         public bool UpdateBooCalled { get; private set; }
         
-        public Task ExecuteAsync(CreateBoo context, CancellationToken cancellationToken)
+        public Task Handle(CreateBoo command, CancellationToken cancellationToken)
         {
             CreateBooCalled = true;
             return Task.CompletedTask;
         }
 
-        public Task ExecuteAsync(UpdateBoo context, CancellationToken cancellationToken)
+        public Task Handle(UpdateBoo command, CancellationToken cancellationToken)
         {
             UpdateBooCalled = true;
             return Task.CompletedTask;

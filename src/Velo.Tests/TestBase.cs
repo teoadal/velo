@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Xunit.Abstractions;
 
 namespace Velo
@@ -16,6 +17,17 @@ namespace Velo
             _stopwatch = Stopwatch.StartNew();
         }
 
+        protected static Task RunTasks(int count, Func<Task> action)
+        {
+            var tasks = new Task[count];
+            for (var i = 0; i < count; i++)
+            {
+                tasks[i] = action();
+            }
+
+            return Task.WhenAll(tasks);
+        }
+        
         protected StopwatchScope StartStopwatch()
         {
             _stopwatch = Stopwatch.StartNew();

@@ -1,6 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Velo.Emitting.Commands;
+using Velo.CQRS.Commands;
 
 namespace Velo.TestsModels.Boos.Emitting
 {
@@ -13,7 +13,7 @@ namespace Velo.TestsModels.Boos.Emitting
             _booRepository = booRepository;
         }
 
-        public Task ExecuteAsync(UpdateBoo command, CancellationToken cancellationToken)
+        public Task Handle(UpdateBoo command, CancellationToken cancellationToken)
         {
             return Task.Run(() => _booRepository.UpdateElement(command.Id, boo =>
             {

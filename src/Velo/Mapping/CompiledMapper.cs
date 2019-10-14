@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Velo.Utils;
 
 namespace Velo.Mapping
 {
@@ -21,10 +22,7 @@ namespace Velo.Mapping
             _outProperties = _outType.GetProperties().ToDictionary(p => p.Name);
             _outConstructor = _outType.GetConstructor(Array.Empty<Type>());
 
-            if (_outConstructor == null)
-            {
-                throw new Exception($"Default constructor for {_outType.Name} not found");
-            }
+            if (_outConstructor == null) throw Error.DefaultConstructorNotFound(_outType);
         }
 
         public TOut Map(object source)

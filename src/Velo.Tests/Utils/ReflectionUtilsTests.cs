@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Velo.Dependencies;
-using Velo.Dependencies.Singletons;
-using Velo.Emitting.Queries;
+using Velo.CQRS.Queries;
+using Velo.DependencyInjection.Dependencies;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Boos.Emitting;
 using Xunit;
@@ -79,24 +78,36 @@ namespace Velo.Utils
         }
 
         [Fact]
-        public void GenericInterfaceParameters_Throw_NotInterface()
+        public void GetName()
+        {
+            Assert.Equal("List<Int32>", ReflectionUtils.GetName(typeof(List<int>)));
+            Assert.Equal("Dictionary<Int32, String>", ReflectionUtils.GetName(typeof(Dictionary<int, string>)));
+            Assert.Equal("Dictionary<Int32, List<String>>", ReflectionUtils.GetName(typeof(Dictionary<int, List<string>>)));
+            Assert.Equal("List<String>[]", ReflectionUtils.GetName(typeof(List<string>[])));
+            Assert.Equal(nameof(IDisposable), ReflectionUtils.GetName(typeof(IDisposable)));
+        }
+        
+        [Fact]
+        public void Throw_GenericInterfaceParameters_NotInterface()
         {
             Assert.Throws<InvalidDataException>(() =>
                 ReflectionUtils.GetGenericInterfaceParameters(typeof(Dictionary<int, int>), typeof(Dictionary<,>)));
         }
         
         [Fact]
-        public void GenericInterfaceParameters_Throw_NotImplemented()
+        public void Throw_GenericInterfaceParameters_NotImplemented()
         {
             Assert.Throws<KeyNotFoundException>(() =>
                 ReflectionUtils.GetGenericInterfaceParameters(typeof(Dictionary<int, int>), typeof(IQueryHandler<,>)));
         }
         
         [Fact]
-        public void GenericInterfaceParameters_Throw_Abstract()
+        public void Throw_GenericInterfaceParameters_Abstract()
         {
             Assert.Throws<InvalidDataException>(() =>
-                ReflectionUtils.GetGenericInterfaceParameters(typeof(ActivatorSingleton), typeof(Dependency)));
+                ReflectionUtils.GetGenericInterfaceParameters(typeof(ScopeDependency), typeof(Dependency)));
         }
+        
+        
     }
 }

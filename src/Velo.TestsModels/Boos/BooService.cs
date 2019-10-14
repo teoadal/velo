@@ -8,6 +8,8 @@ namespace Velo.TestsModels.Boos
     {
         public IConfiguration Configuration { get; }
 
+        public bool Disposed { get; private set; }
+        
         public IMapper<Boo> Mapper { get; }
 
         public string Name { get; }
@@ -20,6 +22,11 @@ namespace Velo.TestsModels.Boos
             Mapper = mapper;
             Name = Guid.NewGuid().ToString("N");
             Repository = repository;
+        }
+
+        public void Dispose()
+        {
+            Disposed = true;
         }
     }
 }

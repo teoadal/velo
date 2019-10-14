@@ -1,6 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Velo.Emitting.Commands;
+using Velo.CQRS.Commands;
 
 namespace Velo.TestsModels.Boos.Emitting
 {
@@ -9,7 +9,7 @@ namespace Velo.TestsModels.Boos.Emitting
         public bool CreateBooCalled { get; private set; }
         public bool UpdateBooCalled { get; private set; }
 
-        public Task ExecuteAsync(IPolymorphicCommand command, CancellationToken cancellationToken)
+        public Task Handle(IPolymorphicCommand command, CancellationToken cancellationToken)
         {
             switch (command)
             {
@@ -25,7 +25,7 @@ namespace Velo.TestsModels.Boos.Emitting
         }
     }
 
-    public interface IPolymorphicCommand : ICommand
+    public interface IPolymorphicCommand
     {
     }
 }
