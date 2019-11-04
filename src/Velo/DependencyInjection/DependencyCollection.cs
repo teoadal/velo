@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Velo.DependencyInjection.Engine;
 using Velo.DependencyInjection.Factories;
 using Velo.DependencyInjection.Resolvers;
 using Velo.DependencyInjection.Scan;
@@ -71,7 +70,7 @@ namespace Velo.DependencyInjection
 
             return this;
         }
-        
+
         #endregion
 
         public DependencyCollection AddInstance<TInstance>(TInstance instance)
@@ -143,6 +142,8 @@ namespace Velo.DependencyInjection
 
         public DependencyCollection AddScoped(Type contract, Type implementation)
         {
+            if (contract.IsGenericTypeDefinition) return AddGenericScoped(contract, implementation);
+
             var resolver = new CompiledResolver(implementation, DependencyLifetime.Scope);
 
             Register(contract, resolver);
@@ -197,6 +198,8 @@ namespace Velo.DependencyInjection
 
         public DependencyCollection AddSingleton(Type contract, Type implementation)
         {
+            if (contract.IsGenericTypeDefinition) return AddGenericSingleton(contract, implementation);
+
             var resolver = new ActivatorResolver(implementation, DependencyLifetime.Singleton);
 
             Register(contract, resolver);
@@ -252,6 +255,8 @@ namespace Velo.DependencyInjection
 
         public DependencyCollection AddTransient(Type contract, Type implementation)
         {
+            if (contract.IsGenericTypeDefinition) return AddGenericTransient(contract, implementation);
+
             var resolver = new CompiledResolver(implementation, DependencyLifetime.Transient);
 
             Register(contract, resolver);
@@ -275,11 +280,7 @@ namespace Velo.DependencyInjection
 
         public DependencyProvider BuildProvider()
         {
-            using (var engineBuilder = new ConstructorEngine(_descriptions, _factories))
-            {
-                var engine = engineBuilder.Build();
-                return new DependencyProvider(engine);
-            }
+            return new DependencyProvider(_descriptions, _factories);
         }
 
         public DependencyCollection Scan(Action<DependencyScanner> scannerConfiguration)

@@ -25,7 +25,10 @@ namespace Velo.TestsModels.Boos
 
         public void AddElement(Boo element)
         {
-            _storage.Add(element.Id, element);
+            lock (_storage)
+            {
+                _storage.Add(element.Id, element);    
+            }
         }
 
         public Task AddElementAsync(Boo element)

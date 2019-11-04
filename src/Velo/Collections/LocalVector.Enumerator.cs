@@ -1,65 +1,69 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace Velo.Collections
 {
-    public partial struct LocalVector<T>
+    public ref partial struct LocalVector<T>
     {
-        public struct Enumerator : IEnumerator<T>
+        public ref struct Enumerator
         {
-            public T Current { get; private set; }
+            public T Current => _current!;
 
-            private T _element0;
-            private T _element1;
-            private T _element2;
-            private T _element3;
-            private T _element4;
-            private Sequence<T> _sequence;
-            private readonly int _length;
+            public readonly int Length;
 
+            private readonly T _element0;
+            private readonly T _element1;
+            private readonly T _element2;
+            private readonly T _element3;
+            private readonly T _element4;
+            private readonly T _element5;
+            private readonly List<T> _list;
+            
+            private T _current;
             private int _position;
 
-            internal Enumerator(T element0, T element1, T element2, T element3, T element4, Sequence<T> sequence,
-                int length)
+            internal Enumerator(T element0, T element1, T element2, T element3, T element4, T element5, 
+                List<T> list, int length)
             {
+                Length = length;
+
                 _element0 = element0;
                 _element1 = element1;
                 _element2 = element2;
                 _element3 = element3;
                 _element4 = element4;
-                _sequence = sequence;
-                _length = length;
+                _element5 = element5;
+                _list = list;
 
+                _current = default;
                 _position = 0;
-
-                Current = default;
             }
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool MoveNext()
             {
-                if (_position == _length) return false;
+                if (_position == Length) return false;
 
                 switch (_position)
                 {
                     case 0:
-                        Current = _element0;
+                        _current = _element0;
                         break;
                     case 1:
-                        Current = _element1;
+                        _current = _element1;
                         break;
                     case 2:
-                        Current = _element2;
+                        _current = _element2;
                         break;
                     case 3:
-                        Current = _element3;
+                        _current = _element3;
                         break;
                     case 4:
-                        Current = _element4;
+                        _current = _element4;
+                        break;
+                    case 5:
+                        _current = _element5;
                         break;
                     default:
-                        Current = _sequence[_position - 5];
+                        _current = _list[_position - Capacity];
                         break;
                 }
 
@@ -68,21 +72,10 @@ namespace Velo.Collections
                 return true;
             }
 
-            void IEnumerator.Reset()
+            public void Reset()
             {
-            }
-
-            object IEnumerator.Current => Current;
-
-            public void Dispose()
-            {
-                _element0 = default;
-                _element1 = default;
-                _element2 = default;
-                _element3 = default;
-                _element4 = default;
-
-                _sequence = null;
+                _current = default;
+                _position = 0;
             }
         }
     }

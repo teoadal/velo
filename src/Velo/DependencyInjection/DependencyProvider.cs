@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Velo.DependencyInjection.Dependencies;
-using Velo.DependencyInjection.Engine;
+using Velo.DependencyInjection.Engines;
+using Velo.DependencyInjection.Factories;
+using Velo.DependencyInjection.Resolvers;
 using Velo.Utils;
 
 namespace Velo.DependencyInjection
@@ -10,24 +13,31 @@ namespace Velo.DependencyInjection
     {
         public event Action<DependencyProvider> Destroy;
 
-        public readonly object SyncRoot;
-        
+        private bool _disposed;
         private RuntimeEngine _engine;
         private DependencyProvider _parent;
-        private bool _disposed;
+        private readonly object _lock;
 
-        internal DependencyProvider(RuntimeEngine engine)
+        internal DependencyProvider(Dictionary<Type, DependencyDescription> descriptions,
+            List<ResolverFactory> factories)
         {
-            _engine = engine;
-            SyncRoot = new object();
+            AddSelfDependency(descriptions);
+
+            using (var engineBuilder = new DependencyEngineBuilder(descriptions, factories))
+            {
+                _engine = engineBuilder.Build();
+            }
+            
+            _lock = new object();
         }
 
         private DependencyProvider(DependencyProvider parent)
         {
             _parent = parent;
-            SyncRoot = parent.SyncRoot;
+            _lock = parent._lock;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public DependencyProvider CreateScope()
         {
             return new DependencyProvider(this);
@@ -41,13 +51,13 @@ namespace Velo.DependencyInjection
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public object GetRequiredService(Type contract)
         {
-            lock (SyncRoot)
+            lock (_lock)
             {
                 var dependency = GetDependency(contract);
                 return dependency.GetInstance(this);
             }
         }
-        
+
         public T GetService<T>()
         {
             return (T) GetService(Typeof<T>.Raw);
@@ -56,22 +66,39 @@ namespace Velo.DependencyInjection
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public object GetService(Type contract)
         {
-            lock (SyncRoot)
+            lock (_lock)
             {
                 var dependency = GetDependency(contract, false);
                 return dependency?.GetInstance(this);
             }
         }
 
+        private void AddSelfDependency(Dictionary<Type, DependencyDescription> descriptions)
+        {
+            var providerResolver = new InstanceResolver(this);
+
+            var description = new DependencyDescription(providerResolver);
+            descriptions.Add(Typeof<DependencyProvider>.Raw, description);
+            descriptions.Add(Typeof<IServiceProvider>.Raw, description);   
+        }
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private Dependency GetDependency(Type contract, bool throwIfNotRegistered = true)
         {
             if (_disposed) throw Error.Disposed(nameof(DependencyProvider));
 
-            var engine = _engine ?? _parent._engine;
+            var engine = _engine ?? _parent.GetEngine();
             return engine.GetDependency(contract, throwIfNotRegistered);
         }
-        
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private DependencyEngine GetEngine()
+        {
+            // ReSharper disable InconsistentlySynchronizedField
+            return _engine ?? _parent.GetEngine();
+            // ReSharper restore InconsistentlySynchronizedField
+        }
+
         public void Dispose()
         {
             if (_disposed) return;

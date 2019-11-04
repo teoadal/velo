@@ -1,11 +1,11 @@
-using System;
-using Velo.DependencyInjection.Engine;
+using Velo.DependencyInjection.Engines;
+using Velo.Utils;
 
 namespace Velo.DependencyInjection.Resolvers
 {
-    internal sealed class InstanceResolver : DependencyResolver, IDisposable
+    internal sealed class InstanceResolver : DependencyResolver
     {
-        private readonly object _instance;
+        private object _instance;
 
         public InstanceResolver(object instance)
             : base(instance.GetType(), DependencyLifetime.Singleton)
@@ -22,12 +22,14 @@ namespace Velo.DependencyInjection.Resolvers
         {
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
-            if (_instance is IDisposable disposable)
+            if (ReflectionUtils.IsDisposable(_instance, out var disposable))
             {
                 disposable.Dispose();
             }
+
+            _instance = null;
         }
     }
 }

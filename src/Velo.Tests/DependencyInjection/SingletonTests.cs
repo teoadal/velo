@@ -13,11 +13,11 @@ namespace Velo.DependencyInjection
 {
     public class SingletonTests : TestBase
     {
-        private readonly DependencyCollection _builder;
+        private readonly DependencyCollection _collection;
 
         public SingletonTests(ITestOutputHelper output) : base(output)
         {
-            _builder = new DependencyCollection()
+            _collection = new DependencyCollection()
                 .AddSingleton<IConfiguration, Configuration>()
                 .AddSingleton<JConverter>();
         }
@@ -25,7 +25,7 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Activator()
         {
-            var provider = _builder
+            var provider = _collection
                 .AddSingleton<ISession, Session>()
                 .BuildProvider();
 
@@ -38,7 +38,7 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Activator_Destroy()
         {
-            var provider = _builder
+            var provider = _collection
                 .AddSingleton<Manager<Boo>>()
                 .BuildProvider();
 
@@ -52,7 +52,7 @@ namespace Velo.DependencyInjection
         [Fact]
         public async Task Activator_MultiThreading()
         {
-            var provider = _builder
+            var provider = _collection
                 .AddSingleton<ISession, Session>()
                 .AddSingleton<IFooRepository, FooRepository>()
                 .AddGenericSingleton(typeof(IMapper<>), typeof(CompiledMapper<>))
@@ -77,7 +77,7 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Builder()
         {
-            var provider = _builder
+            var provider = _collection
                 .AddSingleton<ISession>(ctx => new Session(ctx.GetService<JConverter>()))
                 .BuildProvider();
 
@@ -90,7 +90,7 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Builder_Destroy()
         {
-            var provider = _builder
+            var provider = _collection
                 .AddSingleton<IManager<Boo>>(ctx => new Manager<Boo>())
                 .BuildProvider();
 
@@ -104,7 +104,7 @@ namespace Velo.DependencyInjection
         [Fact]
         public async Task Builder_MultiThreading()
         {
-            var provider = _builder
+            var provider = _collection
                 .AddSingleton<ISession, Session>()
                 .AddSingleton<IFooRepository, FooRepository>()
                 .AddGenericSingleton(typeof(IMapper<>), typeof(CompiledMapper<>))
@@ -131,7 +131,7 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Instance()
         {
-            var provider = _builder
+            var provider = _collection
                 .AddInstance(new JConverter())
                 .BuildProvider();
 
@@ -144,7 +144,7 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Instance_Destroy()
         {
-            var provider = _builder
+            var provider = _collection
                 .AddInstance(new BooRepository(null, null))
                 .BuildProvider();
 
@@ -158,7 +158,7 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Generic()
         {
-            var provider = _builder
+            var provider = _collection
                 .AddGenericSingleton(typeof(CompiledMapper<>))
                 .BuildProvider();
 
@@ -176,7 +176,7 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Generic_Destroy()
         {
-            var provider = _builder
+            var provider = _collection
                 .AddSingleton<ISession, Session>()
                 .AddSingleton<IConfiguration, Configuration>()
                 .AddGenericSingleton(typeof(IManager<>), typeof(Manager<>))
@@ -194,7 +194,7 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Generic_WithContract()
         {
-            var provider = _builder
+            var provider = _collection
                 .AddGenericSingleton(typeof(IMapper<>), typeof(CompiledMapper<>))
                 .BuildProvider();
 

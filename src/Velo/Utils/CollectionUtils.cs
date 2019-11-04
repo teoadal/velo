@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace Velo.Utils
 {
@@ -12,7 +10,7 @@ namespace Velo.Utils
         {
             foreach (var value in dictionary.Values)
             {
-                if (value != null && value is IDisposable disposable)
+                if (ReflectionUtils.IsDisposable(value, out var disposable))
                 {
                     disposable.Dispose();
                 }
@@ -24,7 +22,7 @@ namespace Velo.Utils
         {
             foreach (var value in dictionary.Values)
             {
-                if (value != null && value is IDisposable disposable)
+                if (ReflectionUtils.IsDisposable(value, out var disposable))
                 {
                     disposable.Dispose();
                 }
@@ -37,27 +35,11 @@ namespace Velo.Utils
             for (var i = 0; i < array.Length; i++)
             {
                 var value = array[i];
-                if (value != null && value is IDisposable disposable)
+                if (ReflectionUtils.IsDisposable(value, out var disposable))
                 {
                     disposable.Dispose();
                 }
             }
-        }
-
-        public static void Fill<T>(T[] array, T value)
-        {
-            for (var i = 0; i < array.Length; i++)
-            {
-                array[i] = value;
-            }
-        }
-        
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void RemoveByIndex<T>(T[] array, int index, int length)
-        {
-            length--;
-            Array.Copy(array, index + 1, array, index, length - index);
-            array[length] = default;
         }
     }
 }

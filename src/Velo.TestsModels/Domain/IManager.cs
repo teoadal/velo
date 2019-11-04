@@ -2,7 +2,7 @@ using System;
 
 namespace Velo.TestsModels.Domain
 {
-    public interface IManager<T> : IDisposable
+    public interface IManager<in T> : IDisposable
     {
         bool Disposed { get; }
 

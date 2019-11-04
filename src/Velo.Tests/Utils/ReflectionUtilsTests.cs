@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using AutoFixture.Xunit2;
 using Velo.CQRS.Queries;
 using Velo.DependencyInjection.Dependencies;
 using Velo.TestsModels.Boos;
@@ -16,6 +17,13 @@ namespace Velo.Utils
         {
         }
 
+        [Theory, AutoData]
+        public void GetArrayElementType(Type elementType)
+        {
+            var arrayType = elementType.MakeArrayType();
+            Assert.Equal(elementType, ReflectionUtils.GetArrayElementType(arrayType));
+        }
+        
         [Fact]
         public void GetConstructor()
         {
@@ -85,6 +93,14 @@ namespace Velo.Utils
             Assert.Equal("Dictionary<Int32, List<String>>", ReflectionUtils.GetName(typeof(Dictionary<int, List<string>>)));
             Assert.Equal("List<String>[]", ReflectionUtils.GetName(typeof(List<string>[])));
             Assert.Equal(nameof(IDisposable), ReflectionUtils.GetName(typeof(IDisposable)));
+        }
+
+        [Fact]
+        public void IsDisposable()
+        {
+            var disposable = new BooRepository(null, null);
+            Assert.True(ReflectionUtils.IsDisposable(disposable, out _));
+            Assert.True(ReflectionUtils.IsDisposableType(disposable.GetType()));
         }
         
         [Fact]

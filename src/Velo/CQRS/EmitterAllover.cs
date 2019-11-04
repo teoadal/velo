@@ -25,11 +25,11 @@ namespace Velo.CQRS
             Type contract;
             if (_commandHandlerContract.IsAssignableFrom(implementation))
             {
-                contract = _commandHandlerContract;
+                contract = CommandRouter.HandlerType;
             }
             else if (_queryHandlerContract.IsAssignableFrom(implementation))
             {
-                contract = _queryHandlerContract;
+                contract = QueryRouter.HandlerType;
             }
             else return;
 

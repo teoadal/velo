@@ -4,12 +4,13 @@ using Velo.Utils;
 
 namespace Velo.CQRS.Commands
 {
-    internal sealed class CommandRouter
+    internal sealed class CommandRouter: IDisposable
     {
+        public static readonly Type HandlerType = typeof(ICommandHandler<>);
         private static readonly Type ProcessorType = typeof(CommandProcessor<>);
 
-        private readonly Func<Type, ICommandProcessor> _buildProcessor;
-        private readonly ConcurrentDictionary<Type, ICommandProcessor> _processors;
+        private Func<Type, ICommandProcessor> _buildProcessor;
+        private ConcurrentDictionary<Type, ICommandProcessor> _processors;
 
         public CommandRouter()
         {
@@ -28,6 +29,15 @@ namespace Velo.CQRS.Commands
         {
             var processorType = ProcessorType.MakeGenericType(notificationType);
             return (ICommandProcessor) Activator.CreateInstance(processorType);
+        }
+
+        public void Dispose()
+        {
+            _buildProcessor = null;
+            
+            CollectionUtils.DisposeValuesIfDisposable(_processors);
+            _processors.Clear();
+            _processors = null;
         }
     }
 }

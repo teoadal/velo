@@ -24,6 +24,13 @@ namespace Velo.DependencyInjection.Scan
             return this;
         }
 
+        public DependencyScanner AssemblyOf<T>()
+        {
+            _assemblies.Add(typeof(T).Assembly);
+            
+            return this;
+        }
+        
         public DependencyScanner ScopedOf<TContract>()
         {
             _alloverCollection.Add(new AssignableAllover(Typeof<TContract>.Raw, DependencyLifetime.Scope));

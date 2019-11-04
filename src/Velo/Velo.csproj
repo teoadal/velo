@@ -30,23 +30,21 @@
       <Compile Update="ECS\SignBuilder.cs">
         <DependentUpon>Sign.cs</DependentUpon>
       </Compile>
-      <Compile Update="Collections\Sequence.Enumerator.cs">
-        <DependentUpon>Sequence.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Collections\Sequence.WhereEnumerator.cs">
-        <DependentUpon>Sequence.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Collections\Sequence.SelectEnumerator.cs">
-        <DependentUpon>Sequence.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Collections\Sequence.ResizeRules.cs">
-        <DependentUpon>Sequence.cs</DependentUpon>
-      </Compile>
       <Compile Update="Collections\LocalVector.Enumerator.cs">
         <DependentUpon>LocalVector.cs</DependentUpon>
       </Compile>
-      <Compile Update="Collections\Sequence.Linq.cs">
-        <DependentUpon>Sequence.cs</DependentUpon>
+      <Compile Update="Collections\LocalVector.WhereEnumerator.cs">
+        <DependentUpon>LocalVector.cs</DependentUpon>
       </Compile>
+      <Compile Update="Collections\LocalVector.SelectEnumerator.cs">
+        <DependentUpon>LocalVector.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Collections\LocalVector.JoinEnumerator.cs">
+        <DependentUpon>LocalVector.cs</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Extensions" />
     </ItemGroup>
 </Project>

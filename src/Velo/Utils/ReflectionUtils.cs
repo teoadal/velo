@@ -119,6 +119,13 @@ namespace Velo.Utils
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsDisposable<T>(T instance, out IDisposable disposable)
+        {
+            disposable = instance as IDisposable;
+            return disposable != null;
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsDisposableType(Type type)
         {
             return DisposableInterfaceType.IsAssignableFrom(type);

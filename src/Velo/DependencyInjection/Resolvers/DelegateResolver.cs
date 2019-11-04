@@ -1,12 +1,12 @@
 using System;
-using Velo.DependencyInjection.Engine;
+using Velo.DependencyInjection.Engines;
 
 namespace Velo.DependencyInjection.Resolvers
 {
     internal sealed class DelegateResolver<TContract> : DependencyResolver
         where TContract : class
     {
-        private readonly Func<DependencyProvider, TContract> _builder;
+        private Func<DependencyProvider, TContract> _builder;
 
         public DelegateResolver(Func<DependencyProvider, TContract> builder, DependencyLifetime lifetime) :
             base(null, lifetime)
@@ -21,6 +21,11 @@ namespace Velo.DependencyInjection.Resolvers
 
         protected override void Initialize(DependencyEngine engine)
         {
+        }
+
+        public override void Dispose()
+        {
+            _builder = null;
         }
     }
 }

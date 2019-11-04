@@ -2,7 +2,7 @@ using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using Velo.DependencyInjection.Dependencies;
-using Velo.DependencyInjection.Engine;
+using Velo.DependencyInjection.Engines;
 using Velo.Utils;
 
 namespace Velo.DependencyInjection.Resolvers
@@ -10,7 +10,7 @@ namespace Velo.DependencyInjection.Resolvers
     internal sealed class CompiledResolver : DependencyResolver
     {
         private Func<DependencyProvider, object> _builder;
-        private readonly ConstructorInfo _constructor;
+        private ConstructorInfo _constructor;
 
         public CompiledResolver(Type implementation, DependencyLifetime lifetime)
             : base(implementation, lifetime)
@@ -59,6 +59,12 @@ namespace Velo.DependencyInjection.Resolvers
             {
                 throw Error.InvalidOperation($"{ReflectionUtils.GetName(type)} type can't be activated");
             }
+        }
+
+        public override void Dispose()
+        {
+            _builder = null;
+            _constructor = null;
         }
     }
 }

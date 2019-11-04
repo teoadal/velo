@@ -4,14 +4,14 @@ using Velo.Utils;
 
 namespace Velo.CQRS.Queries
 {
-    internal sealed class QueryRouter
+    internal sealed class QueryRouter : IDisposable
     {
         public static readonly Type HandlerType = typeof(IQueryHandler<,>);
         private static readonly Type ProcessorType = typeof(QueryProcessor<,>);
         private static readonly Type RequestType = typeof(IQuery<>);
 
-        private readonly Func<Type, IQueryProcessor> _buildProcessor;
-        private readonly ConcurrentDictionary<Type, IQueryProcessor> _processors;
+        private Func<Type, IQueryProcessor> _buildProcessor;
+        private ConcurrentDictionary<Type, IQueryProcessor> _processors;
 
         public QueryRouter()
         {
@@ -31,6 +31,15 @@ namespace Velo.CQRS.Queries
 
             var processorType = ProcessorType.MakeGenericType(requestType, queryType);
             return (IQueryProcessor) Activator.CreateInstance(processorType);
+        }
+
+        public void Dispose()
+        {
+            _buildProcessor = null;
+            
+            CollectionUtils.DisposeValuesIfDisposable(_processors);
+            _processors.Clear();
+            _processors = null;
         }
     }
 }

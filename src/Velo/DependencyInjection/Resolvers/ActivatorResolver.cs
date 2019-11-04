@@ -1,14 +1,14 @@
 using System;
 using System.Reflection;
 using Velo.DependencyInjection.Dependencies;
-using Velo.DependencyInjection.Engine;
+using Velo.DependencyInjection.Engines;
 using Velo.Utils;
 
 namespace Velo.DependencyInjection.Resolvers
 {
     internal sealed class ActivatorResolver : DependencyResolver
     {
-        private readonly ConstructorInfo _constructor;
+        private ConstructorInfo _constructor;
         private Dependency[] _dependencies;
 
         public ActivatorResolver(Type implementation, DependencyLifetime lifetime)
@@ -54,6 +54,12 @@ namespace Velo.DependencyInjection.Resolvers
             {
                 throw Error.InvalidOperation($"{ReflectionUtils.GetName(type)} type can't be activated");
             }
+        }
+        
+        public override void Dispose()
+        {
+            _constructor = null;
+            _dependencies = null;
         }
     }
 }

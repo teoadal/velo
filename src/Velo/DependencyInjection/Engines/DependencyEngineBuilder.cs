@@ -6,14 +6,14 @@ using Velo.DependencyInjection.Resolvers;
 using Velo.Extensions;
 using Velo.Utils;
 
-namespace Velo.DependencyInjection.Engine
+namespace Velo.DependencyInjection.Engines
 {
-    internal sealed class ConstructorEngine : DependencyEngine
+    internal sealed class DependencyEngineBuilder : DependencyEngine
     {
         private readonly Dictionary<Type, DependencyDescription> _descriptions;
         private readonly ResolverFactory[] _factories;
 
-        public ConstructorEngine(Dictionary<Type, DependencyDescription> descriptions, List<ResolverFactory> factories)
+        public DependencyEngineBuilder(Dictionary<Type, DependencyDescription> descriptions, List<ResolverFactory> factories)
             : base(descriptions.Count, factories.ToArray())
         {
             _descriptions = descriptions;

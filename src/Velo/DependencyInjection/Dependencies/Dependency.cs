@@ -1,9 +1,10 @@
+using System;
 using System.Reflection;
 using Velo.DependencyInjection.Resolvers;
 
 namespace Velo.DependencyInjection.Dependencies
 {
-    public abstract class Dependency
+    public abstract class Dependency : IDisposable
     {
         internal static readonly MethodInfo GetInstanceMethod = typeof(Dependency).GetMethod(nameof(GetInstance));
         
@@ -15,5 +16,10 @@ namespace Velo.DependencyInjection.Dependencies
         }
 
         public abstract object GetInstance(DependencyProvider scope);
+
+        public virtual void Dispose()
+        {
+            Resolver.Dispose();
+        }
     }
 }

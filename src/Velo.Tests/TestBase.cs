@@ -28,6 +28,17 @@ namespace Velo
             return Task.WhenAll(tasks);
         }
         
+        protected static Task RunTasks<T>(T[] array, Func<T, Task> action)
+        {
+            var tasks = new Task[array.Length];
+            for (var i = 0; i < array.Length; i++)
+            {
+                tasks[i] = action(array[i]);
+            }
+
+            return Task.WhenAll(tasks);
+        }
+        
         protected StopwatchScope StartStopwatch()
         {
             _stopwatch = Stopwatch.StartNew();

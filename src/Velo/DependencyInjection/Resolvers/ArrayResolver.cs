@@ -1,19 +1,21 @@
 using System;
 using Velo.DependencyInjection.Dependencies;
-using Velo.DependencyInjection.Engine;
+using Velo.DependencyInjection.Engines;
+using Velo.Utils;
 
 namespace Velo.DependencyInjection.Resolvers
 {
     internal sealed class ArrayResolver : DependencyResolver
     {
-        public readonly Dependency[] Dependencies;
+        public Dependency[] Dependencies => _dependencies;
 
-        private readonly Type _elementType;
+        private Dependency[] _dependencies;
+        private Type _elementType;
 
         public ArrayResolver(Type elementType, Dependency[] dependencies)
             : base(elementType.MakeArrayType(), DependencyLifetime.Transient)
         {
-            Dependencies = DependencyComparer.Sort(dependencies);
+            _dependencies = DependencyComparer.Sort(dependencies);
 
             _elementType = elementType;
         }
@@ -25,11 +27,12 @@ namespace Velo.DependencyInjection.Resolvers
 
         public override object Resolve(DependencyProvider scope)
         {
-            var array = Array.CreateInstance(_elementType, Dependencies.Length);
-
-            for (var i = 0; i < Dependencies.Length; i++)
+            var dependencies = _dependencies;
+            
+            var array = Array.CreateInstance(_elementType, dependencies.Length);
+            for (var i = 0; i < dependencies.Length; i++)
             {
-                var instance = Dependencies[i].GetInstance(scope);
+                var instance = dependencies[i].GetInstance(scope);
                 array.SetValue(instance, i);
             }
 
@@ -38,6 +41,13 @@ namespace Velo.DependencyInjection.Resolvers
 
         protected override void Initialize(DependencyEngine engine)
         {
+        }
+
+        public override void Dispose()
+        {
+            CollectionUtils.DisposeValuesIfDisposable(_dependencies);
+            _dependencies = null;
+            _elementType = null;
         }
     }
 }

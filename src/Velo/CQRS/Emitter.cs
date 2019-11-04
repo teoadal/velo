@@ -1,18 +1,21 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Velo.CQRS.Commands;
 using Velo.CQRS.Queries;
-using Velo.DependencyInjection;
+using Velo.Utils;
 
 namespace Velo.CQRS
 {
-    public sealed class Emitter
+    public sealed class Emitter : IDisposable
     {
-        private readonly CommandRouter _commandRouter;
-        private readonly QueryRouter _queryRouter;
-        private readonly DependencyProvider _scope;
+        private CommandRouter _commandRouter;
+        private QueryRouter _queryRouter;
+        private IServiceProvider _scope;
 
-        internal Emitter(DependencyProvider scope, CommandRouter commandRouter, QueryRouter queryRouter)
+        private bool _disposed;
+
+        internal Emitter(IServiceProvider scope, CommandRouter commandRouter, QueryRouter queryRouter)
         {
             _scope = scope;
 
@@ -20,16 +23,31 @@ namespace Velo.CQRS
             _queryRouter = queryRouter;
         }
 
-        public Task Publish<TCommand>(TCommand command, CancellationToken cancellationToken = default)
+        public Task<TResult> Ask<TResult>(IQuery<TResult> query, CancellationToken cancellationToken = default)
         {
+            if (_disposed) throw Error.Disposed(nameof(Emitter));
+
+            var processor = _queryRouter.GetProcessor(query);
+            return processor.Execute(_scope, query, cancellationToken);
+        }
+        
+        public Task Execute<TCommand>(TCommand command, CancellationToken cancellationToken = default)
+        {
+            if (_disposed) throw Error.Disposed(nameof(Emitter));
+
             var processor = _commandRouter.GetProcessor<TCommand>();
             return processor.Execute(_scope, command, cancellationToken);
         }
 
-        public Task<TResult> Send<TResult>(IQuery<TResult> query, CancellationToken cancellationToken = default)
+        public void Dispose()
         {
-            var processor = _queryRouter.GetProcessor(query);
-            return processor.Execute(_scope, query, cancellationToken);
+            if (_disposed) return;
+
+            _commandRouter = null;
+            _queryRouter = null;
+            _scope = null;
+
+            _disposed = true;
         }
     }
 }

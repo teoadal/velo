@@ -1,10 +1,10 @@
 using System;
-using Velo.DependencyInjection.Engine;
+using Velo.DependencyInjection.Engines;
 using Velo.Utils;
 
 namespace Velo.DependencyInjection.Resolvers
 {
-    public abstract class DependencyResolver
+    public abstract class DependencyResolver : IDisposable
     {
         public readonly Type Implementation;
         
@@ -39,5 +39,7 @@ namespace Velo.DependencyInjection.Resolvers
         public abstract object Resolve(DependencyProvider scope);
 
         protected abstract void Initialize(DependencyEngine engine);
+
+        public abstract void Dispose();
     }
 }

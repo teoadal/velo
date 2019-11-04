@@ -20,12 +20,8 @@ namespace Velo.Benchmark
 
         private static void RunCollections()
         {
+            //BenchmarkRunner.Run<ArrayIterationBenchmark>();
             BenchmarkRunner.Run<LocalVectorBenchmark>();
-            
-//            BenchmarkRunner.Run<SequenceAddBenchmark>();
-//            BenchmarkRunner.Run<SequenceEnumerationBenchmark>();
-//            BenchmarkRunner.Run<SequenceLinqBenchmark>();
-//            BenchmarkRunner.Run<SequenceRemoveBenchmark>();
         }
 
         public static void RunCqrs()

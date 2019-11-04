@@ -1,13 +1,14 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Velo.Utils;
 
 namespace Velo.Collections
 {
-    public partial struct LocalVector<T> : IEnumerable<T>
+    public ref partial struct LocalVector<T>
     {
+        private const int Capacity = 6;
+
         public int Length => _length;
 
         private T _element0;
@@ -15,9 +16,12 @@ namespace Velo.Collections
         private T _element2;
         private T _element3;
         private T _element4;
-        private Sequence<T> _sequence;
+        private T _element5;
+        private List<T> _list;
 
         private int _length;
+
+        #region Constructors
 
         public LocalVector(int capacity)
         {
@@ -26,11 +30,33 @@ namespace Velo.Collections
             _element2 = default;
             _element3 = default;
             _element4 = default;
-            _sequence = capacity > 5 ? new Sequence<T>(capacity - 5) : null;
-            
+            _element5 = default;
+
+            _list = capacity > Capacity ? new List<T>(capacity - Capacity) : null;
+
             _length = 0;
         }
-        
+
+        public LocalVector(T[] collection)
+            : this(collection.Length)
+        {
+            foreach (var element in collection)
+            {
+                Add(element);
+            }
+        }
+
+        public LocalVector(ICollection<T> collection)
+            : this(collection.Count)
+        {
+            foreach (var element in collection)
+            {
+                Add(element);
+            }
+        }
+
+        #endregion
+
         public void Add(T element)
         {
             switch (_length)
@@ -50,9 +76,12 @@ namespace Velo.Collections
                 case 4:
                     _element4 = element;
                     break;
+                case 5:
+                    _element5 = element;
+                    break;
                 default:
-                    if (_sequence == null) _sequence = new Sequence<T>();
-                    _sequence.Add(element);
+                    if (_list == null) _list = new List<T>();
+                    _list.Add(element);
                     break;
             }
 
@@ -62,16 +91,16 @@ namespace Velo.Collections
         public readonly bool Any(Predicate<T> predicate)
         {
             for (var i = 0; i < _length; i++)
-                if (predicate(GetByIndex(i)))
+                if (predicate(Get(i)))
                     return true;
 
             return false;
         }
 
-        public bool Any<TArg>(Func<T, TArg, bool> predicate, TArg arg)
+        public readonly bool Any<TArg>(Func<T, TArg, bool> predicate, TArg arg)
         {
             for (var i = 0; i < _length; i++)
-                if (predicate(GetByIndex(i), arg))
+                if (predicate(Get(i), arg))
                     return true;
 
             return false;
@@ -84,8 +113,9 @@ namespace Velo.Collections
             _element2 = default;
             _element3 = default;
             _element4 = default;
+            _element5 = default;
 
-            _sequence?.Clear();
+            _list?.Clear();
 
             _length = 0;
         }
@@ -95,7 +125,7 @@ namespace Velo.Collections
             if (comparer == null) comparer = EqualityComparer<T>.Default;
 
             for (var i = 0; i < _length; i++)
-                if (comparer.Equals(GetByIndex(i), element))
+                if (comparer.Equals(Get(i), element))
                     return true;
 
             return false;
@@ -104,7 +134,7 @@ namespace Velo.Collections
         public readonly T First(Predicate<T> predicate)
         {
             for (var i = 0; i < _length; i++)
-                if (predicate(GetByIndex(i)))
+                if (predicate(Get(i)))
                     return this[i];
 
             throw Error.NotFound();
@@ -113,31 +143,81 @@ namespace Velo.Collections
         public readonly T First<TArg>(Func<T, TArg, bool> predicate, TArg arg)
         {
             for (var i = 0; i < _length; i++)
-                if (predicate(GetByIndex(i), arg))
+                if (predicate(Get(i), arg))
                     return this[i];
 
             throw Error.NotFound();
         }
 
-        #region GetEnumerator
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Enumerator GetEnumerator()
         {
-            return new Enumerator(_element0, _element1, _element2, _element3, _element4, _sequence, _length);
+            return new Enumerator(_element0, _element1, _element2, _element3,
+                _element4, _element5, _list, _length);
         }
 
-        IEnumerator<T> IEnumerable<T>.GetEnumerator()
+        public JoinEnumerator<TResult, TInner, TKey> Join<TResult, TInner, TKey>(
+            LocalVector<TInner> inner,
+            Func<T, TKey> outerKeySelector,
+            Func<TInner, TKey> innerKeySelector,
+            Func<T, TInner, TResult> resultBuilder,
+            EqualityComparer<TKey> keyComparer = null)
         {
-            return _length == 0 ? EmptyEnumerator<T>.Instance : GetEnumerator();
+            if (keyComparer == null) keyComparer = EqualityComparer<TKey>.Default;
+
+            var innerEnumerator = inner.GetEnumerator();
+            var outerEnumerator = GetEnumerator();
+
+            return new JoinEnumerator<TResult, TInner, TKey>(keyComparer,
+                innerEnumerator, innerKeySelector,
+                outerEnumerator, outerKeySelector,
+                resultBuilder);
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
+        public void Sort<TProperty>(Func<T, TProperty> property, Comparer<TProperty> comparer = null)
         {
-            return _length == 0 ? EmptyEnumerator<T>.Instance : GetEnumerator();
+            if (comparer == null) comparer = Comparer<TProperty>.Default;
+
+            var border = _length - 1;
+            for (var i = 0; i < border; i++)
+            {
+                var final = false;
+                for (var j = 0; j < border - i; j++)
+                {
+                    var current = Get(j);
+                    var nextIndex = j + 1;
+                    var next = Get(nextIndex);
+                    
+                    if (comparer.Compare(property(next), property(current)) != -1) continue;
+                    
+                    final = true;
+                    Set(nextIndex, current);
+                    Set(j, next);
+                }
+
+                if (!final) break;
+            }
         }
 
-        #endregion
+        public readonly SelectEnumerator<TValue> Select<TValue>(Func<T, TValue> selector)
+        {
+            return new SelectEnumerator<TValue>(GetEnumerator(), selector);
+        }
+
+        public readonly SelectEnumerator<TValue, TArg> Select<TValue, TArg>(Func<T, TArg, TValue> selector, TArg arg)
+        {
+            return new SelectEnumerator<TValue, TArg>(GetEnumerator(), selector, arg);
+        }
+
+        public readonly WhereEnumerator Where(Predicate<T> predicate)
+        {
+            return new WhereEnumerator(GetEnumerator(), predicate);
+        }
+
+        public readonly WhereEnumerator<TArg> Where<TArg>(Func<T, TArg, bool> predicate, TArg arg)
+        {
+            return new WhereEnumerator<TArg>(GetEnumerator(), predicate, arg);
+        }
 
         public readonly T[] ToArray()
         {
@@ -155,12 +235,14 @@ namespace Velo.Collections
                     return new[] {_element0, _element1, _element2, _element3};
                 case 5:
                     return new[] {_element0, _element1, _element2, _element3, _element4};
+                case 6:
+                    return new[] {_element0, _element1, _element2, _element3, _element4, _element5};
             }
 
             var result = new T[_length];
             for (var i = 0; i < result.Length; i++)
             {
-                result[i] = GetByIndex(i);
+                result[i] = Get(i);
             }
 
             return result;
@@ -168,16 +250,16 @@ namespace Velo.Collections
 
         public readonly T this[int index]
         {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)] 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                if (index > _length) throw Error.OutOfRange();
-                return GetByIndex(index);
+                if (index >= _length) throw Error.OutOfRange();
+                return Get(index);
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private readonly T GetByIndex(int index)
+        private readonly T Get(int index)
         {
             switch (index)
             {
@@ -186,7 +268,36 @@ namespace Velo.Collections
                 case 2: return _element2;
                 case 3: return _element3;
                 case 4: return _element4;
-                default: return _sequence[index - 5];
+                case 5: return _element5;
+                default: return _list[index - Capacity];
+            }
+        }
+
+        private void Set(int index, T value)
+        {
+            switch (index)
+            {
+                case 0:
+                    _element0 = value;
+                    return;
+                case 1:
+                    _element1 = value;
+                    return;
+                case 2:
+                    _element2 = value;
+                    return;
+                case 3:
+                    _element3 = value;
+                    return;
+                case 4:
+                    _element4 = value;
+                    return;
+                case 5:
+                    _element5 = value;
+                    return;
+                default:
+                    _list[index - Capacity] = value;
+                    return;
             }
         }
     }

@@ -41,7 +41,7 @@ namespace Velo.Benchmark.CQRS
                 .AddInstance<IBooRepository>(repository)
                 .AddRequestHandler<GetBooHandler>()
                 .AddRequestHandler<GetBooIntHandler>()
-                .AddMediator()
+                .AddEmitter()
                 .BuildProvider()
                 .GetService<Emitter>();
         }
@@ -67,8 +67,8 @@ namespace Velo.Benchmark.CQRS
             long sum = 0;
             for (var i = 0; i < ElementsCount; i++)
             {
-                var boo = await _emitter.Send(new GetBoo {Id = i});
-                var booInt = await _emitter.Send(new GetBooInt {Id = i});
+                var boo = await _emitter.Ask(new GetBoo {Id = i});
+                var booInt = await _emitter.Ask(new GetBooInt {Id = i});
 
                 sum = sum + boo.Int + booInt;
             }

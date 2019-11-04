@@ -1,14 +1,15 @@
-using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Velo.DependencyInjection.Resolvers;
 using Velo.Extensions;
+using Velo.Utils;
 
 namespace Velo.DependencyInjection.Dependencies
 {
-    internal sealed class ScopeDependency : Dependency, IDisposable
+    internal sealed class ScopeDependency : Dependency
     {
-        private readonly Dictionary<DependencyProvider, object> _instances;
+        private bool _disposed;
+        private Dictionary<DependencyProvider, object> _instances;
 
         public ScopeDependency(DependencyResolver resolver): base(resolver)
         {
@@ -17,6 +18,11 @@ namespace Velo.DependencyInjection.Dependencies
 
         public override object GetInstance(DependencyProvider scope)
         {
+            if (_disposed)
+            {
+                throw Error.Disposed(nameof(ScopeDependency));
+            }
+            
             if (_instances.TryGetValue(scope, out var existsInstance)) return existsInstance;
 
             var instance = Resolve(scope);
@@ -25,19 +31,11 @@ namespace Velo.DependencyInjection.Dependencies
             return instance;
         }
 
-        public void Dispose()
-        {
-            foreach (var (scope, instance) in _instances)
-            {
-                Destroy(scope, instance);
-            }
-        }
-
         private void Destroy(DependencyProvider scope, object instance)
         {
             scope.Destroy -= OnScopeDestroy;
 
-            if (instance != null && instance is IDisposable disposable)
+            if (ReflectionUtils.IsDisposable(instance, out var disposable))
             {
                 disposable.Dispose();
             }
@@ -55,6 +53,22 @@ namespace Velo.DependencyInjection.Dependencies
         {
             scope.Destroy += OnScopeDestroy;
             return Resolver.Resolve(scope);
+        }
+        
+        public override void Dispose()
+        {
+            if (_disposed) return;
+            
+            foreach (var (scope, instance) in _instances)
+            {
+                Destroy(scope, instance);
+            }
+            
+            _instances.Clear();
+            _instances = null;
+            _disposed = true;
+            
+            base.Dispose();
         }
     }
 }

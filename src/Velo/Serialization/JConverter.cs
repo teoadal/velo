@@ -40,14 +40,12 @@ namespace Velo.Serialization
 
             var outType = typeof(TOut);
             var converter = _converters.GetOrAdd(outType, _buildConverter);
-            
-            using (var tokenizer = new JsonTokenizer(source, _buffer))
-            {
-                if (converter.IsPrimitive) tokenizer.MoveNext();
 
-                var typedConverter = (IJsonConverter<TOut>) converter;
-                return typedConverter.Deserialize(tokenizer);
-            }
+            using var tokenizer = new JsonTokenizer(source, _buffer);
+            if (converter.IsPrimitive) tokenizer.MoveNext();
+
+            var typedConverter = (IJsonConverter<TOut>) converter;
+            return typedConverter.Deserialize(tokenizer);
         }
 
         public string Serialize(object source)

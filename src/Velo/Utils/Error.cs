@@ -22,6 +22,11 @@ namespace Velo.Utils
             return new ObjectDisposedException(objectName);
         }
 
+        public static InvalidOperationException EnumerableChanged()
+        {
+            return new InvalidOperationException("Enumerable was changed");
+        }
+        
         public static InvalidOperationException InconsistentOperation(string message)
         {
             return new InvalidOperationException($"Inconsistent operation: {message}");

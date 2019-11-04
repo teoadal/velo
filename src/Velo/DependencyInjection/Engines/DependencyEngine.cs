@@ -6,7 +6,7 @@ using Velo.DependencyInjection.Factories;
 using Velo.DependencyInjection.Resolvers;
 using Velo.Utils;
 
-namespace Velo.DependencyInjection.Engine
+namespace Velo.DependencyInjection.Engines
 {
     public abstract class DependencyEngine : IDisposable
     {

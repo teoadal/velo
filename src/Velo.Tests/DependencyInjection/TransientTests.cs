@@ -13,11 +13,11 @@ namespace Velo.DependencyInjection
 {
     public class TransientTests : TestBase
     {
-        private readonly DependencyCollection _builder;
+        private readonly DependencyCollection _collection;
 
         public TransientTests(ITestOutputHelper output) : base(output)
         {
-            _builder = new DependencyCollection()
+            _collection = new DependencyCollection()
                 .AddSingleton<IConfiguration, Configuration>()
                 .AddSingleton<JConverter>();
         }
@@ -25,7 +25,7 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Activator()
         {
-            var provider = _builder
+            var provider = _collection
                 .AddTransient<ISession, Session>()
                 .BuildProvider();
 
@@ -38,7 +38,7 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Activator_MultiThreading()
         {
-            var provider = _builder
+            var provider = _collection
                 .AddTransient<ISession, Session>()
                 .AddTransient<IFooRepository, FooRepository>()
                 .AddGenericTransient(typeof(IMapper<>), typeof(CompiledMapper<>))
@@ -61,7 +61,7 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Builder()
         {
-            var provider = _builder
+            var provider = _collection
                 .AddTransient<ISession>(ctx => new Session(ctx.GetService<JConverter>()))
                 .BuildProvider();
 
@@ -74,7 +74,7 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Builder_MultiThreading()
         {
-            var provider = _builder
+            var provider = _collection
                 .AddTransient<ISession, Session>()
                 .AddTransient<IFooRepository, FooRepository>()
                 .AddGenericTransient(typeof(IMapper<>), typeof(CompiledMapper<>))
@@ -100,7 +100,7 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Generic()
         {
-            var provider = _builder
+            var provider = _collection
                 .AddGenericTransient(typeof(List<>))
                 .BuildProvider();
 
@@ -113,7 +113,7 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Generic_With_Contract()
         {
-            var provider = _builder
+            var provider = _collection
                 .AddGenericTransient(typeof(IList<>), typeof(List<>))
                 .BuildProvider();
 
