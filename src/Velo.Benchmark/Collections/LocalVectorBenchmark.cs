@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
@@ -14,7 +15,7 @@ namespace Velo.Benchmark.Collections
     {
         private const int ALLOCATIONS = 10;
 
-        [Params(25)] 
+        [Params(6, 10, 25)] 
         public int Count;
 
         private int[] _items;
@@ -37,29 +38,29 @@ namespace Velo.Benchmark.Collections
             _modifier = Count;
         }
 
-        [BenchmarkCategory("Add"), Benchmark(Baseline = true)]
-        public int List_Add()
-        {
-            var list = new List<int>();
-            for (var j = 0; j < _items.Length; j++)
-            {
-                list.Add(_items[j]);
-            }
-
-            return list.Count;
-        }
-
-        [BenchmarkCategory("Add"), Benchmark]
-        public int LocalVector_Add()
-        {
-            var vector = new LocalVector<int>();
-            for (var j = 0; j < _items.Length; j++)
-            {
-                vector.Add(_items[j]);
-            }
-
-            return vector.Length;
-        }
+//        [BenchmarkCategory("Add"), Benchmark(Baseline = true)]
+//        public int List_Add()
+//        {
+//            var list = new List<int>();
+//            for (var j = 0; j < _items.Length; j++)
+//            {
+//                list.Add(_items[j]);
+//            }
+//
+//            return list.Count;
+//        }
+//
+//        [BenchmarkCategory("Add"), Benchmark]
+//        public int LocalVector_Add()
+//        {
+//            var vector = new LocalVector<int>();
+//            for (var j = 0; j < _items.Length; j++)
+//            {
+//                vector.Add(_items[j]);
+//            }
+//
+//            return vector.Length;
+//        }
 //
 //        [BenchmarkCategory("Add"), Benchmark]
 //        public int Span_Add()
@@ -155,6 +156,21 @@ namespace Velo.Benchmark.Collections
             return counter;
         }
 
+//        [BenchmarkCategory("Iteration"), Benchmark]
+//        public int LocalVector_Iteration_By_Index()
+//        {
+//            var localVector = new LocalVector<int>(_items);
+//
+//            var counter = 0;
+//            for (var i = 0; i < localVector.Length; i++)
+//            {
+//                var number = localVector[i];
+//                counter += number;
+//            }
+//
+//            return counter;
+//        }
+        
 //        [BenchmarkCategory("Iteration"), Benchmark]
 //        public int Span_Iteration()
 //        {
