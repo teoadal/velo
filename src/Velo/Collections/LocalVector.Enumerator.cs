@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Velo.Collections
 {
@@ -6,75 +6,39 @@ namespace Velo.Collections
     {
         public ref struct Enumerator
         {
-            public T Current => _current!;
-
-            public readonly int Length;
-
-            private readonly T _element0;
-            private readonly T _element1;
-            private readonly T _element2;
-            private readonly T _element3;
-            private readonly T _element4;
-            private readonly T _element5;
-            private readonly List<T> _list;
-            
-            private T _current;
-            private int _position;
-
-            internal Enumerator(T element0, T element1, T element2, T element3, T element4, T element5, 
-                List<T> list, int length)
+            public T Current
             {
-                Length = length;
-
-                _element0 = element0;
-                _element1 = element1;
-                _element2 = element2;
-                _element3 = element3;
-                _element4 = element4;
-                _element5 = element5;
-                _list = list;
-
-                _current = default;
-                _position = 0;
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => _vector.Get(_position);
             }
 
+            public readonly int Length;
+            
+            private readonly LocalVector<T> _vector;
+            
+            private int _position;
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            internal Enumerator(LocalVector<T> vector)
+            {
+                Length = vector.Length;
+                
+                _position = -1;
+                _vector = vector;
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool MoveNext()
             {
-                if (_position == Length) return false;
-
-                switch (_position)
-                {
-                    case 0:
-                        _current = _element0;
-                        break;
-                    case 1:
-                        _current = _element1;
-                        break;
-                    case 2:
-                        _current = _element2;
-                        break;
-                    case 3:
-                        _current = _element3;
-                        break;
-                    case 4:
-                        _current = _element4;
-                        break;
-                    case 5:
-                        _current = _element5;
-                        break;
-                    default:
-                        _current = _list[_position - Capacity];
-                        break;
-                }
-
-                _position++;
-
+                var index = _position + 1;
+                if (index >= Length) return false;
+                
+                _position = index;
                 return true;
             }
 
             public void Reset()
             {
-                _current = default;
                 _position = 0;
             }
         }

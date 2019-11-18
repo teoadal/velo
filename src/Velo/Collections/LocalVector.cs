@@ -79,8 +79,11 @@ namespace Velo.Collections
                 case 5:
                     _element5 = element;
                     break;
-                default:
+                case 6:
                     if (_list == null) _list = new List<T>();
+                    _list.Add(element);
+                    break;
+                default:
                     _list.Add(element);
                     break;
             }
@@ -152,8 +155,7 @@ namespace Velo.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Enumerator GetEnumerator()
         {
-            return new Enumerator(_element0, _element1, _element2, _element3,
-                _element4, _element5, _list, _length);
+            return new Enumerator(this);
         }
 
         public JoinEnumerator<TResult, TInner, TKey> Join<TResult, TInner, TKey>(
