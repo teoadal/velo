@@ -33,11 +33,11 @@ namespace Velo.CQRS.Commands
 
         public void Dispose()
         {
-            _buildProcessor = null;
+            _buildProcessor = null!;
             
             CollectionUtils.DisposeValuesIfDisposable(_processors);
             _processors.Clear();
-            _processors = null;
+            _processors = null!;
         }
     }
 }

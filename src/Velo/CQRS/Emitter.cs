@@ -43,9 +43,9 @@ namespace Velo.CQRS
         {
             if (_disposed) return;
 
-            _commandRouter = null;
-            _queryRouter = null;
-            _scope = null;
+            _commandRouter = null!;
+            _queryRouter = null!;
+            _scope = null!;
 
             _disposed = true;
         }

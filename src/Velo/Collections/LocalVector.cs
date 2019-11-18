@@ -152,8 +152,7 @@ namespace Velo.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Enumerator GetEnumerator()
         {
-            return new Enumerator(_element0, _element1, _element2, _element3,
-                _element4, _element5, _list, _length);
+            return new Enumerator(this);
         }
 
         public JoinEnumerator<TResult, TInner, TKey> Join<TResult, TInner, TKey>(
