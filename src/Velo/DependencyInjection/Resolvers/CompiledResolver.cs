@@ -1,70 +1,77 @@
 using System;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
 using Velo.DependencyInjection.Dependencies;
-using Velo.DependencyInjection.Engines;
 using Velo.Utils;
 
 namespace Velo.DependencyInjection.Resolvers
 {
+    [DebuggerDisplay("Implementation = {_constructor.DeclaringType}")]
     internal sealed class CompiledResolver : DependencyResolver
     {
-        private Func<DependencyProvider, object> _builder;
-        private ConstructorInfo _constructor;
+        private Func<IDependencyScope, object> _builder;
+        private readonly ConstructorInfo _constructor;
+        private readonly IDependencyEngine _dependencyEngine;
 
-        public CompiledResolver(Type implementation, DependencyLifetime lifetime)
-            : base(implementation, lifetime)
+        public CompiledResolver(Type implementation, IDependencyEngine dependencyEngine)
         {
-            CheckCanBeActivated(implementation);
-
             _constructor = ReflectionUtils.GetConstructor(implementation);
+            _dependencyEngine = dependencyEngine;
         }
 
-        public override object Resolve(DependencyProvider scope)
+        protected override object GetInstance(Type contract, IDependencyScope scope)
         {
+            if (_builder == null) _builder = CreateBuilder(scope);
             return _builder(scope);
         }
 
-        protected override void Initialize(DependencyEngine engine)
+        private Func<IDependencyScope, object> CreateBuilder(IDependencyScope scope)
         {
-            if (_builder != null) return;
+            var constructorParameters = _constructor.GetParameters();
 
-            var argument = Expression.Parameter(typeof(DependencyProvider));
-            var parameters = _constructor.GetParameters();
-            var instances = new Expression[parameters.Length];
-
-            for (var i = 0; i < parameters.Length; i++)
+            var argument = Expression.Parameter(typeof(IDependencyScope), "scope");
+            var parameters = new Expression[constructorParameters.Length];
+            for (var i = 0; i < constructorParameters.Length; i++)
             {
-                var parameter = parameters[i];
-
+                var parameter = constructorParameters[i];
                 var parameterType = parameter.ParameterType;
                 var required = !parameter.HasDefaultValue;
 
-                var parameterDependency = engine.GetDependency(parameterType, required);
-                var call = parameterDependency == null
-                    ? (Expression) Expression.Default(parameterType)
-                    : Expression.Call(Expression.Constant(parameterDependency), Dependency.GetInstanceMethod, argument);
-
-                instances[i] = Expression.Convert(call, parameterType);
+                var parameterDependency = _dependencyEngine.GetDependency(parameterType, required);
+                parameters[i] = BuildParameter(parameterDependency, parameterType, argument, scope);
             }
 
-            Expression body = Expression.New(_constructor, instances);
-
-            _builder = Expression.Lambda<Func<DependencyProvider, object>>(body, argument).Compile();
+            var body = Expression.New(_constructor, parameters);
+            var result = Expression.Lambda<Func<IDependencyScope, object>>(body, argument).Compile();
+            
+            return result;
         }
 
-        private static void CheckCanBeActivated(Type type)
+        private Expression BuildParameter(IDependency parameterDependency, Type parameterType, Expression argument,
+            IDependencyScope scope)
         {
-            if (type.IsAbstract || type.IsInterface)
+            if (parameterDependency == null) return Expression.Default(parameterType);
+
+            switch (parameterDependency.Lifetime)
             {
-                throw Error.InvalidOperation($"{ReflectionUtils.GetName(type)} type can't be activated");
-            }
-        }
+                case DependencyLifetime.Scope:
+                case DependencyLifetime.Transient:
+                    var dependencyConstant = Expression.Constant(parameterDependency);
 
-        public override void Dispose()
-        {
-            _builder = null;
-            _constructor = null;
+                    var getInstanceMethod = parameterDependency.GetType().GetMethod(nameof(IDependency.GetInstance));
+                    var parameterInstanceCall = Expression.Call(
+                        dependencyConstant, getInstanceMethod,
+                        Expression.Constant(parameterType), argument);
+
+                    return Expression.Convert(parameterInstanceCall, parameterType);
+
+                case DependencyLifetime.Singleton:
+                    var parameterConstant = parameterDependency.GetInstance(parameterType, scope);
+                    return Expression.Constant(parameterConstant);
+            }
+
+            throw Error.InvalidDependencyLifetime();
         }
     }
 }

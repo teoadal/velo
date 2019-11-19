@@ -37,6 +37,16 @@ namespace Velo.Utils
             return new InvalidDataException(message);
         }
 
+        public static InvalidDataException InvalidDependencyLifetime(string message = null)
+        {
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                message = "Invalid dependency lifetime";
+            }
+            
+            return new InvalidDataException(message);
+        }
+        
         public static InvalidOperationException InvalidOperation(string message)
         {
             return new InvalidOperationException(message);

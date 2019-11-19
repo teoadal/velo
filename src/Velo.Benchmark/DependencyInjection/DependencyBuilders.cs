@@ -78,6 +78,25 @@ namespace Velo.Benchmark.DependencyInjection
                 .AddSingleton<SomethingController>();
         }
 
+        public static IServiceCollection ForCore_Mixed()
+        {
+            return new ServiceCollection()
+                .AddSingleton<JConverter>()
+                .AddSingleton<ILogger, Logger>()
+                .AddSingleton<IMapper<Boo>, CompiledMapper<Boo>>()
+                .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
+                .AddSingleton<IConfiguration>(provider => new Configuration())
+                .AddTransient<ISession, Session>()
+                
+                .AddScoped<IFooService, FooService>()
+                .AddScoped<IFooRepository, FooRepository>()
+                
+                .AddScoped<IBooService, BooService>()
+                .AddScoped<IBooRepository, BooRepository>()
+                
+                .AddScoped<SomethingController>();
+        }
+        
         public static ServiceContainer ForLightInject()
         {
             var container = new ServiceContainer();
@@ -132,14 +151,31 @@ namespace Velo.Benchmark.DependencyInjection
                 .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
                 .AddSingleton<IConfiguration>(ctx => new Configuration())
                 .AddSingleton<ISession, Session>()
-                
                 .AddSingleton<IFooService, FooService>()
                 .AddSingleton<IFooRepository, FooRepository>()
-                
                 .AddSingleton<IBooService, BooService>()
-                .AddSingleton<IBooRepository, BooRepository>()
                 
+                .AddSingleton<IBooRepository, BooRepository>()
                 .AddSingleton<SomethingController>();
+        }
+        
+        public static DependencyCollection ForVelo_Mixed()
+        {
+            return new DependencyCollection()
+                .AddSingleton<JConverter>()
+                .AddSingleton<ILogger, Logger>()
+                .AddSingleton<IMapper<Boo>, CompiledMapper<Boo>>()
+                .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
+                .AddSingleton<IConfiguration>(ctx => new Configuration())
+                .AddTransient<ISession, Session>()
+                
+                .AddScoped<IFooService, FooService>()
+                .AddScoped<IFooRepository, FooRepository>()
+                
+                .AddScoped<IBooService, BooService>()
+                .AddScoped<IBooRepository, BooRepository>()
+                
+                .AddScoped<SomethingController>();
         }
         
         public static IUnityContainer ForUnity()

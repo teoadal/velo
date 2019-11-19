@@ -1,10 +1,13 @@
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Jobs;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Velo.Benchmark.DependencyInjection
 {
-    [CoreJob]
+    [SimpleJob(RuntimeMoniker.NetCoreApp22)]
     [MeanColumn, MemoryDiagnoser]
+    [CategoriesColumn, GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
     public class DependencyBuildBenchmark
     {
 //        [Benchmark]
@@ -23,10 +26,19 @@ namespace Velo.Benchmark.DependencyInjection
 //            return container.ToString();
 //        }
 
-        [Benchmark(Baseline = true)]
+        [BenchmarkCategory("Singleton"), Benchmark(Baseline = true)]
         public string Core()
         {
             var builder = DependencyBuilders.ForCore();
+            var container = builder.BuildServiceProvider();
+
+            return container.ToString();
+        }
+
+        [BenchmarkCategory("Mixed"), Benchmark(Baseline = true)]
+        public string Core_Mixed()
+        {
+            var builder = DependencyBuilders.ForCore_Mixed();
             var container = builder.BuildServiceProvider();
 
             return container.ToString();
@@ -46,7 +58,7 @@ namespace Velo.Benchmark.DependencyInjection
 //            return container.ToString();
 //        }
 
-        [Benchmark]
+        [BenchmarkCategory("Singleton"), Benchmark]
         public string Velo()
         {
             var builder = DependencyBuilders.ForVelo();
@@ -54,13 +66,21 @@ namespace Velo.Benchmark.DependencyInjection
 
             return container.ToString();
         }
-        
+
+        [BenchmarkCategory("Mixed"), Benchmark]
+        public string Velo_Mixed()
+        {
+            var builder = DependencyBuilders.ForVelo_Mixed();
+            var container = builder.BuildProvider();
+
+            return container.ToString();
+        }
+
 //        [Benchmark]
 //        public string Unity()
 //        {
 //            var container = DependencyBuilders.ForUnity();
 //            return container.ToString();
 //        }
-
     }
 }

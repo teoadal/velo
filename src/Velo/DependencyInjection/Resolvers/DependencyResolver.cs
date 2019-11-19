@@ -1,45 +1,25 @@
 using System;
-using Velo.DependencyInjection.Engines;
 using Velo.Utils;
 
 namespace Velo.DependencyInjection.Resolvers
 {
-    public abstract class DependencyResolver : IDisposable
+    public abstract class DependencyResolver
     {
-        public readonly Type Implementation;
-        
-        public readonly DependencyLifetime Lifetime;
+        private bool _resolveInProgress;
 
-        private bool _circularGuard;
-        private bool _initialized;
-        
-        protected DependencyResolver(Type implementation, DependencyLifetime lifetime)
+        public object Resolve(Type contract, IDependencyScope scope)
         {
-            Implementation = implementation;
-            Lifetime = lifetime;
+            if (_resolveInProgress) throw Error.CircularDependency(contract);
+
+            _resolveInProgress = true;
+
+            var instance = GetInstance(contract, scope);
+
+            _resolveInProgress = false;
+
+            return instance;
         }
 
-        public void Init(DependencyEngine engine)
-        {
-            if (_initialized) return;
-
-            if (_circularGuard)
-            {
-                throw Error.CircularDependency(Implementation);
-            }
-
-            _circularGuard = true;
-            
-            Initialize(engine);
-            
-            _circularGuard = false;
-            _initialized = true;
-        }
-
-        public abstract object Resolve(DependencyProvider scope);
-
-        protected abstract void Initialize(DependencyEngine engine);
-
-        public abstract void Dispose();
+        protected abstract object GetInstance(Type contract, IDependencyScope scope);
     }
 }

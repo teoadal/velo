@@ -1,31 +1,22 @@
 using System;
-using Velo.DependencyInjection.Engines;
+using System.Diagnostics;
 
 namespace Velo.DependencyInjection.Resolvers
 {
-    internal sealed class DelegateResolver<TContract> : DependencyResolver
-        where TContract : class
+    [DebuggerDisplay("Implementation = {typeof(T)}")]
+    internal sealed class DelegateResolver<T> : DependencyResolver
+        where T : class
     {
-        private Func<DependencyProvider, TContract> _builder;
+        private readonly Func<IDependencyScope, T> _builder;
 
-        public DelegateResolver(Func<DependencyProvider, TContract> builder, DependencyLifetime lifetime) :
-            base(null, lifetime)
+        public DelegateResolver(Func<IDependencyScope, T> builder)
         {
             _builder = builder;
         }
 
-        public override object Resolve(DependencyProvider scope)
+        protected override object GetInstance(Type contract, IDependencyScope scope)
         {
             return _builder(scope);
-        }
-
-        protected override void Initialize(DependencyEngine engine)
-        {
-        }
-
-        public override void Dispose()
-        {
-            _builder = null;
         }
     }
 }

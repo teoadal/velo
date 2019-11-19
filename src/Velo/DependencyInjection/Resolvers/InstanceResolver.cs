@@ -1,35 +1,21 @@
-using Velo.DependencyInjection.Engines;
-using Velo.Utils;
+using System;
+using System.Diagnostics;
 
 namespace Velo.DependencyInjection.Resolvers
 {
+    [DebuggerDisplay("Implementation = {_instance.GetType().Name}")]
     internal sealed class InstanceResolver : DependencyResolver
     {
-        private object _instance;
+        private readonly object _instance;
 
         public InstanceResolver(object instance)
-            : base(instance.GetType(), DependencyLifetime.Singleton)
         {
             _instance = instance;
         }
 
-        public override object Resolve(DependencyProvider scope)
+        protected override object GetInstance(Type contract, IDependencyScope scope)
         {
             return _instance;
-        }
-
-        protected override void Initialize(DependencyEngine engine)
-        {
-        }
-
-        public override void Dispose()
-        {
-            if (ReflectionUtils.IsDisposable(_instance, out var disposable))
-            {
-                disposable.Dispose();
-            }
-
-            _instance = null;
         }
     }
 }

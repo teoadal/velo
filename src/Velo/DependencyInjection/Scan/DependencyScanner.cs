@@ -9,77 +9,107 @@ namespace Velo.DependencyInjection.Scan
     public sealed class DependencyScanner
     {
         private readonly HashSet<Assembly> _assemblies;
-        private readonly List<DependencyAllover> _alloverCollection;
+        private readonly List<IDependencyAllover> _alloverCollection;
 
         internal DependencyScanner()
         {
             _assemblies = new HashSet<Assembly>();
-            _alloverCollection = new List<DependencyAllover>();
+            _alloverCollection = new List<IDependencyAllover>();
         }
 
         public DependencyScanner Assembly(Assembly assembly)
         {
             _assemblies.Add(assembly);
-            
+
             return this;
         }
 
         public DependencyScanner AssemblyOf<T>()
         {
             _assemblies.Add(typeof(T).Assembly);
-            
+
             return this;
         }
-        
+
+        #region ScopedOf
+
+        public DependencyScanner ScopedOf(Type contract)
+        {
+            if (contract.IsGenericTypeDefinition)
+            {
+                _alloverCollection.Add(new GenericInterfaceAllover(contract, DependencyLifetime.Scope));
+            }
+            else
+            {
+                _alloverCollection.Add(new AssignableAllover(contract, DependencyLifetime.Scope));
+            }
+
+            return this;
+        }
+
         public DependencyScanner ScopedOf<TContract>()
+            where TContract : class
         {
-            _alloverCollection.Add(new AssignableAllover(Typeof<TContract>.Raw, DependencyLifetime.Scope));
-            
-            return this;
+            return ScopedOf(Typeof<TContract>.Raw);
         }
-        
-        public DependencyScanner ScopedOfGenericInterface(Type genericInterface)
-        {
-            _alloverCollection.Add(new GenericInterfaceAllover(genericInterface, DependencyLifetime.Scope));
-            
-            return this;
-        }
-        
+
+        #endregion
+
+        #region SingletonOf
+
         public DependencyScanner SingletonOf<TContract>()
+            where TContract: class
         {
-            _alloverCollection.Add(new AssignableAllover(Typeof<TContract>.Raw, DependencyLifetime.Singleton));
-            
+            return SingletonOf(Typeof<TContract>.Raw);
+        }
+
+        public DependencyScanner SingletonOf(Type contract)
+        {
+            if (contract.IsGenericTypeDefinition)
+            {
+                _alloverCollection.Add(new GenericInterfaceAllover(contract, DependencyLifetime.Singleton));
+            }
+            else
+            {
+                _alloverCollection.Add(new AssignableAllover(contract, DependencyLifetime.Singleton));
+            }
+
             return this;
         }
-        
-        public DependencyScanner SingletonOfGenericInterface(Type genericInterface)
-        {
-            _alloverCollection.Add(new GenericInterfaceAllover(genericInterface, DependencyLifetime.Singleton));
-            
-            return this;
-        }
-        
+
+        #endregion
+
+        #region TransientOf
+
         public DependencyScanner TransientOf<TContract>()
+            where TContract: class
         {
-            _alloverCollection.Add(new AssignableAllover(Typeof<TContract>.Raw, DependencyLifetime.Transient));
-            
+            return TransientOf(Typeof<TContract>.Raw);
+        }
+
+        public DependencyScanner TransientOf(Type contract)
+        {
+            if (contract.IsGenericTypeDefinition)
+            {
+                _alloverCollection.Add(new GenericInterfaceAllover(contract, DependencyLifetime.Transient));
+            }
+            else
+            {
+                _alloverCollection.Add(new AssignableAllover(contract, DependencyLifetime.Transient));
+            }
+
             return this;
         }
-        
-        public DependencyScanner TransientOfGenericInterface(Type genericInterface)
-        {
-            _alloverCollection.Add(new GenericInterfaceAllover(genericInterface, DependencyLifetime.Singleton));
-            
-            return this;
-        }
-        
-        public DependencyScanner UseAllover(DependencyAllover allover)
+
+        #endregion
+
+        public DependencyScanner UseAllover(IDependencyAllover allover)
         {
             _alloverCollection.Add(allover);
-            
+
             return this;
         }
-        
+
         internal void Execute(DependencyCollection dependencyCollection)
         {
             var anonType = typeof(CompilerGeneratedAttribute);

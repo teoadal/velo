@@ -1,14 +1,14 @@
 using AutoMapper;
 
 using BenchmarkDotNet.Attributes;
-
+using BenchmarkDotNet.Jobs;
 using Velo.Mapping;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Foos;
 
 namespace Velo.Benchmark
 {
-    [CoreJob]
+    [SimpleJob(RuntimeMoniker.NetCoreApp22)]
     [MeanColumn, MemoryDiagnoser]
     public class MappersBenchmark
     {

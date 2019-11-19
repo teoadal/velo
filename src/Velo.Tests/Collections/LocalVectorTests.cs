@@ -44,6 +44,15 @@ namespace Velo.Collections
         }
 
         [Theory, AutoData]
+        public void AddRange(Boo[] items)
+        {
+            var vector = new LocalVector<Boo>();
+            vector.AddRange(new LocalVector<Boo>(items));
+
+            Assert.Equal(items.Length, vector.Length);
+        }
+
+        [Theory, AutoData]
         public void Any(int[] items)
         {
             var vector = new LocalVector<int>();
@@ -154,11 +163,101 @@ namespace Velo.Collections
         }
 
         [Theory, AutoData]
+        public void GroupBy(List<Boo> items)
+        {
+            items.AddRange(items.Select(i => new Boo {Id = i.Id}).ToArray());
+
+            var groupEnumerator = items.GroupBy(i => i.Id).GetEnumerator();
+
+            foreach (var vectorGroup in new LocalVector<Boo>(items).GroupBy(i => i.Id))
+            {
+                Assert.True(groupEnumerator.MoveNext());
+                var expectedGroup = groupEnumerator.Current;
+
+                // ReSharper disable once PossibleNullReferenceException
+                Assert.Equal(expectedGroup.Key, vectorGroup.Key);
+
+                var expectedGroupEnumerator = expectedGroup.GetEnumerator();
+                foreach (var boo in vectorGroup)
+                {
+                    Assert.True(expectedGroupEnumerator.MoveNext());
+                    var expectedBoo = expectedGroupEnumerator.Current;
+
+                    Assert.Equal(expectedBoo, boo);
+                }
+
+                expectedGroupEnumerator.Dispose();
+            }
+
+            groupEnumerator.Dispose();
+        }
+
+        [Theory, AutoData]
+        public void GroupBy_Select(List<Boo> items)
+        {
+            items.AddRange(items.Select(i => new Boo {Id = i.Id}).ToArray());
+
+            var groupEnumerator = items.GroupBy(i => i.Id).GetEnumerator();
+
+            foreach (var vectorGroup in new LocalVector<Boo>(items).GroupBy(i => i.Id))
+            {
+                Assert.True(groupEnumerator.MoveNext());
+                var expectedGroup = groupEnumerator.Current;
+
+                // ReSharper disable once PossibleNullReferenceException
+                Assert.Equal(expectedGroup.Key, vectorGroup.Key);
+
+                var expectedGroupEnumerator = expectedGroup.Select(b => b.Id).GetEnumerator();
+                foreach (var boo in vectorGroup.Select(b => b.Id))
+                {
+                    Assert.True(expectedGroupEnumerator.MoveNext());
+                    var expectedBoo = expectedGroupEnumerator.Current;
+
+                    Assert.Equal(expectedBoo, boo);
+                }
+
+                expectedGroupEnumerator.Dispose();
+            }
+
+            groupEnumerator.Dispose();
+        }
+        
+        [Theory, AutoData]
+        public void GroupBy_Where(List<Boo> items)
+        {
+            items.AddRange(items.Select(i => new Boo {Id = i.Id}).ToArray());
+
+            var groupEnumerator = items.GroupBy(i => i.Id).GetEnumerator();
+
+            foreach (var vectorGroup in new LocalVector<Boo>(items).GroupBy(i => i.Id))
+            {
+                Assert.True(groupEnumerator.MoveNext());
+                var expectedGroup = groupEnumerator.Current;
+
+                // ReSharper disable once PossibleNullReferenceException
+                Assert.Equal(expectedGroup.Key, vectorGroup.Key);
+
+                var expectedGroupEnumerator = expectedGroup.Where(b => b.Id > 1).GetEnumerator();
+                foreach (var boo in vectorGroup.Where(b => b.Id > 1))
+                {
+                    Assert.True(expectedGroupEnumerator.MoveNext());
+                    var expectedBoo = expectedGroupEnumerator.Current;
+
+                    Assert.Equal(expectedBoo, boo);
+                }
+
+                expectedGroupEnumerator.Dispose();
+            }
+
+            groupEnumerator.Dispose();
+        }
+        
+        [Theory, AutoData]
         public void Join(Boo[] items)
         {
             var outer = new LocalVector<Boo>(items);
-            
-            var innerItems = items.Select(i => new Foo { Int = i.Id }).ToArray();
+
+            var innerItems = items.Select(i => new Foo {Int = i.Id}).ToArray();
             var inner = new LocalVector<Foo>(innerItems);
 
             int OuterKeySelector(Boo b) => b.Id;
@@ -173,20 +272,21 @@ namespace Velo.Collections
                 Assert.Equal(join[counter++], number);
             }
         }
-        
+
         [Theory, AutoData]
         public void Join_OrderBy(Boo[] items)
         {
             var outer = new LocalVector<Boo>(items);
-            
-            var innerItems = items.Select(i => new Foo { Int = i.Id }).ToArray();
+
+            var innerItems = items.Select(i => new Foo {Int = i.Id}).ToArray();
             var inner = new LocalVector<Foo>(innerItems);
 
             int OuterKeySelector(Boo b) => b.Id;
             int InnerKeySelector(Foo f) => f.Int;
             float ResultBuilder(Boo b, Foo f) => b.Float;
 
-            var join = items.Join(innerItems, OuterKeySelector, InnerKeySelector, ResultBuilder).OrderBy(f => f).ToArray();
+            var join = items.Join(innerItems, OuterKeySelector, InnerKeySelector, ResultBuilder).OrderBy(f => f)
+                .ToArray();
 
             var counter = 0;
             foreach (var number in outer.Join(inner, OuterKeySelector, InnerKeySelector, ResultBuilder).OrderBy(f => f))
@@ -194,34 +294,36 @@ namespace Velo.Collections
                 Assert.Equal(join[counter++], number);
             }
         }
-        
+
         [Theory, AutoData]
         public void Join_Select(Boo[] items)
         {
             var outer = new LocalVector<Boo>(items);
-            
-            var innerItems = items.Select(i => new Foo { Int = i.Id }).ToArray();
+
+            var innerItems = items.Select(i => new Foo {Int = i.Id}).ToArray();
             var inner = new LocalVector<Foo>(innerItems);
 
             int OuterKeySelector(Boo b) => b.Id;
             int InnerKeySelector(Foo f) => f.Int;
             float ResultBuilder(Boo b, Foo f) => b.Float;
 
-            var join = items.Join(innerItems, OuterKeySelector, InnerKeySelector, ResultBuilder).Select(f => f * 10).ToArray();
+            var join = items.Join(innerItems, OuterKeySelector, InnerKeySelector, ResultBuilder).Select(f => f * 10)
+                .ToArray();
 
             var counter = 0;
-            foreach (var number in outer.Join(inner, OuterKeySelector, InnerKeySelector, ResultBuilder).Select(f => f * 10))
+            foreach (var number in outer.Join(inner, OuterKeySelector, InnerKeySelector, ResultBuilder)
+                .Select(f => f * 10))
             {
                 Assert.Equal(join[counter++], number);
             }
         }
-        
+
         [Theory, AutoData]
         public void Join_ToArray(Boo[] items)
         {
             var outer = new LocalVector<Boo>(items);
-            
-            var innerItems = items.Select(i => new Foo { Int = i.Id }).ToArray();
+
+            var innerItems = items.Select(i => new Foo {Int = i.Id}).ToArray();
             var inner = new LocalVector<Foo>(innerItems);
 
             int OuterKeySelector(Boo b) => b.Id;
@@ -236,13 +338,13 @@ namespace Velo.Collections
                 Assert.Equal(join[counter++], number);
             }
         }
-        
+
         [Theory, AutoData]
         public void Join_Where(Boo[] items)
         {
             var outer = new LocalVector<Boo>(items);
-            
-            var innerItems = items.Select(i => new Foo { Int = i.Id }).ToArray();
+
+            var innerItems = items.Select(i => new Foo {Int = i.Id}).ToArray();
             var inner = new LocalVector<Foo>(innerItems);
 
             int OuterKeySelector(Boo b) => b.Id;
@@ -262,13 +364,13 @@ namespace Velo.Collections
                 Assert.Equal(join[counter++], number);
             }
         }
-        
+
         [Theory, AutoData]
         public void Join_Where_AvoidClosure(Boo[] items)
         {
             var outer = new LocalVector<Boo>(items);
-            
-            var innerItems = items.Select(i => new Foo { Int = i.Id }).ToArray();
+
+            var innerItems = items.Select(i => new Foo {Int = i.Id}).ToArray();
             var inner = new LocalVector<Foo>(innerItems);
 
             int OuterKeySelector(Boo b) => b.Id;
@@ -288,7 +390,7 @@ namespace Velo.Collections
                 Assert.Equal(join[counter++], number);
             }
         }
-        
+
         [Theory, AutoData]
         public void Indexer(int count)
         {
@@ -335,6 +437,80 @@ namespace Velo.Collections
         }
 
         [Theory, AutoData]
+        public void Select_AvoidClosure(Boo[] items)
+        {
+            // ReSharper disable once ConvertToConstant.Local
+            var threshold = 1;
+
+            var vector = new LocalVector<Boo>(items);
+
+            var select = items.Select(i => i.Id > threshold ? 5 : 10).ToArray();
+
+            var counter = 0;
+            foreach (var number in vector.Select((i, t) => i.Id > t ? 5 : 10, threshold))
+            {
+                Assert.Equal(select[counter++], number);
+            }
+        }
+
+        [Theory, AutoData]
+        public void Select_AvoidClosure_ToArray(Boo[] items)
+        {
+            // ReSharper disable once ConvertToConstant.Local
+            var threshold = 1;
+
+            var vector = new LocalVector<Boo>(items);
+
+            var select = items.Select(i => i.Id > threshold ? 5 : 10).ToArray();
+
+            var counter = 0;
+            foreach (var number in vector
+                .Select((i, t) => i.Id > t ? 5 : 10, threshold)
+                .ToArray())
+            {
+                Assert.Equal(select[counter++], number);
+            }
+        }
+
+        [Theory, AutoData]
+        public void Select_AvoidClosure_OrderBy(Boo[] items)
+        {
+            // ReSharper disable once ConvertToConstant.Local
+            var threshold = 1;
+
+            var vector = new LocalVector<Boo>(items);
+
+            var select = items.Select(i => i.Id > threshold ? 5 : 10).OrderBy(id => id).ToArray();
+
+            var counter = 0;
+            foreach (var number in vector
+                .Select((i, t) => i.Id > t ? 5 : 10, threshold)
+                .OrderBy(id => id))
+            {
+                Assert.Equal(select[counter++], number);
+            }
+        }
+
+        [Theory, AutoData]
+        public void Select_AvoidClosure_Where(Boo[] items)
+        {
+            // ReSharper disable once ConvertToConstant.Local
+            var threshold = 1;
+
+            var vector = new LocalVector<Boo>(items);
+
+            var select = items.Select(i => i.Id > threshold ? 5 : 10).Where(id => id == 5).ToArray();
+
+            var counter = 0;
+            foreach (var number in vector
+                .Select((i, t) => i.Id > t ? 5 : 10, threshold)
+                .Where(id => id == 5))
+            {
+                Assert.Equal(select[counter++], number);
+            }
+        }
+
+        [Theory, AutoData]
         public void Select_OrderBy(Boo[] items)
         {
             var vector = new LocalVector<Boo>(items);
@@ -347,7 +523,7 @@ namespace Velo.Collections
                 Assert.Equal(select[counter++], number);
             }
         }
-        
+
         [Theory, AutoData]
         public void Select_Where(Boo[] items)
         {
@@ -361,12 +537,12 @@ namespace Velo.Collections
                 Assert.Equal(select[counter++], number);
             }
         }
-        
+
         [Theory, AutoData]
         public void Select_Where_AvoidClosure(Boo[] items)
         {
             var vector = new LocalVector<Boo>(items);
-            
+
             var select = items.Select(i => i.Id).Where(id => id > 1).ToArray();
 
             var counter = 0;
@@ -375,7 +551,7 @@ namespace Velo.Collections
                 Assert.Equal(select[counter++], number);
             }
         }
-        
+
         [Theory, AutoData]
         public void Select_ToArray(Boo[] items)
         {
@@ -402,7 +578,7 @@ namespace Velo.Collections
                 Assert.Equal(sorted[i], vector[i]);
             }
         }
-        
+
         [Theory, AutoData]
         public void ToArray(Boo[] items)
         {
@@ -484,7 +660,7 @@ namespace Velo.Collections
                 Assert.Equal(where[counter++], boo);
             }
         }
-        
+
         [Theory, AutoData]
         public void Where_Select(Boo[] items)
         {
@@ -498,7 +674,7 @@ namespace Velo.Collections
                 Assert.Equal(where[counter++], boo);
             }
         }
-        
+
         [Theory, AutoData]
         public void Where_ToArray(Boo[] items)
         {

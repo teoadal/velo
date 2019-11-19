@@ -1,33 +1,31 @@
+using System;
+using System.Diagnostics;
 using Velo.DependencyInjection.Resolvers;
-using Velo.Utils;
 
 namespace Velo.DependencyInjection.Dependencies
 {
+    [DebuggerDisplay("Contract = {Contracts[0]}")]
     internal sealed class TransientDependency : Dependency
     {
-        private bool _disposed;
-        
-        public TransientDependency(DependencyResolver resolver) : base(resolver)
+        private readonly DependencyResolver _resolver;
+
+        public TransientDependency(Type[] contracts, DependencyResolver resolver) 
+            : base(contracts, DependencyLifetime.Transient)
+        {
+            _resolver = resolver;
+        }
+
+        public TransientDependency(Type contract, DependencyResolver resolver) : this(new[] {contract}, resolver)
         {
         }
 
-        public override object GetInstance(DependencyProvider scope)
+        public override object GetInstance(Type contract, IDependencyScope scope)
         {
-            if (_disposed)
-            {
-                throw Error.Disposed(nameof(TransientDependency));
-            }
-            
-            return Resolver.Resolve(scope);
+            return _resolver.Resolve(contract, scope);
         }
 
         public override void Dispose()
         {
-            if (_disposed) return;
-            
-            _disposed = true;
-
-            base.Dispose();
         }
     }
 }

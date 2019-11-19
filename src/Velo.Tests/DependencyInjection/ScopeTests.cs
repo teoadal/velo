@@ -14,19 +14,19 @@ namespace Velo.DependencyInjection
 {
     public class ScopeTests : TestBase
     {
-        private readonly DependencyCollection _builder;
+        private readonly DependencyCollection _dependencies;
 
         public ScopeTests(ITestOutputHelper output) : base(output)
         {
-            _builder = new DependencyCollection()
+            _dependencies = new DependencyCollection()
                 .AddSingleton<IConfiguration, Configuration>()
                 .AddSingleton<JConverter>();
         }
 
         [Fact]
-        public void Activator()
+        public void Compile()
         {
-            var provider = _builder
+            var provider = _dependencies
                 .AddScoped<ISession, Session>()
                 .BuildProvider();
 
@@ -42,9 +42,9 @@ namespace Velo.DependencyInjection
         }
 
         [Fact]
-        public void Activator_Destroy()
+        public void Compile_Destroy()
         {
-            var provider = _builder
+            var provider = _dependencies
                 .AddScoped<Manager<Boo>>()
                 .BuildProvider();
 
@@ -58,16 +58,15 @@ namespace Velo.DependencyInjection
         }
         
         [Fact]
-        public void Activator_MultiThreading()
+        public void Compile_MultiThreading()
         {
-            var provider = _builder
+            var provider = _dependencies
                 .AddScoped<ISession, Session>()
                 .AddScoped<IFooRepository, FooRepository>()
-                .AddGenericScoped(typeof(IMapper<>), typeof(CompiledMapper<>))
+                .AddScoped(typeof(IMapper<>), typeof(CompiledMapper<>))
                 .AddScoped<FooService>()
                 .BuildProvider();
-
-
+            
             var tasks = new Task[10];
             for (var i = 0; i < 10; i++)
             {
@@ -91,7 +90,7 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Builder()
         {
-            var provider = _builder
+            var provider = _dependencies
                 .AddScoped<ISession>(ctx => new Session(ctx.GetService<JConverter>()))
                 .BuildProvider();
 
@@ -109,7 +108,7 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Builder_Destroy()
         {
-            var provider = _builder
+            var provider = _dependencies
                 .AddScoped<IManager<Boo>>(ctx => new Manager<Boo>())
                 .BuildProvider();
 
@@ -123,44 +122,37 @@ namespace Velo.DependencyInjection
         }
         
         [Fact]
-        public void Builder_MultiThreading()
+        public async Task Builder_MultiThreading()
         {
-            var provider = _builder
+            var provider = _dependencies
                 .AddScoped<ISession, Session>()
                 .AddScoped<IFooRepository, FooRepository>()
-                .AddGenericScoped(typeof(IMapper<>), typeof(CompiledMapper<>))
+                .AddScoped(typeof(IMapper<>), typeof(CompiledMapper<>))
                 .AddScoped(ctx => new FooService(
                     ctx.GetService<IConfiguration>(),
                     ctx.GetService<IMapper<Foo>>(),
                     ctx.GetService<IFooRepository>()))
                 .BuildProvider();
 
-
-            var tasks = new Task[10];
-            for (var i = 0; i < 10; i++)
+            await RunTasks(10, () =>
             {
-                tasks[i] = Task.Run(() =>
+                using (var scope = provider.CreateScope())
                 {
-                    using (var scope = provider.CreateScope())
-                    {
-                        var firstService = scope.GetService<FooService>();
-                        var secondService = scope.GetService<FooService>();            
-                        Assert.Same(firstService, secondService);
-                        Assert.Same(firstService.Mapper, secondService.Mapper);
-                        Assert.Same(firstService.Repository, secondService.Repository);
-                        Assert.Same(firstService.Repository.Session, secondService.Repository.Session);
-                    }
-                });
-            }
-
-            Task.WaitAll(tasks);
+                    var firstService = scope.GetService<FooService>();
+                    var secondService = scope.GetService<FooService>();
+                    Assert.Same(firstService, secondService);
+                    Assert.Same(firstService.Mapper, secondService.Mapper);
+                    Assert.Same(firstService.Repository, secondService.Repository);
+                    Assert.Same(firstService.Repository.Session, secondService.Repository.Session);
+                }
+            });
         }
         
         [Fact]
         public void Generic()
         {
-            var provider = _builder
-                .AddGenericScoped(typeof(List<>))
+            var provider = _dependencies
+                .AddScoped(typeof(List<>))
                 .BuildProvider();
 
             var first = provider.GetService<List<int>>();
@@ -177,8 +169,8 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Generic_Destroy()
         {
-            var provider = _builder
-                .AddGenericScoped(typeof(IManager<>), typeof(Manager<>))
+            var provider = _dependencies
+                .AddScoped(typeof(IManager<>), typeof(Manager<>))
                 .BuildProvider();
 
             IManager<Boo> manager;
@@ -193,8 +185,8 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Generic_With_Contract()
         {
-            var provider = _builder
-                .AddGenericScoped(typeof(IList<>), typeof(List<>))
+            var provider = _dependencies
+                .AddScoped(typeof(IList<>), typeof(List<>))
                 .BuildProvider();
 
             var first = provider.GetService<IList<int>>();
@@ -209,12 +201,21 @@ namespace Velo.DependencyInjection
         }
 
         [Fact]
-        public void Throw_Not_Generic_Contract()
+        public void Two_Contracts()
         {
-            var builder = new DependencyCollection();
+            var implementation = typeof(FooRepository);
+            var contracts = new[] {implementation, typeof(IRepository<Foo>)};
 
-            Assert.Throws<InvalidOperationException>(() =>
-                builder.AddGenericScoped(typeof(IFooRepository), typeof(FooRepository)));
+            var provider = _dependencies
+                .AddSingleton<ISession, Session>()
+                .AddDependency(contracts, implementation, DependencyLifetime.Scope)
+                .BuildProvider();
+
+            var byImplementation = provider.GetRequiredService<FooRepository>();
+            var byInterface = provider.GetRequiredService<IRepository<Foo>>();
+            
+            Assert.Same(byImplementation, byInterface);
+            Assert.IsType<FooRepository>(byInterface);
         }
 
         [Fact]
@@ -223,7 +224,7 @@ namespace Velo.DependencyInjection
             var builder = new DependencyCollection();
 
             Assert.Throws<InvalidOperationException>(() =>
-                builder.AddGenericScoped(typeof(IRepository<>), typeof(FooRepository)));
+                builder.AddScoped(typeof(IRepository<>), typeof(FooRepository)));
         }
     }
 }

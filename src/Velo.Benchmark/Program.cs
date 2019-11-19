@@ -11,8 +11,8 @@ namespace Velo.Benchmark
         // ReSharper disable once UnusedParameter.Local
         private static void Main(string[] args)
         {
-            RunCollections();
-//            RunCQRS();
+//            RunCollections();
+            RunCQRS();
 //            RunDependencyInjection();
 //            RunMappers();
 //            RunSerialization();
@@ -20,11 +20,11 @@ namespace Velo.Benchmark
 
         private static void RunCollections()
         {
-            //BenchmarkRunner.Run<ArrayIterationBenchmark>();
             BenchmarkRunner.Run<LocalVectorBenchmark>();
         }
 
-        public static void RunCqrs()
+        // ReSharper disable once InconsistentNaming
+        public static void RunCQRS()
         {
             BenchmarkRunner.Run<MediatorRequestBenchmark>();
         }

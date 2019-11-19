@@ -1,25 +1,45 @@
 using System;
-using System.Reflection;
-using Velo.DependencyInjection.Resolvers;
 
 namespace Velo.DependencyInjection.Dependencies
 {
-    public abstract class Dependency : IDisposable
+    public interface IDependency : IDisposable
     {
-        internal static readonly MethodInfo GetInstanceMethod = typeof(Dependency).GetMethod(nameof(GetInstance));
+        Type[] Contracts { get; }
         
-        public readonly DependencyResolver Resolver;
+        DependencyLifetime Lifetime { get; }
+        
+        bool Applicable(Type contract);
 
-        protected Dependency(DependencyResolver resolver)
+        object GetInstance(Type contract, IDependencyScope scope);
+    }
+    
+    public abstract class Dependency : IDependency
+    {
+        public Type[] Contracts => _contracts;
+        
+        public DependencyLifetime Lifetime { get; }
+
+        private Type[] _contracts;
+        
+        protected Dependency(Type[] contracts, DependencyLifetime lifetime)
         {
-            Resolver = resolver;
+            Lifetime = lifetime;
+            _contracts = contracts;
         }
 
-        public abstract object GetInstance(DependencyProvider scope);
-
-        public virtual void Dispose()
+        public bool Applicable(Type request)
         {
-            Resolver.Dispose();
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var contract in _contracts)
+            {
+                if (contract.IsAssignableFrom(request)) return true;
+            }
+
+            return false;
         }
+
+        public abstract object GetInstance(Type contract, IDependencyScope scope);
+
+        public abstract void Dispose();
     }
 }

@@ -13,11 +13,11 @@ namespace Velo.DependencyInjection
 {
     public class SingletonTests : TestBase
     {
-        private readonly DependencyCollection _collection;
+        private readonly DependencyCollection _dependencies;
 
         public SingletonTests(ITestOutputHelper output) : base(output)
         {
-            _collection = new DependencyCollection()
+            _dependencies = new DependencyCollection()
                 .AddSingleton<IConfiguration, Configuration>()
                 .AddSingleton<JConverter>();
         }
@@ -25,7 +25,7 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Activator()
         {
-            var provider = _collection
+            var provider = _dependencies
                 .AddSingleton<ISession, Session>()
                 .BuildProvider();
 
@@ -38,7 +38,7 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Activator_Destroy()
         {
-            var provider = _collection
+            var provider = _dependencies
                 .AddSingleton<Manager<Boo>>()
                 .BuildProvider();
 
@@ -52,10 +52,10 @@ namespace Velo.DependencyInjection
         [Fact]
         public async Task Activator_MultiThreading()
         {
-            var provider = _collection
+            var provider = _dependencies
                 .AddSingleton<ISession, Session>()
                 .AddSingleton<IFooRepository, FooRepository>()
-                .AddGenericSingleton(typeof(IMapper<>), typeof(CompiledMapper<>))
+                .AddSingleton(typeof(IMapper<>), typeof(CompiledMapper<>))
                 .AddSingleton<FooService>()
                 .BuildProvider();
 
@@ -77,7 +77,7 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Builder()
         {
-            var provider = _collection
+            var provider = _dependencies
                 .AddSingleton<ISession>(ctx => new Session(ctx.GetService<JConverter>()))
                 .BuildProvider();
 
@@ -90,7 +90,7 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Builder_Destroy()
         {
-            var provider = _collection
+            var provider = _dependencies
                 .AddSingleton<IManager<Boo>>(ctx => new Manager<Boo>())
                 .BuildProvider();
 
@@ -104,10 +104,10 @@ namespace Velo.DependencyInjection
         [Fact]
         public async Task Builder_MultiThreading()
         {
-            var provider = _collection
+            var provider = _dependencies
                 .AddSingleton<ISession, Session>()
                 .AddSingleton<IFooRepository, FooRepository>()
-                .AddGenericSingleton(typeof(IMapper<>), typeof(CompiledMapper<>))
+                .AddSingleton(typeof(IMapper<>), typeof(CompiledMapper<>))
                 .AddSingleton(ctx => new FooService(
                     ctx.GetService<IConfiguration>(),
                     ctx.GetService<IMapper<Foo>>(),
@@ -131,7 +131,7 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Instance()
         {
-            var provider = _collection
+            var provider = _dependencies
                 .AddInstance(new JConverter())
                 .BuildProvider();
 
@@ -144,7 +144,7 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Instance_Destroy()
         {
-            var provider = _collection
+            var provider = _dependencies
                 .AddInstance(new BooRepository(null, null))
                 .BuildProvider();
 
@@ -158,8 +158,8 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Generic()
         {
-            var provider = _collection
-                .AddGenericSingleton(typeof(CompiledMapper<>))
+            var provider = _dependencies
+                .AddSingleton(typeof(CompiledMapper<>))
                 .BuildProvider();
 
             var boo1 = provider.GetService<CompiledMapper<Boo>>();
@@ -176,10 +176,10 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Generic_Destroy()
         {
-            var provider = _collection
+            var provider = _dependencies
                 .AddSingleton<ISession, Session>()
                 .AddSingleton<IConfiguration, Configuration>()
-                .AddGenericSingleton(typeof(IManager<>), typeof(Manager<>))
+                .AddSingleton(typeof(IManager<>), typeof(Manager<>))
                 .BuildProvider();
 
             var manager1 = provider.GetService<IManager<Boo>>();
@@ -194,8 +194,8 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Generic_WithContract()
         {
-            var provider = _collection
-                .AddGenericSingleton(typeof(IMapper<>), typeof(CompiledMapper<>))
+            var provider = _dependencies
+                .AddSingleton(typeof(IMapper<>), typeof(CompiledMapper<>))
                 .BuildProvider();
 
             var boo1 = provider.GetService<IMapper<Boo>>();
@@ -210,21 +210,30 @@ namespace Velo.DependencyInjection
         }
 
         [Fact]
-        public void Throw_Not_Generic_Contract()
+        public void Two_Contracts()
         {
-            var builder = new DependencyCollection();
+            var implementation = typeof(FooRepository);
+            var contracts = new[] {implementation, typeof(IRepository<Foo>)};
 
-            Assert.Throws<InvalidOperationException>(() =>
-                builder.AddGenericSingleton(typeof(IFooRepository), typeof(FooRepository)));
+            var provider = _dependencies
+                .AddSingleton<ISession, Session>()
+                .AddDependency(contracts, implementation, DependencyLifetime.Singleton)
+                .BuildProvider();
+
+            var byImplementation = provider.GetRequiredService<FooRepository>();
+            var byInterface = provider.GetRequiredService<IRepository<Foo>>();
+            
+            Assert.Same(byImplementation, byInterface);
+            Assert.IsType<FooRepository>(byInterface);
         }
-
+        
         [Fact]
         public void Throw_Not_Generic_Implementation()
         {
             var builder = new DependencyCollection();
 
             Assert.Throws<InvalidOperationException>(() =>
-                builder.AddGenericSingleton(typeof(IRepository<>), typeof(FooRepository)));
+                builder.AddSingleton(typeof(IRepository<>), typeof(FooRepository)));
         }
     }
 }

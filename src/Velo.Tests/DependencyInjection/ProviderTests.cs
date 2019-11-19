@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using Velo.Mapping;
 using Velo.Serialization;
 using Velo.TestsModels.Boos;
@@ -16,31 +16,32 @@ namespace Velo.DependencyInjection
 {
     public class ProviderTests : TestBase
     {
-        private readonly DependencyCollection _collection;
+        private readonly DependencyCollection _dependencies;
 
         public ProviderTests(ITestOutputHelper output) : base(output)
         {
-            _collection = new DependencyCollection()
+            _dependencies = new DependencyCollection()
                 .AddSingleton<JConverter>()
                 .AddSingleton<IConfiguration, Configuration>()
                 .AddSingleton<ISession, Session>();
         }
 
         [Fact]
-        public void CircularDependency()
+        public void Activate()
         {
-            Assert.Throws<TypeAccessException>(() => _collection
-                .AddSingleton<CircularDependencyService>()
-                .BuildProvider());
+            var provider = _dependencies.BuildProvider();
+            var repository = provider.Activate(typeof(FooRepository));
+            
+            Assert.NotNull(repository);
+            Assert.IsType<FooRepository>(repository);
         }
-
+        
         [Fact]
         public void Destroy()
         {
-            var provider = _collection
+            var provider = _dependencies
                 .AddSingleton<IMapper<Boo>, CompiledMapper<Boo>>()
-                .AddSingleton<IBooRepository>(ctx =>
-                    new BooRepository(ctx.GetService<IConfiguration>(), ctx.GetService<ISession>()))
+                .AddSingleton<IBooRepository>(ctx => new BooRepository(ctx.GetService<IConfiguration>(), ctx.GetService<ISession>()))
                 .AddSingleton<BooService>()
                 .BuildProvider();
 
@@ -77,7 +78,7 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Resolve_DependencyProvider()
         {
-            var provider = _collection.BuildProvider();
+            var provider = _dependencies.BuildProvider();
 
             Assert.Equal(provider, provider.GetRequiredService<DependencyProvider>());
             Assert.Equal(provider, provider.GetRequiredService<IServiceProvider>());
@@ -86,7 +87,7 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Resolve_Array()
         {
-            var provider = _collection
+            var provider = _dependencies
                 .AddSingleton<IRepository, BooRepository>()
                 .AddSingleton<IRepository, FooRepository>()
                 .AddSingleton<IRepository, OtherFooRepository>()
@@ -98,9 +99,48 @@ namespace Velo.DependencyInjection
         }
 
         [Fact]
+        public void Resolve_Array_Empty()
+        {
+            var provider = _dependencies.BuildProvider();
+            var emptyArray = provider.GetRequiredService<IRepository[]>();
+            Assert.Empty(emptyArray);
+        }
+        
+        [Fact]
+        public void Resolve_Enumerable()
+        {
+            var provider = _dependencies
+                .AddSingleton<IRepository, BooRepository>()
+                .AddSingleton<IRepository, FooRepository>()
+                .AddSingleton<IRepository, OtherFooRepository>()
+                .BuildProvider();
+
+            var array = provider.GetService<IEnumerable<IRepository>>();
+
+            Assert.Equal(3, array.Count());
+        }
+        
+        [Fact]
+        public async Task Resolve_Array_MultiThreading()
+        {
+            var provider = _dependencies
+                .AddSingleton<IRepository, BooRepository>()
+                .AddSingleton<IRepository, FooRepository>()
+                .AddSingleton<IRepository, OtherFooRepository>()
+                .BuildProvider();
+
+
+            await RunTasks(10, () =>
+            {
+                var array = provider.GetService<IRepository[]>();
+                Assert.Equal(3, array.Length);
+            });
+        }
+        
+        [Fact]
         public void Resolve_Array_WithOneElement()
         {
-            var provider = _collection
+            var provider = _dependencies
                 .AddSingleton<IRepository, BooRepository>()
                 .BuildProvider();
 
@@ -111,11 +151,11 @@ namespace Velo.DependencyInjection
         }
 
         [Fact]
-        public void Resolve_MultiThreading()
+        public async Task Resolve_MultiThreading()
         {
-            var provider = _collection
+            var provider = _dependencies
                 .AddInstance<ILogger>(new Logger())
-                .AddGenericSingleton(typeof(IMapper<>), typeof(CompiledMapper<>))
+                .AddSingleton(typeof(IMapper<>), typeof(CompiledMapper<>))
                 .AddSingleton<IFooService, FooService>()
                 .AddSingleton<IFooRepository, FooRepository>()
                 .AddSingleton<IBooService, BooService>()
@@ -124,15 +164,13 @@ namespace Velo.DependencyInjection
                 .BuildProvider();
 
             var resolvedControllers = new ConcurrentBag<SomethingController>();
-            for (var i = 0; i < 10; i++)
-            {
-                Task.Run(() =>
-                {
-                    var controller = provider.GetService<SomethingController>();
-                    resolvedControllers.Add(controller);
-                });
-            }
 
+            await RunTasks(10, () =>
+            {
+                var controller = provider.GetService<SomethingController>();
+                resolvedControllers.Add(controller);
+            });
+            
             foreach (var controller in resolvedControllers)
             {
                 foreach (var otherController in resolvedControllers)
@@ -149,12 +187,30 @@ namespace Velo.DependencyInjection
         }
 
         [Fact]
+        public void Throw_CircularDependency()
+        {
+            var provider = _dependencies
+                .AddSingleton<CircularDependencyService>()
+                .BuildProvider();
+            
+            Assert.Throws<TypeAccessException>(() => provider.GetService<CircularDependencyService>());
+        }
+        
+        [Fact]
+        public void Throw_CircularDependency_Required()
+        {
+            var provider = _dependencies
+                .AddSingleton<CircularDependencyService>()
+                .BuildProvider();
+            
+            Assert.Throws<TypeAccessException>(() => provider.GetRequiredService<CircularDependencyService>());
+        }
+
+        [Fact]
         public void Throw_Disposed()
         {
             var provider = new DependencyCollection()
-                .AddScoped<IConfiguration, Configuration>()
                 .AddSingleton<JConverter>()
-                .AddTransient<ISession, Session>()
                 .BuildProvider();
 
             provider.Dispose();
@@ -163,17 +219,24 @@ namespace Velo.DependencyInjection
         }
 
         [Fact]
+        public void Throw_Activate_Interface()
+        {
+            var provider = new DependencyCollection().BuildProvider();
+            Assert.Throws<InvalidOperationException>(() => provider.Activate<ISession>());
+        }
+        
+        [Fact]
+        public void Throw_Activate_NotRegistered()
+        {
+            var provider = new DependencyCollection().BuildProvider();
+            Assert.Throws<KeyNotFoundException>(() => provider.Activate<FooRepository>());
+        }
+        
+        [Fact]
         public void Throw_Resolve_NotRegistered()
         {
-            var provider = _collection.BuildProvider();
+            var provider = _dependencies.BuildProvider();
             Assert.Throws<KeyNotFoundException>(() => provider.GetRequiredService(typeof(IManager<>)));
-        }
-
-        [Fact]
-        public void Throw_Resolve_ArrayElementsNotRegistered()
-        {
-            var provider = _collection.BuildProvider();
-            Assert.Throws<KeyNotFoundException>(() => provider.GetRequiredService<IRepository[]>());
         }
     }
 }

@@ -9,19 +9,4 @@
       <ProjectReference Include="..\Velo\Velo.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Compile Update="Boos\Emitting\CreateBooHandler.cs">
-        <DependentUpon>CreateBoo.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Boos\Emitting\GetBooHandler.cs">
-        <DependentUpon>GetBoo.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Boos\Emitting\UpdateBooHandler.cs">
-        <DependentUpon>UpdateBoo.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Boos\Emitting\GetBooIntHandler.cs">
-        <DependentUpon>GetBooInt.cs</DependentUpon>
-      </Compile>
-    </ItemGroup>
-
 </Project>

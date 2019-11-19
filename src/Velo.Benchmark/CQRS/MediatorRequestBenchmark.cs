@@ -1,22 +1,24 @@
 using System.Threading;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Jobs;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Velo.CQRS;
 using Velo.DependencyInjection;
 using Velo.TestsModels.Boos;
-using Velo.TestsModels.Boos.Emitting;
+using Boos = Velo.TestsModels.Emitting.Boos;
 
 namespace Velo.Benchmark.CQRS
 {
-    [CoreJob]
+    [SimpleJob(RuntimeMoniker.NetCoreApp22)]
     [MeanColumn, MemoryDiagnoser]
     public class MediatorRequestBenchmark
     {
         private const int ElementsCount = 1000;
-        
+
         private IMediator _mediator;
+        private IMediator _mediatorOnVelo;
         private Emitter _emitter;
 
         [GlobalSetup]
@@ -31,16 +33,21 @@ namespace Velo.Benchmark.CQRS
 
             _mediator = new ServiceCollection()
                 .AddSingleton<IBooRepository>(ctx => repository)
-                .AddSingleton<IRequestHandler<GetBooRequest, Boo>, GetBooRequestHandler>()
-                .AddSingleton<IRequestHandler<GetBooIntRequest, int>, GetBooIntRequestHandler>()
+                .AddSingleton<IRequestHandler<GetRequest, Boo>, GetHandler>()
                 .AddSingleton<IMediator>(ctx => new Mediator(ctx.GetService))
                 .BuildServiceProvider()
                 .GetRequiredService<IMediator>();
 
+            _mediatorOnVelo = new DependencyCollection()
+                .AddSingleton<IBooRepository>(ctx => repository)
+                .AddSingleton<IRequestHandler<GetRequest, Boo>, GetHandler>()
+                .AddSingleton<IMediator>(ctx => new Mediator(ctx.GetService))
+                .BuildProvider()
+                .GetRequiredService<IMediator>();
+
             _emitter = new DependencyCollection()
                 .AddInstance<IBooRepository>(repository)
-                .AddRequestHandler<GetBooHandler>()
-                .AddRequestHandler<GetBooIntHandler>()
+                .AddQueryProcessor<Boos.Get.Processor>()
                 .AddEmitter()
                 .BuildProvider()
                 .GetService<Emitter>();
@@ -52,10 +59,23 @@ namespace Velo.Benchmark.CQRS
             long sum = 0;
             for (var i = 0; i < ElementsCount; i++)
             {
-                var boo = await _mediator.Send(new GetBooRequest {Id = i});
-                var booInt = await _mediator.Send(new GetBooIntRequest {Id = i});
+                var boo = await _mediator.Send(new GetRequest {Id = i});
 
-                sum = sum + boo.Int + booInt;
+                sum += boo.Int;
+            }
+
+            return sum;
+        }
+
+        [Benchmark]
+        public async Task<long> MediatR_OnVelo()
+        {
+            long sum = 0;
+            for (var i = 0; i < ElementsCount; i++)
+            {
+                var boo = await _mediatorOnVelo.Send(new GetRequest {Id = i});
+
+                sum += boo.Int;
             }
 
             return sum;
@@ -67,52 +87,31 @@ namespace Velo.Benchmark.CQRS
             long sum = 0;
             for (var i = 0; i < ElementsCount; i++)
             {
-                var boo = await _emitter.Ask(new GetBoo {Id = i});
-                var booInt = await _emitter.Ask(new GetBooInt {Id = i});
+                var boo = await _emitter.Ask(new Boos.Get.Query {Id = i});
 
-                sum = sum + boo.Int + booInt;
+                sum += boo.Int;
             }
 
             return sum;
         }
 
-        private sealed class GetBooRequest : IRequest<Boo>
+        private sealed class GetRequest : IRequest<Boo>
         {
             public int Id { get; set; }
         }
 
-        private sealed class GetBooRequestHandler : IRequestHandler<GetBooRequest, Boo>
+        private sealed class GetHandler : IRequestHandler<GetRequest, Boo>
         {
             private readonly IBooRepository _repository;
 
-            public GetBooRequestHandler(IBooRepository repository)
+            public GetHandler(IBooRepository repository)
             {
                 _repository = repository;
             }
 
-            public Task<Boo> Handle(GetBooRequest request, CancellationToken cancellationToken)
+            public Task<Boo> Handle(GetRequest request, CancellationToken cancellationToken)
             {
                 return Task.FromResult(_repository.GetElement(request.Id));
-            }
-        }
-
-        private sealed class GetBooIntRequest : IRequest<int>
-        {
-            public int Id { get; set; }
-        }
-
-        private sealed class GetBooIntRequestHandler : IRequestHandler<GetBooIntRequest, int>
-        {
-            private readonly IBooRepository _repository;
-
-            public GetBooIntRequestHandler(IBooRepository repository)
-            {
-                _repository = repository;
-            }
-
-            public Task<int> Handle(GetBooIntRequest request, CancellationToken cancellationToken)
-            {
-                return Task.FromResult(_repository.GetElement(request.Id).Int);
             }
         }
     }

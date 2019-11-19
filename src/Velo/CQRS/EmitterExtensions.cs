@@ -1,4 +1,7 @@
+using System;
+using System.Runtime.CompilerServices;
 using Velo.CQRS.Commands;
+using Velo.CQRS.Notifications;
 using Velo.CQRS.Queries;
 using Velo.DependencyInjection;
 using Velo.DependencyInjection.Scan;
@@ -10,43 +13,61 @@ namespace Velo.CQRS
     {
         public static DependencyCollection AddEmitter(this DependencyCollection collection)
         {
-            collection.AddSingleton<CommandRouter>();
-            collection.AddSingleton<QueryRouter>();
-            collection.AddScoped<Emitter>();
+            collection
+                .AddSingleton<CommandRouter>()
+                .AddSingleton<QueryRouter>()
+                .AddSingleton<NotificationRouter>()
+                .AddScoped<Emitter>();
 
             return collection;
         }
 
-        public static DependencyCollection AddCommandHandler<THandler>(this DependencyCollection collection,
+        public static DependencyCollection AddCommandProcessor<TProcessor>(this DependencyCollection collection,
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
-            where THandler : ICommandHandler
+            where TProcessor : ICommandProcessor
         {
-            var implementation = Typeof<THandler>.Raw;
-            var contracts = ReflectionUtils.GetGenericInterfaceImplementations(implementation, CommandRouter.HandlerType);
+            AddProcessor(collection, Typeof<TProcessor>.Raw, CommandRouter.ProcessorTypes, lifetime);
+            return collection;
+        }
 
-            collection.Add(contracts.ToArray(), implementation, lifetime);
+        public static DependencyCollection AddNotificationProcessor<TProcessor>(this DependencyCollection collection,
+            DependencyLifetime lifetime = DependencyLifetime.Singleton)
+            where TProcessor : INotificationProcessor
+        {
+            AddProcessor(collection, Typeof<TProcessor>.Raw, NotificationRouter.ProcessorTypes, lifetime);
+            return collection;
+        }
+
+        public static DependencyCollection AddQueryProcessor<TProcessor>(this DependencyCollection collection,
+            DependencyLifetime lifetime = DependencyLifetime.Singleton)
+            where TProcessor : IQueryProcessor
+        {
+            var implementation = Typeof<TProcessor>.Raw;
+            var contracts =
+                ReflectionUtils.GetGenericInterfaceImplementations(implementation, QueryRouter.ProcessorTypes);
+
+            collection.AddDependency(contracts.ToArray(), implementation, lifetime);
 
             return collection;
         }
 
-        public static DependencyCollection AddRequestHandler<THandler>(this DependencyCollection collection,
+        public static DependencyScanner AddEmitterProcessors(this DependencyScanner scanner,
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
-            where THandler : IQueryHandler
         {
-            var implementation = Typeof<THandler>.Raw;
-            var contracts = ReflectionUtils.GetGenericInterfaceImplementations(implementation, QueryRouter.HandlerType);
-
-            collection.Add(contracts.ToArray(), implementation, lifetime);
-
-            return collection;
+            return scanner.UseAllover(new ProcessorsAllover(lifetime));
         }
 
-        public static DependencyScanner AddEmitterHandlers(this DependencyScanner scanner,
-            DependencyLifetime lifetime = DependencyLifetime.Singleton)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void AddProcessor(
+            DependencyCollection collection,
+            Type implementation,
+            Type[] genericInterfaces,
+            DependencyLifetime lifetime)
         {
-            scanner.UseAllover(new EmitterAllover(lifetime));
+            var contracts = ReflectionUtils.GetGenericInterfaceImplementations(implementation, genericInterfaces);
+            contracts.Add(implementation);
 
-            return scanner;
+            collection.AddDependency(contracts.ToArray(), implementation, lifetime);
         }
     }
 }

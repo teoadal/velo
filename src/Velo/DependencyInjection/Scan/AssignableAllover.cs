@@ -2,7 +2,7 @@ using System;
 
 namespace Velo.DependencyInjection.Scan
 {
-    internal sealed class AssignableAllover : DependencyAllover
+    internal sealed class AssignableAllover : IDependencyAllover
     {
         private readonly Type _contract;
         private readonly DependencyLifetime _lifetime;
@@ -13,11 +13,11 @@ namespace Velo.DependencyInjection.Scan
             _lifetime = lifetime;
         }
 
-        public override void TryRegister(DependencyCollection collection, Type implementation)
+        public void TryRegister(DependencyCollection collection, Type implementation)
         {
             if (!_contract.IsAssignableFrom(implementation)) return;
 
-            collection.Add(_contract, implementation, _lifetime);
+            collection.AddDependency(_contract, implementation, _lifetime);
         }
     }
 }

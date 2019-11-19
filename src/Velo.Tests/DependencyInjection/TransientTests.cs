@@ -13,19 +13,19 @@ namespace Velo.DependencyInjection
 {
     public class TransientTests : TestBase
     {
-        private readonly DependencyCollection _collection;
+        private readonly DependencyCollection _dependencies;
 
         public TransientTests(ITestOutputHelper output) : base(output)
         {
-            _collection = new DependencyCollection()
+            _dependencies = new DependencyCollection()
                 .AddSingleton<IConfiguration, Configuration>()
                 .AddSingleton<JConverter>();
         }
 
         [Fact]
-        public void Activator()
+        public void Compile()
         {
-            var provider = _collection
+            var provider = _dependencies
                 .AddTransient<ISession, Session>()
                 .BuildProvider();
 
@@ -36,12 +36,12 @@ namespace Velo.DependencyInjection
         }
 
         [Fact]
-        public void Activator_MultiThreading()
+        public void Compile_MultiThreading()
         {
-            var provider = _collection
+            var provider = _dependencies
                 .AddTransient<ISession, Session>()
                 .AddTransient<IFooRepository, FooRepository>()
-                .AddGenericTransient(typeof(IMapper<>), typeof(CompiledMapper<>))
+                .AddTransient(typeof(IMapper<>), typeof(CompiledMapper<>))
                 .AddTransient<FooService>()
                 .BuildProvider();
             
@@ -61,7 +61,7 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Builder()
         {
-            var provider = _collection
+            var provider = _dependencies
                 .AddTransient<ISession>(ctx => new Session(ctx.GetService<JConverter>()))
                 .BuildProvider();
 
@@ -74,10 +74,10 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Builder_MultiThreading()
         {
-            var provider = _collection
+            var provider = _dependencies
                 .AddTransient<ISession, Session>()
                 .AddTransient<IFooRepository, FooRepository>()
-                .AddGenericTransient(typeof(IMapper<>), typeof(CompiledMapper<>))
+                .AddTransient(typeof(IMapper<>), typeof(CompiledMapper<>))
                 .AddTransient(ctx => new FooService(
                     ctx.GetService<IConfiguration>(),
                     ctx.GetService<IMapper<Foo>>(),
@@ -100,8 +100,8 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Generic()
         {
-            var provider = _collection
-                .AddGenericTransient(typeof(List<>))
+            var provider = _dependencies
+                .AddTransient(typeof(List<>))
                 .BuildProvider();
 
             var first = provider.GetService<List<int>>();
@@ -113,8 +113,8 @@ namespace Velo.DependencyInjection
         [Fact]
         public void Generic_With_Contract()
         {
-            var provider = _collection
-                .AddGenericTransient(typeof(IList<>), typeof(List<>))
+            var provider = _dependencies
+                .AddTransient(typeof(IList<>), typeof(List<>))
                 .BuildProvider();
 
             var first = provider.GetService<IList<int>>();
@@ -124,12 +124,21 @@ namespace Velo.DependencyInjection
         }
 
         [Fact]
-        public void Throw_Not_Generic_Contract()
+        public void Two_Contracts()
         {
-            var builder = new DependencyCollection();
+            var implementation = typeof(FooRepository);
+            var contracts = new[] {implementation, typeof(IRepository<Foo>)};
 
-            Assert.Throws<InvalidOperationException>(() =>
-                builder.AddGenericTransient(typeof(IFooRepository), typeof(FooRepository)));
+            var provider = _dependencies
+                .AddSingleton<ISession, Session>()
+                .AddDependency(contracts, implementation, DependencyLifetime.Transient)
+                .BuildProvider();
+
+            var byImplementation = provider.GetRequiredService<FooRepository>();
+            var byInterface = provider.GetRequiredService<IRepository<Foo>>();
+            
+            Assert.NotSame(byImplementation, byInterface);
+            Assert.IsType<FooRepository>(byInterface);
         }
 
         [Fact]
@@ -138,7 +147,7 @@ namespace Velo.DependencyInjection
             var builder = new DependencyCollection();
 
             Assert.Throws<InvalidOperationException>(() =>
-                builder.AddGenericTransient(typeof(IRepository<>), typeof(FooRepository)));
+                builder.AddTransient(typeof(IRepository<>), typeof(FooRepository)));
         }
     }
 }

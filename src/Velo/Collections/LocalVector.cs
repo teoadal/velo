@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Velo.Utils;
 
 namespace Velo.Collections
 {
+    [DebuggerTypeProxy(typeof(LocalVectorDebugVisualizer<>))]
+    [DebuggerDisplay("Length = {" + nameof(_length) + "}")]
     public ref partial struct LocalVector<T>
     {
         private const int Capacity = 6;
@@ -17,7 +20,7 @@ namespace Velo.Collections
         private T _element3;
         private T _element4;
         private T _element5;
-        private List<T> _list;
+        private T[] _array;
 
         private int _length;
 
@@ -32,7 +35,7 @@ namespace Velo.Collections
             _element4 = default;
             _element5 = default;
 
-            _list = capacity > Capacity ? new List<T>(capacity - Capacity) : null;
+            _array = capacity > Capacity ? new T[capacity - Capacity] : null;
 
             _length = 0;
         }
@@ -57,6 +60,15 @@ namespace Velo.Collections
 
         #endregion
 
+        public bool All(Predicate<T> predicate)
+        {
+            for (var i = 0; i < _length; i++)
+                if (!predicate(Get(i)))
+                    return false;
+
+            return true;
+        }
+
         public void Add(T element)
         {
             switch (_length)
@@ -79,16 +91,18 @@ namespace Velo.Collections
                 case 5:
                     _element5 = element;
                     break;
-                case 6:
-                    if (_list == null) _list = new List<T>();
-                    _list.Add(element);
-                    break;
                 default:
-                    _list.Add(element);
+                    AddToArray(element);
                     break;
             }
 
             _length++;
+        }
+
+        public void AddRange(LocalVector<T> collection)
+        {
+            foreach (var element in collection)
+                Add(element);
         }
 
         public readonly bool Any(Predicate<T> predicate)
@@ -111,15 +125,6 @@ namespace Velo.Collections
 
         public void Clear()
         {
-            _element0 = default;
-            _element1 = default;
-            _element2 = default;
-            _element3 = default;
-            _element4 = default;
-            _element5 = default;
-
-            _list?.Clear();
-
             _length = 0;
         }
 
@@ -158,6 +163,13 @@ namespace Velo.Collections
             return new Enumerator(this);
         }
 
+        public readonly GroupEnumerator<TKey> GroupBy<TKey>(Func<T, TKey> keySelector,
+            EqualityComparer<TKey> keyComparer = null)
+        {
+            if (keyComparer == null) keyComparer = EqualityComparer<TKey>.Default;
+            return new GroupEnumerator<TKey>(this, keySelector, keyComparer);
+        }
+
         public JoinEnumerator<TResult, TInner, TKey> Join<TResult, TInner, TKey>(
             LocalVector<TInner> inner,
             Func<T, TKey> outerKeySelector,
@@ -189,9 +201,9 @@ namespace Velo.Collections
                     var current = Get(j);
                     var nextIndex = j + 1;
                     var next = Get(nextIndex);
-                    
+
                     if (comparer.Compare(property(next), property(current)) != -1) continue;
-                    
+
                     final = true;
                     Set(nextIndex, current);
                     Set(j, next);
@@ -260,6 +272,34 @@ namespace Velo.Collections
             }
         }
 
+        private void AddToArray(T element)
+        {
+            var length = _length;
+            var array = _array;
+
+            if (length == Capacity)
+            {
+                if (array == null) _array = array = new T[4];
+                array[0] = element;
+                return;
+            }
+
+            var index = length - Capacity;
+            if ((uint) index < (uint) array.Length)
+            {
+                array[index] = element;
+            }
+            else
+            {
+                var newArray = new T[array.Length * 2];
+                Array.Copy(array, 0, newArray, 0, index);
+
+                newArray[index] = element;
+
+                _array = newArray;
+            }
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private readonly T Get(int index)
         {
@@ -271,7 +311,7 @@ namespace Velo.Collections
                 case 3: return _element3;
                 case 4: return _element4;
                 case 5: return _element5;
-                default: return _list[index - Capacity];
+                default: return _array[index - Capacity];
             }
         }
 
@@ -298,7 +338,7 @@ namespace Velo.Collections
                     _element5 = value;
                     return;
                 default:
-                    _list[index - Capacity] = value;
+                    _array[index - Capacity] = value;
                     return;
             }
         }

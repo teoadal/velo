@@ -14,15 +14,15 @@ namespace Velo.Collections
 
             public readonly int Length;
             
-            private readonly LocalVector<T> _vector;
-            
             private int _position;
+            // ReSharper disable once FieldCanBeMadeReadOnly.Local
+            private LocalVector<T> _vector;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             internal Enumerator(LocalVector<T> vector)
             {
                 Length = vector.Length;
-                
+
                 _position = -1;
                 _vector = vector;
             }
@@ -30,16 +30,14 @@ namespace Velo.Collections
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool MoveNext()
             {
-                var index = _position + 1;
-                if (index >= Length) return false;
-                
-                _position = index;
-                return true;
+                _position++;
+                return _position < Length;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void Reset()
             {
-                _position = 0;
+                _position = -1;
             }
         }
     }

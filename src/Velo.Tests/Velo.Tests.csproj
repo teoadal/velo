@@ -6,6 +6,8 @@
         <IsPackable>false</IsPackable>
 
         <RootNamespace>Velo</RootNamespace>
+
+        <LangVersion>8</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -19,6 +21,10 @@
     <ItemGroup>
         <ProjectReference Include="..\Velo.TestsModels\Velo.TestsModels.csproj" />
         <ProjectReference Include="..\Velo\Velo.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="ECS" />
     </ItemGroup>
 
 </Project>

@@ -1,33 +1,26 @@
 using System;
-using System.Collections.Generic;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using Velo.DependencyInjection.Dependencies;
-using Velo.DependencyInjection.Engines;
-using Velo.DependencyInjection.Factories;
 using Velo.DependencyInjection.Resolvers;
 using Velo.Utils;
 
 namespace Velo.DependencyInjection
 {
-    public sealed class DependencyProvider : IServiceProvider, IDisposable
+    public sealed class DependencyProvider : IDependencyScope, IServiceProvider
     {
-        public event Action<DependencyProvider> Destroy;
+        public event Action<IDependencyScope> Destroy;
 
         private bool _disposed;
-        private RuntimeEngine _engine;
-        private DependencyProvider _parent;
+        private readonly DependencyEngine _engine;
         private readonly object _lock;
+        private readonly DependencyProvider _parent;
 
-        internal DependencyProvider(Dictionary<Type, DependencyDescription> descriptions,
-            List<ResolverFactory> factories)
+        internal DependencyProvider(DependencyEngine engine)
         {
-            AddSelfDependency(descriptions);
+            engine.AddDependency(BuildSelfDependency());
 
-            using (var engineBuilder = new DependencyEngineBuilder(descriptions, factories))
-            {
-                _engine = engineBuilder.Build();
-            }
-            
+            _engine = engine;
             _lock = new object();
         }
 
@@ -37,81 +30,106 @@ namespace Velo.DependencyInjection
             _lock = parent._lock;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public DependencyProvider CreateScope()
+        public IDependencyScope CreateScope()
         {
             return new DependencyProvider(this);
         }
 
-        public T GetRequiredService<T>()
+        public object Activate(Type implementation, ConstructorInfo constructor = null)
         {
-            return (T) GetRequiredService(Typeof<T>.Raw);
-        }
+            if (implementation.IsInterface || implementation.IsGenericTypeDefinition)
+            {
+                throw Error.InvalidOperation($"Type {ReflectionUtils.GetName(implementation)} can't be activated");
+            }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public object GetRequiredService(Type contract)
-        {
             lock (_lock)
             {
-                var dependency = GetDependency(contract);
-                return dependency.GetInstance(this);
+                if (_disposed) throw Error.Disposed(nameof(DependencyProvider));
+
+                if (constructor == null)
+                {
+                    constructor = ReflectionUtils.GetConstructor(implementation);
+                }
+
+                var engine = GetEngine();
+                var parameters = constructor.GetParameters();
+
+                var parameterInstances = new object[parameters.Length];
+                for (var i = 0; i < parameters.Length; i++)
+                {
+                    var parameter = parameters[i];
+                    var parameterType = parameter.ParameterType;
+                    var required = !parameter.HasDefaultValue;
+
+                    var dependency = engine.GetDependency(parameterType, required);
+                    parameterInstances[i] = dependency?.GetInstance(parameterType, this);
+                }
+
+                return constructor.Invoke(parameterInstances);
             }
         }
 
-        public T GetService<T>()
-        {
-            return (T) GetService(Typeof<T>.Raw);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public object GetService(Type contract)
         {
             lock (_lock)
             {
-                var dependency = GetDependency(contract, false);
-                return dependency?.GetInstance(this);
+                if (_disposed) throw Error.Disposed(nameof(DependencyProvider));
+
+                var engine = GetEngine();
+                var dependency = engine.GetDependency(contract);
+
+                return dependency?.GetInstance(contract, this);
             }
         }
 
-        private void AddSelfDependency(Dictionary<Type, DependencyDescription> descriptions)
+        public object GetRequiredService(Type contract)
         {
-            var providerResolver = new InstanceResolver(this);
+            lock (_lock)
+            {
+                if (_disposed) throw Error.Disposed(nameof(DependencyProvider));
 
-            var description = new DependencyDescription(providerResolver);
-            descriptions.Add(Typeof<DependencyProvider>.Raw, description);
-            descriptions.Add(Typeof<IServiceProvider>.Raw, description);   
+                var engine = GetEngine();
+                var dependency = engine.GetDependency(contract, true);
+
+                return dependency.GetInstance(contract, this);
+            }
         }
-        
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private Dependency GetDependency(Type contract, bool throwIfNotRegistered = true)
-        {
-            if (_disposed) throw Error.Disposed(nameof(DependencyProvider));
 
-            var engine = _engine ?? _parent.GetEngine();
-            return engine.GetDependency(contract, throwIfNotRegistered);
+        public T Activate<T>(ConstructorInfo constructor = null)
+        {
+            return (T) Activate(typeof(T), constructor);
+        }
+
+        public T GetService<T>() => (T) GetService(Typeof<T>.Raw);
+
+        public T GetRequiredService<T>() => (T) GetRequiredService(Typeof<T>.Raw);
+
+        private IDependency BuildSelfDependency()
+        {
+            var contracts = new[] {Typeof<DependencyProvider>.Raw, Typeof<IServiceProvider>.Raw};
+            var resolver = new InstanceResolver(this);
+
+            return new SingletonDependency(contracts, resolver);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private DependencyEngine GetEngine()
         {
-            // ReSharper disable InconsistentlySynchronizedField
             return _engine ?? _parent.GetEngine();
-            // ReSharper restore InconsistentlySynchronizedField
         }
 
         public void Dispose()
         {
-            if (_disposed) return;
+            lock (_lock)
+            {
+                if (_disposed) return;
+                _disposed = true; // contains self
+            }
 
             var evt = Destroy;
             evt?.Invoke(this);
 
             _engine?.Dispose();
-            _engine = null;
-
-            _parent = null;
-
-            _disposed = true;
         }
     }
 }

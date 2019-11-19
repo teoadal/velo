@@ -16,13 +16,24 @@ namespace Velo
             _output = output;
             _stopwatch = Stopwatch.StartNew();
         }
-
+        
         protected static Task RunTasks(int count, Func<Task> action)
         {
             var tasks = new Task[count];
             for (var i = 0; i < count; i++)
             {
                 tasks[i] = action();
+            }
+
+            return Task.WhenAll(tasks);
+        }
+        
+        protected static Task RunTasks(int count, Action action)
+        {
+            var tasks = new Task[count];
+            for (var i = 0; i < count; i++)
+            {
+                tasks[i] = Task.Run(action);
             }
 
             return Task.WhenAll(tasks);
@@ -66,7 +77,7 @@ namespace Velo
             }
         }
         
-        protected readonly struct StopwatchScope: IDisposable
+        protected readonly struct StopwatchScope : IDisposable
         {
             private readonly Stopwatch _stopwatch;
 

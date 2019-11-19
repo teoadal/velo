@@ -5,7 +5,7 @@ using AutoFixture.Xunit2;
 using Velo.CQRS.Queries;
 using Velo.DependencyInjection.Dependencies;
 using Velo.TestsModels.Boos;
-using Velo.TestsModels.Boos.Emitting;
+using Velo.TestsModels.Emitting.Boos.Get;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -67,10 +67,10 @@ namespace Velo.Utils
         public void GenericInterfaceParameters()
         {
             var genericInterfaceParameters = ReflectionUtils.GetGenericInterfaceParameters(
-                typeof(GetBooHandler),
-                typeof(IQueryHandler<,>));
+                typeof(Processor),
+                typeof(IQueryProcessor<,>));
 
-            Assert.Contains(typeof(GetBoo), genericInterfaceParameters);
+            Assert.Contains(typeof(Query), genericInterfaceParameters);
             Assert.Contains(typeof(Boo), genericInterfaceParameters);
         }
         
@@ -114,7 +114,7 @@ namespace Velo.Utils
         public void Throw_GenericInterfaceParameters_NotImplemented()
         {
             Assert.Throws<KeyNotFoundException>(() =>
-                ReflectionUtils.GetGenericInterfaceParameters(typeof(Dictionary<int, int>), typeof(IQueryHandler<,>)));
+                ReflectionUtils.GetGenericInterfaceParameters(typeof(Dictionary<int, int>), typeof(IQueryProcessor<,>)));
         }
         
         [Fact]

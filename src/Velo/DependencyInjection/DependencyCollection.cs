@@ -1,6 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Velo.DependencyInjection.Dependencies;
 using Velo.DependencyInjection.Factories;
 using Velo.DependencyInjection.Resolvers;
 using Velo.DependencyInjection.Scan;
@@ -10,306 +10,211 @@ namespace Velo.DependencyInjection
 {
     public sealed class DependencyCollection
     {
-        private readonly Dictionary<Type, DependencyDescription> _descriptions;
-        private readonly List<ResolverFactory> _factories;
+        private readonly DependencyEngine _engine;
 
-        public DependencyCollection()
+        public DependencyCollection(int capacity = 64)
         {
-            _descriptions = new Dictionary<Type, DependencyDescription>(50);
-            _factories = new List<ResolverFactory>(10);
+            _engine = new DependencyEngine(capacity);
         }
 
-        #region Add
-
-        public DependencyCollection Add(Type contract, DependencyResolver resolver)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public DependencyCollection AddDependency(IDependency dependency)
         {
-            Register(contract, resolver);
-
+            _engine.AddDependency(dependency);
             return this;
         }
 
-        public DependencyCollection Add(ResolverFactory resolverFactory)
+        public DependencyCollection AddDependency(Type contract, Type implementation, DependencyLifetime lifetime)
         {
-            Register(resolverFactory);
+            if (contract.IsGenericTypeDefinition)
+            {
+                CheckIsGenericTypeDefinition(implementation);
+                return AddFactory(new GenericFactory(contract, implementation, lifetime));
+            }
 
-            return this;
+            var contracts = new[] {contract};
+            return AddDependency(contracts, implementation, lifetime);
         }
 
-        public DependencyCollection Add(Type contract, Type implementation, DependencyLifetime lifetime)
+        public DependencyCollection AddDependency(Type[] contracts, Type implementation, DependencyLifetime lifetime)
         {
             switch (lifetime)
             {
                 case DependencyLifetime.Scope:
-                    AddScoped(contract, implementation);
-                    break;
+                    var scopeResolver = new CompiledResolver(implementation, _engine);
+                    return AddDependency(new ScopeDependency(contracts, scopeResolver));
                 case DependencyLifetime.Singleton:
-                    AddSingleton(contract, implementation);
-                    break;
+                    var singletonResolver = new ActivatorResolver(implementation);
+                    return AddDependency(new SingletonDependency(contracts, singletonResolver));
                 case DependencyLifetime.Transient:
-                    AddTransient(contract, implementation);
-                    break;
+                    var transientResolver = new CompiledResolver(implementation, _engine);
+                    return AddDependency(new TransientDependency(contracts, transientResolver));
             }
 
-            return this;
+            throw Error.InvalidDependencyLifetime();
         }
 
-        public DependencyCollection Add(Type[] contracts, Type implementation, DependencyLifetime lifetime)
+        public DependencyCollection AddDependency<TContract>(Func<IDependencyScope, TContract> builder,
+            DependencyLifetime lifetime)
+            where TContract : class
         {
+            var contracts = new[] {Typeof<TContract>.Raw};
+            var resolver = new DelegateResolver<TContract>(builder);
+
             switch (lifetime)
             {
                 case DependencyLifetime.Scope:
-                    AddScoped(contracts, implementation);
-                    break;
+                    return AddDependency(new ScopeDependency(contracts, resolver));
                 case DependencyLifetime.Singleton:
-                    AddSingleton(contracts, implementation);
-                    break;
+                    return AddDependency(new SingletonDependency(contracts, resolver));
                 case DependencyLifetime.Transient:
-                    AddTransient(contracts, implementation);
-                    break;
+                    return AddDependency(new TransientDependency(contracts, resolver));
             }
 
+            throw Error.InvalidDependencyLifetime();
+        }
+
+        public DependencyCollection AddFactory(IDependencyFactory factory)
+        {
+            _engine.AddFactory(factory);
             return this;
         }
 
-        #endregion
-
-        public DependencyCollection AddInstance<TInstance>(TInstance instance)
-            where TInstance : class
+        public DependencyCollection AddInstance<TContract>(TContract instance)
+            where TContract : class
         {
             var resolver = new InstanceResolver(instance);
-
-            Register(Typeof<TInstance>.Raw, resolver);
-
-            return this;
+            return AddDependency(new ScopeDependency(Typeof<TContract>.Raw, resolver));
         }
-
-        #region AddGeneric
-
-        public DependencyCollection AddGenericScoped(Type genericContract, Type genericImplementation = null)
-        {
-            Register(new GenericFactory(genericContract, genericImplementation, DependencyLifetime.Scope));
-
-            return this;
-        }
-
-        public DependencyCollection AddGenericSingleton(Type genericContract, Type genericImplementation = null)
-        {
-            Register(new GenericFactory(genericContract, genericImplementation, DependencyLifetime.Singleton));
-
-            return this;
-        }
-
-        public DependencyCollection AddGenericTransient(Type genericContract, Type genericImplementation = null)
-        {
-            Register(new GenericFactory(genericContract, genericImplementation, DependencyLifetime.Transient));
-
-            return this;
-        }
-
-        #endregion
 
         #region AddScoped
 
+        public DependencyCollection AddScoped(Type implementation)
+        {
+            return AddDependency(implementation, implementation, DependencyLifetime.Scope);
+        }
+
+        public DependencyCollection AddScoped(Type contract, Type implementation)
+        {
+            return AddDependency(contract, implementation, DependencyLifetime.Scope);
+        }
+
         public DependencyCollection AddScoped<TImplementation>()
         {
-            var contract = Typeof<TImplementation>.Raw;
-            var resolver = new CompiledResolver(contract, DependencyLifetime.Scope);
+            var implementation = Typeof<TImplementation>.Raw;
+            return AddDependency(implementation, implementation, DependencyLifetime.Scope);
+        }
 
-            Register(contract, resolver);
-
-            return this;
+        public DependencyCollection AddScoped<TContract>(Func<IDependencyScope, TContract> builder)
+            where TContract : class
+        {
+            return AddDependency(builder, DependencyLifetime.Scope);
         }
 
         public DependencyCollection AddScoped<TContract, TImplementation>()
             where TImplementation : TContract
         {
-            var resolver = new CompiledResolver(typeof(TImplementation), DependencyLifetime.Scope);
+            var contract = Typeof<TContract>.Raw;
+            var implementation = typeof(TImplementation);
 
-            Register(Typeof<TContract>.Raw, resolver);
-
-            return this;
-        }
-
-        public DependencyCollection AddScoped<TContract>(Func<DependencyProvider, TContract> builder)
-            where TContract : class
-        {
-            var resolver = new DelegateResolver<TContract>(builder, DependencyLifetime.Scope);
-
-            Register(Typeof<TContract>.Raw, resolver);
-
-            return this;
-        }
-
-        public DependencyCollection AddScoped(Type contract, Type implementation)
-        {
-            if (contract.IsGenericTypeDefinition) return AddGenericScoped(contract, implementation);
-
-            var resolver = new CompiledResolver(implementation, DependencyLifetime.Scope);
-
-            Register(contract, resolver);
-
-            return this;
-        }
-
-        public DependencyCollection AddScoped(Type[] contracts, Type implementation)
-        {
-            var resolver = new CompiledResolver(implementation, DependencyLifetime.Scope);
-
-            for (var i = 0; i < contracts.Length; i++)
-            {
-                Register(contracts[i], resolver);
-            }
-
-            return this;
+            return AddDependency(contract, implementation, DependencyLifetime.Scope);
         }
 
         #endregion
 
         #region AddSingleton
 
+        public DependencyCollection AddSingleton(Type implementation)
+        {
+            return implementation.IsGenericTypeDefinition
+                ? AddFactory(new GenericFactory(implementation, implementation, DependencyLifetime.Singleton))
+                : AddDependency(implementation, implementation, DependencyLifetime.Singleton);
+        }
+
+        public DependencyCollection AddSingleton(Type contract, Type implementation)
+        {
+            return AddDependency(contract, implementation, DependencyLifetime.Singleton);
+        }
+
         public DependencyCollection AddSingleton<TImplementation>()
         {
-            var contract = Typeof<TImplementation>.Raw;
-            var resolver = new ActivatorResolver(contract, DependencyLifetime.Singleton);
+            var implementation = Typeof<TImplementation>.Raw;
+            return AddDependency(implementation, implementation, DependencyLifetime.Singleton);
+        }
 
-            Register(contract, resolver);
-
-            return this;
+        public DependencyCollection AddSingleton<TContract>(Func<IDependencyScope, TContract> builder)
+            where TContract : class
+        {
+            return AddDependency(builder, DependencyLifetime.Singleton);
         }
 
         public DependencyCollection AddSingleton<TContract, TImplementation>()
             where TImplementation : TContract
         {
-            var resolver = new ActivatorResolver(typeof(TImplementation), DependencyLifetime.Singleton);
-            Register(Typeof<TContract>.Raw, resolver);
+            var contract = Typeof<TContract>.Raw;
+            var implementation = typeof(TImplementation);
 
-            return this;
-        }
-
-        public DependencyCollection AddSingleton<TContract>(Func<DependencyProvider, TContract> builder)
-            where TContract : class
-        {
-            var resolver = new DelegateResolver<TContract>(builder, DependencyLifetime.Singleton);
-
-            Register(Typeof<TContract>.Raw, resolver);
-
-            return this;
-        }
-
-        public DependencyCollection AddSingleton(Type contract, Type implementation)
-        {
-            if (contract.IsGenericTypeDefinition) return AddGenericSingleton(contract, implementation);
-
-            var resolver = new ActivatorResolver(implementation, DependencyLifetime.Singleton);
-
-            Register(contract, resolver);
-
-            return this;
-        }
-
-        public DependencyCollection AddSingleton(Type[] contracts, Type implementation)
-        {
-            var resolver = new ActivatorResolver(implementation, DependencyLifetime.Singleton);
-
-            for (var i = 0; i < contracts.Length; i++)
-            {
-                Register(contracts[i], resolver);
-            }
-
-            return this;
+            return AddDependency(contract, implementation, DependencyLifetime.Singleton);
         }
 
         #endregion
 
         #region AddTransient
 
+        public DependencyCollection AddTransient(Type implementation)
+        {
+            return AddDependency(implementation, implementation, DependencyLifetime.Transient);
+        }
+
+        public DependencyCollection AddTransient(Type contract, Type implementation)
+        {
+            return AddDependency(contract, implementation, DependencyLifetime.Transient);
+        }
+
         public DependencyCollection AddTransient<TImplementation>()
         {
-            var contract = Typeof<TImplementation>.Raw;
-            var resolver = new CompiledResolver(contract, DependencyLifetime.Transient);
+            var implementation = Typeof<TImplementation>.Raw;
+            return AddDependency(implementation, implementation, DependencyLifetime.Transient);
+        }
 
-            Register(contract, resolver);
-
-            return this;
+        public DependencyCollection AddTransient<TContract>(Func<IDependencyScope, TContract> builder)
+            where TContract : class
+        {
+            return AddDependency(builder, DependencyLifetime.Transient);
         }
 
         public DependencyCollection AddTransient<TContract, TImplementation>()
             where TImplementation : TContract
         {
-            var resolver = new CompiledResolver(typeof(TImplementation), DependencyLifetime.Transient);
+            var contract = Typeof<TContract>.Raw;
+            var implementation = typeof(TImplementation);
 
-            Register(Typeof<TContract>.Raw, resolver);
-
-            return this;
-        }
-
-        public DependencyCollection AddTransient<TContract>(Func<DependencyProvider, TContract> builder)
-            where TContract : class
-        {
-            var resolver = new DelegateResolver<TContract>(builder, DependencyLifetime.Transient);
-
-            Register(Typeof<TContract>.Raw, resolver);
-
-            return this;
-        }
-
-        public DependencyCollection AddTransient(Type contract, Type implementation)
-        {
-            if (contract.IsGenericTypeDefinition) return AddGenericTransient(contract, implementation);
-
-            var resolver = new CompiledResolver(implementation, DependencyLifetime.Transient);
-
-            Register(contract, resolver);
-
-            return this;
-        }
-
-        public DependencyCollection AddTransient(Type[] contracts, Type implementation)
-        {
-            var resolver = new CompiledResolver(implementation, DependencyLifetime.Transient);
-
-            for (var i = 0; i < contracts.Length; i++)
-            {
-                Register(contracts[i], resolver);
-            }
-
-            return this;
+            return AddDependency(contract, implementation, DependencyLifetime.Transient);
         }
 
         #endregion
 
         public DependencyProvider BuildProvider()
         {
-            return new DependencyProvider(_descriptions, _factories);
+            return new DependencyProvider(_engine);
         }
 
-        public DependencyCollection Scan(Action<DependencyScanner> scannerConfiguration)
+        public DependencyCollection Scan(Action<DependencyScanner> action)
         {
             var scanner = new DependencyScanner();
-            scannerConfiguration(scanner);
+
+            action(scanner);
             scanner.Execute(this);
 
             return this;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Register(Type contract, DependencyResolver resolver)
+        private static void CheckIsGenericTypeDefinition(Type type)
         {
-            var descriptions = _descriptions;
-            if (descriptions.TryGetValue(contract, out var existsDescription))
+            if (type != null && !type.IsGenericTypeDefinition)
             {
-                descriptions[contract] = existsDescription.Add(resolver);
+                throw Error.InvalidOperation($"{ReflectionUtils.GetName(type)} is not generic type definition");
             }
-            else
-            {
-                descriptions[contract] = new DependencyDescription(resolver);
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Register(ResolverFactory factory)
-        {
-            _factories.Add(factory);
         }
     }
 }

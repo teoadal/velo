@@ -15,7 +15,7 @@
         <Product>teoadal</Product>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <Nullable>enable</Nullable>
+        <Nullable>disable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
@@ -41,6 +41,18 @@
         <DependentUpon>LocalVector.cs</DependentUpon>
       </Compile>
       <Compile Update="Collections\LocalVector.JoinEnumerator.cs">
+        <DependentUpon>LocalVector.cs</DependentUpon>
+      </Compile>
+      <Compile Update="DependencyInjection\Factories\ArrayFactory.ArrayResolver.cs">
+        <DependentUpon>ArrayFactory.cs</DependentUpon>
+      </Compile>
+      <Compile Update="DependencyInjection\Factories\ArrayFactory.EmptyArrayResolver.cs">
+        <DependentUpon>ArrayFactory.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Collections\LocalVector.GroupEnumerator.cs">
+        <DependentUpon>LocalVector.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Collections\LocalVector.DebugVisualizer.cs">
         <DependentUpon>LocalVector.cs</DependentUpon>
       </Compile>
     </ItemGroup>

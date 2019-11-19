@@ -6,40 +6,52 @@ namespace Velo.CQRS.Queries
 {
     internal sealed class QueryRouter : IDisposable
     {
-        public static readonly Type HandlerType = typeof(IQueryHandler<,>);
-        private static readonly Type ProcessorType = typeof(QueryProcessor<,>);
-        private static readonly Type RequestType = typeof(IQuery<>);
+        public static readonly Type[] ProcessorTypes = {typeof(IQueryProcessor<,>)};
+        
+        private static readonly Type HandlerType = typeof(QueryHandler<,>);
+        private static readonly Type QueryType = typeof(IQuery<>);
 
-        private Func<Type, IQueryProcessor> _buildProcessor;
-        private ConcurrentDictionary<Type, IQueryProcessor> _processors;
+        private Func<Type, IQueryHandler> _buildHandler;
+        private ConcurrentDictionary<Type, IQueryHandler> _handlers;
 
         public QueryRouter()
         {
-            _buildProcessor = BuildProcessor;
-            _processors = new ConcurrentDictionary<Type, IQueryProcessor>();
+            _buildHandler = BuildProcessor;
+            _handlers = new ConcurrentDictionary<Type, IQueryHandler>();
         }
 
-        public IQueryProcessor<TResult> GetProcessor<TResult>(IQuery<TResult> query)
+        public IQueryHandler<TResult> GetHandler<TResult>(IQuery<TResult> query)
         {
-            var requestType = query.GetType();
-            return (IQueryProcessor<TResult>) _processors.GetOrAdd(requestType, _buildProcessor);
+            var queryType = query.GetType();
+            var handler = _handlers.GetOrAdd(queryType, _buildHandler);
+            
+            return (IQueryHandler<TResult>) handler;
         }
 
-        private static IQueryProcessor BuildProcessor(Type requestType)
+        public QueryHandler<TQuery, TResult> GetHandler<TQuery, TResult>()
+            where TQuery: IQuery<TResult>
         {
-            var queryType = ReflectionUtils.GetGenericInterfaceParameters(requestType, RequestType)[0];
-
-            var processorType = ProcessorType.MakeGenericType(requestType, queryType);
-            return (IQueryProcessor) Activator.CreateInstance(processorType);
+            var queryType = Typeof<TQuery>.Raw;
+            var handler = _handlers.GetOrAdd(queryType, _buildHandler);
+            
+            return (QueryHandler<TQuery, TResult>) handler;
+        }
+        
+        private static IQueryHandler BuildProcessor(Type queryType)
+        {
+            var resultType = ReflectionUtils.GetGenericInterfaceParameters(queryType, QueryType)[0];
+            var handlerType = HandlerType.MakeGenericType(queryType, resultType);
+            
+            return (IQueryHandler) Activator.CreateInstance(handlerType);
         }
 
         public void Dispose()
         {
-            _buildProcessor = null!;
+            _buildHandler = null!;
             
-            CollectionUtils.DisposeValuesIfDisposable(_processors);
-            _processors.Clear();
-            _processors = null!;
+            CollectionUtils.DisposeValuesIfDisposable(_handlers);
+            _handlers.Clear();
+            _handlers = null!;
         }
     }
 }

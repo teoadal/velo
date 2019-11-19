@@ -6,7 +6,7 @@ using Velo.DependencyInjection.Scan;
 
 namespace Velo.ECS.Systems
 {
-    internal sealed class SystemAllover : DependencyAllover
+    internal sealed class SystemAllover : IDependencyAllover
     {
         private readonly Type _beginUpdateSystem;
         private readonly Type _endUpdateSystem;
@@ -21,7 +21,7 @@ namespace Velo.ECS.Systems
             _updateSystem = typeof(IUpdateSystem);
         }
 
-        public override void TryRegister(DependencyCollection collection, Type implementation)
+        public void TryRegister(DependencyCollection collection, Type implementation)
         {
             var contracts = new LocalVector<Type>();
 
@@ -30,7 +30,7 @@ namespace Velo.ECS.Systems
             TryAdd(ref contracts, _initializeSystem, implementation);
             TryAdd(ref contracts, _updateSystem, implementation);
 
-            collection.AddScoped(contracts.ToArray(), implementation);
+            collection.AddDependency(contracts.ToArray(), implementation, DependencyLifetime.Scope);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

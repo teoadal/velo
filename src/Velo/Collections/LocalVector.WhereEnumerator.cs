@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace Velo.Collections
@@ -10,18 +9,20 @@ namespace Velo.Collections
         {
             public T Current => _current!;
 
+            // ReSharper disable FieldCanBeMadeReadOnly.Local
             private T _current;
             private Enumerator _enumerator;
-            private readonly Predicate<T> _predicate;
+            private Predicate<T> _predicate;
+            // ReSharper restore FieldCanBeMadeReadOnly.Local
 
-            public WhereEnumerator(Enumerator enumerator, Predicate<T> predicate)
+            internal WhereEnumerator(Enumerator enumerator, Predicate<T> predicate)
             {
                 _current = default;
                 _enumerator = enumerator;
                 _predicate = predicate;
             }
 
-            public WhereEnumerator GetEnumerator() => this;
+            public readonly WhereEnumerator GetEnumerator() => this;
 
             public JoinEnumerator<TResult, TInner, TKey> Join<TResult, TInner, TKey>(
                 LocalVector<TInner> inner,
@@ -31,22 +32,25 @@ namespace Velo.Collections
                 EqualityComparer<TKey> keyComparer = null)
             {
                 var outer = new LocalVector<T>();
-                while (MoveNext())
-                {
-                    outer.Add(_current);
-                }
-
-                return outer.Join(inner, outerKeySelector, innerKeySelector, resultBuilder, keyComparer);
-            }
-            
-            public bool MoveNext()
-            {
-                var predicate = _predicate;
 
                 while (_enumerator.MoveNext())
                 {
                     var current = _enumerator.Current;
-                    if (!predicate(current)) continue;
+                    if (_predicate(current))
+                    {
+                        outer.Add(current);
+                    }
+                }
+
+                return outer.Join(inner, outerKeySelector, innerKeySelector, resultBuilder, keyComparer);
+            }
+
+            public bool MoveNext()
+            {
+                while (_enumerator.MoveNext())
+                {
+                    var current = _enumerator.Current;
+                    if (!_predicate(current)) continue;
 
                     _current = current;
                     return true;
@@ -58,29 +62,28 @@ namespace Velo.Collections
             public LocalVector<T> OrderBy<TProperty>(Func<T, TProperty> path, Comparer<TProperty> comparer = null)
             {
                 var vector = new LocalVector<T>();
-                
+
                 while (_enumerator.MoveNext())
                 {
                     var current = _enumerator.Current;
                     if (_predicate(current))
                     {
-                        vector.Add(current);    
+                        vector.Add(current);
                     }
                 }
-                
+
                 vector.Sort(path, comparer);
                 return vector;
             }
-            
+
             public LocalVector<TValue> Select<TValue>(Func<T, TValue> selector)
             {
-                var predicate = _predicate;
                 var vector = new LocalVector<TValue>();
 
                 while (_enumerator.MoveNext())
                 {
                     var current = _enumerator.Current;
-                    if (predicate(current))
+                    if (_predicate(current))
                     {
                         vector.Add(selector(current));
                     }
@@ -88,21 +91,21 @@ namespace Velo.Collections
 
                 return vector;
             }
-            
+
             public T[] ToArray()
             {
-                var list = new List<T>(_enumerator.Length);
-                
+                var vector = new LocalVector<T>(_enumerator.Length);
+
                 while (_enumerator.MoveNext())
                 {
                     var current = _enumerator.Current;
                     if (_predicate(current))
                     {
-                        list.Add(current);
+                        vector.Add(current);
                     }
                 }
 
-                return list.ToArray();
+                return vector.ToArray();
             }
         }
 
@@ -110,10 +113,12 @@ namespace Velo.Collections
         {
             public T Current => _current!;
 
-            private readonly TArg _arg;
+            // ReSharper disable FieldCanBeMadeReadOnly.Local
+            private TArg _arg;
             private T _current;
             private Enumerator _enumerator;
-            private readonly Func<T, TArg, bool> _predicate;
+            private Func<T, TArg, bool> _predicate;
+            // ReSharper restore FieldCanBeMadeReadOnly.Local
 
             public WhereEnumerator(Enumerator enumerator, Func<T, TArg, bool> predicate, TArg arg)
             {
@@ -123,7 +128,7 @@ namespace Velo.Collections
                 _predicate = predicate;
             }
 
-            public WhereEnumerator<TArg> GetEnumerator() => this;
+            public readonly WhereEnumerator<TArg> GetEnumerator() => this;
 
             public JoinEnumerator<TResult, TInner, TKey> Join<TResult, TInner, TKey>(
                 LocalVector<TInner> inner,
@@ -140,16 +145,13 @@ namespace Velo.Collections
 
                 return outer.Join(inner, outerKeySelector, innerKeySelector, resultBuilder, keyComparer);
             }
-            
+
             public bool MoveNext()
             {
-                var arg = _arg;
-                var predicate = _predicate;
-
                 while (_enumerator.MoveNext())
                 {
                     var current = _enumerator.Current;
-                    if (!predicate(current, arg)) continue;
+                    if (!_predicate(current, _arg)) continue;
 
                     _current = current;
                     return true;
@@ -161,30 +163,28 @@ namespace Velo.Collections
             public LocalVector<T> OrderBy<TProperty>(Func<T, TProperty> path, Comparer<TProperty> comparer = null)
             {
                 var vector = new LocalVector<T>();
-                
+
                 while (_enumerator.MoveNext())
                 {
                     var current = _enumerator.Current;
                     if (_predicate(current, _arg))
                     {
-                        vector.Add(current);    
+                        vector.Add(current);
                     }
                 }
-                
+
                 vector.Sort(path, comparer);
                 return vector;
             }
-            
+
             public LocalVector<TValue> Select<TValue>(Func<T, TValue> selector)
             {
-                var arg = _arg;
-                var predicate = _predicate;
                 var vector = new LocalVector<TValue>();
 
                 while (_enumerator.MoveNext())
                 {
                     var current = _enumerator.Current;
-                    if (predicate(current, arg))
+                    if (_predicate(current, _arg))
                     {
                         vector.Add(selector(current));
                     }
@@ -192,11 +192,11 @@ namespace Velo.Collections
 
                 return vector;
             }
-            
+
             public T[] ToArray()
             {
                 var vector = new LocalVector<T>();
-                
+
                 while (_enumerator.MoveNext())
                 {
                     var current = _enumerator.Current;

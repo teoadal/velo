@@ -10,7 +10,7 @@ namespace Velo.Collections
         private EmptyEnumerator()
         {
         }
-        
+
         public bool MoveNext()
         {
             return false;
@@ -20,7 +20,7 @@ namespace Velo.Collections
         {
         }
 
-        public T Current => default;
+        public T Current => default!;
 
         object IEnumerator.Current => default!;
 
@@ -28,5 +28,4 @@ namespace Velo.Collections
         {
         }
     }
-
 }

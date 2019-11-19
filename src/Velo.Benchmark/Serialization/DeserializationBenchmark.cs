@@ -1,5 +1,6 @@
 using System;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Jobs;
 using fastJSON;
 using Newtonsoft.Json;
 using Velo.Serialization;
@@ -8,7 +9,7 @@ using JsonSerializer = SpanJson.JsonSerializer;
 
 namespace Velo.Benchmark.Serialization
 {
-    [CoreJob]
+    [SimpleJob(RuntimeMoniker.NetCoreApp22)]
     [MeanColumn, MemoryDiagnoser]
     public class DeserializationBenchmark
     {

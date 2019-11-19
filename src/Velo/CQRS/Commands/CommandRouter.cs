@@ -4,40 +4,45 @@ using Velo.Utils;
 
 namespace Velo.CQRS.Commands
 {
-    internal sealed class CommandRouter: IDisposable
+    internal sealed class CommandRouter : IDisposable
     {
-        public static readonly Type HandlerType = typeof(ICommandHandler<>);
-        private static readonly Type ProcessorType = typeof(CommandProcessor<>);
+        public static readonly Type[] ProcessorTypes = {
+            typeof(ICommandPreProcessor<>),
+            typeof(ICommandProcessor<>), 
+            typeof(ICommandPostProcessor<>)
+        };
 
-        private Func<Type, ICommandProcessor> _buildProcessor;
-        private ConcurrentDictionary<Type, ICommandProcessor> _processors;
+        private static readonly Type ExecutorType = typeof(CommandExecutor<>);
+
+        private Func<Type, ICommandExecutor> _buildExecutor;
+        private ConcurrentDictionary<Type, ICommandExecutor> _executors;
 
         public CommandRouter()
         {
-            _buildProcessor = BuildProcessor;
-            _processors = new ConcurrentDictionary<Type, ICommandProcessor>();
+            _buildExecutor = BuildExecutor;
+            _executors = new ConcurrentDictionary<Type, ICommandExecutor>();
         }
 
-        public CommandProcessor<TNotification> GetProcessor<TNotification>()
+        public CommandExecutor<TCommand> GetExecutor<TCommand>() where TCommand : ICommand
         {
-            var notificationType = Typeof<TNotification>.Raw;
-            var processor = _processors.GetOrAdd(notificationType, _buildProcessor);
-            return (CommandProcessor<TNotification>) processor;
+            var commandType = Typeof<TCommand>.Raw;
+            var executor = _executors.GetOrAdd(commandType, _buildExecutor);
+
+            return (CommandExecutor<TCommand>) executor;
         }
 
-        private static ICommandProcessor BuildProcessor(Type notificationType)
+        private static ICommandExecutor BuildExecutor(Type commandType)
         {
-            var processorType = ProcessorType.MakeGenericType(notificationType);
-            return (ICommandProcessor) Activator.CreateInstance(processorType);
+            var executorType = ExecutorType.MakeGenericType(commandType);
+            return (ICommandExecutor) Activator.CreateInstance(executorType);
         }
 
         public void Dispose()
         {
-            _buildProcessor = null!;
+            _buildExecutor = null!;
             
-            CollectionUtils.DisposeValuesIfDisposable(_processors);
-            _processors.Clear();
-            _processors = null!;
+            _executors.Clear();
+            _executors = null!;
         }
     }
 }

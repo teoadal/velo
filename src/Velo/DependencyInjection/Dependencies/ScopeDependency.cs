@@ -1,38 +1,45 @@
+using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+using System.Diagnostics;
 using Velo.DependencyInjection.Resolvers;
 using Velo.Extensions;
 using Velo.Utils;
 
 namespace Velo.DependencyInjection.Dependencies
 {
+    [DebuggerDisplay("Contract = {Contracts[0]}")]
     internal sealed class ScopeDependency : Dependency
     {
-        private bool _disposed;
-        private Dictionary<DependencyProvider, object> _instances;
+        private readonly Dictionary<IDependencyScope, object> _instances;
+        private readonly DependencyResolver _resolver;
 
-        public ScopeDependency(DependencyResolver resolver): base(resolver)
+        public ScopeDependency(Type[] contracts, DependencyResolver resolver) 
+            : base(contracts, DependencyLifetime.Scope)
         {
-            _instances = new Dictionary<DependencyProvider, object>();
+            _instances = new Dictionary<IDependencyScope, object>();
+            _resolver = resolver;
         }
 
-        public override object GetInstance(DependencyProvider scope)
+        public ScopeDependency(Type contract, DependencyResolver resolver) : this(new[] {contract}, resolver)
         {
-            if (_disposed)
-            {
-                throw Error.Disposed(nameof(ScopeDependency));
-            }
-            
+        }
+
+        public override object GetInstance(Type contract, IDependencyScope scope)
+        {
             if (_instances.TryGetValue(scope, out var existsInstance)) return existsInstance;
 
-            var instance = Resolve(scope);
+            var instance = _resolver.Resolve(contract, scope);
             _instances.Add(scope, instance);
+            scope.Destroy += OnScopeDestroy;
 
             return instance;
         }
 
-        private void Destroy(DependencyProvider scope, object instance)
+        private void OnScopeDestroy(IDependencyScope scope)
         {
+            if (!_instances.TryGetValue(scope, out var instance)) return;
+
+            _instances.Remove(scope);
             scope.Destroy -= OnScopeDestroy;
 
             if (ReflectionUtils.IsDisposable(instance, out var disposable))
@@ -41,34 +48,17 @@ namespace Velo.DependencyInjection.Dependencies
             }
         }
 
-        private void OnScopeDestroy(DependencyProvider scope)
-        {
-            Destroy(scope, _instances[scope]);
-
-            _instances.Remove(scope);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private object Resolve(DependencyProvider scope)
-        {
-            scope.Destroy += OnScopeDestroy;
-            return Resolver.Resolve(scope);
-        }
-        
         public override void Dispose()
         {
-            if (_disposed) return;
-            
             foreach (var (scope, instance) in _instances)
             {
-                Destroy(scope, instance);
+                scope.Destroy -= OnScopeDestroy;
+
+                if (ReflectionUtils.IsDisposable(instance, out var disposable))
+                {
+                    disposable.Dispose();
+                }
             }
-            
-            _instances.Clear();
-            _instances = null;
-            _disposed = true;
-            
-            base.Dispose();
         }
     }
 }

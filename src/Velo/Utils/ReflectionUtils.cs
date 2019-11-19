@@ -89,7 +89,7 @@ namespace Velo.Utils
             throw Error.NotFound($"Generic interface {GetName(genericInterface)} is not implemented");
         }
 
-        public static LocalVector<Type> GetGenericInterfaceImplementations(Type type, Type genericInterface)
+        public static LocalVector<Type> GetGenericInterfaceImplementations(Type type, Type genericInterface, bool throwIfNotFound = true)
         {
             CheckIsGenericInterfaceTypeDefinition(genericInterface);
 
@@ -110,11 +110,24 @@ namespace Velo.Utils
                 }
             }
 
-            if (implementations.Length == 0)
+            if (throwIfNotFound && implementations.Length == 0)
             {
                 throw Error.NotFound($"Generic interface {GetName(genericInterface)} is not implemented");
             }
 
+            return implementations;
+        }
+
+        public static LocalVector<Type> GetGenericInterfaceImplementations(Type type, params Type[] genericInterfaces)
+        {
+            var implementations = new LocalVector<Type>();
+            foreach (var genericInterface in genericInterfaces)
+            {
+                CheckIsGenericInterfaceTypeDefinition(genericInterface);
+                var currentImplementations = GetGenericInterfaceImplementations(type, genericInterface, false);
+                implementations.AddRange(currentImplementations);
+            }
+            
             return implementations;
         }
 
