@@ -8,6 +8,8 @@ namespace Velo.ECS
         where TEntity: Entity
     {
         public event Action<TEntity> Added;
+
+        public int Length => _entities.Count;
         
         private readonly Dictionary<int, TEntity> _entities;
 
@@ -24,6 +26,22 @@ namespace Velo.ECS
             
             var evt = Added;
             evt?.Invoke(entity);
+        }
+
+        public bool Contains(Predicate<TEntity> predicate)
+        {
+            foreach (var entity in _entities.Values)
+            {
+                if (predicate(entity)) 
+                    return true;
+            }
+
+            return false;
+        }
+        
+        public bool Contains(TEntity entity)
+        {
+            return _entities.ContainsValue(entity);
         }
 
         public TEntity Get(int id) => _entities[id];

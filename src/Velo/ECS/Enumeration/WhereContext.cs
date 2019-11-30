@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Velo.ECS.Enumeration
 {
-    public struct WhereContext<TEntity> : IEnumerator<TEntity>, IEnumerable<TEntity>
+    public ref struct WhereContext<TEntity>
     {
         public TEntity Current { get; private set; }
         
@@ -19,7 +19,7 @@ namespace Velo.ECS.Enumeration
             Current = default;
         }
 
-        public IEnumerator<TEntity> GetEnumerator() => this;
+        public WhereContext<TEntity> GetEnumerator() => this;
         
         public bool MoveNext()
         {
@@ -35,20 +35,11 @@ namespace Velo.ECS.Enumeration
 
             return false;
         }
-
-
+        
         public void Dispose()
         {
             _enumerator.Dispose();
             _predicate = null;
         }
-
-        object IEnumerator.Current => Current;
-        
-        void IEnumerator.Reset()
-        {
-        }
-        
-        IEnumerator IEnumerable.GetEnumerator() => this;
     }
 }

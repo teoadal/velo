@@ -9,32 +9,42 @@ namespace Velo.ECS.Actors
 
         public event Action<Actor, IComponent> RemovedComponent;
 
-        internal Actor(int id, IComponent[] components) : base(id, components)
+        public Actor(int id, IComponent[] components) : base(id, components)
         {
         }
 
         public void AddComponent<TComponent>(TComponent component) where TComponent : class, IComponent
         {
             var typeId = Typeof<TComponent>.Id;
-            _sign = _sign.Add(typeId, out var index);
 
+            if (_sign.Contains(typeId))
+            {
+                throw Error.InvalidOperation($"Component {ReflectionUtils.GetName<TComponent>()} already exists");
+            }
+            
+            _sign = _sign.Add(typeId, out var index);
             Array.Resize(ref _components, _components.Length + 1);
             _components[index] = component;
 
             OnComponentAdded(component);
         }
 
-        public void RemoveComponent<TComponent>() where TComponent : IComponent
+        public bool RemoveComponent<TComponent>() where TComponent : IComponent
         {
-            var typeId = Typeof<TComponent>.Id;
-            _sign = _sign.Remove(typeId, out var index);
+            if (_sign.TryRemove(Typeof<TComponent>.Id, out var newSign, out var index))
+            {
+                return false;
+            }
+            
+            _sign = newSign;
 
             var component = _components[index];
-            _components[index] = null;
+            CollectionUtils.Cut(ref _components, index);
 
             OnComponentRemoved(component);
-
             component.Dispose();
+
+            return true;
         }
 
         private void OnComponentAdded(IComponent component)

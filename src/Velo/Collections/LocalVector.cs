@@ -167,7 +167,7 @@ namespace Velo.Collections
             EqualityComparer<TKey> keyComparer = null)
         {
             if (keyComparer == null) keyComparer = EqualityComparer<TKey>.Default;
-            return new GroupEnumerator<TKey>(this, keySelector, keyComparer);
+            return new GroupEnumerator<TKey>(in this, keySelector, keyComparer);
         }
 
         public JoinEnumerator<TResult, TInner, TKey> Join<TResult, TInner, TKey>(

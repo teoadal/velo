@@ -17,6 +17,28 @@ namespace Velo
             _stopwatch = Stopwatch.StartNew();
         }
         
+        protected StopwatchScope Measure()
+        {
+            _stopwatch = Stopwatch.StartNew();
+            return new StopwatchScope(_stopwatch);
+        }
+        
+        protected TResult Measure<TResult>(Func<TResult> action)
+        {
+            _stopwatch = Stopwatch.StartNew();
+            var result = action();
+            _stopwatch.Stop();
+
+            return result;
+        }
+        
+        protected void Measure(Action action)
+        {
+            _stopwatch = Stopwatch.StartNew();
+            action();
+            _stopwatch.Stop();
+        }
+
         protected static Task RunTasks(int count, Func<Task> action)
         {
             var tasks = new Task[count];
@@ -50,11 +72,6 @@ namespace Velo
             return Task.WhenAll(tasks);
         }
         
-        protected StopwatchScope StartStopwatch()
-        {
-            _stopwatch = Stopwatch.StartNew();
-            return new StopwatchScope(_stopwatch);
-        }
         
         protected void WriteLine(string text, [CallerMemberName] string from = "")
         {
@@ -72,8 +89,7 @@ namespace Velo
             }
             else
             {
-                var nanoseconds = 1000000000.0 * _stopwatch.ElapsedTicks / Stopwatch.Frequency;
-                _output.WriteLine($"Elapsed < 1 ms ({nanoseconds} ns)");
+                _output.WriteLine($"Elapsed < 1 ms");
             }
         }
         

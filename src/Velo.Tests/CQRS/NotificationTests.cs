@@ -41,7 +41,7 @@ namespace Velo.CQRS
             var fooRepository = provider.GetService<IFooRepository>();
             var mediator = provider.GetService<Emitter>();
 
-            using (StartStopwatch())
+            using (Measure())
             {
                 var command = new Emitting.Boos.Create.Command {Id = id, Int = number};
                 await mediator.Execute(command);

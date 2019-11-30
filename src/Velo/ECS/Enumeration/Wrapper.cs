@@ -12,6 +12,11 @@ namespace Velo.ECS.Enumeration
             Entity = entity;
             Component1 = component1;
         }
+
+        public static implicit operator TEntity(Wrapper<TEntity, TComponent1> wrapper)
+        {
+            return wrapper.Entity;
+        }
     }
 
     public readonly struct Wrapper<TEntity, TComponent1, TComponent2>
@@ -28,6 +33,11 @@ namespace Velo.ECS.Enumeration
             Entity = entity;
             Component1 = component1;
             Component2 = component2;
+        }
+        
+        public static implicit operator TEntity(Wrapper<TEntity, TComponent1, TComponent2> wrapper)
+        {
+            return wrapper.Entity;
         }
     }
 }

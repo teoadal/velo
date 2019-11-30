@@ -32,7 +32,7 @@ namespace Velo.ECS.Assets
         public AssetFilter<TComponent1, TComponent2> GetFilter<TComponent1, TComponent2>()
             where TComponent1 : IComponent where TComponent2 : IComponent
         {
-            var filterId = Typeof<AssetFilter<TComponent1>>.Id;
+            var filterId = Typeof<AssetFilter<TComponent1, TComponent2>>.Id;
 
             if (!_filters.TryGetValue(filterId, out var filter))
             {

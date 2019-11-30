@@ -3,7 +3,7 @@ using Velo.Utils;
 
 namespace Velo.ECS
 {
-    public class Entity : IEquatable<Entity>
+    public abstract class Entity : IEquatable<Entity>
     {
         public readonly int Id;
 
@@ -22,16 +22,21 @@ namespace Velo.ECS
             _sign = SignBuilder.Create(components);
         }
 
-        public bool Contains<TComponent>() where TComponent : IComponent
+        public bool ContainsComponent<TComponent>() where TComponent : IComponent
         {
             return _sign.Contains(Typeof<TComponent>.Id);
         }
 
-        public TComponent Get<TComponent>() where TComponent : IComponent
+        public TComponent GetComponent<TComponent>() where TComponent : IComponent
         {
             var typeId = Typeof<TComponent>.Id;
             var index = _sign.IndexOf(typeId);
 
+            if (index == Sign.EMPTY_INDEX)
+            {
+                throw Error.NotFound($"Component {ReflectionUtils.GetName<TComponent>()} not found");
+            }
+            
             return (TComponent) _components[index];
         }
 
@@ -48,6 +53,22 @@ namespace Velo.ECS
         public override int GetHashCode()
         {
             return Id;
+        }
+
+        public bool TryGetComponent<TComponent>(out TComponent component) 
+            where TComponent : IComponent
+        {
+            var typeId = Typeof<TComponent>.Id;
+            var index = _sign.IndexOf(typeId);
+
+            if (index == Sign.EMPTY_INDEX)
+            {
+                component = default;
+                return false;
+            }
+            
+            component = (TComponent) _components[index];
+            return true;
         }
     }
 }

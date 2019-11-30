@@ -4,8 +4,7 @@ using System.Collections.Generic;
 
 namespace Velo.ECS.Enumeration
 {
-    public struct WhereFilter<TEntity, TComponent1> : IEnumerator<Wrapper<TEntity, TComponent1>>,
-        IEnumerable<Wrapper<TEntity, TComponent1>>
+    public ref struct WhereFilter<TEntity, TComponent1>
         where TEntity : Entity where TComponent1 : IComponent
     {
         public Wrapper<TEntity, TComponent1> Current { get; private set; }
@@ -22,7 +21,7 @@ namespace Velo.ECS.Enumeration
             Current = default;
         }
 
-        public IEnumerator<Wrapper<TEntity, TComponent1>> GetEnumerator() => this;
+        public WhereFilter<TEntity, TComponent1> GetEnumerator() => this;
         
         public bool MoveNext()
         {
@@ -44,18 +43,9 @@ namespace Velo.ECS.Enumeration
             _enumerator.Dispose();
             _predicate = null;
         }
-
-        object IEnumerator.Current => Current;
-
-        void IEnumerator.Reset()
-        {
-        }
-
-        IEnumerator IEnumerable.GetEnumerator() => this;
     }
 
-    public struct WhereFilter<TEntity, TComponent1, TComponent2> :
-        IEnumerator<Wrapper<TEntity, TComponent1, TComponent2>>, IEnumerable<Wrapper<TEntity, TComponent1, TComponent2>>
+    public ref struct WhereFilter<TEntity, TComponent1, TComponent2>
         where TEntity : Entity where TComponent1 : IComponent where TComponent2 : IComponent
     {
         public Wrapper<TEntity, TComponent1, TComponent2> Current { get; private set; }
@@ -72,7 +62,7 @@ namespace Velo.ECS.Enumeration
             Current = default;
         }
 
-        public IEnumerator<Wrapper<TEntity, TComponent1, TComponent2>> GetEnumerator() => this;
+        public WhereFilter<TEntity, TComponent1, TComponent2> GetEnumerator() => this;
         
         public bool MoveNext()
         {
@@ -94,13 +84,5 @@ namespace Velo.ECS.Enumeration
             _enumerator.Dispose();
             _predicate = null;
         }
-
-        void IEnumerator.Reset()
-        {
-        }
-
-        object IEnumerator.Current => Current;
-
-        IEnumerator IEnumerable.GetEnumerator() => this;
     }
 }

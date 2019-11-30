@@ -10,11 +10,11 @@ using Boos = Velo.TestsModels.Emitting.Boos;
 
 namespace Velo.CQRS
 {
-    public class RequestTests : TestBase
+    public class QueryTests : TestBase
     {
         private readonly DependencyCollection _dependencies;
 
-        public RequestTests(ITestOutputHelper output) : base(output)
+        public QueryTests(ITestOutputHelper output) : base(output)
         {
             _dependencies = new DependencyCollection()
                 .AddSingleton<IConfiguration, Configuration>()
@@ -37,7 +37,7 @@ namespace Velo.CQRS
             repository.AddElement(new Boo {Id = id, Int = number});
 
             Boo boo;
-            using (StartStopwatch())
+            using (Measure())
             {
                 boo = await mediator.Ask(new Boos.Get.Query {Id = id});
             }

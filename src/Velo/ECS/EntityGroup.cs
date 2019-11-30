@@ -7,7 +7,9 @@ namespace Velo.ECS
     public abstract class EntityGroup<TEntity>
         where TEntity: Entity
     {
-        public event Action<TEntity> Added; 
+        public event Action<TEntity> Added;
+
+        public int Length => _entities.Count;
         
         private readonly Dictionary<int, TEntity> _entities;
 
@@ -16,6 +18,11 @@ namespace Velo.ECS
             _entities = new Dictionary<int, TEntity>();
         }
 
+        public bool Contains(TEntity entity)
+        {
+            return _entities.ContainsValue(entity);
+        }
+        
         public TEntity Get(int id) => _entities[id];
         
         public Dictionary<int, TEntity>.ValueCollection.Enumerator GetEnumerator() => _entities.Values.GetEnumerator();

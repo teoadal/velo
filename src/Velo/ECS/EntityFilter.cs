@@ -12,6 +12,8 @@ namespace Velo.ECS
             _componentTypeIds = componentTypeIds;
         }
 
+        public abstract bool Contains(TEntity entity);
+        
         internal void Initialize(EntityContext<TEntity> context)
         {
             foreach (var entity in context)

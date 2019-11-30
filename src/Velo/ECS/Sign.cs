@@ -23,7 +23,7 @@ namespace Velo.ECS
             _c4 = c4;
         }
 
-        public Sign Add(int typeId, out int index)
+        internal Sign Add(int typeId, out int index)
         {
             index = IndexOf(EMPTY_INDEX);
             return Set(index, typeId);
@@ -80,6 +80,19 @@ namespace Velo.ECS
         {
             index = IndexOf(typeId);
             return Set(index, EMPTY_INDEX);
+        }
+        
+        public bool TryRemove(int typeId, out Sign newSign, out int oldIndex)
+        {
+            oldIndex = IndexOf(typeId);
+            if (oldIndex == EMPTY_INDEX)
+            {
+                newSign = default;
+                oldIndex = default;
+                return false;
+            }
+            newSign = Set(oldIndex, EMPTY_INDEX);
+            return true;
         }
     }
 }

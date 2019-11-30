@@ -12,7 +12,7 @@ namespace Velo.ECS.Actors
 
         public event Action<Actor> Removed;
 
-        protected ActorFilter(params int[] componentTypeIds): base(componentTypeIds)
+        protected ActorFilter(params int[] componentTypeIds) : base(componentTypeIds)
         {
         }
 
@@ -23,28 +23,28 @@ namespace Velo.ECS.Actors
             var evt = Added;
             evt?.Invoke(actor);
         }
-        
+
         internal void OnComponentAdded(Actor actor)
         {
             OnAddedToContext(actor);
         }
-        
+
         private void OnComponentRemoved(Actor actor, IComponent component)
         {
             if (Applicable(actor)) return;
 
             OnRemoved(actor);
         }
-        
+
         internal void OnRemovedFromContext(Actor actor)
         {
-            if (Applicable(actor)) return;
+            if (!Applicable(actor)) return;
 
             OnRemoved(actor);
         }
-        
+
         protected abstract bool Remove(Actor actor);
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void OnRemoved(Actor actor)
         {
@@ -60,11 +60,36 @@ namespace Velo.ECS.Actors
     public sealed class ActorFilter<TComponent1> : ActorFilter
         where TComponent1 : IComponent
     {
+        public int Length => _wrappers.Count;
+        
         private readonly List<Wrapper<Actor, TComponent1>> _wrappers;
 
         public ActorFilter() : base(Typeof<TComponent1>.Id)
         {
             _wrappers = new List<Wrapper<Actor, TComponent1>>();
+        }
+
+        public override bool Contains(Actor entity)
+        {
+            foreach (var wrapper in _wrappers)
+            {
+                if (wrapper.Entity.Equals(entity)) return true;
+            }
+
+            return false;
+        }
+
+        public Wrapper<Actor, TComponent1> Get(int id)
+        {
+            foreach (var wrapper in _wrappers)
+            {
+                if (wrapper.Entity.Id == id)
+                {
+                    return wrapper;
+                }
+            }
+
+            throw Error.NotFound($"Entity with id {id} not found");
         }
 
         public List<Wrapper<Actor, TComponent1>>.Enumerator GetEnumerator() => _wrappers.GetEnumerator();
@@ -76,7 +101,7 @@ namespace Velo.ECS.Actors
 
         protected override bool Add(Actor actor)
         {
-            _wrappers.Add(new Wrapper<Actor, TComponent1>(actor, actor.Get<TComponent1>()));
+            _wrappers.Add(new Wrapper<Actor, TComponent1>(actor, actor.GetComponent<TComponent1>()));
 
             return true;
         }
@@ -97,11 +122,23 @@ namespace Velo.ECS.Actors
     public sealed class ActorFilter<TComponent1, TComponent2> : ActorFilter
         where TComponent1 : IComponent where TComponent2 : IComponent
     {
+        public int Length => _wrappers.Count;
+        
         private readonly List<Wrapper<Actor, TComponent1, TComponent2>> _wrappers;
 
         public ActorFilter() : base(Typeof<TComponent1>.Id, Typeof<TComponent2>.Id)
         {
             _wrappers = new List<Wrapper<Actor, TComponent1, TComponent2>>();
+        }
+
+        public override bool Contains(Actor entity)
+        {
+            foreach (var wrapper in _wrappers)
+            {
+                if (wrapper.Entity.Equals(entity)) return true;
+            }
+
+            return false;
         }
 
         public List<Wrapper<Actor, TComponent1, TComponent2>>.Enumerator GetEnumerator() => _wrappers.GetEnumerator();
@@ -116,8 +153,8 @@ namespace Velo.ECS.Actors
         {
             _wrappers.Add(new Wrapper<Actor, TComponent1, TComponent2>(
                 actor,
-                actor.Get<TComponent1>(),
-                actor.Get<TComponent2>()));
+                actor.GetComponent<TComponent1>(),
+                actor.GetComponent<TComponent2>()));
 
             return true;
         }

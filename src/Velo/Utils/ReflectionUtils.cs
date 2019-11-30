@@ -37,6 +37,11 @@ namespace Velo.Utils
             return availableConstructors.FirstOrDefault(c => !c.IsStatic && c.GetParameters().Length == 0);
         }
 
+        public static string GetName<T>()
+        {
+            return GetName(typeof(T));
+        }
+        
         public static string GetName(Type type, StringBuilder sb = null)
         {
             var builder = sb ?? new StringBuilder();

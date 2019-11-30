@@ -18,7 +18,7 @@ namespace Velo.Collections
             private LocalGroup _current;
             private int _position;
 
-            internal GroupEnumerator(LocalVector<T> vector, Func<T, TKey> keySelector, EqualityComparer<TKey> comparer)
+            internal GroupEnumerator(in LocalVector<T> vector, Func<T, TKey> keySelector, EqualityComparer<TKey> comparer)
             {
                 var values = new LocalVector<Row>(vector.Length);
                 var uniqueKeys = new LocalVector<TKey>();

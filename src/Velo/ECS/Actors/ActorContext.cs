@@ -25,6 +25,8 @@ namespace Velo.ECS.Actors
             if (!_filters.TryGetValue(filterId, out var filter))
             {
                 filter = new ActorFilter<TComponent1>();
+                filter.Initialize(this);
+                
                 _filters.Add(filterId, filter);
             }
 
@@ -46,8 +48,8 @@ namespace Velo.ECS.Actors
 
             return (ActorFilter<TComponent1, TComponent2>) filter;
         }
-        
-        public ActorGroup<TActor> GetGroup<TActor>() where TActor: Actor
+
+        public ActorGroup<TActor> GetGroup<TActor>() where TActor : Actor
         {
             var groupId = Typeof<TActor>.Id;
 
@@ -55,13 +57,13 @@ namespace Velo.ECS.Actors
             {
                 assetGroup = new ActorGroup<TActor>();
                 assetGroup.Initialize(this);
-                
+
                 _groups.Add(groupId, assetGroup);
             }
 
             return (ActorGroup<TActor>) assetGroup;
         }
-        
+
         public bool Remove(Actor actor)
         {
             if (!TryRemove(actor)) return false;
@@ -69,7 +71,7 @@ namespace Velo.ECS.Actors
             OnRemoved(actor);
             return true;
         }
-        
+
         protected override void OnAdded(Actor actor)
         {
             actor.AddedComponent += OnAddedComponent;
@@ -78,8 +80,13 @@ namespace Velo.ECS.Actors
             {
                 filter.OnAddedToContext(actor);
             }
+
+            foreach (var group in _groups.Values)
+            {
+                group.OnAddedToContext(actor);
+            }
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void OnRemoved(Actor actor)
         {
@@ -90,10 +97,15 @@ namespace Velo.ECS.Actors
                 filter.OnRemovedFromContext(actor);
             }
 
+            foreach (var group in _groups.Values)
+            {
+                group.OnRemovedFromContext(actor);
+            }
+
             var evt = Removed;
             evt?.Invoke(actor);
         }
-        
+
         private void OnAddedComponent(Actor actor, IComponent component)
         {
             foreach (var filter in _filters.Values)

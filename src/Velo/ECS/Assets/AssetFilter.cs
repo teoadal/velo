@@ -7,8 +7,8 @@ namespace Velo.ECS.Assets
 {
     public abstract class AssetFilter : EntityFilter<Asset>
     {
-        public event Action<Asset> Added; 
-        
+        public event Action<Asset> Added;
+
         protected AssetFilter(params int[] componentTypeIds) : base(componentTypeIds)
         {
         }
@@ -30,6 +30,16 @@ namespace Velo.ECS.Assets
             _wrappers = new List<Wrapper<Asset, TComponent1>>();
         }
 
+        public override bool Contains(Asset entity)
+        {
+            foreach (var wrapper in _wrappers)
+            {
+                if (wrapper.Entity.Equals(entity)) return true;
+            }
+
+            return false;
+        }
+
         public List<Wrapper<Asset, TComponent1>>.Enumerator GetEnumerator() => _wrappers.GetEnumerator();
 
         public WhereFilter<Asset, TComponent1> Where(Predicate<Wrapper<Asset, TComponent1>> predicate)
@@ -39,7 +49,7 @@ namespace Velo.ECS.Assets
 
         protected override bool Add(Asset asset)
         {
-            _wrappers.Add(new Wrapper<Asset, TComponent1>(asset, asset.Get<TComponent1>()));
+            _wrappers.Add(new Wrapper<Asset, TComponent1>(asset, asset.GetComponent<TComponent1>()));
 
             return true;
         }
@@ -56,6 +66,16 @@ namespace Velo.ECS.Assets
             _wrappers = new List<Wrapper<Asset, TComponent1, TComponent2>>();
         }
 
+        public override bool Contains(Asset entity)
+        {
+            foreach (var wrapper in _wrappers)
+            {
+                if (wrapper.Entity.Equals(entity)) return true;
+            }
+
+            return false;
+        }
+
         public List<Wrapper<Asset, TComponent1, TComponent2>>.Enumerator GetEnumerator() => _wrappers.GetEnumerator();
 
         public WhereFilter<Asset, TComponent1, TComponent2> Where(
@@ -68,8 +88,8 @@ namespace Velo.ECS.Assets
         {
             _wrappers.Add(new Wrapper<Asset, TComponent1, TComponent2>(
                 asset,
-                asset.Get<TComponent1>(),
-                asset.Get<TComponent2>()));
+                asset.GetComponent<TComponent1>(),
+                asset.GetComponent<TComponent2>()));
 
             return true;
         }
