@@ -31,7 +31,7 @@ namespace Velo.ECS.Actors
 
         public bool RemoveComponent<TComponent>() where TComponent : IComponent
         {
-            if (_sign.TryRemove(Typeof<TComponent>.Id, out var newSign, out var index))
+            if (!_sign.TryRemove(Typeof<TComponent>.Id, out var newSign, out var index))
             {
                 return false;
             }

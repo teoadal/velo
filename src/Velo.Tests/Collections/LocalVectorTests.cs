@@ -423,6 +423,48 @@ namespace Velo.Collections
         }
 
         [Theory, AutoData]
+        public void Remove(int[] items)
+        {
+            var vector = new LocalVector<int>(items);
+            var item = items[items.Length / 2];
+            
+            Assert.True(vector.Remove(item));
+            Assert.False(vector.Contains(item));
+        }
+        
+        [Theory, AutoData]
+        public void Remove_All(int[] items)
+        {
+            var vector = new LocalVector<int>(items);
+
+            foreach (var item in items)
+            {
+                Assert.True(vector.Remove(item));
+                Assert.False(vector.Contains(item));
+            }
+        }
+        
+        [Theory, AutoData]
+        public void Remove_First(int[] items)
+        {
+            var vector = new LocalVector<int>(items);
+            var item = items[0];
+            
+            Assert.True(vector.Remove(item));
+            Assert.False(vector.Contains(item));
+        }
+        
+        [Theory, AutoData]
+        public void Remove_Last(int[] items)
+        {
+            var vector = new LocalVector<int>(items);
+            var item = items[items.Length - 1];
+            
+            Assert.True(vector.Remove(item));
+            Assert.False(vector.Contains(item));
+        }
+        
+        [Theory, AutoData]
         public void Select(Boo[] items)
         {
             var vector = new LocalVector<Boo>(items);

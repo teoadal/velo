@@ -63,8 +63,13 @@ namespace Velo.Collections
         public bool All(Predicate<T> predicate)
         {
             for (var i = 0; i < _length; i++)
+            {
                 if (!predicate(Get(i)))
+                {
                     return false;
+                }
+            }
+
 
             return true;
         }
@@ -102,14 +107,20 @@ namespace Velo.Collections
         public void AddRange(LocalVector<T> collection)
         {
             foreach (var element in collection)
+            {
                 Add(element);
+            }
         }
 
         public readonly bool Any(Predicate<T> predicate)
         {
             for (var i = 0; i < _length; i++)
+            {
                 if (predicate(Get(i)))
+                {
                     return true;
+                }
+            }
 
             return false;
         }
@@ -117,8 +128,12 @@ namespace Velo.Collections
         public readonly bool Any<TArg>(Func<T, TArg, bool> predicate, TArg arg)
         {
             for (var i = 0; i < _length; i++)
+            {
                 if (predicate(Get(i), arg))
+                {
                     return true;
+                }
+            }
 
             return false;
         }
@@ -133,8 +148,12 @@ namespace Velo.Collections
             if (comparer == null) comparer = EqualityComparer<T>.Default;
 
             for (var i = 0; i < _length; i++)
+            {
                 if (comparer.Equals(Get(i), element))
+                {
                     return true;
+                }
+            }
 
             return false;
         }
@@ -142,8 +161,12 @@ namespace Velo.Collections
         public readonly T First(Predicate<T> predicate)
         {
             for (var i = 0; i < _length; i++)
+            {
                 if (predicate(Get(i)))
+                {
                     return this[i];
+                }
+            }
 
             throw Error.NotFound();
         }
@@ -151,8 +174,12 @@ namespace Velo.Collections
         public readonly T First<TArg>(Func<T, TArg, bool> predicate, TArg arg)
         {
             for (var i = 0; i < _length; i++)
+            {
                 if (predicate(Get(i), arg))
+                {
                     return this[i];
+                }
+            }
 
             throw Error.NotFound();
         }
@@ -186,6 +213,28 @@ namespace Velo.Collections
                 innerEnumerator, innerKeySelector,
                 outerEnumerator, outerKeySelector,
                 resultBuilder);
+        }
+
+        public bool Remove(T element, EqualityComparer<T> comparer = null)
+        {
+            if (comparer == null) comparer = EqualityComparer<T>.Default;
+
+            for (var i = 0; i < _length; i++)
+            {
+                var exists = Get(i);
+                if (!comparer.Equals(element, exists)) continue;
+
+                for (var j = i + 1; j < _length; j++)
+                {
+                    Set(j - 1, Get(j));
+                }
+
+                _length--;
+                
+                return true;
+            }
+
+            return false;
         }
 
         public void Sort<TProperty>(Func<T, TProperty> property, Comparer<TProperty> comparer = null)

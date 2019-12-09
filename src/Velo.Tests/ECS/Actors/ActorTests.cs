@@ -11,26 +11,26 @@ namespace Velo.ECS.Actors
         private readonly Actor _actor;
         private readonly int _actorId;
         private readonly IComponent[] _components;
-        
+
         public ActorTests(ITestOutputHelper output) : base(output)
         {
             _components = BuildComponents();
             _actorId = 1;
             _actor = new Actor(_actorId, _components);
         }
-        
+
         [Fact]
         public void AddComponent()
         {
             var component = new DefenceComponent();
             _actor.AddComponent(component);
-            
+
             Assert.True(_actor.ContainsComponent<DefenceComponent>());
             Assert.True(_actor.TryGetComponent<DefenceComponent>(out var existsComponent));
             Assert.Same(component, _actor.GetComponent<DefenceComponent>());
             Assert.Same(component, existsComponent);
         }
-        
+
         [Fact]
         public void AddComponent_EventRaised()
         {
@@ -41,31 +41,31 @@ namespace Velo.ECS.Actors
                 Assert.Same(_actor, actor);
                 Assert.Same(component, addedComponent);
             };
-                
+
             _actor.AddComponent(component);
         }
-        
+
         [Fact]
         public void RemoveComponent()
         {
             _actor.RemoveComponent<HealthComponent>();
-            
+
             Assert.False(_actor.ContainsComponent<HealthComponent>());
             Assert.False(_actor.TryGetComponent<HealthComponent>(out _));
         }
-        
+
         [Fact]
         public void RemoveComponent_Many()
         {
             var actor = BuildActor(1);
             actor.AddComponent(new DefenceComponent());
-            
+
             actor.RemoveComponent<ManaCostComponent>();
             actor.AddComponent(new ManaCostComponent());
 
             Assert.True(actor.ContainsComponent<ManaCostComponent>());
         }
-        
+
         [Fact]
         public void RemoveComponent_EventRaised()
         {
@@ -76,20 +76,20 @@ namespace Velo.ECS.Actors
                 Assert.Same(_actor, actor);
                 Assert.Same(component, removedComponent);
             };
-                
+
             _actor.RemoveComponent<HealthComponent>();
         }
-        
+
+        [Fact]
+        public void Remove_NotExistsComponent()
+        {
+            Assert.False(_actor.RemoveComponent<DefenceComponent>());
+        }
+
         [Fact]
         public void Throw_AddExistsComponent()
         {
             Assert.Throws<InvalidOperationException>(() => _actor.AddComponent(new HealthComponent()));
-        }
-        
-        [Fact]
-        public void Throw_RemoveNotExistsComponent()
-        {
-            Assert.Throws<KeyNotFoundException>(() => _actor.RemoveComponent<DefenceComponent>());
         }
     }
 }
