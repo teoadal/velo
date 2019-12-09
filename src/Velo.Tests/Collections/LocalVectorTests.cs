@@ -422,6 +422,23 @@ namespace Velo.Collections
             Assert.Equal(items.Length, vector.Length);
         }
 
+        [Fact]
+        public void Mix()
+        {
+            var items = new LocalVector<int>();
+
+            for (int i = 0; i < 100; i++)
+            {
+                items.Add(i);
+                Assert.True(items.Contains(i));
+                
+                if (i % 2 != 0) continue;
+                
+                Assert.True(items.Remove(i));
+                Assert.False(items.Contains(i));
+            }
+        }
+        
         [Theory, AutoData]
         public void Remove(int[] items)
         {
