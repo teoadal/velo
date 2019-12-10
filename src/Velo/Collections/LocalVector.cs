@@ -10,7 +10,7 @@ namespace Velo.Collections
     [DebuggerDisplay("Length = {" + nameof(_length) + "}")]
     public ref partial struct LocalVector<T>
     {
-        private const int Capacity = 6;
+        private const int Capacity = 10;
 
         public int Length => _length;
 
@@ -20,6 +20,10 @@ namespace Velo.Collections
         private T _element3;
         private T _element4;
         private T _element5;
+        private T _element6;
+        private T _element7;
+        private T _element8;
+        private T _element9;
         private T[] _array;
 
         private int _length;
@@ -34,6 +38,10 @@ namespace Velo.Collections
             _element3 = default;
             _element4 = default;
             _element5 = default;
+            _element6 = default;
+            _element7 = default;
+            _element8 = default;
+            _element9 = default;
 
             _array = capacity > Capacity ? new T[capacity - Capacity] : null;
 
@@ -95,6 +103,18 @@ namespace Velo.Collections
                     break;
                 case 5:
                     _element5 = element;
+                    break;
+                case 6:
+                    _element6 = element;
+                    break;
+                case 7:
+                    _element7 = element;
+                    break;
+                case 8:
+                    _element8 = element;
+                    break;
+                case 9:
+                    _element9 = element;
                     break;
                 default:
                     AddToArray(element);
@@ -197,6 +217,21 @@ namespace Velo.Collections
             return new GroupEnumerator<TKey>(in this, keySelector, keyComparer);
         }
 
+        public readonly int IndexOf(T element, EqualityComparer<T> comparer = null)
+        {
+            if (comparer == null) comparer = EqualityComparer<T>.Default;
+
+            for (var index = 0; index < _length; index++)
+            {
+                if (comparer.Equals(element, Get(index)))
+                {
+                    return index;
+                }
+            }
+
+            return -1;
+        }
+
         public JoinEnumerator<TResult, TInner, TKey> Join<TResult, TInner, TKey>(
             LocalVector<TInner> inner,
             Func<T, TKey> outerKeySelector,
@@ -219,22 +254,23 @@ namespace Velo.Collections
         {
             if (comparer == null) comparer = EqualityComparer<T>.Default;
 
-            for (var i = 0; i < _length; i++)
+            var index = IndexOf(element, comparer);
+            if (index < 0) return false;
+
+            RemoveAt(index);
+            return true;
+        }
+
+        public void RemoveAt(int index)
+        {
+            if (index >= _length) throw Error.OutOfRange();
+
+            for (var i = index + 1; i < _length; i++)
             {
-                var exists = Get(i);
-                if (!comparer.Equals(element, exists)) continue;
-
-                for (var j = i + 1; j < _length; j++)
-                {
-                    Set(j - 1, Get(j));
-                }
-
-                _length--;
-                
-                return true;
+                Set(i - 1, Get(i));
             }
 
-            return false;
+            _length--;
         }
 
         public void Sort<TProperty>(Func<T, TProperty> property, Comparer<TProperty> comparer = null)
@@ -300,6 +336,23 @@ namespace Velo.Collections
                     return new[] {_element0, _element1, _element2, _element3, _element4};
                 case 6:
                     return new[] {_element0, _element1, _element2, _element3, _element4, _element5};
+                case 7:
+                    return new[] {_element0, _element1, _element2, _element3, _element4, _element5, _element6};
+                case 8:
+                    return new[]
+                        {_element0, _element1, _element2, _element3, _element4, _element5, _element6, _element7};
+                case 9:
+                    return new[]
+                    {
+                        _element0, _element1, _element2, _element3, _element4, _element5, _element6, _element7,
+                        _element8
+                    };
+                case Capacity:
+                    return new[]
+                    {
+                        _element0, _element1, _element2, _element3, _element4, _element5, _element6, _element7,
+                        _element8, _element9
+                    };
             }
 
             var result = new T[_length];
@@ -360,6 +413,10 @@ namespace Velo.Collections
                 case 3: return _element3;
                 case 4: return _element4;
                 case 5: return _element5;
+                case 6: return _element6;
+                case 7: return _element7;
+                case 8: return _element8;
+                case 9: return _element9;
                 default: return _array[index - Capacity];
             }
         }
@@ -385,6 +442,18 @@ namespace Velo.Collections
                     return;
                 case 5:
                     _element5 = value;
+                    return;
+                case 6:
+                    _element6 = value;
+                    return;
+                case 7:
+                    _element7 = value;
+                    return;
+                case 8:
+                    _element8 = value;
+                    return;
+                case 9:
+                    _element9 = value;
                     return;
                 default:
                     _array[index - Capacity] = value;

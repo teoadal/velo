@@ -221,7 +221,7 @@ namespace Velo.Collections
 
             groupEnumerator.Dispose();
         }
-        
+
         [Theory, AutoData]
         public void GroupBy_Where(List<Boo> items)
         {
@@ -251,7 +251,33 @@ namespace Velo.Collections
 
             groupEnumerator.Dispose();
         }
-        
+
+        [Theory, AutoData]
+        public void IndexOf(Boo[] items)
+        {
+            var vector = new LocalVector<Boo>(items);
+            for (var index = 0; index < items.Length; index++)
+            {
+                var boo = items[index];
+                Assert.Equal(index, vector.IndexOf(boo));
+            }
+        }
+
+        [Theory, AutoData]
+        public void Indexer(int count)
+        {
+            count = Math.Abs(count);
+            if (count > 10000) count = 10000;
+
+            var items = Enumerable.Range(0, count).ToArray();
+            var vector = new LocalVector<int>(items);
+
+            for (var i = 0; i < vector.Length; i++)
+            {
+                Assert.Equal(items[i], vector[i]);
+            }
+        }
+
         [Theory, AutoData]
         public void Join(Boo[] items)
         {
@@ -392,21 +418,6 @@ namespace Velo.Collections
         }
 
         [Theory, AutoData]
-        public void Indexer(int count)
-        {
-            count = Math.Abs(count);
-            if (count > 10000) count = 10000;
-
-            var items = Enumerable.Range(0, count).ToArray();
-            var vector = new LocalVector<int>(items);
-
-            for (var i = 0; i < vector.Length; i++)
-            {
-                Assert.Equal(items[i], vector[i]);
-            }
-        }
-
-        [Theory, AutoData]
         public void Length(int[] items)
         {
             var vector = new LocalVector<int>();
@@ -431,24 +442,44 @@ namespace Velo.Collections
             {
                 items.Add(i);
                 Assert.True(items.Contains(i));
-                
+
                 if (i % 2 != 0) continue;
-                
+
                 Assert.True(items.Remove(i));
                 Assert.False(items.Contains(i));
             }
         }
-        
+
+        [Theory, AutoData]
+        public void Mix_Many(int count)
+        {
+            count = Math.Abs(count);
+            if (count > 10000) count = 10000;
+
+            var vector = new LocalVector<int>();
+
+            for (int i = 0; i < count; i++)
+            {
+                vector.Add(i);
+                Assert.True(vector.Contains(i));
+
+                if (i % 2 != 0) continue;
+
+                Assert.True(vector.Remove(i));
+                Assert.False(vector.Contains(i));
+            }
+        }
+
         [Theory, AutoData]
         public void Remove(int[] items)
         {
             var vector = new LocalVector<int>(items);
             var item = items[items.Length / 2];
-            
+
             Assert.True(vector.Remove(item));
             Assert.False(vector.Contains(item));
         }
-        
+
         [Theory, AutoData]
         public void Remove_All(int[] items)
         {
@@ -460,27 +491,42 @@ namespace Velo.Collections
                 Assert.False(vector.Contains(item));
             }
         }
-        
+
         [Theory, AutoData]
         public void Remove_First(int[] items)
         {
             var vector = new LocalVector<int>(items);
             var item = items[0];
-            
+
             Assert.True(vector.Remove(item));
             Assert.False(vector.Contains(item));
         }
-        
+
         [Theory, AutoData]
         public void Remove_Last(int[] items)
         {
             var vector = new LocalVector<int>(items);
             var item = items[items.Length - 1];
-            
+
             Assert.True(vector.Remove(item));
             Assert.False(vector.Contains(item));
         }
-        
+
+        [Theory, AutoData]
+        public void RemoveAt(int[] items)
+        {
+            var vector = new LocalVector<int>(items);
+
+            foreach (var element in items)
+            {
+                var index = vector.IndexOf(element);
+               
+                vector.RemoveAt(index);
+                
+                Assert.False(vector.Contains(element));
+            }
+        }
+
         [Theory, AutoData]
         public void Select(Boo[] items)
         {
@@ -651,6 +697,15 @@ namespace Velo.Collections
         }
 
         [Fact]
+        public void ToArray_Empty()
+        {
+            var vector = new LocalVector<Boo>();
+            var vectorArray = vector.ToArray();
+
+            Assert.Empty(vectorArray);
+        }
+
+        [Fact]
         public void ToArray_Granularity()
         {
             var vector = new LocalVector<int>();
@@ -661,15 +716,6 @@ namespace Velo.Collections
                 var vectorArray = vector.ToArray();
                 Assert.Equal(vectorArray.Length, vector.Length);
             }
-        }
-
-        [Fact]
-        public void ToArray_Empty()
-        {
-            var vector = new LocalVector<Boo>();
-            var vectorArray = vector.ToArray();
-
-            Assert.Empty(vectorArray);
         }
 
         [Theory, AutoData]
