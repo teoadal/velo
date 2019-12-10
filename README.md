@@ -38,7 +38,7 @@ Boo boo = await emitter.AskAsync(new GetBoo {Id = id});
 |  Method |     Mean |     Error |   StdDev | Ratio | Allocated |
 |-------- |---------:|----------:|---------:|------:|----------:|
 | MediatR | 941.2 us | 18.788 us | 24.43 us |  1.00 | 781.32 KB |
-| Emitter | 290.2 us |  5.722 us | 12.80 us |  0.31 | 187.57 KB |
+| Velo | 290.2 us |  5.722 us | 12.80 us |  0.31 | 187.57 KB |
 
 
 ## Mapper
