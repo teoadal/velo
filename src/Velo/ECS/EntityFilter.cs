@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 namespace Velo.ECS
 {
     public abstract class EntityFilter<TEntity>
-        where TEntity: Entity
+        where TEntity : Entity
     {
         private readonly int[] _componentTypeIds;
 
@@ -13,7 +13,7 @@ namespace Velo.ECS
         }
 
         public abstract bool Contains(TEntity entity);
-        
+
         internal void Initialize(EntityContext<TEntity> context)
         {
             foreach (var entity in context)

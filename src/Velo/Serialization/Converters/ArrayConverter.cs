@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Velo.Collections;
 using Velo.Serialization.Tokenization;
 
 namespace Velo.Serialization.Converters
@@ -9,8 +10,6 @@ namespace Velo.Serialization.Converters
     {
         public bool IsPrimitive => false;
         
-        [ThreadStatic] private static List<TElement> _buffer;
-        
         private readonly IJsonConverter<TElement> _elementConverter;
 
         public ArrayConverter(IJsonConverter<TElement> elementConverter)
@@ -18,9 +17,9 @@ namespace Velo.Serialization.Converters
             _elementConverter = elementConverter;
         }
 
-        public TElement[] Deserialize(JsonTokenizer tokenizer)
+        public TElement[] Deserialize(ref JsonTokenizer tokenizer)
         {
-            if (_buffer == null) _buffer = new List<TElement>(10);
+            var buffer = new LocalVector<TElement>();
             
             while (tokenizer.MoveNext())
             {
@@ -32,24 +31,18 @@ namespace Velo.Serialization.Converters
                 if (tokenType == JsonTokenType.ArrayStart) continue;
                 if (tokenType == JsonTokenType.ArrayEnd) break;
 
-                var element = _elementConverter.Deserialize(tokenizer);
-                _buffer.Add(element);
+                var element = _elementConverter.Deserialize(ref tokenizer);
+                buffer.Add(element);
             }
 
-            var array = new TElement[_buffer.Count];
-            for (var i = 0; i < array.Length; i++)
-                array[i] = _buffer[i];
-
-            _buffer.Clear();
-
-            return array;
+            return buffer.ToArray();
         }
 
         public void Serialize(TElement[] array, StringBuilder builder)
         {
             if (array == null)
             {
-                builder.Append(JsonTokenizer.TOKEN_NULL_VALUE);
+                builder.Append(JsonTokenizer.TokenNullValue);
                 return;
             }
 

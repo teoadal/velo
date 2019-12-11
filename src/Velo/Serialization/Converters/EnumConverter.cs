@@ -16,7 +16,7 @@ namespace Velo.Serialization.Converters
             _values = (TEnum[]) Enum.GetValues(typeof(TEnum));
         }
 
-        public TEnum Deserialize(JsonTokenizer tokenizer)
+        public TEnum Deserialize(ref JsonTokenizer tokenizer)
         {
             var token = tokenizer.Current;
             return _values[int.Parse(token.Value)];

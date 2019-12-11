@@ -1,12 +1,11 @@
 using System;
-using System.Collections.Generic;
 using Velo.TestsModels.ECS;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Velo.ECS.Actors
 {
-    public class ActorTests : ECSTestBase
+    public class ActorTests : EcsTestBase
     {
         private readonly Actor _actor;
         private readonly int _actorId;

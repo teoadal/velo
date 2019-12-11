@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 
 namespace Velo.ECS
 {
-    public class WrapperTests : ECSTestBase
+    public class WrapperTests : EcsTestBase
     {
         private readonly Actor _actor;
         private readonly Wrapper<Actor, HealthComponent, ManaCostComponent> _wrapper;

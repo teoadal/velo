@@ -6,7 +6,7 @@ namespace Velo.Collections
     {
         public ref struct Enumerator
         {
-            public T Current
+            public readonly T Current
             {
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 get => _vector.Get(_position);

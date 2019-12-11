@@ -6,9 +6,9 @@ using Xunit.Abstractions;
 
 namespace Velo.ECS
 {
-    public abstract class ECSTestBase : TestBase
+    public abstract class EcsTestBase : TestBase
     {
-        public ECSTestBase(ITestOutputHelper output) : base(output)
+        public EcsTestBase(ITestOutputHelper output) : base(output)
         {
         }
         

@@ -7,7 +7,7 @@ namespace Velo.Collections
     {
         public ref struct SelectEnumerator<TValue>
         {
-            public TValue Current => _current!;
+            public readonly TValue Current => _current!;
 
             // ReSharper disable FieldCanBeMadeReadOnly.Local
             private TValue _current;

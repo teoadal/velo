@@ -8,7 +8,7 @@ namespace Velo.Serialization.Converters
     {
         public bool IsPrimitive => true;
         
-        public int Deserialize(JsonTokenizer tokenizer)
+        public int Deserialize(ref JsonTokenizer tokenizer)
         {
             var token = tokenizer.Current;
             return int.Parse(token.Value);

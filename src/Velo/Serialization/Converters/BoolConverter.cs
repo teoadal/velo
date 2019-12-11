@@ -9,7 +9,7 @@ namespace Velo.Serialization.Converters
     {
         public bool IsPrimitive => true;
         
-        public bool Deserialize(JsonTokenizer tokenizer)
+        public bool Deserialize(ref JsonTokenizer tokenizer)
         {
             var token = tokenizer.Current;
 
@@ -20,13 +20,13 @@ namespace Velo.Serialization.Converters
                 case JsonTokenType.False:
                     return false;
                 default:
-                    throw Error.InvalidOperation($"Invalid boolean token '{token}'");
+                    throw Error.InvalidOperation($"Invalid boolean token '{token.TokenType}'");
             }
         }
 
         public void Serialize(bool value, StringBuilder builder)
         {
-            builder.Append(value ? JsonTokenizer.TOKEN_TRUE_VALUE : JsonTokenizer.TOKEN_FALSE_VALUE);
+            builder.Append(value ? JsonTokenizer.TokenTrueValue : JsonTokenizer.TokenFalseValue);
         }
 
         void IJsonConverter.Serialize(object value, StringBuilder builder) => Serialize((bool) value, builder);

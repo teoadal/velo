@@ -1,16 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Velo.Utils;
 
 namespace Velo.Serialization.Tokenization
 {
-    internal sealed class JsonTokenizer : IEnumerator<JsonToken>
+    [DebuggerDisplay("Position: {_position} Value: '{_builder}'")]
+    internal ref struct JsonTokenizer
     {
-        public const string TOKEN_FALSE_VALUE = "false";
-        public const string TOKEN_NULL_VALUE = "null";
-        public const string TOKEN_TRUE_VALUE = "true";
+        public const string TokenFalseValue = "false";
+        public const string TokenNullValue = "null";
+        public const string TokenTrueValue = "true";
 
         public JsonToken Current { get; private set; }
 
@@ -24,6 +24,10 @@ namespace Velo.Serialization.Tokenization
         {
             _serialized = serialized;
             _builder = stringBuilder ?? new StringBuilder();
+            _position = 0;
+            _disposed = false;
+            
+            Current = default;
         }
 
         public bool MoveNext()
@@ -87,7 +91,7 @@ namespace Velo.Serialization.Tokenization
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void EnsureNotDisposed()
+        private readonly void EnsureNotDisposed()
         {
             if (_disposed) throw Error.Disposed(nameof(JsonTokenizer));
         }
@@ -205,13 +209,11 @@ namespace Velo.Serialization.Tokenization
             _position++;
         }
 
-        object IEnumerator.Current => Current;
-
         public void Dispose()
         {
             if (_disposed) return;
 
-            Current = JsonToken.Empty;
+            Current = default;
 
             _builder = null;
             _position = -1;

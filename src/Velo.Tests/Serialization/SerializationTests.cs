@@ -156,7 +156,7 @@ namespace Velo.Serialization
         }
         
         [Theory, AutoData]
-        public void Deserialize_Enum(ModelType modelType)
+        public void Serialize_Enum(ModelType modelType)
         {
             var json = _converter.Serialize(modelType);
             var deserialized = JsonConvert.DeserializeObject<ModelType>(json);

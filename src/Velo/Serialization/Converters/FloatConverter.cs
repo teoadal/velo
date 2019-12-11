@@ -16,7 +16,7 @@ namespace Velo.Serialization.Converters
             _cultureInfo = cultureInfo;
         }
 
-        public float Deserialize(JsonTokenizer tokenizer)
+        public float Deserialize(ref JsonTokenizer tokenizer)
         {
             var token = tokenizer.Current;
             return float.Parse(token.Value, _cultureInfo);

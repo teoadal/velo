@@ -7,7 +7,7 @@ namespace Velo.ECS
     {
         // ReSharper disable once InconsistentNaming
         public const int EMPTY_INDEX = -1;
-        
+
         private readonly int _c0;
         private readonly int _c1;
         private readonly int _c2;
@@ -28,12 +28,12 @@ namespace Velo.ECS
             index = IndexOf(EMPTY_INDEX);
             return Set(index, typeId);
         }
-        
+
         public bool Contains(int typeId)
         {
             return IndexOf(typeId) != -1;
         }
-        
+
         public bool ContainsAll(int[] typeIds)
         {
             var containsCount = 0;
@@ -45,7 +45,7 @@ namespace Velo.ECS
 
             return containsCount == typeIds.Length;
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int IndexOf(int typeId)
         {
@@ -76,12 +76,6 @@ namespace Velo.ECS
             throw Error.OutOfRange();
         }
 
-        public Sign Remove(int typeId, out int index)
-        {
-            index = IndexOf(typeId);
-            return Set(index, EMPTY_INDEX);
-        }
-        
         public bool TryRemove(int typeId, out Sign newSign, out int oldIndex)
         {
             oldIndex = IndexOf(typeId);
@@ -91,6 +85,7 @@ namespace Velo.ECS
                 oldIndex = default;
                 return false;
             }
+
             newSign = Set(oldIndex, EMPTY_INDEX);
             return true;
         }

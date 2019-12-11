@@ -7,28 +7,41 @@ namespace Velo.Collections
     {
         public ref struct JoinEnumerator<TResult, TInner, TKey>
         {
-            public TResult Current => _current!;
+            public readonly TResult Current => _current!;
 
             // ReSharper disable FieldCanBeMadeReadOnly.Local
             private EqualityComparer<TKey> _comparer;
+
             private TResult _current;
+
             private LocalVector<TInner>.Enumerator _inner;
             private Func<TInner, TKey> _innerKeySelector;
+
             private Enumerator _outer;
+            private T _outerCurrent;
+            private TKey _outerKey;
             private Func<T, TKey> _outerKeySelector;
+            private bool _outerMove;
+
             private Func<T, TInner, TResult> _resultBuilder;
             // ReSharper restore FieldCanBeMadeReadOnly.Local
 
-            internal JoinEnumerator(EqualityComparer<TKey> comparer, LocalVector<TInner>.Enumerator inner,
+            internal JoinEnumerator(EqualityComparer<TKey> comparer, LocalVector<TInner> inner,
                 Func<TInner, TKey> innerKeySelector, Enumerator outer, Func<T, TKey> outerKeySelector,
                 Func<T, TInner, TResult> resultBuilder)
             {
                 _comparer = comparer;
                 _current = default;
-                _inner = inner;
+
+                _inner = inner.GetEnumerator();
                 _innerKeySelector = innerKeySelector;
+
                 _outer = outer;
+                _outerCurrent = default;
+                _outerKey = default;
                 _outerKeySelector = outerKeySelector;
+                _outerMove = true;
+
                 _resultBuilder = resultBuilder;
             }
 
@@ -36,26 +49,48 @@ namespace Velo.Collections
 
             public bool MoveNext()
             {
-                while (_outer.MoveNext())
+                while (true)
                 {
-                    var outerCurrent = _outer.Current;
-                    var outerKey = _outerKeySelector(outerCurrent);
+                    if (_outerMove)
+                    {
+                        if (!_outer.MoveNext()) return false;
+
+                        _outerCurrent = _outer.Current;
+                        _outerKey = _outerKeySelector(_outerCurrent);
+
+                        _outerMove = false;
+                    }
 
                     while (_inner.MoveNext())
                     {
-                        var innerCurrent = _inner.Current;
-                        var innerKey = _innerKeySelector(innerCurrent);
+                        var inner = _inner.Current;
+                        var innerKey = _innerKeySelector(inner);
 
-                        if (!_comparer.Equals(outerKey, innerKey)) continue;
+                        if (!_comparer.Equals(_outerKey, innerKey)) continue;
 
-                        _current = _resultBuilder(outerCurrent, innerCurrent);
+                        _current = _resultBuilder(_outerCurrent, inner);
+
                         return true;
                     }
 
                     _inner.Reset();
+                    _outerMove = true;
+                }
+            }
+
+            public LocalVector<TResult>.GroupEnumerator<TGroupKey> GroupBy<TGroupKey>(
+                Func<TResult, TGroupKey> keySelector,
+                EqualityComparer<TGroupKey> keyComparer = null)
+            {
+                var vector = new LocalVector<TResult>();
+
+                while (MoveNext())
+                {
+                    vector.Add(_current);
                 }
 
-                return false;
+                if (keyComparer == null) keyComparer = EqualityComparer<TGroupKey>.Default;
+                return new LocalVector<TResult>.GroupEnumerator<TGroupKey>(vector, keySelector, keyComparer);
             }
 
             public LocalVector<TResult> OrderBy<TProperty>(Func<TResult, TProperty> path,
@@ -82,6 +117,18 @@ namespace Velo.Collections
                 }
 
                 return vector;
+            }
+
+            public int Sum(Func<TResult, int> selector)
+            {
+                var sum = 0;
+
+                while (MoveNext())
+                {
+                    sum += selector(_current);
+                }
+
+                return sum;
             }
 
             public TResult[] ToArray()

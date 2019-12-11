@@ -9,7 +9,7 @@ using JsonSerializer = SpanJson.JsonSerializer;
 
 namespace Velo.Benchmark.Serialization
 {
-    [SimpleJob(RuntimeMoniker.NetCoreApp22)]
+    [SimpleJob(RuntimeMoniker.NetCoreApp31)]
     [MeanColumn, MemoryDiagnoser]
     public class DeserializationBenchmark
     {
@@ -39,9 +39,8 @@ namespace Velo.Benchmark.Serialization
         {
             long stub = 0;
 
-            for (var i = 0; i < _dataset.Length; i++)
+            foreach (var element in _dataset)
             {
-                var element = _dataset[i];
                 var deserialized = JsonConvert.DeserializeObject<BigObject>(element);
                 stub += deserialized.Int;
             }
@@ -54,9 +53,8 @@ namespace Velo.Benchmark.Serialization
         {
             long stub = 0;
 
-            for (var i = 0; i < _dataset.Length; i++)
+            foreach (var element in _dataset)
             {
-                var element = _dataset[i];
                 var deserialized = JSON.ToObject<BigObject>(element);
                 stub += deserialized.Int;
             }
@@ -69,9 +67,8 @@ namespace Velo.Benchmark.Serialization
         {
             long stub = 0;
 
-            for (var i = 0; i < _dataset.Length; i++)
+            foreach (var element in _dataset)
             {
-                var element = _dataset[i];
                 var deserialized = SimpleJson.SimpleJson.DeserializeObject<BigObject>(element);
                 stub += deserialized.Int;
             }
@@ -84,9 +81,8 @@ namespace Velo.Benchmark.Serialization
         {
             long stub = 0;
 
-            for (var i = 0; i < _dataset.Length; i++)
+            foreach (var element in _dataset)
             {
-                var element = _dataset[i];
                 var deserialized = JsonSerializer.Generic.Utf16.Deserialize<BigObject>(element);
                 stub += deserialized.Int;
             }
@@ -99,9 +95,8 @@ namespace Velo.Benchmark.Serialization
         {
             long stub = 0;
 
-            for (var i = 0; i < _dataset.Length; i++)
+            foreach (var element in _dataset)
             {
-                var element = _dataset[i];
                 var deserialized = _converter.Deserialize<BigObject>(element);
                 stub += deserialized.Int;
             }

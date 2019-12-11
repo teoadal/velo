@@ -12,7 +12,7 @@ namespace Velo.Collections
     {
         private const int Capacity = 10;
 
-        public int Length => _length;
+        public readonly int Length => _length;
 
         private T _element0;
         private T _element1;
@@ -77,7 +77,6 @@ namespace Velo.Collections
                     return false;
                 }
             }
-
 
             return true;
         }
@@ -232,7 +231,13 @@ namespace Velo.Collections
             return -1;
         }
 
-        public JoinEnumerator<TResult, TInner, TKey> Join<TResult, TInner, TKey>(
+        public LocalVector<T> OrderBy<TProperty>(Func<T, TProperty> property, Comparer<TProperty> comparer = null)
+        {
+            Sort(property, comparer);
+            return this;
+        }
+        
+        public readonly JoinEnumerator<TResult, TInner, TKey> Join<TResult, TInner, TKey>(
             LocalVector<TInner> inner,
             Func<T, TKey> outerKeySelector,
             Func<TInner, TKey> innerKeySelector,
@@ -241,12 +246,9 @@ namespace Velo.Collections
         {
             if (keyComparer == null) keyComparer = EqualityComparer<TKey>.Default;
 
-            var innerEnumerator = inner.GetEnumerator();
-            var outerEnumerator = GetEnumerator();
-
             return new JoinEnumerator<TResult, TInner, TKey>(keyComparer,
-                innerEnumerator, innerKeySelector,
-                outerEnumerator, outerKeySelector,
+                inner, innerKeySelector,
+                GetEnumerator(), outerKeySelector,
                 resultBuilder);
         }
 
@@ -308,6 +310,19 @@ namespace Velo.Collections
             return new SelectEnumerator<TValue, TArg>(GetEnumerator(), selector, arg);
         }
 
+        public readonly int Sum(Func<T, int> selector)
+        {
+            var sum = 0;
+            
+            for (var i = 0; i < _length; i++)
+            {
+                var element = Get(i);
+                sum += selector(element);
+            }
+
+            return sum;
+        }
+        
         public readonly WhereEnumerator Where(Predicate<T> predicate)
         {
             return new WhereEnumerator(GetEnumerator(), predicate);
@@ -320,41 +335,6 @@ namespace Velo.Collections
 
         public readonly T[] ToArray()
         {
-            switch (_length)
-            {
-                case 0:
-                    return Array.Empty<T>();
-                case 1:
-                    return new[] {_element0};
-                case 2:
-                    return new[] {_element0, _element1};
-                case 3:
-                    return new[] {_element0, _element1, _element2};
-                case 4:
-                    return new[] {_element0, _element1, _element2, _element3};
-                case 5:
-                    return new[] {_element0, _element1, _element2, _element3, _element4};
-                case 6:
-                    return new[] {_element0, _element1, _element2, _element3, _element4, _element5};
-                case 7:
-                    return new[] {_element0, _element1, _element2, _element3, _element4, _element5, _element6};
-                case 8:
-                    return new[]
-                        {_element0, _element1, _element2, _element3, _element4, _element5, _element6, _element7};
-                case 9:
-                    return new[]
-                    {
-                        _element0, _element1, _element2, _element3, _element4, _element5, _element6, _element7,
-                        _element8
-                    };
-                case Capacity:
-                    return new[]
-                    {
-                        _element0, _element1, _element2, _element3, _element4, _element5, _element6, _element7,
-                        _element8, _element9
-                    };
-            }
-
             var result = new T[_length];
             for (var i = 0; i < result.Length; i++)
             {
@@ -417,7 +397,8 @@ namespace Velo.Collections
                 case 7: return _element7;
                 case 8: return _element8;
                 case 9: return _element9;
-                default: return _array[index - Capacity];
+                default:
+                    return _array[index - Capacity];
             }
         }
 

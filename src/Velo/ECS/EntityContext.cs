@@ -5,12 +5,12 @@ using Velo.ECS.Enumeration;
 namespace Velo.ECS
 {
     public abstract class EntityContext<TEntity>
-        where TEntity: Entity
+        where TEntity : Entity
     {
         public event Action<TEntity> Added;
 
         public int Length => _entities.Count;
-        
+
         private readonly Dictionary<int, TEntity> _entities;
 
         protected EntityContext()
@@ -23,7 +23,7 @@ namespace Velo.ECS
             _entities.Add(entity.Id, entity);
 
             OnAdded(entity);
-            
+
             var evt = Added;
             evt?.Invoke(entity);
         }
@@ -32,20 +32,20 @@ namespace Velo.ECS
         {
             foreach (var entity in _entities.Values)
             {
-                if (predicate(entity)) 
+                if (predicate(entity))
                     return true;
             }
 
             return false;
         }
-        
+
         public bool Contains(TEntity entity)
         {
             return _entities.ContainsValue(entity);
         }
 
         public TEntity Get(int id) => _entities[id];
-        
+
         public Dictionary<int, TEntity>.ValueCollection.Enumerator GetEnumerator()
         {
             return _entities.Values.GetEnumerator();
@@ -55,9 +55,9 @@ namespace Velo.ECS
         {
             return new WhereContext<TEntity>(_entities.Values.GetEnumerator(), predicate);
         }
-        
+
         protected abstract void OnAdded(TEntity entity);
-        
+
         protected bool TryRemove(TEntity entity)
         {
             return _entities.Remove(entity.Id);

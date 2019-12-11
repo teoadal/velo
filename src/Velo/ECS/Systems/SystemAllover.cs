@@ -15,8 +15,8 @@ namespace Velo.ECS.Systems
 
         public SystemAllover()
         {
-            _beginUpdateSystem = typeof(IBeginUpdateSystem);
-            _endUpdateSystem = typeof(IEndUpdateSystem);
+            _beginUpdateSystem = typeof(IBeforeUpdateSystem);
+            _endUpdateSystem = typeof(IAfterUpdateSystem);
             _initializeSystem = typeof(IInitializeSystem);
             _updateSystem = typeof(IUpdateSystem);
         }

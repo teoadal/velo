@@ -4,7 +4,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
-using Velo.Extensions;
 using Velo.Serialization.Tokenization;
 using Velo.Utils;
 
@@ -16,7 +15,7 @@ namespace Velo.Serialization.Converters
         
         private readonly Func<TObject> _activator;
         private readonly EqualityComparer<TObject> _equalityComparer;
-        private readonly Dictionary<string, Action<TObject, JsonTokenizer>> _deserializeMethods;
+        private readonly Dictionary<string, DeserializeMethod> _deserializeMethods;
         private readonly Dictionary<string, Action<TObject, StringBuilder>> _serializeMethods;
 
         public ObjectConverter(Dictionary<PropertyInfo, IJsonConverter> propertyConverters)
@@ -38,7 +37,7 @@ namespace Velo.Serialization.Converters
                 pair => BuildSerializeMethod(pair.Key, pair.Value));
         }
 
-        public TObject Deserialize(JsonTokenizer tokenizer)
+        public TObject Deserialize(ref JsonTokenizer tokenizer)
         {
             var instance = _activator();
 
@@ -54,7 +53,7 @@ namespace Velo.Serialization.Converters
 
                 if (tokenType != JsonTokenType.Property)
                 {
-                    throw new InvalidCastException($"Invalid token '{token}' in object");
+                    throw new InvalidCastException($"Invalid token '{token.TokenType}' in object");
                 }
 
                 var propertyName = token.Value;
@@ -64,7 +63,7 @@ namespace Velo.Serialization.Converters
                 if (tokenizer.Current.TokenType == JsonTokenType.Null) continue;
                 if (!_deserializeMethods.TryGetValue(propertyName, out var converter)) continue;
 
-                converter(instance, tokenizer);
+                converter(instance, ref tokenizer);
             }
 
             return instance;
@@ -74,7 +73,7 @@ namespace Velo.Serialization.Converters
         {
             if (_equalityComparer.Equals(instance, default))
             {
-                builder.Append(JsonTokenizer.TOKEN_NULL_VALUE);
+                builder.Append(JsonTokenizer.TokenNullValue);
                 return;
             }
 
@@ -114,13 +113,13 @@ namespace Velo.Serialization.Converters
                 .Compile();
         }
 
-        private static Action<TObject, JsonTokenizer> BuildDeserializeMethod(PropertyInfo property,
+        private static DeserializeMethod BuildDeserializeMethod(PropertyInfo property,
             IJsonConverter propertyValueConverter)
         {
             const string deserializeMethodName = nameof(IJsonConverter<object>.Deserialize);
 
             var instance = Expression.Parameter(typeof(TObject), "instance");
-            var tokenizer = Expression.Parameter(typeof(JsonTokenizer), "tokenizer");
+            var tokenizer = Expression.Parameter(typeof(JsonTokenizer).MakeByRefType(), "tokenizer");
 
             var converterType = propertyValueConverter.GetType();
             var deserializeMethod = converterType.GetMethod(deserializeMethodName);
@@ -131,10 +130,12 @@ namespace Velo.Serialization.Converters
 
             var body = Expression.Assign(Expression.Property(instance, property), propertyValue);
             return Expression
-                .Lambda<Action<TObject, JsonTokenizer>>(body, instance, tokenizer)
+                .Lambda<DeserializeMethod>(body, instance, tokenizer)
                 .Compile();
         }
 
         void IJsonConverter.Serialize(object value, StringBuilder builder) => Serialize((TObject) value, builder);
+
+        private delegate void DeserializeMethod(TObject obj, ref JsonTokenizer tokenizer);
     }
 }

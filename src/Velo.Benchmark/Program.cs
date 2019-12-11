@@ -11,10 +11,10 @@ namespace Velo.Benchmark
         // ReSharper disable once UnusedParameter.Local
         private static void Main(string[] args)
         {
-            RunCollections();
-            RunCQRS();
-            RunDependencyInjection();
-            RunMappers();
+            // RunCollections();
+//            RunCQRS();
+//            RunDependencyInjection();
+//            RunMappers();
             RunSerialization();
         }
 
@@ -43,7 +43,7 @@ namespace Velo.Benchmark
         private static void RunSerialization()
         {
             BenchmarkRunner.Run<DeserializationBenchmark>();
-            BenchmarkRunner.Run<SerializationBenchmark>();
+            //BenchmarkRunner.Run<SerializationBenchmark>();
         }
     }
 }

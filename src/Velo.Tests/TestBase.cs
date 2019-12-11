@@ -17,6 +17,14 @@ namespace Velo
             _stopwatch = Stopwatch.StartNew();
         }
         
+        protected static int FixCount(int count)
+        {
+            count = Math.Abs(count);
+            if (count > 10000) count = 10000;
+
+            return count;
+        }
+        
         protected StopwatchScope Measure()
         {
             _stopwatch = Stopwatch.StartNew();
@@ -71,7 +79,6 @@ namespace Velo
 
             return Task.WhenAll(tasks);
         }
-        
         
         protected void WriteLine(string text, [CallerMemberName] string from = "")
         {

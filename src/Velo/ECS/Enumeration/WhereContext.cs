@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace Velo.ECS.Enumeration
@@ -7,11 +6,12 @@ namespace Velo.ECS.Enumeration
     public ref struct WhereContext<TEntity>
     {
         public TEntity Current { get; private set; }
-        
+
         private Dictionary<int, TEntity>.ValueCollection.Enumerator _enumerator;
         private Predicate<TEntity> _predicate;
 
-        public WhereContext(Dictionary<int, TEntity>.ValueCollection.Enumerator enumerator, Predicate<TEntity> predicate)
+        public WhereContext(Dictionary<int, TEntity>.ValueCollection.Enumerator enumerator,
+            Predicate<TEntity> predicate)
         {
             _enumerator = enumerator;
             _predicate = predicate;
@@ -20,7 +20,7 @@ namespace Velo.ECS.Enumeration
         }
 
         public WhereContext<TEntity> GetEnumerator() => this;
-        
+
         public bool MoveNext()
         {
             while (_enumerator.MoveNext())
@@ -35,7 +35,7 @@ namespace Velo.ECS.Enumeration
 
             return false;
         }
-        
+
         public void Dispose()
         {
             _enumerator.Dispose();

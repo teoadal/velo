@@ -36,7 +36,7 @@ namespace Velo.ECS
             {
                 throw Error.NotFound($"Component {ReflectionUtils.GetName<TComponent>()} not found");
             }
-            
+
             return (TComponent) _components[index];
         }
 
@@ -55,7 +55,7 @@ namespace Velo.ECS
             return Id;
         }
 
-        public bool TryGetComponent<TComponent>(out TComponent component) 
+        public bool TryGetComponent<TComponent>(out TComponent component)
             where TComponent : IComponent
         {
             var typeId = Typeof<TComponent>.Id;
@@ -66,7 +66,7 @@ namespace Velo.ECS
                 component = default;
                 return false;
             }
-            
+
             component = (TComponent) _components[index];
             return true;
         }

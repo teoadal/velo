@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Velo.Collections;
 using Velo.Serialization.Tokenization;
 
 namespace Velo.Serialization.Converters
@@ -8,9 +9,7 @@ namespace Velo.Serialization.Converters
     internal sealed class ListConverter<TElement> : IJsonConverter<List<TElement>>
     {
         public bool IsPrimitive => false;
-        
-        [ThreadStatic] private static List<TElement> _buffer;
-        
+
         private readonly IJsonConverter<TElement> _elementConverter;
 
         public ListConverter(IJsonConverter<TElement> elementConverter)
@@ -18,9 +17,9 @@ namespace Velo.Serialization.Converters
             _elementConverter = elementConverter;
         }
 
-        public List<TElement> Deserialize(JsonTokenizer tokenizer)
+        public List<TElement> Deserialize(ref JsonTokenizer tokenizer)
         {
-            if (_buffer == null) _buffer = new List<TElement>(10);
+            var buffer = new LocalVector<TElement>();
 
             while (tokenizer.MoveNext())
             {
@@ -32,15 +31,17 @@ namespace Velo.Serialization.Converters
                 if (tokenType == JsonTokenType.ArrayStart) continue;
                 if (tokenType == JsonTokenType.ArrayEnd) break;
 
-                var element = _elementConverter.Deserialize(tokenizer);
-                _buffer.Add(element);
+                var element = _elementConverter.Deserialize(ref tokenizer);
+                buffer.Add(element);
+            }
+            
+            var list = new List<TElement>(buffer.Length);
+
+            foreach (var element in buffer)
+            {
+                list.Add(element);
             }
 
-            var list = new List<TElement>(_buffer.Count);
-            list.AddRange(_buffer);
-            
-            _buffer.Clear();
-            
             return list;
         }
 
@@ -48,7 +49,7 @@ namespace Velo.Serialization.Converters
         {
             if (list == null)
             {
-                builder.Append(JsonTokenizer.TOKEN_NULL_VALUE);
+                builder.Append(JsonTokenizer.TokenNullValue);
                 return;
             }
 

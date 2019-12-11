@@ -15,16 +15,16 @@ namespace Velo.Serialization.Converters
             _valueConverter = valueConverter;
         }
 
-        public TNullable? Deserialize(JsonTokenizer tokenizer)
+        public TNullable? Deserialize(ref JsonTokenizer tokenizer)
         {
             var token = tokenizer.Current;
             if (token.TokenType == JsonTokenType.Null) return null;
-            return _valueConverter.Deserialize(tokenizer);
+            return _valueConverter.Deserialize(ref tokenizer);
         }
 
         public void Serialize(TNullable? value, StringBuilder builder)
         {
-            if (value == null) builder.Append(JsonTokenizer.TOKEN_NULL_VALUE);
+            if (value == null) builder.Append(JsonTokenizer.TokenNullValue);
             else _valueConverter.Serialize(value.Value, builder);
         }
 

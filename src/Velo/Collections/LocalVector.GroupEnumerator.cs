@@ -7,11 +7,11 @@ namespace Velo.Collections
     {
         public ref struct GroupEnumerator<TKey>
         {
-            public LocalGroup Current => _current;
+            public readonly LocalGroup Current => _current;
 
             // ReSharper disable FieldCanBeMadeReadOnly.Local
             private EqualityComparer<TKey> _comparer;
-            private LocalVector<Row> _values;
+            private LocalVector<Row<TKey, T>> _values;
             private LocalVector<TKey> _uniqueKeys;
             // ReSharper restore FieldCanBeMadeReadOnly.Local
 
@@ -20,7 +20,7 @@ namespace Velo.Collections
 
             internal GroupEnumerator(in LocalVector<T> vector, Func<T, TKey> keySelector, EqualityComparer<TKey> comparer)
             {
-                var values = new LocalVector<Row>(vector.Length);
+                var values = new LocalVector<Row<TKey, T>>(vector.Length);
                 var uniqueKeys = new LocalVector<TKey>();
 
                 for (var i = 0; i < vector.Length; i++)
@@ -28,7 +28,7 @@ namespace Velo.Collections
                     var element = vector.Get(i);
                     var key = keySelector(element);
 
-                    values.Add(new Row(key, element));
+                    values.Add(new Row<TKey, T>(key, element));
 
                     if (!uniqueKeys.Contains(key, comparer))
                     {
@@ -67,6 +67,30 @@ namespace Velo.Collections
                 return true;
             }
 
+            public LocalVector<TResult> Select<TResult>(Selector<TResult> selector)
+            {
+                var result = new LocalVector<TResult>(_uniqueKeys._length);
+                while (MoveNext())
+                {
+                    var element = selector(_current);
+                    result.Add(element);
+                }
+
+                return result;
+            }
+
+            public int Sum(Selector<int> selector)
+            {
+                var sum = 0;
+                
+                while (MoveNext())
+                {
+                    sum += selector(_current);
+                }
+
+                return sum;
+            }
+            
             public readonly ref struct LocalGroup
             {
                 public readonly TKey Key;
@@ -79,6 +103,8 @@ namespace Velo.Collections
                     Values = values;
                 }
 
+                public T First() => Values[0];
+                
                 public Enumerator GetEnumerator() => Values.GetEnumerator();
 
                 public SelectEnumerator<TValue> Select<TValue>(Func<T, TValue> selector)
@@ -91,6 +117,11 @@ namespace Velo.Collections
                     return Values.Select(selector, arg);
                 }
 
+                public int Sum(Func<T, int> selector)
+                {
+                    return Values.Sum(selector);
+                }
+                
                 public WhereEnumerator Where(Predicate<T> predicate)
                 {
                     return Values.Where(predicate);
@@ -102,17 +133,7 @@ namespace Velo.Collections
                 }
             }
 
-            private readonly struct Row
-            {
-                public readonly TKey Key;
-                public readonly T Value;
-
-                public Row(TKey key, T value)
-                {
-                    Key = key;
-                    Value = value;
-                }
-            }
+            public delegate TResult Selector<out TResult>(LocalGroup group);
         }
     }
 }

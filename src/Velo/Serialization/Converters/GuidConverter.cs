@@ -9,7 +9,7 @@ namespace Velo.Serialization.Converters
     {
         public bool IsPrimitive => true;
         
-        public Guid Deserialize(JsonTokenizer tokenizer)
+        public Guid Deserialize(ref JsonTokenizer tokenizer)
         {
             var token = tokenizer.Current;
             return Guid.Parse(token.Value);

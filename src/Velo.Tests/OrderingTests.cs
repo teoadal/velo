@@ -59,5 +59,27 @@ namespace Velo
             Assert.IsType<Foo>(instances[1]);
             Assert.IsType<Configuration>(instances[2]);
         }
+
+        [Fact]
+        public void Order_Compare_Null()
+        {
+            Assert.Equal(1, _comparer.Compare(null, new FooRepository(null, null)));
+        }
+
+        [Fact]
+        public void Order_Compare_WithNull()
+        {
+            Assert.Equal(-1, _comparer.Compare(new FooRepository(null, null), null));
+        }
+        
+        [Fact]
+        public void Sort()
+        {
+            OrderAttributeComparer<IRepository>.Sort(_repositories);
+            
+            Assert.Equal(1, _repositories[0].GetType().GetCustomAttribute<OrderAttribute>().Order);
+            Assert.Equal(2, _repositories[1].GetType().GetCustomAttribute<OrderAttribute>().Order);
+            Assert.Null(_repositories[2].GetType().GetCustomAttribute<OrderAttribute>());
+        }
     }
 }

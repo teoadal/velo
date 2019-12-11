@@ -1,9 +1,8 @@
-using System;
 using System.Threading;
 
 namespace Velo.Utils
 {
-    public readonly struct Lock : IDisposable
+    public readonly ref struct Lock
     {
         private readonly object _lockObject;
 

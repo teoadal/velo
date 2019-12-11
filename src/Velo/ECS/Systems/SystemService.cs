@@ -6,42 +6,42 @@ namespace Velo.ECS.Systems
     internal sealed class SystemService
     {
         private readonly IInitializeSystem[] _initializeSystems;
-        private readonly IBeginUpdateSystem[] _beginUpdateSystems;
+        private readonly IBeforeUpdateSystem[] _beforeUpdateSystems;
         private readonly IUpdateSystem[] _updateSystems;
-        private readonly IEndUpdateSystem[] _endUpdateSystems;
+        private readonly IAfterUpdateSystem[] _afterUpdateSystems;
 
-        public SystemService(IInitializeSystem[] initializeSystems, IBeginUpdateSystem[] beginUpdateSystems,
-            IEndUpdateSystem[] endUpdateSystems, IUpdateSystem[] updateSystems)
+        public SystemService(IInitializeSystem[] initializeSystems, IBeforeUpdateSystem[] beginUpdateSystems,
+            IAfterUpdateSystem[] endUpdateSystems, IUpdateSystem[] updateSystems)
         {
             _initializeSystems = SortByOrderAttribute(initializeSystems);
-            _beginUpdateSystems = SortByOrderAttribute(beginUpdateSystems);
-            _endUpdateSystems = SortByOrderAttribute(endUpdateSystems);
+            _beforeUpdateSystems = SortByOrderAttribute(beginUpdateSystems);
+            _afterUpdateSystems = SortByOrderAttribute(endUpdateSystems);
             _updateSystems = SortByOrderAttribute(updateSystems);
         }
 
         public void Initialize()
         {
-            for (var i = 0; i < _initializeSystems.Length; i++)
+            foreach (var initSystem in _initializeSystems)
             {
-                _initializeSystems[i].Initialize();
+                initSystem.Initialize();
             }
         }
 
         public void Update()
         {
-            for (var i = 0; i < _beginUpdateSystems.Length; i++)
+            foreach (var beforeUpdateSystem in _beforeUpdateSystems)
             {
-                _beginUpdateSystems[i].BeginUpdate();
+                beforeUpdateSystem.BeforeUpdate();
             }
 
-            for (var i = 0; i < _initializeSystems.Length; i++)
+            foreach (var updateSystem in _updateSystems)
             {
-                _updateSystems[i].Update();
+                updateSystem.Update();
             }
 
-            for (var i = 0; i < _endUpdateSystems.Length; i++)
+            foreach (var afterUpdateSystem in _afterUpdateSystems)
             {
-                _endUpdateSystems[i].EndUpdate();
+                afterUpdateSystem.AfterUpdate();
             }
         }
 

@@ -13,7 +13,7 @@ namespace Velo.Serialization.Converters
 
     internal interface IJsonConverter<T> : IJsonConverter
     {
-        T Deserialize(JsonTokenizer tokenizer);
+        T Deserialize(ref JsonTokenizer tokenizer);
 
         void Serialize(T value, StringBuilder builder);
     }

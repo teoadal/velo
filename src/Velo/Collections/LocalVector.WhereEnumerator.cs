@@ -7,7 +7,7 @@ namespace Velo.Collections
     {
         public ref struct WhereEnumerator
         {
-            public T Current => _current!;
+            public readonly T Current => _current!;
 
             // ReSharper disable FieldCanBeMadeReadOnly.Local
             private T _current;
@@ -193,6 +193,22 @@ namespace Velo.Collections
                 return vector;
             }
 
+            public LocalVector<TValue> Select<TValue, TSelectArg>(Func<T, TSelectArg, TValue> selector, TSelectArg arg)
+            {
+                var vector = new LocalVector<TValue>();
+
+                while (_enumerator.MoveNext())
+                {
+                    var current = _enumerator.Current;
+                    if (_predicate(current, _arg))
+                    {
+                        vector.Add(selector(current, arg));
+                    }
+                }
+
+                return vector;
+            }
+            
             public T[] ToArray()
             {
                 var vector = new LocalVector<T>();

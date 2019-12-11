@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
+        <TargetFramework>netstandard2.1</TargetFramework>
         <Version>0.3.4</Version>
         <LangVersion>8</LangVersion>
         <RepositoryType>git</RepositoryType>
@@ -55,9 +55,8 @@
       <Compile Update="Collections\LocalVector.DebugVisualizer.cs">
         <DependentUpon>LocalVector.cs</DependentUpon>
       </Compile>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Extensions" />
+      <Compile Update="Collections\LocalVector.Row.cs">
+        <DependentUpon>LocalVector.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 </Project>

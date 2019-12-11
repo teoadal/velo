@@ -1,12 +1,11 @@
 using Velo.TestsModels.ECS;
-using Velo.TestsModels.ECS.Actors;
 using Velo.TestsModels.ECS.Assets;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Velo.ECS.Assets
 {
-    public class AssetContextTests : ECSTestBase
+    public class AssetContextTests : EcsTestBase
     {
         private readonly AssetContext _assetContext;
         

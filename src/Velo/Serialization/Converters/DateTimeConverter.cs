@@ -17,7 +17,7 @@ namespace Velo.Serialization.Converters
             _cultureInfo = cultureInfo;
         }
 
-        public DateTime Deserialize(JsonTokenizer tokenizer)
+        public DateTime Deserialize(ref JsonTokenizer tokenizer)
         {
             var token = tokenizer.Current;
             return DateTime.Parse(token.Value, _cultureInfo);

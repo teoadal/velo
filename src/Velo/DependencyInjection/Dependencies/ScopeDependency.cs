@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Velo.DependencyInjection.Resolvers;
-using Velo.Extensions;
 using Velo.Utils;
 
 namespace Velo.DependencyInjection.Dependencies
