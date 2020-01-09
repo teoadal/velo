@@ -9,7 +9,7 @@ namespace Velo.DependencyInjection
 {
     public interface IDependencyEngine
     {
-        LocalVector<IDependency> GetApplicable(Type contract);
+        LocalList<IDependency> GetApplicable(Type contract);
 
         IDependency GetDependency(Type contract, bool required = false);
     }
@@ -41,16 +41,31 @@ namespace Velo.DependencyInjection
         {
             _factories.Add(factory);
         }
-        
-        public LocalVector<IDependency> GetApplicable(Type contract)
+
+        public bool Contains(Type type)
         {
-            var vector = new LocalVector<IDependency>();
+            foreach (var dependency in _dependencies)
+            {
+                if (dependency.Applicable(type)) return true;
+            }
+
+            foreach (var factory in _factories)
+            {
+                if (factory.Applicable(type)) return true;
+            }
+
+            return false;
+        }
+        
+        public LocalList<IDependency> GetApplicable(Type contract)
+        {
+            var localList = new LocalList<IDependency>();
 
             foreach (var dependency in _dependencies)
             {
                 if (dependency.Applicable(contract))
                 {
-                    vector.Add(dependency);
+                    localList.Add(dependency);
                 }
             }
 
@@ -60,10 +75,10 @@ namespace Velo.DependencyInjection
 
                 var dependency = factory.BuildDependency(contract, this);
                 _dependencies.Add(dependency);
-                vector.Add(dependency);
+                localList.Add(dependency);
             }
 
-            return vector;
+            return localList;
         }
 
         public IDependency GetDependency(Type contract, bool required = false)

@@ -1,7 +1,10 @@
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace Velo.ECS.Systems
 {
-    public interface IBeforeUpdateSystem
+    public interface IBeforeUpdateSystem : ISystem
     {
-        void BeforeUpdate();
+        Task BeforeUpdate(CancellationToken cancellationToken);
     }
 }

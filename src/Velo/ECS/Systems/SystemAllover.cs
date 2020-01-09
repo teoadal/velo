@@ -23,7 +23,7 @@ namespace Velo.ECS.Systems
 
         public void TryRegister(DependencyCollection collection, Type implementation)
         {
-            var contracts = new LocalVector<Type>();
+            var contracts = new LocalList<Type>();
 
             TryAdd(ref contracts, _beginUpdateSystem, implementation);
             TryAdd(ref contracts, _endUpdateSystem, implementation);
@@ -34,7 +34,7 @@ namespace Velo.ECS.Systems
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void TryAdd(ref LocalVector<Type> contracts, Type contract, Type implementation)
+        private static void TryAdd(ref LocalList<Type> contracts, Type contract, Type implementation)
         {
             if (implementation.IsAssignableFrom(contract))
             {

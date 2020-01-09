@@ -1,54 +1,50 @@
-using System.Runtime.CompilerServices;
-using Velo.Ordering;
+using System.Threading;
+using System.Threading.Tasks;
+using Velo.DependencyInjection;
 
 namespace Velo.ECS.Systems
 {
     internal sealed class SystemService
     {
-        private readonly IInitializeSystem[] _initializeSystems;
-        private readonly IBeforeUpdateSystem[] _beforeUpdateSystems;
-        private readonly IUpdateSystem[] _updateSystems;
-        private readonly IAfterUpdateSystem[] _afterUpdateSystems;
+        private readonly DependencyProvider _provider;
 
-        public SystemService(IInitializeSystem[] initializeSystems, IBeforeUpdateSystem[] beginUpdateSystems,
-            IAfterUpdateSystem[] endUpdateSystems, IUpdateSystem[] updateSystems)
+        public SystemService(DependencyProvider provider)
         {
-            _initializeSystems = SortByOrderAttribute(initializeSystems);
-            _beforeUpdateSystems = SortByOrderAttribute(beginUpdateSystems);
-            _afterUpdateSystems = SortByOrderAttribute(endUpdateSystems);
-            _updateSystems = SortByOrderAttribute(updateSystems);
+            _provider = provider;
         }
 
-        public void Initialize()
+        public async Task Initialize(CancellationToken cancellationToken)
         {
-            foreach (var initSystem in _initializeSystems)
+            var initSystems = _provider.GetServices<IInitializeSystem>();
+            foreach (var initSystem in initSystems)
             {
-                initSystem.Initialize();
+                if (cancellationToken.IsCancellationRequested) break;
+                await initSystem.Initialize(cancellationToken);
             }
         }
 
-        public void Update()
+        public async Task Update(CancellationToken cancellationToken)
         {
-            foreach (var beforeUpdateSystem in _beforeUpdateSystems)
+            var beforeUpdateSystems = _provider.GetServices<IBeforeUpdateSystem>();
+            foreach (var beforeUpdateSystem in beforeUpdateSystems)
             {
-                beforeUpdateSystem.BeforeUpdate();
+                if (cancellationToken.IsCancellationRequested) break;
+                await beforeUpdateSystem.BeforeUpdate(cancellationToken);
             }
 
-            foreach (var updateSystem in _updateSystems)
+            var updateSystems = _provider.GetServices<IUpdateSystem>();
+            foreach (var updateSystem in updateSystems)
             {
-                updateSystem.Update();
+                if (cancellationToken.IsCancellationRequested) break;
+                await updateSystem.Update(cancellationToken);
             }
 
-            foreach (var afterUpdateSystem in _afterUpdateSystems)
+            var afterUpdateSystems = _provider.GetServices<IAfterUpdateSystem>();
+            foreach (var afterUpdateSystem in afterUpdateSystems)
             {
-                afterUpdateSystem.AfterUpdate();
+                if (cancellationToken.IsCancellationRequested) break;
+                await afterUpdateSystem.AfterUpdate(cancellationToken);
             }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static T[] SortByOrderAttribute<T>(T[] array) where T : class
-        {
-            return OrderAttributeComparer<T>.Sort(array);
         }
     }
 }

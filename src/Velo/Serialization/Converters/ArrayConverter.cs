@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Text;
 using Velo.Collections;
 using Velo.Serialization.Tokenization;
@@ -19,7 +17,7 @@ namespace Velo.Serialization.Converters
 
         public TElement[] Deserialize(ref JsonTokenizer tokenizer)
         {
-            var buffer = new LocalVector<TElement>();
+            var buffer = new LocalList<TElement>();
             
             while (tokenizer.MoveNext())
             {

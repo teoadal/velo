@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Velo.Collections
 {
-    public ref partial struct LocalVector<T>
+    public ref partial struct LocalList<T>
     {
         public ref struct WhereEnumerator
         {
@@ -25,13 +25,13 @@ namespace Velo.Collections
             public readonly WhereEnumerator GetEnumerator() => this;
 
             public JoinEnumerator<TResult, TInner, TKey> Join<TResult, TInner, TKey>(
-                LocalVector<TInner> inner,
+                LocalList<TInner> inner,
                 Func<T, TKey> outerKeySelector,
                 Func<TInner, TKey> innerKeySelector,
                 Func<T, TInner, TResult> resultBuilder,
                 EqualityComparer<TKey> keyComparer = null)
             {
-                var outer = new LocalVector<T>();
+                var outer = new LocalList<T>();
 
                 while (_enumerator.MoveNext())
                 {
@@ -59,53 +59,53 @@ namespace Velo.Collections
                 return false;
             }
 
-            public LocalVector<T> OrderBy<TProperty>(Func<T, TProperty> path, Comparer<TProperty> comparer = null)
+            public LocalList<T> OrderBy<TProperty>(Func<T, TProperty> path, Comparer<TProperty> comparer = null)
             {
-                var vector = new LocalVector<T>();
+                var localList = new LocalList<T>();
 
                 while (_enumerator.MoveNext())
                 {
                     var current = _enumerator.Current;
                     if (_predicate(current))
                     {
-                        vector.Add(current);
+                        localList.Add(current);
                     }
                 }
 
-                vector.Sort(path, comparer);
-                return vector;
+                localList.Sort(path, comparer);
+                return localList;
             }
 
-            public LocalVector<TValue> Select<TValue>(Func<T, TValue> selector)
+            public LocalList<TValue> Select<TValue>(Func<T, TValue> selector)
             {
-                var vector = new LocalVector<TValue>();
+                var localList = new LocalList<TValue>();
 
                 while (_enumerator.MoveNext())
                 {
                     var current = _enumerator.Current;
                     if (_predicate(current))
                     {
-                        vector.Add(selector(current));
+                        localList.Add(selector(current));
                     }
                 }
 
-                return vector;
+                return localList;
             }
 
             public T[] ToArray()
             {
-                var vector = new LocalVector<T>(_enumerator.Length);
+                var localList = new LocalList<T>(_enumerator.Length);
 
                 while (_enumerator.MoveNext())
                 {
                     var current = _enumerator.Current;
                     if (_predicate(current))
                     {
-                        vector.Add(current);
+                        localList.Add(current);
                     }
                 }
 
-                return vector.ToArray();
+                return localList.ToArray();
             }
         }
 
@@ -131,13 +131,13 @@ namespace Velo.Collections
             public readonly WhereEnumerator<TArg> GetEnumerator() => this;
 
             public JoinEnumerator<TResult, TInner, TKey> Join<TResult, TInner, TKey>(
-                LocalVector<TInner> inner,
+                LocalList<TInner> inner,
                 Func<T, TKey> outerKeySelector,
                 Func<TInner, TKey> innerKeySelector,
                 Func<T, TInner, TResult> resultBuilder,
                 EqualityComparer<TKey> keyComparer = null)
             {
-                var outer = new LocalVector<T>();
+                var outer = new LocalList<T>();
                 while (MoveNext())
                 {
                     outer.Add(_current);
@@ -160,69 +160,69 @@ namespace Velo.Collections
                 return false;
             }
 
-            public LocalVector<T> OrderBy<TProperty>(Func<T, TProperty> path, Comparer<TProperty> comparer = null)
+            public LocalList<T> OrderBy<TProperty>(Func<T, TProperty> path, Comparer<TProperty> comparer = null)
             {
-                var vector = new LocalVector<T>();
+                var localList = new LocalList<T>();
 
                 while (_enumerator.MoveNext())
                 {
                     var current = _enumerator.Current;
                     if (_predicate(current, _arg))
                     {
-                        vector.Add(current);
+                        localList.Add(current);
                     }
                 }
 
-                vector.Sort(path, comparer);
-                return vector;
+                localList.Sort(path, comparer);
+                return localList;
             }
 
-            public LocalVector<TValue> Select<TValue>(Func<T, TValue> selector)
+            public LocalList<TValue> Select<TValue>(Func<T, TValue> selector)
             {
-                var vector = new LocalVector<TValue>();
+                var localList = new LocalList<TValue>();
 
                 while (_enumerator.MoveNext())
                 {
                     var current = _enumerator.Current;
                     if (_predicate(current, _arg))
                     {
-                        vector.Add(selector(current));
+                        localList.Add(selector(current));
                     }
                 }
 
-                return vector;
+                return localList;
             }
 
-            public LocalVector<TValue> Select<TValue, TSelectArg>(Func<T, TSelectArg, TValue> selector, TSelectArg arg)
+            public LocalList<TValue> Select<TValue, TSelectArg>(Func<T, TSelectArg, TValue> selector, TSelectArg arg)
             {
-                var vector = new LocalVector<TValue>();
+                var localList = new LocalList<TValue>();
 
                 while (_enumerator.MoveNext())
                 {
                     var current = _enumerator.Current;
                     if (_predicate(current, _arg))
                     {
-                        vector.Add(selector(current, arg));
+                        localList.Add(selector(current, arg));
                     }
                 }
 
-                return vector;
+                return localList;
             }
             
             public T[] ToArray()
             {
-                var vector = new LocalVector<T>();
+                var localList = new LocalList<T>();
 
                 while (_enumerator.MoveNext())
                 {
                     var current = _enumerator.Current;
                     if (_predicate(current, _arg))
                     {
-                        vector.Add(current);
+                        localList.Add(current);
                     }
                 }
 
-                return vector.ToArray();
+                return localList.ToArray();
             }
         }
     }

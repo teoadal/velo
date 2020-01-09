@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Velo.Collections
 {
-    public ref partial struct LocalVector<T>
+    public ref partial struct LocalList<T>
     {
         public ref struct GroupEnumerator<TKey>
         {
@@ -11,21 +11,21 @@ namespace Velo.Collections
 
             // ReSharper disable FieldCanBeMadeReadOnly.Local
             private EqualityComparer<TKey> _comparer;
-            private LocalVector<Row<TKey, T>> _values;
-            private LocalVector<TKey> _uniqueKeys;
+            private LocalList<Row<TKey, T>> _values;
+            private LocalList<TKey> _uniqueKeys;
             // ReSharper restore FieldCanBeMadeReadOnly.Local
 
             private LocalGroup _current;
             private int _position;
 
-            internal GroupEnumerator(in LocalVector<T> vector, Func<T, TKey> keySelector, EqualityComparer<TKey> comparer)
+            internal GroupEnumerator(in LocalList<T> list, Func<T, TKey> keySelector, EqualityComparer<TKey> comparer)
             {
-                var values = new LocalVector<Row<TKey, T>>(vector.Length);
-                var uniqueKeys = new LocalVector<TKey>();
+                var values = new LocalList<Row<TKey, T>>(list.Length);
+                var uniqueKeys = new LocalList<TKey>();
 
-                for (var i = 0; i < vector.Length; i++)
+                for (var i = 0; i < list.Length; i++)
                 {
-                    var element = vector.Get(i);
+                    var element = list.Get(i);
                     var key = keySelector(element);
 
                     values.Add(new Row<TKey, T>(key, element));
@@ -51,25 +51,25 @@ namespace Velo.Collections
 
                 var currentKey = _uniqueKeys.Get(_position);
 
-                var groupVector = new LocalVector<T>();
+                var groupLocalList = new LocalList<T>();
                 for (var i = 0; i < _values.Length; i++)
                 {
                     var element = _values.Get(i);
                     if (_comparer.Equals(currentKey, element.Key))
                     {
-                        groupVector.Add(element.Value);
+                        groupLocalList.Add(element.Value);
                     }
                 }
 
-                _current = new LocalGroup(currentKey, groupVector);
+                _current = new LocalGroup(currentKey, groupLocalList);
                 _position++;
 
                 return true;
             }
 
-            public LocalVector<TResult> Select<TResult>(Selector<TResult> selector)
+            public LocalList<TResult> Select<TResult>(Selector<TResult> selector)
             {
-                var result = new LocalVector<TResult>(_uniqueKeys._length);
+                var result = new LocalList<TResult>(_uniqueKeys._length);
                 while (MoveNext())
                 {
                     var element = selector(_current);
@@ -95,9 +95,9 @@ namespace Velo.Collections
             {
                 public readonly TKey Key;
 
-                public readonly LocalVector<T> Values;
+                public readonly LocalList<T> Values;
 
-                internal LocalGroup(TKey key, LocalVector<T> values)
+                internal LocalGroup(TKey key, LocalList<T> values)
                 {
                     Key = key;
                     Values = values;

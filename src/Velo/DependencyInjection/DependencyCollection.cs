@@ -199,6 +199,10 @@ namespace Velo.DependencyInjection
             return new DependencyProvider(_engine);
         }
 
+        public bool Contains<TContract>() => _engine.Contains(Typeof<TContract>.Raw);
+        
+        public bool Contains(Type type) => _engine.Contains(type);
+
         public DependencyCollection Scan(Action<DependencyScanner> action)
         {
             var scanner = new DependencyScanner();

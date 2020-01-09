@@ -1,3 +1,5 @@
+using System.Threading;
+using System.Threading.Tasks;
 using Velo.ECS.Actors;
 using Velo.ECS.Assets;
 using Velo.ECS.Systems;
@@ -20,14 +22,14 @@ namespace Velo.ECS
             _systemService = systemService;
         }
 
-        public void Init()
+        public Task Init(CancellationToken cancellationToken = default)
         {
-            _systemService.Initialize();
+            return _systemService.Initialize(cancellationToken);
         }
         
-        public void Update()
+        public Task Update(CancellationToken cancellationToken = default)
         {
-            _systemService.Update();
+            return _systemService.Update(cancellationToken);
         }
     }
 }

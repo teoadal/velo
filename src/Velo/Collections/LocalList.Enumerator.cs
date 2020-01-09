@@ -2,29 +2,29 @@ using System.Runtime.CompilerServices;
 
 namespace Velo.Collections
 {
-    public ref partial struct LocalVector<T>
+    public ref partial struct LocalList<T>
     {
         public ref struct Enumerator
         {
             public readonly T Current
             {
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get => _vector.Get(_position);
+                get => _list.Get(_position);
             }
 
             public readonly int Length;
             
             private int _position;
             // ReSharper disable once FieldCanBeMadeReadOnly.Local
-            private LocalVector<T> _vector;
+            private LocalList<T> _list;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            internal Enumerator(LocalVector<T> vector)
+            internal Enumerator(LocalList<T> list)
             {
-                Length = vector.Length;
+                Length = list.Length;
 
                 _position = -1;
-                _vector = vector;
+                _list = list;
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]

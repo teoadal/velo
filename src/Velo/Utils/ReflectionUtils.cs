@@ -37,6 +37,22 @@ namespace Velo.Utils
             return availableConstructors.FirstOrDefault(c => !c.IsStatic && c.GetParameters().Length == 0);
         }
 
+        public static LocalList<Type> GetInterfaceImplementations(Type type, Type interfaceType)
+        {
+            var implementations = new LocalList<Type>();
+
+            var typeInterfaces = type.GetInterfaces();
+            foreach (var typeInterface in typeInterfaces)
+            {
+                if (typeInterface.IsAssignableFrom(interfaceType))
+                {
+                    implementations.Add(typeInterface);
+                }
+            }
+            
+            return implementations;
+        }
+        
         public static string GetName<T>()
         {
             return GetName(typeof(T));
@@ -94,11 +110,11 @@ namespace Velo.Utils
             throw Error.NotFound($"Generic interface {GetName(genericInterface)} is not implemented");
         }
 
-        public static LocalVector<Type> GetGenericInterfaceImplementations(Type type, Type genericInterface, bool throwIfNotFound = true)
+        public static LocalList<Type> GetGenericInterfaceImplementations(Type type, Type genericInterface, bool throwIfNotFound = true)
         {
             CheckIsGenericInterfaceTypeDefinition(genericInterface);
 
-            var implementations = new LocalVector<Type>();
+            var implementations = new LocalList<Type>();
 
             if (type.IsInterface && IsGenericTypeImplementation(type, genericInterface))
             {
@@ -123,9 +139,9 @@ namespace Velo.Utils
             return implementations;
         }
 
-        public static LocalVector<Type> GetGenericInterfaceImplementations(Type type, params Type[] genericInterfaces)
+        public static LocalList<Type> GetGenericInterfaceImplementations(Type type, params Type[] genericInterfaces)
         {
-            var implementations = new LocalVector<Type>();
+            var implementations = new LocalList<Type>();
             foreach (var genericInterface in genericInterfaces)
             {
                 CheckIsGenericInterfaceTypeDefinition(genericInterface);

@@ -1,7 +1,7 @@
 namespace Velo.Collections
 {
     // ReSharper disable once UnusedTypeParameter
-    public ref partial struct LocalVector<T>
+    public ref partial struct LocalList<T>
     {
         private readonly struct Row<TKey, TValue>
         {

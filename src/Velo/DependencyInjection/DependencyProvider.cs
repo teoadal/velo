@@ -35,6 +35,11 @@ namespace Velo.DependencyInjection
             return new DependencyProvider(this);
         }
 
+        public T Activate<T>(ConstructorInfo constructor = null)
+        {
+            return (T) Activate(typeof(T), constructor);
+        }
+        
         public object Activate(Type implementation, ConstructorInfo constructor = null)
         {
             if (implementation.IsInterface || implementation.IsGenericTypeDefinition)
@@ -69,6 +74,24 @@ namespace Velo.DependencyInjection
             }
         }
 
+        public object GetRequiredService(Type contract)
+        {
+            lock (_lock)
+            {
+                if (_disposed) throw Error.Disposed(nameof(DependencyProvider));
+
+                var engine = GetEngine();
+                var dependency = engine.GetDependency(contract, true);
+
+                return dependency.GetInstance(contract, this);
+            }
+            
+        }
+        
+        public T GetRequiredService<T>() => (T) GetRequiredService(Typeof<T>.Raw);
+        
+        public T GetService<T>() => (T) GetService(Typeof<T>.Raw);
+        
         public object GetService(Type contract)
         {
             lock (_lock)
@@ -81,29 +104,9 @@ namespace Velo.DependencyInjection
                 return dependency?.GetInstance(contract, this);
             }
         }
-
-        public object GetRequiredService(Type contract)
-        {
-            lock (_lock)
-            {
-                if (_disposed) throw Error.Disposed(nameof(DependencyProvider));
-
-                var engine = GetEngine();
-                var dependency = engine.GetDependency(contract, true);
-
-                return dependency.GetInstance(contract, this);
-            }
-        }
-
-        public T Activate<T>(ConstructorInfo constructor = null)
-        {
-            return (T) Activate(typeof(T), constructor);
-        }
-
-        public T GetService<T>() => (T) GetService(Typeof<T>.Raw);
-
-        public T GetRequiredService<T>() => (T) GetRequiredService(Typeof<T>.Raw);
-
+        
+        public T[] GetServices<T>() => (T[]) GetService(Typeof<T[]>.Raw);
+        
         private IDependency BuildSelfDependency()
         {
             var contracts = new[] {Typeof<DependencyProvider>.Raw, Typeof<IServiceProvider>.Raw};

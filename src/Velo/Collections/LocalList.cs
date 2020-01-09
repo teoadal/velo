@@ -6,9 +6,9 @@ using Velo.Utils;
 
 namespace Velo.Collections
 {
-    [DebuggerTypeProxy(typeof(LocalVectorDebugVisualizer<>))]
+    [DebuggerTypeProxy(typeof(LocalListDebugVisualizer<>))]
     [DebuggerDisplay("Length = {" + nameof(_length) + "}")]
-    public ref partial struct LocalVector<T>
+    public ref partial struct LocalList<T>
     {
         private const int Capacity = 10;
 
@@ -30,7 +30,7 @@ namespace Velo.Collections
 
         #region Constructors
 
-        public LocalVector(int capacity)
+        public LocalList(int capacity)
         {
             _element0 = default;
             _element1 = default;
@@ -48,7 +48,7 @@ namespace Velo.Collections
             _length = 0;
         }
 
-        public LocalVector(T[] collection)
+        public LocalList(T[] collection)
             : this(collection.Length)
         {
             foreach (var element in collection)
@@ -57,7 +57,7 @@ namespace Velo.Collections
             }
         }
 
-        public LocalVector(ICollection<T> collection)
+        public LocalList(ICollection<T> collection)
             : this(collection.Count)
         {
             foreach (var element in collection)
@@ -123,7 +123,7 @@ namespace Velo.Collections
             _length++;
         }
 
-        public void AddRange(LocalVector<T> collection)
+        public void AddRange(LocalList<T> collection)
         {
             foreach (var element in collection)
             {
@@ -231,14 +231,14 @@ namespace Velo.Collections
             return -1;
         }
 
-        public LocalVector<T> OrderBy<TProperty>(Func<T, TProperty> property, Comparer<TProperty> comparer = null)
+        public LocalList<T> OrderBy<TProperty>(Func<T, TProperty> property, Comparer<TProperty> comparer = null)
         {
             Sort(property, comparer);
             return this;
         }
         
         public readonly JoinEnumerator<TResult, TInner, TKey> Join<TResult, TInner, TKey>(
-            LocalVector<TInner> inner,
+            LocalList<TInner> inner,
             Func<T, TKey> outerKeySelector,
             Func<TInner, TKey> innerKeySelector,
             Func<T, TInner, TResult> resultBuilder,

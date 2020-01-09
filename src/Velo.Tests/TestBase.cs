@@ -90,14 +90,9 @@ namespace Velo
         public virtual void Dispose()
         {
             _stopwatch.Stop();
-            if (_stopwatch.ElapsedMilliseconds > 0)
-            {
-                _output.WriteLine($"Elapsed {_stopwatch.ElapsedMilliseconds} ms");
-            }
-            else
-            {
-                _output.WriteLine($"Elapsed < 1 ms");
-            }
+            _output.WriteLine(_stopwatch.ElapsedMilliseconds > 0
+                ? $"Elapsed {_stopwatch.ElapsedMilliseconds} ms"
+                : "Elapsed < 1 ms");
         }
         
         protected readonly struct StopwatchScope : IDisposable
