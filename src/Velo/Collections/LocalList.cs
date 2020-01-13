@@ -115,6 +115,10 @@ namespace Velo.Collections
                 case 9:
                     _element9 = element;
                     break;
+                case Capacity:
+                    if (_array == null) _array = new T[4];
+                    _array[0] = element;
+                    break;
                 default:
                     AddToArray(element);
                     break;
@@ -236,7 +240,7 @@ namespace Velo.Collections
             Sort(property, comparer);
             return this;
         }
-        
+
         public readonly JoinEnumerator<TResult, TInner, TKey> Join<TResult, TInner, TKey>(
             LocalList<TInner> inner,
             Func<T, TKey> outerKeySelector,
@@ -313,7 +317,7 @@ namespace Velo.Collections
         public readonly int Sum(Func<T, int> selector)
         {
             var sum = 0;
-            
+
             for (var i = 0; i < _length; i++)
             {
                 var element = Get(i);
@@ -322,7 +326,7 @@ namespace Velo.Collections
 
             return sum;
         }
-        
+
         public readonly WhereEnumerator Where(Predicate<T> predicate)
         {
             return new WhereEnumerator(GetEnumerator(), predicate);
@@ -356,17 +360,9 @@ namespace Velo.Collections
 
         private void AddToArray(T element)
         {
-            var length = _length;
             var array = _array;
+            var index = _length - Capacity;
 
-            if (length == Capacity)
-            {
-                if (array == null) _array = array = new T[4];
-                array[0] = element;
-                return;
-            }
-
-            var index = length - Capacity;
             if ((uint) index < (uint) array.Length)
             {
                 array[index] = element;
