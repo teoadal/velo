@@ -26,7 +26,7 @@ namespace Velo.CQRS
             _queryRouter = queryRouter;
         }
 
-        public Task<TResult> Ask<TResult>(IQuery<TResult> query, CancellationToken cancellationToken = default)
+        public ValueTask<TResult> Ask<TResult>(IQuery<TResult> query, CancellationToken cancellationToken = default)
         {
             if (_disposed) throw Error.Disposed(nameof(Emitter));
 
@@ -34,7 +34,7 @@ namespace Velo.CQRS
             return handler.GetResponse(_scope, query, cancellationToken);
         }
 
-        public Task<TResult> Ask<TQuery, TResult>(TQuery query, CancellationToken cancellationToken = default)
+        public ValueTask<TResult> Ask<TQuery, TResult>(TQuery query, CancellationToken cancellationToken = default)
             where TQuery: IQuery<TResult>
         {
             if (_disposed) throw Error.Disposed(nameof(Emitter));
@@ -43,7 +43,7 @@ namespace Velo.CQRS
             return handler.GetResponse(_scope, query, cancellationToken);
         }
         
-        public Task Execute<TCommand>(TCommand command, CancellationToken cancellationToken = default)
+        public ValueTask Execute<TCommand>(TCommand command, CancellationToken cancellationToken = default)
             where TCommand : ICommand
         {
             if (_disposed) throw Error.Disposed(nameof(Emitter));
@@ -52,7 +52,7 @@ namespace Velo.CQRS
             return executor.Execute(_scope, command, cancellationToken);
         }
 
-        public Task Publish<TNotification>(TNotification notification, CancellationToken cancellationToken = default)
+        public ValueTask Publish<TNotification>(TNotification notification, CancellationToken cancellationToken = default)
             where TNotification : INotification
         {
             if (_disposed) throw Error.Disposed(nameof(Emitter));

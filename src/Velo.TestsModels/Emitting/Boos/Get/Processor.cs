@@ -14,9 +14,9 @@ namespace Velo.TestsModels.Emitting.Boos.Get
             _repository = repository;
         }
         
-        public Task<Boo> Process(Query request, CancellationToken cancellationToken)
+        public ValueTask<Boo> Process(Query request, CancellationToken cancellationToken)
         {
-            return Task.FromResult(_repository.GetElement(request.Id));
+            return new ValueTask<Boo>(_repository.GetElement(request.Id));
         }
     }
 }

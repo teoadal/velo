@@ -1,4 +1,5 @@
 using System;
+using Velo.Settings;
 using Velo.TestsModels.Infrastructure;
 
 namespace Velo.TestsModels.Domain

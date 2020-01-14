@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using AutoFixture.Xunit2;
 using Velo.DependencyInjection;
 using Velo.Serialization;
+using Velo.Settings;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Infrastructure;
 using Xunit;
@@ -17,7 +18,7 @@ namespace Velo.CQRS
         public CommandTests(ITestOutputHelper output) : base(output)
         {
             _dependencies = new DependencyCollection()
-                .AddSingleton<IConfiguration, Configuration>()
+                .AddSingleton<IConfiguration>(ctx => new Configuration())
                 .AddSingleton<ISession, Session>()
                 .AddSingleton<JConverter>()
                 .AddSingleton<IBooRepository, BooRepository>()
@@ -114,13 +115,11 @@ namespace Velo.CQRS
 
             var repository = provider.GetService<IBooRepository>();
 
-            await RunTasks(items, async item =>
+            await RunTasks(items, item =>
             {
-                using (var scope = provider.CreateScope())
-                {
-                    var mediator = scope.GetService<Emitter>();
-                    await mediator.Execute(new Emitting.Boos.Create.Command {Id = item.Id, Int = item.Int});
-                }
+                using var scope = provider.CreateScope();
+                var mediator = scope.GetService<Emitter>();
+                return mediator.Execute(new Emitting.Boos.Create.Command {Id = item.Id, Int = item.Int});
             });
 
             foreach (var item in items)

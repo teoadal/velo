@@ -14,7 +14,7 @@ namespace Velo.TestsModels.Emitting.Boos.Create
             _repository = repository;
         }
 
-        public Task Process(Command command, CancellationToken cancellationToken)
+        public ValueTask Process(Command command, CancellationToken cancellationToken)
         {
             _repository.AddElement(new Boo
             {
@@ -23,7 +23,7 @@ namespace Velo.TestsModels.Emitting.Boos.Create
                 Int = command.Int
             });
 
-            return Task.CompletedTask;
+            return new ValueTask();
         }
     }
 }

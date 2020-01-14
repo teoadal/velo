@@ -6,7 +6,7 @@ namespace Velo.DependencyInjection.Factories
 {
     internal sealed partial class ArrayFactory
     {
-        private class ArrayResolver<T>: DependencyResolver
+        private class ArrayResolver<T> : DependencyResolver
         {
             private readonly IDependency[] _dependencies;
             private readonly Type _elementType;
@@ -20,7 +20,6 @@ namespace Velo.DependencyInjection.Factories
             protected override object GetInstance(Type contract, IDependencyScope scope)
             {
                 var array = new T[_dependencies.Length];
-
                 for (var index = 0; index < _dependencies.Length; index++)
                 {
                     var dependency = _dependencies[index];

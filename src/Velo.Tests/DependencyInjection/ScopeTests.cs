@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Velo.Mapping;
 using Velo.Serialization;
+using Velo.Settings;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Domain;
 using Velo.TestsModels.Foos;
@@ -19,7 +20,7 @@ namespace Velo.DependencyInjection
         public ScopeTests(ITestOutputHelper output) : base(output)
         {
             _dependencies = new DependencyCollection()
-                .AddSingleton<IConfiguration, Configuration>()
+                .AddSingleton<IConfiguration>(ctx => new Configuration())
                 .AddSingleton<JConverter>();
         }
 

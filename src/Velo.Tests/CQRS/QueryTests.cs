@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using AutoFixture.Xunit2;
 using Velo.DependencyInjection;
 using Velo.Serialization;
+using Velo.Settings;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Infrastructure;
 using Xunit;
@@ -17,7 +18,7 @@ namespace Velo.CQRS
         public QueryTests(ITestOutputHelper output) : base(output)
         {
             _dependencies = new DependencyCollection()
-                .AddSingleton<IConfiguration, Configuration>()
+                .AddSingleton<IConfiguration>(ctx => new Configuration())
                 .AddSingleton<ISession, Session>()
                 .AddSingleton<JConverter>()
                 .AddSingleton<IBooRepository, BooRepository>()

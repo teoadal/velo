@@ -6,10 +6,10 @@ namespace Velo.TestsModels.Emitting.Boos.Create
 {
     public sealed class PreProcessor : ICommandPreProcessor<Command>
     {
-        public Task PreProcess(Command command, CancellationToken cancellationToken)
+        public ValueTask PreProcess(Command command, CancellationToken cancellationToken)
         {
             command.PreProcessed = true;
-            return Task.CompletedTask;
+            return new ValueTask();
         }
     }
 }

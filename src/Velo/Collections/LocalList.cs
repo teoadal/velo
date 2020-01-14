@@ -53,7 +53,8 @@ namespace Velo.Collections
         {
             foreach (var element in collection)
             {
-                Add(element);
+                Set(_length, element);
+                _length++;
             }
         }
 
@@ -62,13 +63,14 @@ namespace Velo.Collections
         {
             foreach (var element in collection)
             {
-                Add(element);
+                Set(_length, element);
+                _length++;
             }
         }
 
         #endregion
 
-        public bool All(Predicate<T> predicate)
+        public readonly bool All(Predicate<T> predicate)
         {
             for (var i = 0; i < _length; i++)
             {
@@ -185,9 +187,10 @@ namespace Velo.Collections
         {
             for (var i = 0; i < _length; i++)
             {
-                if (predicate(Get(i)))
+                var element = Get(i);
+                if (predicate(element))
                 {
-                    return this[i];
+                    return element;
                 }
             }
 
@@ -198,9 +201,10 @@ namespace Velo.Collections
         {
             for (var i = 0; i < _length; i++)
             {
-                if (predicate(Get(i), arg))
+                var element = Get(i);
+                if (predicate(element, arg))
                 {
-                    return this[i];
+                    return element;
                 }
             }
 
@@ -210,14 +214,14 @@ namespace Velo.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Enumerator GetEnumerator()
         {
-            return new Enumerator(this);
+            return new Enumerator(in this);
         }
 
         public readonly GroupEnumerator<TKey> GroupBy<TKey>(Func<T, TKey> keySelector,
             EqualityComparer<TKey> keyComparer = null)
         {
             if (keyComparer == null) keyComparer = EqualityComparer<TKey>.Default;
-            return new GroupEnumerator<TKey>(in this, keySelector, keyComparer);
+            return new GroupEnumerator<TKey>(this, keySelector, keyComparer);
         }
 
         public readonly int IndexOf(T element, EqualityComparer<T> comparer = null)
@@ -251,7 +255,7 @@ namespace Velo.Collections
             if (keyComparer == null) keyComparer = EqualityComparer<TKey>.Default;
 
             return new JoinEnumerator<TResult, TInner, TKey>(keyComparer,
-                inner, innerKeySelector,
+                inner.GetEnumerator(), innerKeySelector,
                 GetEnumerator(), outerKeySelector,
                 resultBuilder);
         }
@@ -361,18 +365,18 @@ namespace Velo.Collections
         private void AddToArray(T element)
         {
             var array = _array;
-            var index = _length - Capacity;
+            var arrayIndex = _length - Capacity;
 
-            if ((uint) index < (uint) array.Length)
+            if ((uint) arrayIndex < (uint) array.Length)
             {
-                array[index] = element;
+                array[arrayIndex] = element;
             }
             else
             {
                 var newArray = new T[array.Length * 2];
-                Array.Copy(array, 0, newArray, 0, index);
+                Array.Copy(array, 0, newArray, 0, arrayIndex);
 
-                newArray[index] = element;
+                newArray[arrayIndex] = element;
 
                 _array = newArray;
             }

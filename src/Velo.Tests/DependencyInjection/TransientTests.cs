@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Velo.Mapping;
 using Velo.Serialization;
+using Velo.Settings;
 using Velo.TestsModels.Domain;
 using Velo.TestsModels.Foos;
 using Velo.TestsModels.Infrastructure;
@@ -18,7 +19,7 @@ namespace Velo.DependencyInjection
         public TransientTests(ITestOutputHelper output) : base(output)
         {
             _dependencies = new DependencyCollection()
-                .AddSingleton<IConfiguration, Configuration>()
+                .AddSingleton<IConfiguration>(_ => new Configuration())
                 .AddSingleton<JConverter>();
         }
 

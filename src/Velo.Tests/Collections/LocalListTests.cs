@@ -315,13 +315,13 @@ namespace Velo.Collections
         [Fact]
         public void Join_WithManyInner()
         {
-            var outer = new [] { new Boo {Id = 1, Int = 1} };
+            var outer = new[] {new Boo {Id = 1, Int = 1}};
             var inner = new[] {new Foo {Int = 1}, new Foo {Int = 1}, new Foo {Int = 1}};
-            
+
             var joinSum = outer
                 .Join(inner, o => o.Int, i => i.Int, (o, i) => i.Int)
                 .Sum();
-            
+
             var outerLocalList = new LocalList<Boo>(outer);
             var innerLocalList = new LocalList<Foo>(inner);
 
@@ -331,7 +331,7 @@ namespace Velo.Collections
 
             Assert.Equal(joinSum, localListSum);
         }
-        
+
         [Theory, AutoData]
         public void Join_OrderBy(Boo[] items)
         {
@@ -559,9 +559,9 @@ namespace Velo.Collections
         public void Select(Boo[] items)
         {
             var select = items.Select(i => i.Id).ToArray();
-            
+
             var localList = new LocalList<Boo>(items);
-            
+
             var counter = 0;
             foreach (var number in localList.Select(i => i.Id))
             {
@@ -575,9 +575,9 @@ namespace Velo.Collections
             // ReSharper disable once ConvertToConstant.Local
             var threshold = 1;
             var select = items.Select(i => i.Id > threshold ? 5 : 10).ToArray();
-            
+
             var localList = new LocalList<Boo>(items);
-            
+
             var counter = 0;
             foreach (var number in localList.Select((i, t) => i.Id > t ? 5 : 10, threshold))
             {
@@ -591,9 +591,9 @@ namespace Velo.Collections
             // ReSharper disable once ConvertToConstant.Local
             var threshold = 1;
             var select = items.Select(i => i.Id > threshold ? 5 : 10).ToArray();
-            
+
             var localList = new LocalList<Boo>(items);
-            
+
             var counter = 0;
             foreach (var number in localList
                 .Select((i, t) => i.Id > t ? 5 : 10, threshold)
@@ -609,9 +609,9 @@ namespace Velo.Collections
             // ReSharper disable once ConvertToConstant.Local
             var threshold = 1;
             var select = items.Select(i => i.Id > threshold ? 5 : 10).OrderBy(id => id).ToArray();
-            
+
             var localList = new LocalList<Boo>(items);
-            
+
             var counter = 0;
             foreach (var number in localList
                 .Select((i, t) => i.Id > t ? 5 : 10, threshold)
@@ -627,9 +627,9 @@ namespace Velo.Collections
             // ReSharper disable once ConvertToConstant.Local
             var threshold = 1;
             var select = items.Select(i => i.Id > threshold ? 5 : 10).Where(id => id == 5).ToArray();
-            
+
             var localList = new LocalList<Boo>(items);
-            
+
             var counter = 0;
             foreach (var number in localList
                 .Select((i, t) => i.Id > t ? 5 : 10, threshold)
@@ -643,9 +643,9 @@ namespace Velo.Collections
         public void Select_OrderBy(Boo[] items)
         {
             var select = items.Select(i => i.Id).OrderBy(n => n).ToArray();
-            
+
             var localList = new LocalList<Boo>(items);
-            
+
             var counter = 0;
             foreach (var number in localList.Select(i => i.Id).OrderBy(n => n))
             {
@@ -657,9 +657,9 @@ namespace Velo.Collections
         public void Select_Where(Boo[] items)
         {
             var select = items.Select(i => i.Id).Where(id => id > 1).ToArray();
-            
+
             var localList = new LocalList<Boo>(items);
-            
+
             var counter = 0;
             foreach (var number in localList.Select(i => i.Id).Where(id => id > 1))
             {
@@ -699,12 +699,12 @@ namespace Velo.Collections
         public void Sort(Boo[] items)
         {
             var sorted = items.OrderBy(b => b.Id).ToArray();
-            
+
             var localList = new LocalList<Boo>(items);
 
             using (Measure())
                 localList.Sort(b => b.Id);
-            
+
             for (var i = 0; i < sorted.Length; i++)
             {
                 Assert.Equal(sorted[i], localList[i]);
@@ -833,18 +833,18 @@ namespace Velo.Collections
                 Assert.Equal(where[counter++], boo);
             }
         }
-        
+
         [Theory, AutoData]
         public void Where_AvoidClosure_Join(Boo[] items)
         {
             // ReSharper disable once ConvertToConstant.Local
             var number = 2;
-            
+
             var innerItems = items.Select(i => new Foo {Int = i.Id}).ToArray();
-            
+
             var localList = new LocalList<Boo>(items);
             var innerLocalList = new LocalList<Foo>(innerItems);
-            
+
             var where = items
                 .Where(i => i.Id % number == 0)
                 .Join(innerItems, b => b.Id, f => f.Int, (b, f) => b)
@@ -864,7 +864,7 @@ namespace Velo.Collections
         {
             // ReSharper disable once ConvertToConstant.Local
             var number = 2;
-            
+
             var localList = new LocalList<Boo>(items);
 
             var where = items.Where(i => i.Id % number == 0).OrderBy(b => b.Id).ToArray();
@@ -877,15 +877,15 @@ namespace Velo.Collections
                 Assert.Equal(where[counter++], boo);
             }
         }
-        
+
         [Theory, AutoData]
         public void Where_Join(Boo[] items)
         {
             var innerItems = items.Select(i => new Foo {Int = i.Id}).ToArray();
-            
+
             var localList = new LocalList<Boo>(items);
             var innerLocalList = new LocalList<Foo>(innerItems);
-            
+
             var where = items
                 .Where(i => i.Id % 2 == 0)
                 .Join(innerItems, b => b.Id, f => f.Int, (b, f) => b).ToArray();
@@ -912,7 +912,7 @@ namespace Velo.Collections
                 Assert.Equal(where[counter++], boo);
             }
         }
-        
+
         [Theory, AutoData]
         public void Where_Select(Boo[] items)
         {

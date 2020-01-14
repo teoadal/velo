@@ -1,8 +1,11 @@
 using System;
 using System.Globalization;
+using System.IO;
+using System.Runtime;
 using System.Text;
 using Velo.Serialization.Converters;
 using Velo.Serialization.Tokenization;
+using Velo.Utils;
 
 namespace Velo.Serialization
 {
@@ -20,18 +23,18 @@ namespace Velo.Serialization
 
         public TOut Deserialize<TOut>(string source)
         {
-            if (_buffer == null) _buffer = new StringBuilder(200);
+            var reader = new JReader(source);
+            var result = Deserialize<TOut>(reader);
+            reader.Dispose();
 
-            var outType = typeof(TOut);
-            var converter = _converters.Get(outType);
+            return result;
+        }
 
-            var tokenizer = new JsonTokenizer(source, _buffer);
-            if (converter.IsPrimitive) tokenizer.MoveNext();
-
-            var typedConverter = (IJsonConverter<TOut>) converter;
-            var result = typedConverter.Deserialize(ref tokenizer);
-
-            tokenizer.Dispose();
+        public TOut Deserialize<TOut>(Stream source, Encoding encoding = null)
+        {
+            var reader = new JReader(source, encoding ?? Encoding.UTF8);
+            var result = Deserialize<TOut>(reader);
+            reader.Dispose();
 
             return result;
         }
@@ -56,6 +59,23 @@ namespace Velo.Serialization
         {
             var sourceType = typeof(TSource);
             _converters.Get(sourceType);
+        }
+
+        private TOut Deserialize<TOut>(JReader reader)
+        {
+            if (_buffer == null) _buffer = new StringBuilder(200);
+
+            var converter = _converters.Get(Typeof<TOut>.Raw);
+
+            var tokenizer = new JsonTokenizer(reader, _buffer);
+            if (converter.IsPrimitive) tokenizer.MoveNext();
+
+            var typedConverter = (IJsonConverter<TOut>) converter;
+            var result = typedConverter.Deserialize(ref tokenizer);
+
+            tokenizer.Dispose();
+
+            return result;
         }
     }
 }

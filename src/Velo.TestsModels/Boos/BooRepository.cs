@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Velo.Settings;
 using Velo.TestsModels.Infrastructure;
 
 namespace Velo.TestsModels.Boos

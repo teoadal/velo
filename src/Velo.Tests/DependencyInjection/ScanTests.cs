@@ -1,4 +1,5 @@
 using Velo.Serialization;
+using Velo.Settings;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Domain;
 using Velo.TestsModels.Foos;
@@ -15,7 +16,7 @@ namespace Velo.DependencyInjection
         public ScanTests(ITestOutputHelper output) : base(output)
         {
             _dependencies = new DependencyCollection()
-                .AddSingleton<IConfiguration, Configuration>()
+                .AddSingleton<IConfiguration>(ctx => new Configuration())
                 .AddSingleton<JConverter>()
                 .AddSingleton<ISession, Session>();
         }

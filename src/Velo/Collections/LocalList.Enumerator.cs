@@ -19,7 +19,7 @@ namespace Velo.Collections
             private LocalList<T> _list;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            internal Enumerator(LocalList<T> list)
+            internal Enumerator(in LocalList<T> list)
             {
                 Length = list.Length;
 

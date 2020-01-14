@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using AutoFixture.Xunit2;
 using Velo.DependencyInjection;
 using Velo.Serialization;
+using Velo.Settings;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Foos;
 using Velo.TestsModels.Infrastructure;

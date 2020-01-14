@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Velo.Ordering;
+using Velo.Settings;
 using Velo.TestsModels.Infrastructure;
 
 namespace Velo.TestsModels.Foos

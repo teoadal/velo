@@ -14,9 +14,9 @@ namespace Velo.Benchmark.Collections
     [CategoriesColumn, GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
     public class LocalVectorBenchmark
     {
-        private const int ALLOCATIONS = 10;
+        private const int InvokeCount = 10;
 
-        [Params(6)] 
+        [Params(10)] 
         public int Count;
 
         private Boo[] _items;
@@ -35,7 +35,8 @@ namespace Velo.Benchmark.Collections
             _modifier = Count;
         }
 
-        [BenchmarkCategory("Add"), Benchmark(Baseline = true)]
+        [BenchmarkCategory("Add")]
+        [Benchmark(Baseline = true, OperationsPerInvoke = InvokeCount)]
         public int List_Add()
         {
             var list = new List<Boo>();
@@ -43,11 +44,12 @@ namespace Velo.Benchmark.Collections
             {
                 list.Add(_items[j]);
             }
-
+        
             return list.Count;
         }
-
-        [BenchmarkCategory("Add"), Benchmark]
+        
+        [BenchmarkCategory("Add")]
+        [Benchmark(OperationsPerInvoke = InvokeCount)]
         public int LocalVector_Add()
         {
             var localList = new LocalList<Boo>();
@@ -55,11 +57,12 @@ namespace Velo.Benchmark.Collections
             {
                 localList.Add(_items[j]);
             }
-
+        
             return localList.Length;
         }
-
-        [BenchmarkCategory("Add"), Benchmark]
+        
+        [BenchmarkCategory("Add")]
+        [Benchmark(OperationsPerInvoke = InvokeCount)]
         public int Span_Add()
         {
             var span = new Span<Boo>(new Boo[Count]);
@@ -67,50 +70,54 @@ namespace Velo.Benchmark.Collections
             {
                 span[i] = _items[i];
             }
-
+        
             return span.Length;
         }
-
-        [BenchmarkCategory("Allocation"), Benchmark(Baseline = true, OperationsPerInvoke = ALLOCATIONS)]
+        
+        [BenchmarkCategory("Allocation")]
+        [Benchmark(Baseline = true, OperationsPerInvoke = InvokeCount)]
         public int List_Allocation()
         {
             var list = new List<Boo>();
-
+        
             foreach (var boo in _items)
             {
                 list.Add(boo);
             }
-
+        
             return list.Count;
         }
-
-        [BenchmarkCategory("Allocation"), Benchmark(OperationsPerInvoke = ALLOCATIONS)]
+        
+        [BenchmarkCategory("Allocation")]
+        [Benchmark(OperationsPerInvoke = InvokeCount)]
         public int LocalVector_Allocation()
         {
             var localList = new LocalList<Boo>();
-
+        
             foreach (var boo in _items)
             {
                 localList.Add(boo);
             }
-
+        
             return localList.Length;
         }
-
-        [BenchmarkCategory("Allocation"), Benchmark(OperationsPerInvoke = ALLOCATIONS)]
+        
+        [BenchmarkCategory("Allocation")]
+        [Benchmark(OperationsPerInvoke = InvokeCount)]
         public int Span_Allocation()
         {
             var span = new Span<Boo>(new Boo[Count]);
-
+        
             for (var j = 0; j < _items.Length; j++)
             {
                 span[j] = _items[j];
             }
-
+        
             return span.Length;
         }
 
-        [BenchmarkCategory("Iteration"), Benchmark(Baseline = true)]
+        [BenchmarkCategory("Iteration")]
+        [Benchmark(Baseline = true, OperationsPerInvoke = InvokeCount)]
         public int List_Iteration()
         {
             var list = new List<Boo>(_items);
@@ -124,7 +131,8 @@ namespace Velo.Benchmark.Collections
             return counter;
         }
 
-        [BenchmarkCategory("Iteration"), Benchmark]
+        [BenchmarkCategory("Iteration")]
+        [Benchmark(OperationsPerInvoke = InvokeCount)]
         public int LocalVector_Iteration()
         {
             var localList = new LocalList<Boo>(_items);
@@ -138,25 +146,27 @@ namespace Velo.Benchmark.Collections
             return counter;
         }
 
-        [BenchmarkCategory("Iteration"), Benchmark]
+        [BenchmarkCategory("Iteration")]
+        [Benchmark(OperationsPerInvoke = InvokeCount)]
         public int Span_Iteration()
         {
             var span = new Span<Boo>(_items.ToArray());
-
+        
             var counter = 0;
             foreach (var boo in span)
             {
                 counter += boo.Id;
             }
-
+        
             return counter;
         }
-
-        [BenchmarkCategory("GroupBy"), Benchmark(Baseline = true)]
+        
+        [BenchmarkCategory("GroupBy")]
+        [Benchmark(Baseline = true, OperationsPerInvoke = InvokeCount)]
         public int List_GroupBy()
         {
             var list = new List<Boo>(_items);
-
+        
             var counter = 0;
             foreach (var group in list.GroupBy(b => b.Id % 2 == 0))
             {
@@ -165,15 +175,16 @@ namespace Velo.Benchmark.Collections
                     counter += boo.Id;
                 }
             }
-
+        
             return counter;
         }
-
-        [BenchmarkCategory("GroupBy"), Benchmark]
+        
+        [BenchmarkCategory("GroupBy")]
+        [Benchmark(OperationsPerInvoke = InvokeCount)]
         public int LocalVector_GroupBy()
         {
             var localList = new LocalList<Boo>(_items);
-
+        
             var counter = 0;
             foreach (var group in localList.GroupBy(b => b.Id % 2 == 0))
             {
@@ -182,38 +193,41 @@ namespace Velo.Benchmark.Collections
                     counter += boo.Id;
                 }
             }
-
+        
             return counter;
         }
-
-        [BenchmarkCategory("Join"), Benchmark(Baseline = true)]
+        
+        [BenchmarkCategory("Join")]
+        [Benchmark(Baseline = true, OperationsPerInvoke = InvokeCount)]
         public int List_Join()
         {
             var outer = new List<Boo>(_items);
             var inner = new List<Boo>(_reversItems);
-
+        
             return outer
                 .Join(inner, o => o.Id, i => i.Id, (o, i) => i)
                 .Sum(i => i.Id);
         }
-
-        [BenchmarkCategory("Join"), Benchmark]
+        
+        [BenchmarkCategory("Join")]
+        [Benchmark(OperationsPerInvoke = InvokeCount)]
         public int LocalVector_Join()
         {
             var outer = new LocalList<Boo>(_items);
             var inner = new LocalList<Boo>(_reversItems);
-
+        
             return outer
                 .Join(inner, o => o.Id, i => i.Id, (o, i) => i)
                 .Sum(i => i.Id);
         }
-
-        [BenchmarkCategory("ManyLinq"), Benchmark(Baseline = true)]
+        
+        [BenchmarkCategory("ManyLinq")]
+        [Benchmark(Baseline = true, OperationsPerInvoke = InvokeCount)]
         public int List_ManyLinq()
         {
             var outer = new List<Boo>(_items);
             var inner = new List<Boo>(_reversItems);
-
+        
             return outer
                 .Join(inner, o => o.Id, i => i.Id, (o, i) => i)
                 .GroupBy(boo => boo.Id)
@@ -223,13 +237,14 @@ namespace Velo.Benchmark.Collections
                 .OrderBy(id => id)
                 .Sum();
         }
-
-        [BenchmarkCategory("ManyLinq"), Benchmark]
+        
+        [BenchmarkCategory("ManyLinq")]
+        [Benchmark(OperationsPerInvoke = InvokeCount)]
         public int LocalVector_ManyLinq()
         {
             var outer = new LocalList<Boo>(_items);
             var inner = new LocalList<Boo>(_reversItems);
-
+        
             return outer
                 .Join(inner, o => o.Id, i => i.Id, (o, i) => i)
                 .GroupBy(boo => boo.Id)
@@ -239,139 +254,150 @@ namespace Velo.Benchmark.Collections
                 .OrderBy(id => id)
                 .Sum();
         }
-
-
-        [BenchmarkCategory("Remove"), Benchmark(Baseline = true)]
+        
+        
+        [BenchmarkCategory("Remove")]
+        [Benchmark(Baseline = true, OperationsPerInvoke = InvokeCount)]
         public int List_Remove()
         {
             var list = new List<Boo>(_items);
-
+        
             var counter = 0;
             foreach (var item in _items)
             {
                 list.Remove(item);
                 counter += list.Count;
             }
-
+        
             return counter;
         }
-
-        [BenchmarkCategory("Remove"), Benchmark]
+        
+        [BenchmarkCategory("Remove")]
+        [Benchmark(OperationsPerInvoke = InvokeCount)]
         public int LocalVector_Remove()
         {
             var localList = new LocalList<Boo>(_items);
-
+        
             var counter = 0;
             foreach (var item in _items)
             {
                 localList.Remove(item);
                 counter += localList.Length;
             }
-
+        
             return counter;
         }
-
-
-        [BenchmarkCategory("Select"), Benchmark(Baseline = true)]
+        
+        
+        [BenchmarkCategory("Select")]
+        [Benchmark(Baseline = true, OperationsPerInvoke = InvokeCount)]
         public int List_Select()
         {
             var list = new List<Boo>(_items);
-
+        
             var counter = 0;
             foreach (var number in list.Select(b => b.Id))
             {
                 counter += number;
             }
-
+        
             return counter;
         }
-
-        [BenchmarkCategory("Select"), Benchmark]
+        
+        [BenchmarkCategory("Select")]
+        [Benchmark(OperationsPerInvoke = InvokeCount)]
         public int LocalVector_Select()
         {
             var localList = new LocalList<Boo>(_items);
-
+        
             var counter = 0;
             foreach (var number in localList.Select(b => b.Id))
             {
                 counter += number;
             }
-
+        
             return counter;
         }
-
-        [BenchmarkCategory("ToArray"), Benchmark(Baseline = true)]
+        
+        [BenchmarkCategory("ToArray")]
+        [Benchmark(Baseline = true, OperationsPerInvoke = InvokeCount)]
         public Boo[] List_ToArray()
         {
             var list = new List<Boo>(_items);
             return list.ToArray();
         }
-
-        [BenchmarkCategory("ToArray"), Benchmark]
+        
+        [BenchmarkCategory("ToArray")]
+        [Benchmark(OperationsPerInvoke = InvokeCount)]
         public Boo[] LocalVector_ToArray()
         {
             var localList = new LocalList<Boo>(_items);
             return localList.ToArray();
         }
-
-        [BenchmarkCategory("ToArray"), Benchmark]
+        
+        [BenchmarkCategory("ToArray")]
+        [Benchmark(OperationsPerInvoke = InvokeCount)]
         public Boo[] Span_ToArray()
         {
             var span = new Span<Boo>(_items);
             return span.ToArray();
         }
-
-        [BenchmarkCategory("Where"), Benchmark(Baseline = true)]
+        
+        [BenchmarkCategory("Where")]
+        [Benchmark(Baseline = true, OperationsPerInvoke = InvokeCount)]
         public int List_Where()
         {
             var list = new List<Boo>(_items);
-
+        
             var counter = 0;
             foreach (var boo in list.Where(b => b.Id > 1))
             {
                 counter += boo.Id;
             }
-
+        
             return counter;
         }
-
-        [BenchmarkCategory("Where"), Benchmark]
+        
+        [BenchmarkCategory("Where")]
+        [Benchmark(OperationsPerInvoke = InvokeCount)]
         public int List_FindAll()
         {
             var list = new List<Boo>(_items);
-
+        
             var counter = 0;
             foreach (var boo in list.FindAll(b => b.Id > 1))
             {
                 counter += boo.Id;
             }
-
+        
             return counter;
         }
-
-
-        [BenchmarkCategory("Where"), Benchmark]
+        
+        [BenchmarkCategory("Where")]
+        [Benchmark(OperationsPerInvoke = InvokeCount)]
         public int LocalVector_Where()
         {
             var localList = new LocalList<Boo>(_items);
-
+        
             var counter = 0;
             foreach (var boo in localList.Where(b => b.Id > 1))
             {
                 counter += boo.Id;
             }
-
+        
             return counter;
         }
-
-        [BenchmarkCategory("Where_ToArray"), Benchmark(Baseline = true)]
+        
+        [BenchmarkCategory("Where_ToArray")]
+        [Benchmark(Baseline = true, OperationsPerInvoke = InvokeCount)]
         public int List_Where_ToArray()
         {
             var list = new List<Boo>(_items);
             return list.Where(b => b.Id > 1).ToArray().Length;
         }
-
-        [BenchmarkCategory("Where_ToArray"), Benchmark]
+        
+        [BenchmarkCategory("Where_ToArray")]
+        [Benchmark(OperationsPerInvoke = InvokeCount)]
         public int LocalVector_Where_ToArray()
         {
             var localList = new LocalList<Boo>(_items);

@@ -9,6 +9,7 @@ using Unity.Lifetime;
 using Velo.DependencyInjection;
 using Velo.Mapping;
 using Velo.Serialization;
+using Velo.Settings;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Domain;
 using Velo.TestsModels.Foos;
@@ -66,7 +67,7 @@ namespace Velo.Benchmark.DependencyInjection
                 .AddSingleton<ILogger, Logger>()
                 .AddSingleton<IMapper<Boo>, CompiledMapper<Boo>>()
                 .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
-                .AddSingleton<IConfiguration>(provider => new Configuration())
+                .AddSingleton<IConfiguration>(ctx => new Configuration())
                 .AddSingleton<ISession, Session>()
                 
                 .AddSingleton<IFooService, FooService>()
@@ -85,7 +86,7 @@ namespace Velo.Benchmark.DependencyInjection
                 .AddSingleton<ILogger, Logger>()
                 .AddSingleton<IMapper<Boo>, CompiledMapper<Boo>>()
                 .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
-                .AddSingleton<IConfiguration>(provider => new Configuration())
+                .AddSingleton<IConfiguration>(ctx => new Configuration())
                 .AddTransient<ISession, Session>()
                 
                 .AddScoped<IFooService, FooService>()

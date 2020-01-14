@@ -5,6 +5,6 @@ namespace Velo.ECS.Systems
 {
     public interface IAfterUpdateSystem : ISystem
     {
-        Task AfterUpdate(CancellationToken cancellationToken);
+        ValueTask AfterUpdate(CancellationToken cancellationToken);
     }
 }

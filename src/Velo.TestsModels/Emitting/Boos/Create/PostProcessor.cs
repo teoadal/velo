@@ -14,7 +14,7 @@ namespace Velo.TestsModels.Emitting.Boos.Create
             _emitter = emitter;
         }
 
-        public Task PostProcess(Command command, CancellationToken cancellationToken)
+        public ValueTask PostProcess(Command command, CancellationToken cancellationToken)
         {
             command.PostProcessed = true;
             

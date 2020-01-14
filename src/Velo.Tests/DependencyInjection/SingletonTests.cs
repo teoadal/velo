@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Velo.Mapping;
 using Velo.Serialization;
+using Velo.Settings;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Domain;
 using Velo.TestsModels.Foos;
@@ -18,7 +19,7 @@ namespace Velo.DependencyInjection
         public SingletonTests(ITestOutputHelper output) : base(output)
         {
             _dependencies = new DependencyCollection()
-                .AddSingleton<IConfiguration, Configuration>()
+                .AddSingleton<IConfiguration>(ctx => new Configuration())
                 .AddSingleton<JConverter>();
         }
 
@@ -178,7 +179,7 @@ namespace Velo.DependencyInjection
         {
             var provider = _dependencies
                 .AddSingleton<ISession, Session>()
-                .AddSingleton<IConfiguration, Configuration>()
+                .AddSingleton<IConfiguration>(ctx => new Configuration())
                 .AddSingleton(typeof(IManager<>), typeof(Manager<>))
                 .BuildProvider();
 

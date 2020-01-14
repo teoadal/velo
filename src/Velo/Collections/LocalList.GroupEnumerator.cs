@@ -18,7 +18,7 @@ namespace Velo.Collections
             private LocalGroup _current;
             private int _position;
 
-            internal GroupEnumerator(in LocalList<T> list, Func<T, TKey> keySelector, EqualityComparer<TKey> comparer)
+            internal GroupEnumerator(LocalList<T> list, Func<T, TKey> keySelector, EqualityComparer<TKey> comparer)
             {
                 var values = new LocalList<Row<TKey, T>>(list.Length);
                 var uniqueKeys = new LocalList<TKey>();
@@ -54,10 +54,10 @@ namespace Velo.Collections
                 var groupLocalList = new LocalList<T>();
                 for (var i = 0; i < _values.Length; i++)
                 {
-                    var element = _values.Get(i);
-                    if (_comparer.Equals(currentKey, element.Key))
+                    var value = _values.Get(i);
+                    if (_comparer.Equals(currentKey, value.Key))
                     {
-                        groupLocalList.Add(element.Value);
+                        groupLocalList.Add(value.Value);
                     }
                 }
 

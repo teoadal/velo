@@ -12,9 +12,10 @@ namespace Velo.Benchmark
         private static void Main(string[] args)
         {
             // RunCollections();
-//            RunCQRS();
-//            RunDependencyInjection();
-//            RunMappers();
+            // RunCQRS();
+            // RunDependencyInjection();
+            // RunMappers();
+            // RunPooling();
             RunSerialization();
         }
 
@@ -40,10 +41,15 @@ namespace Velo.Benchmark
             BenchmarkRunner.Run<MappersBenchmark>();
         }
 
+        private static void RunPooling()
+        {
+            BenchmarkRunner.Run<PoolsBenchmark>();
+        }
+
         private static void RunSerialization()
         {
             BenchmarkRunner.Run<DeserializationBenchmark>();
-            //BenchmarkRunner.Run<SerializationBenchmark>();
+            // BenchmarkRunner.Run<SerializationBenchmark>();
         }
     }
 }

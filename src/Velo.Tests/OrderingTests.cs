@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Velo.Ordering;
+using Velo.Settings;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Domain;
 using Velo.TestsModels.Foos;
-using Velo.TestsModels.Infrastructure;
 using Xunit;
 using Xunit.Abstractions;
 

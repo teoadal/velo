@@ -1,6 +1,6 @@
 using System;
 using Velo.Mapping;
-using Velo.TestsModels.Infrastructure;
+using Velo.Settings;
 
 namespace Velo.TestsModels.Foos
 {

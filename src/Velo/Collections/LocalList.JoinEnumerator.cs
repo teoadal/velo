@@ -26,14 +26,14 @@ namespace Velo.Collections
             private Func<T, TInner, TResult> _resultBuilder;
             // ReSharper restore FieldCanBeMadeReadOnly.Local
 
-            internal JoinEnumerator(EqualityComparer<TKey> comparer, LocalList<TInner> inner,
+            internal JoinEnumerator(EqualityComparer<TKey> comparer, LocalList<TInner>.Enumerator inner,
                 Func<TInner, TKey> innerKeySelector, Enumerator outer, Func<T, TKey> outerKeySelector,
                 Func<T, TInner, TResult> resultBuilder)
             {
                 _comparer = comparer;
                 _current = default;
 
-                _inner = inner.GetEnumerator();
+                _inner = inner;
                 _innerKeySelector = innerKeySelector;
 
                 _outer = outer;

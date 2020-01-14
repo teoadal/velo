@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using AutoFixture.Xunit2;
 using Newtonsoft.Json;
 using Velo.TestsModels;
 using Velo.TestsModels.Boos;
+using Velo.TestsModels.Foos;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -21,7 +24,7 @@ namespace Velo.Serialization
         }
 
         [Theory, AutoData]
-        public void Deserialize_Array_Object(Boo[] array)
+        public void Deserialize_Array_Objects(Boo[] array)
         {
             var json = JsonConvert.SerializeObject(array);
 
@@ -40,7 +43,7 @@ namespace Velo.Serialization
         }
 
         [Theory, AutoData]
-        public void Deserialize_Array_Float(float[] array)
+        public void Deserialize_Array_Floats(float[] array)
         {
             var json = JsonConvert.SerializeObject(array);
             var deserialized = _converter.Deserialize<float[]>(json);
@@ -52,7 +55,7 @@ namespace Velo.Serialization
         }
 
         [Theory, AutoData]
-        public void Deserialize_Array_Int(int[] array)
+        public void Deserialize_Array_Ints(int[] array)
         {
             var json = JsonConvert.SerializeObject(array);
             var deserialized = _converter.Deserialize<int[]>(json);
@@ -67,14 +70,14 @@ namespace Velo.Serialization
         public void Deserialize_Array_Null()
         {
             bool[] source = null;
-            
+
             // ReSharper disable once ExpressionIsAlwaysNull
             var json = JsonConvert.SerializeObject(source);
             var deserialized = _converter.Deserialize<bool[]>(json);
-            
+
             Assert.Null(deserialized);
         }
-        
+
         [Theory, AutoData]
         public void Deserialize_Array_MultiThreading(int[][] arrays)
         {
@@ -97,7 +100,7 @@ namespace Velo.Serialization
         }
 
         [Theory, AutoData]
-        public void Deserialize_Array_String(string[] array)
+        public void Deserialize_Array_Strings(string[] array)
         {
             var json = JsonConvert.SerializeObject(array);
             var deserialized = _converter.Deserialize<string[]>(json);
@@ -144,7 +147,7 @@ namespace Velo.Serialization
         {
             var json = JsonConvert.SerializeObject(source);
             var deserialized = _converter.Deserialize<bool>(json);
-            
+
             Assert.Equal(source, deserialized);
         }
 
@@ -155,7 +158,7 @@ namespace Velo.Serialization
 
             var json = JsonConvert.SerializeObject(source);
             var deserialized = _converter.Deserialize<DateTime>(json);
-            
+
             Assert.Equal(source, deserialized);
         }
 
@@ -164,7 +167,7 @@ namespace Velo.Serialization
         {
             var json = JsonConvert.SerializeObject(source);
             var deserialized = _converter.Deserialize<double>(json);
-            
+
             Assert.Equal(source, deserialized);
         }
 
@@ -173,10 +176,10 @@ namespace Velo.Serialization
         {
             var json = JsonConvert.SerializeObject(modelType);
             var deserialized = _converter.Deserialize<ModelType>(json);
-            
+
             Assert.Equal(modelType, deserialized);
         }
-        
+
         [Fact]
         public void Deserialize_Guid()
         {
@@ -184,7 +187,7 @@ namespace Velo.Serialization
 
             var json = JsonConvert.SerializeObject(source);
             var deserialized = _converter.Deserialize<Guid>(json);
-            
+
             Assert.Equal(source, deserialized);
         }
 
@@ -193,8 +196,43 @@ namespace Velo.Serialization
         {
             var json = JsonConvert.SerializeObject(source);
             var deserialized = _converter.Deserialize<double>(json);
-            
+
             Assert.Equal(source, deserialized);
+        }
+
+        [Theory, AutoData]
+        public void Deserialize_File(BigObject[] source)
+        {
+            var json = JsonConvert.SerializeObject(source, Formatting.Indented);
+
+            const string fileName = nameof(Deserialize_File) + ".json";
+
+            if (File.Exists(fileName)) File.Delete(fileName);
+            File.WriteAllText(fileName, json, Encoding.UTF8);
+
+            var fileStream = File.OpenRead(fileName);
+            BigObject[] deserialized;
+            try
+            {
+                deserialized = _converter.Deserialize<BigObject[]>(fileStream);
+            }
+            finally
+            {
+                fileStream.Dispose();
+            }
+
+            for (var i = 0; i < source.Length; i++)
+            {
+                var expected = source[i];
+                var actual = deserialized[i];
+
+                Assert.Equal(expected.Double, actual.Double);
+                Assert.Equal(expected.Float, actual.Float);
+                Assert.Equal(expected.Int, actual.Int);
+                Assert.Equal(expected.String, actual.String);
+                Assert.Equal(expected.Foo.Bool, actual.Foo.Bool);
+                Assert.Equal(expected.Foo.Type, actual.Foo.Type);
+            }
         }
 
         [Theory, AutoData]
@@ -202,7 +240,7 @@ namespace Velo.Serialization
         {
             var json = JsonConvert.SerializeObject(source);
             var deserialized = _converter.Deserialize<int>(json);
-            
+
             Assert.Equal(source, deserialized);
         }
 
@@ -211,27 +249,69 @@ namespace Velo.Serialization
         {
             var json = JsonConvert.SerializeObject(source);
             var deserialized = _converter.Deserialize<List<bool?>>(json);
-            
+
             for (var i = 0; i < deserialized.Count; i++)
             {
                 Assert.Equal(source[i], deserialized[i]);
             }
         }
-        
+
         [Fact]
         public void Deserialize_List_Null()
         {
             List<ModelType> source = null;
-            
+
             // ReSharper disable once ExpressionIsAlwaysNull
             var json = JsonConvert.SerializeObject(source);
             var deserialized = _converter.Deserialize<List<ModelType>>(json);
-            
+
             Assert.Null(deserialized);
         }
-        
+
         [Fact]
-        public void Deserialize_Null_Property()
+        public void Deserialize_Object()
+        {
+            var source = new Foo {Int = 123, Type = ModelType.Foo};
+
+            var json = JsonConvert.SerializeObject(source);
+            var deserialized = _converter.Deserialize<Foo>(json);
+
+            Assert.Equal(source.Int, deserialized.Int);
+            Assert.Equal(source.Type, deserialized.Type);
+        }
+
+        [Fact]
+        public void Deserialize_Object_Array()
+        {
+            var source = new Foo {Array = new[] {1, 2, 3}};
+
+            var json = JsonConvert.SerializeObject(source);
+            var deserialized = _converter.Deserialize<Foo>(json);
+
+            Assert.Equal(source.Int, deserialized.Int);
+            Assert.Equal(source.Type, deserialized.Type);
+            for (var i = 0; i < source.Array.Length; i++)
+            {
+                Assert.Equal(source.Array[i], deserialized.Array[i]);
+            }
+        }
+
+        [Fact]
+        public void Deserialize_Object_Empty()
+        {
+            var source = new Foo();
+
+            var json = JsonConvert.SerializeObject(source);
+            var deserialized = _converter.Deserialize<Foo>(json);
+
+            Assert.Equal(source.Bool, deserialized.Bool);
+            Assert.Equal(source.Int, deserialized.Int);
+            Assert.Equal(source.Float, deserialized.Float);
+            Assert.Equal(source.Type, deserialized.Type);
+        }
+
+        [Fact]
+        public void Deserialize_Object_NullProperty()
         {
             var source = new BigObject
             {
@@ -269,7 +349,7 @@ namespace Velo.Serialization
 
             var json = JsonConvert.SerializeObject(source);
             var deserialized = _converter.Deserialize<ModelType?>(json);
-            
+
             Assert.Equal(source, deserialized);
         }
 
@@ -281,16 +361,16 @@ namespace Velo.Serialization
             // ReSharper disable once ExpressionIsAlwaysNull
             var json = JsonConvert.SerializeObject(source);
             var deserialized = _converter.Deserialize<int?>(json);
-            
+
             Assert.Equal(source, deserialized);
         }
-        
+
         [Theory, AutoData]
         public void Deserialize_String(string source)
         {
             var json = JsonConvert.SerializeObject(source);
             var deserialized = _converter.Deserialize<string>(json);
-            
+
             Assert.Equal(source, deserialized);
         }
     }

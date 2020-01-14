@@ -18,7 +18,7 @@ namespace Velo.CQRS.Commands
             _postProcessorsType = typeof(ICommandPostProcessor<TCommand>[]);
         }
 
-        public async Task Execute(IServiceProvider provider, TCommand command, CancellationToken cancellationToken)
+        public async ValueTask Execute(IServiceProvider provider, TCommand command, CancellationToken cancellationToken)
         {
             var preProcessors = (ICommandPreProcessor<TCommand>[]) provider.GetService(_preProcessorsType);
             foreach (var preProcessor in preProcessors)

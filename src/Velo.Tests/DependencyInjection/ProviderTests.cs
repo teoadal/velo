@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Velo.Mapping;
 using Velo.Serialization;
+using Velo.Settings;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Domain;
 using Velo.TestsModels.Foos;
@@ -22,7 +23,7 @@ namespace Velo.DependencyInjection
         {
             _dependencies = new DependencyCollection()
                 .AddSingleton<JConverter>()
-                .AddSingleton<IConfiguration, Configuration>()
+                .AddSingleton<IConfiguration>(ctx => new Configuration())
                 .AddSingleton<ISession, Session>();
         }
 

@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -5,7 +6,7 @@ using Velo.Utils;
 
 namespace Velo.Serialization.Tokenization
 {
-    [DebuggerDisplay("Position: {_position} Value: '{_builder}'")]
+    [DebuggerDisplay("Current: {Current.TokenType} {Current.Value}")]
     internal ref struct JsonTokenizer
     {
         public const string TokenFalseValue = "false";
@@ -15,18 +16,16 @@ namespace Velo.Serialization.Tokenization
         public JsonToken Current { get; private set; }
 
         private StringBuilder _builder;
-        private int _position;
-        private string _serialized;
+        private JReader _reader;
 
         private bool _disposed;
 
-        public JsonTokenizer(string serialized, StringBuilder stringBuilder = null)
+        public JsonTokenizer(JReader reader, StringBuilder stringBuilder = null)
         {
-            _serialized = serialized;
+            _reader = reader;
             _builder = stringBuilder ?? new StringBuilder();
-            _position = 0;
             _disposed = false;
-            
+
             Current = default;
         }
 
@@ -34,12 +33,11 @@ namespace Velo.Serialization.Tokenization
         {
             EnsureNotDisposed();
 
-            var serialized = _serialized;
-            for (; _position < serialized.Length; _position++)
+            do
             {
-                var ch = serialized[_position];
+                var ch = _reader.Current;
 
-                if (ch == ',' || ch == ' ')
+                if (ch == ',' || ch == ' ' || ch == 0)
                 {
                     continue;
                 }
@@ -78,16 +76,9 @@ namespace Velo.Serialization.Tokenization
                         Current = ReadTrue();
                         return true;
                 }
-            }
+            } while (_reader.MoveNext());
 
             return false;
-        }
-
-        public void Reset()
-        {
-            EnsureNotDisposed();
-            
-            _position = 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -95,37 +86,31 @@ namespace Velo.Serialization.Tokenization
         {
             if (_disposed) throw Error.Disposed(nameof(JsonTokenizer));
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private JsonToken MaybeProperty(string stringToken)
         {
-            var isProperty = _serialized.Length != _position && _serialized[_position] == ':';
+            var isProperty = _reader.Current == ':';
 
-            if (!isProperty)
-            {
-                return new JsonToken(JsonTokenType.String, stringToken);
-            }
-
-            SkipChar();
-            return new JsonToken(JsonTokenType.Property, stringToken);
+            return isProperty
+                ? new JsonToken(JsonTokenType.Property, stringToken)
+                : new JsonToken(JsonTokenType.String, stringToken);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private JsonToken Read(JsonTokenType tokenType)
         {
-            SkipChar();
-            return new JsonToken(tokenType);
+            var token = new JsonToken(tokenType);
+            _reader.MoveNext();
+            return token;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private JsonToken ReadFalse()
         {
-            var serialized = _serialized;
-            for (; _position < serialized.Length; _position++)
-            {
-                var ch = serialized[_position];
-                if (char.IsPunctuation(ch)) break;
-            }
+            while (_reader.MoveNext())
+                if (char.IsPunctuation(_reader.Current))
+                    break;
 
             return new JsonToken(JsonTokenType.False);
         }
@@ -133,12 +118,9 @@ namespace Velo.Serialization.Tokenization
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private JsonToken ReadTrue()
         {
-            var serialized = _serialized;
-            for (; _position < serialized.Length; _position++)
-            {
-                var ch = serialized[_position];
-                if (char.IsPunctuation(ch)) break;
-            }
+            while (_reader.MoveNext())
+                if (char.IsPunctuation(_reader.Current))
+                    break;
 
             return new JsonToken(JsonTokenType.True);
         }
@@ -146,12 +128,9 @@ namespace Velo.Serialization.Tokenization
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private JsonToken ReadNull()
         {
-            var serialized = _serialized;
-            for (; _position < serialized.Length; _position++)
-            {
-                var ch = serialized[_position];
-                if (char.IsPunctuation(ch)) break;
-            }
+            while (_reader.MoveNext())
+                if (char.IsPunctuation(_reader.Current))
+                    break;
 
             return new JsonToken(JsonTokenType.Null);
         }
@@ -159,40 +138,37 @@ namespace Velo.Serialization.Tokenization
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private JsonToken ReadNumber()
         {
-            var serialized = _serialized;
-            for (; _position < serialized.Length; _position++)
+            Span<char> chars = stackalloc char[20];
+            var length = 0;
+            do
             {
-                var ch = serialized[_position];
+                var ch = _reader.Current;
                 if (!char.IsDigit(ch) && ch != '.') break;
 
-                _builder.Append(ch);
-            }
+                chars[length++] = ch;
+            } while (_reader.MoveNext());
 
-            var result = new JsonToken(JsonTokenType.Number, _builder.ToString());
-            _builder.Clear();
-            return result;
+            var value = new string(chars.Slice(0, length));
+            return new JsonToken(JsonTokenType.Number, value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private string ReadString()
         {
-            SkipChar();
-
-            var serialized = _serialized;
-            for (; _position < serialized.Length; _position++)
+            while (_reader.MoveNext())
             {
-                var ch = serialized[_position];
+                var ch = _reader.Current;
 
                 if (ch == '"')
                 {
-                    SkipChar();
+                    _reader.Skip();
                     break;
                 }
 
                 if (ch == '\\')
                 {
-                    SkipChar();
-                    ch = serialized[_position];
+                    _reader.Skip();
+                    ch = _reader.Current;
                 }
 
                 _builder.Append(ch);
@@ -203,12 +179,6 @@ namespace Velo.Serialization.Tokenization
             return result;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void SkipChar()
-        {
-            _position++;
-        }
-
         public void Dispose()
         {
             if (_disposed) return;
@@ -216,9 +186,6 @@ namespace Velo.Serialization.Tokenization
             Current = default;
 
             _builder = null;
-            _position = -1;
-            _serialized = null;
-
             _disposed = true;
         }
     }

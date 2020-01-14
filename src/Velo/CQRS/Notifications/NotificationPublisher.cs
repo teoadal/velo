@@ -14,15 +14,13 @@ namespace Velo.CQRS.Notifications
             _processorsType = typeof(INotificationProcessor<TNotification>[]);
         }
 
-        public async Task Publish(IServiceProvider scope, TNotification notification, CancellationToken cancellationToken)
+        public async ValueTask Publish(IServiceProvider provider, TNotification notification, CancellationToken cancellationToken)
         {
-            var serviceArray = scope.GetService(_processorsType);
-            var handlers = (INotificationProcessor<TNotification>[]) serviceArray;
+            var handlers = (INotificationProcessor<TNotification>[]) provider.GetService(_processorsType);
 
             foreach (var handler in handlers)
             {
                 if (notification.StopPropagation || cancellationToken.IsCancellationRequested) break;
-
                 await handler.Process(notification, cancellationToken);
             }
         }

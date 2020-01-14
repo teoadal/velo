@@ -14,10 +14,10 @@ namespace Velo.TestsModels.Emitting.Foos.Create
             _fooRepository = fooRepository;
         }
 
-        public Task Process(Command command, CancellationToken cancellationToken)
+        public ValueTask Process(Command command, CancellationToken cancellationToken)
         {
             _fooRepository.AddElement(new Foo {Int = command.Id, Type = command.Type});
-            return Task.CompletedTask;
+            return new ValueTask();
         }
     }
 }
