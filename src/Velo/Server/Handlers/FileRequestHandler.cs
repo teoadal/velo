@@ -12,7 +12,9 @@ namespace Velo.Server.Handlers
         
         public FileRequestHandler(string path)
         {
-            _fileDirectory = Path.Combine(Environment.CurrentDirectory, path);
+            _fileDirectory = string.IsNullOrWhiteSpace(path)
+                ? Environment.CurrentDirectory
+                : Path.Combine(Environment.CurrentDirectory, path);
         }
 
         public bool Applicable(HttpVerb verb, Uri address)

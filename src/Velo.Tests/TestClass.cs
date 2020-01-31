@@ -7,12 +7,12 @@ using Xunit.Abstractions;
 
 namespace Velo
 {
-    public abstract class TestBase : IDisposable
+    public abstract class TestClass : IDisposable
     {
         private readonly ITestOutputHelper _output;
         private Stopwatch _stopwatch;
 
-        protected TestBase(ITestOutputHelper output)
+        protected TestClass(ITestOutputHelper output)
         {
             _output = output;
             _stopwatch = Stopwatch.StartNew();
@@ -92,7 +92,7 @@ namespace Velo
             return Task.WhenAll(tasks.Select(t => t.AsTask()));
         }
         
-        protected void WriteLine(string text, [CallerMemberName] string from = "")
+        protected void WriteLine(string text, [CallerMemberName] string from = null)
         {
             _output.WriteLine(string.IsNullOrWhiteSpace(from)
                 ? text

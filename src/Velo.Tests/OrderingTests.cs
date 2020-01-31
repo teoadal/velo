@@ -2,16 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Velo.Ordering;
-using Velo.Settings;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Domain;
 using Velo.TestsModels.Foos;
+using Velo.TestsModels.Infrastructure;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Velo
 {
-    public class OrderingTests : TestBase
+    public class OrderingTests : TestClass
     {
         private readonly IComparer<IRepository> _comparer;
         private readonly IRepository[] _repositories;
@@ -50,14 +50,14 @@ namespace Velo
         [Fact]
         public void Order_Array_Sort_Without_OrderAttribute()
         {
-            var instances = new object[] {new Boo(), new Foo(), new Configuration()};
+            var instances = new object[] {new Boo(), new Foo(), new Logger() };
             var comparer = new OrderAttributeComparer<object>();
             
             Array.Sort(instances, comparer);
 
             Assert.IsType<Boo>(instances[0]);
             Assert.IsType<Foo>(instances[1]);
-            Assert.IsType<Configuration>(instances[2]);
+            Assert.IsType<Logger>(instances[2]);
         }
 
         [Fact]

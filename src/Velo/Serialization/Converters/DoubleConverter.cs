@@ -1,6 +1,6 @@
 using System.Globalization;
 using System.Text;
-
+using Velo.Serialization.Models;
 using Velo.Serialization.Tokenization;
 
 namespace Velo.Serialization.Converters
@@ -22,6 +22,12 @@ namespace Velo.Serialization.Converters
             return double.Parse(token.Value, _cultureInfo);
         }
 
+        public double Read(JsonData jsonData)
+        {
+            var jsonValue = (JsonValue) jsonData;
+            return double.Parse(jsonValue.Value, _cultureInfo);
+        }
+        
         public void Serialize(double value, StringBuilder builder)
         {
             builder.Append(value.ToString(_cultureInfo));

@@ -11,7 +11,7 @@ using Emitting = Velo.TestsModels.Emitting;
 
 namespace Velo.CQRS
 {
-    public class CommandTests : TestBase
+    public class CommandTests : TestClass
     {
         private readonly DependencyCollection _dependencies;
 

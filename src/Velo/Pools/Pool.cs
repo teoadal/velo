@@ -4,13 +4,15 @@ using System.Threading;
 
 namespace Velo.Pools
 {
-    public sealed class Pool<T> : IPool<T>
+    internal sealed class Pool<T> : IPool<T>
         where T : class
     {
         private readonly T[] _buffer;
 
         private int _index;
         private SpinLock _lock;
+
+        #region Constructors
 
         public Pool(int capacity, Func<T> builder)
         {
@@ -32,6 +34,8 @@ namespace Velo.Pools
             _lock = new SpinLock(Debugger.IsAttached);
         }
 
+        #endregion
+
         public T Get()
         {
             while (true)
@@ -48,7 +52,7 @@ namespace Velo.Pools
             {
                 _lock.Enter(ref lockTaken);
 
-                if ((uint) _index < (uint) _buffer.Length)
+                if (_index != 0 && (uint) _index < (uint) _buffer.Length)
                 {
                     _buffer[--_index] = element;
                     return true;

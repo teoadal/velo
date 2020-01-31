@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Velo.Utils;
 
 namespace Velo.Serialization.Tokenization
 {
@@ -16,11 +15,11 @@ namespace Velo.Serialization.Tokenization
         public JsonToken Current { get; private set; }
 
         private StringBuilder _builder;
-        private JReader _reader;
+        private JsonReader _reader;
 
         private bool _disposed;
 
-        public JsonTokenizer(JReader reader, StringBuilder stringBuilder = null)
+        public JsonTokenizer(JsonReader reader, StringBuilder stringBuilder = null)
         {
             _reader = reader;
             _builder = stringBuilder ?? new StringBuilder();
@@ -31,7 +30,7 @@ namespace Velo.Serialization.Tokenization
 
         public bool MoveNext()
         {
-            EnsureNotDisposed();
+            if (!_reader.CanRead || _disposed) return false;
 
             do
             {
@@ -82,13 +81,7 @@ namespace Velo.Serialization.Tokenization
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private readonly void EnsureNotDisposed()
-        {
-            if (_disposed) throw Error.Disposed(nameof(JsonTokenizer));
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private JsonToken MaybeProperty(string stringToken)
+        private readonly JsonToken MaybeProperty(string stringToken)
         {
             var isProperty = _reader.Current == ':';
 

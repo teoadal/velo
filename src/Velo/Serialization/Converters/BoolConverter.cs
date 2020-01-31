@@ -1,5 +1,5 @@
 using System.Text;
-
+using Velo.Serialization.Models;
 using Velo.Serialization.Tokenization;
 using Velo.Utils;
 
@@ -8,7 +8,7 @@ namespace Velo.Serialization.Converters
     internal sealed class BoolConverter : IJsonConverter<bool>
     {
         public bool IsPrimitive => true;
-        
+
         public bool Deserialize(ref JsonTokenizer tokenizer)
         {
             var token = tokenizer.Current;
@@ -22,6 +22,12 @@ namespace Velo.Serialization.Converters
                 default:
                     throw Error.InvalidOperation($"Invalid boolean token '{token.TokenType}'");
             }
+        }
+
+        public bool Read(JsonData jsonData)
+        {
+            var jsonValue = (JsonValue) jsonData;
+            return jsonValue.Type == JsonDataType.True;
         }
 
         public void Serialize(bool value, StringBuilder builder)

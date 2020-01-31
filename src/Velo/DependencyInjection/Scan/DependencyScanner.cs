@@ -8,13 +8,17 @@ namespace Velo.DependencyInjection.Scan
 {
     public sealed class DependencyScanner
     {
+        public DependencyCollection Collection => _dependencyCollection;
+        
         private readonly HashSet<Assembly> _assemblies;
         private readonly List<IDependencyAllover> _alloverCollection;
+        private readonly DependencyCollection _dependencyCollection;
 
-        internal DependencyScanner()
+        internal DependencyScanner(DependencyCollection dependencyCollection)
         {
             _assemblies = new HashSet<Assembly>();
             _alloverCollection = new List<IDependencyAllover>();
+            _dependencyCollection = dependencyCollection;
         }
 
         public DependencyScanner Assembly(Assembly assembly)
@@ -110,7 +114,7 @@ namespace Velo.DependencyInjection.Scan
             return this;
         }
 
-        internal void Execute(DependencyCollection dependencyCollection)
+        internal void Execute()
         {
             var anonType = typeof(CompilerGeneratedAttribute);
             foreach (var assembly in _assemblies)
@@ -124,7 +128,7 @@ namespace Velo.DependencyInjection.Scan
 
                     foreach (var allover in _alloverCollection)
                     {
-                        allover.TryRegister(dependencyCollection, definedType);
+                        allover.TryRegister(_dependencyCollection, definedType);
                     }
                 }
             }

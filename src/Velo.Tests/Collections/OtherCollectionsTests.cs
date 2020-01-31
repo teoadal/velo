@@ -3,7 +3,7 @@ using Xunit.Abstractions;
 
 namespace Velo.Collections
 {
-    public class OtherCollectionsTests : TestBase
+    public class OtherCollectionsTests : TestClass
     {
         public OtherCollectionsTests(ITestOutputHelper output) : base(output)
         {

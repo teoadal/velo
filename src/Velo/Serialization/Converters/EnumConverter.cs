@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using Velo.Serialization.Models;
 using Velo.Serialization.Tokenization;
 
 namespace Velo.Serialization.Converters
@@ -22,6 +23,12 @@ namespace Velo.Serialization.Converters
             return _values[int.Parse(token.Value)];
         }
 
+        public TEnum Read(JsonData jsonData)
+        {
+            var jsonValue = (JsonValue) jsonData; 
+            return _values[int.Parse(jsonValue.Value)];
+        }
+        
         public void Serialize(TEnum value, StringBuilder builder)
         {
             var index = Array.IndexOf(_values, value);

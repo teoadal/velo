@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 
 namespace Velo.ECS
 {
-    public class WorldTests : EcsTestBase
+    public class WorldTests : EcsTestClass
     {
         private readonly DependencyProvider _provider;
 

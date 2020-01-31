@@ -1,6 +1,6 @@
 using System;
 using System.Text;
-
+using Velo.Serialization.Models;
 using Velo.Serialization.Tokenization;
 
 namespace Velo.Serialization.Converters
@@ -15,6 +15,12 @@ namespace Velo.Serialization.Converters
             return Guid.Parse(token.Value);
         }
 
+        public Guid Read(JsonData jsonData)
+        {
+            var jsonValue = (JsonValue) jsonData;
+            return Guid.Parse(jsonValue.Value);
+        }
+        
         public void Serialize(Guid value, StringBuilder builder)
         {
             builder.Append('"');

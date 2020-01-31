@@ -8,12 +8,12 @@ using Velo.Utils;
 
 namespace Velo.Serialization
 {
-    internal sealed class JConverterCollection : ConcurrentDictionary<Type, IJsonConverter>
+    internal sealed class ConvertersCollection : ConcurrentDictionary<Type, IJsonConverter>
     {
         private readonly Func<Type, IJsonConverter> _buildConverter;
         private readonly Type _listGenericType;
 
-        public JConverterCollection(CultureInfo culture) : base(new[]
+        public ConvertersCollection(CultureInfo culture) : base(new[]
         {
             new KeyValuePair<Type, IJsonConverter>(typeof(bool), new BoolConverter()),
             new KeyValuePair<Type, IJsonConverter>(typeof(DateTime), new DateTimeConverter(culture)),

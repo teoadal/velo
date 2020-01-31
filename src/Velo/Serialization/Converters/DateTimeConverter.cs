@@ -1,7 +1,7 @@
 using System;
 using System.Globalization;
 using System.Text;
-
+using Velo.Serialization.Models;
 using Velo.Serialization.Tokenization;
 
 namespace Velo.Serialization.Converters
@@ -23,6 +23,12 @@ namespace Velo.Serialization.Converters
             return DateTime.Parse(token.Value, _cultureInfo);
         }
 
+        public DateTime Read(JsonData jsonData)
+        {
+            var jsonValue = (JsonValue) jsonData;
+            return DateTime.Parse(jsonValue.Value, _cultureInfo);
+        }
+        
         public void Serialize(DateTime value, StringBuilder builder)
         {
             builder.Append('"');

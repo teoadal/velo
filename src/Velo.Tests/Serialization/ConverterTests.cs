@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace Velo.Serialization
 {
-    public class ConverterTests: TestBase
+    public class ConverterTests: TestClass
     {
         private readonly JConverter _converter;
         

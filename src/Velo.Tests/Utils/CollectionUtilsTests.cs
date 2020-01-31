@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace Velo.Utils
 {
-    public class CollectionUtilsTests : TestBase
+    public class CollectionUtilsTests : TestClass
     {
         public CollectionUtilsTests(ITestOutputHelper output) : base(output)
         {

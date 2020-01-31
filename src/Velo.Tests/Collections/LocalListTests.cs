@@ -9,7 +9,7 @@ using Xunit.Abstractions;
 
 namespace Velo.Collections
 {
-    public class LocalVectorTests : TestBase
+    public class LocalVectorTests : TestClass
     {
         private static int OuterKeySelector(Boo b) => b.Id;
         private static int InnerKeySelector(Foo f) => f.Int;
@@ -20,7 +20,7 @@ namespace Velo.Collections
         }
 
         [Theory]
-        [InlineData(25), InlineData("test"), InlineData(typeof(TestBase))]
+        [InlineData(25), InlineData("test"), InlineData(typeof(TestClass))]
         public void Add<T>(T item)
         {
             var localList = new LocalList<T>();
@@ -88,7 +88,7 @@ namespace Velo.Collections
         }
 
         [Theory]
-        [InlineData(25), InlineData("test"), InlineData(typeof(TestBase))]
+        [InlineData(25), InlineData("test"), InlineData(typeof(TestClass))]
         public void Contains<T>(T item)
         {
             var localList = new LocalList<T>();
@@ -105,7 +105,7 @@ namespace Velo.Collections
         }
 
         [Theory]
-        [InlineData(25), InlineData("test"), InlineData(typeof(TestBase))]
+        [InlineData(25), InlineData("test"), InlineData(typeof(TestClass))]
         public void Contains_WithComparer<T>(T item)
         {
             var localList = new LocalList<T>();

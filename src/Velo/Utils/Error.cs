@@ -12,6 +12,11 @@ namespace Velo.Utils
             return new TypeAccessException($"Detected circular dependency '{ReflectionUtils.GetName(contract)}'");
         }
 
+        public static InvalidCastException Cast(string message)
+        {
+            return new InvalidCastException(message);
+        }
+        
         public static KeyNotFoundException DefaultConstructorNotFound(Type type)
         {
             return new KeyNotFoundException($"Default constructor for '{ReflectionUtils.GetName(type)}' not found");
@@ -52,6 +57,11 @@ namespace Velo.Utils
             return new InvalidOperationException(message);
         }
 
+        public static FileNotFoundException FileNotFound(string path)
+        {
+            return new FileNotFoundException($"Required file '{path}' not found", Path.GetFileName(path));
+        }
+        
         public static IndexOutOfRangeException OutOfRange(string message = null)
         {
             if (string.IsNullOrWhiteSpace(message))

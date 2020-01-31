@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace Velo.ECS.Assets
 {
-    public class AssetTests : EcsTestBase
+    public class AssetTests : EcsTestClass
     {
         private readonly Asset _asset;
         private readonly int _assetId;

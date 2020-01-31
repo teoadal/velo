@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 
 namespace Velo.Pools
 {
-    public class PoolArrayTests : TestBase
+    public class PoolArrayTests : TestClass
     {
         private readonly PoolArray<int> _arrayPool;
 

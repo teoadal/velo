@@ -1,7 +1,6 @@
 using System;
 using System.Globalization;
 using System.IO;
-using System.Runtime;
 using System.Text;
 using Velo.Serialization.Converters;
 using Velo.Serialization.Tokenization;
@@ -14,16 +13,16 @@ namespace Velo.Serialization
         [ThreadStatic] 
         private static StringBuilder _buffer;
 
-        private readonly JConverterCollection _converters;
+        private readonly ConvertersCollection _converters;
 
         public JConverter(CultureInfo culture = null)
         {
-            _converters = new JConverterCollection(culture ?? CultureInfo.InvariantCulture);
+            _converters = new ConvertersCollection(culture ?? CultureInfo.InvariantCulture);
         }
 
         public TOut Deserialize<TOut>(string source)
         {
-            var reader = new JReader(source);
+            var reader = new JsonReader(source);
             var result = Deserialize<TOut>(reader);
             reader.Dispose();
 
@@ -32,7 +31,7 @@ namespace Velo.Serialization
 
         public TOut Deserialize<TOut>(Stream source, Encoding encoding = null)
         {
-            var reader = new JReader(source, encoding ?? Encoding.UTF8);
+            var reader = new JsonReader(source, encoding ?? Encoding.UTF8);
             var result = Deserialize<TOut>(reader);
             reader.Dispose();
 
@@ -61,7 +60,7 @@ namespace Velo.Serialization
             _converters.Get(sourceType);
         }
 
-        private TOut Deserialize<TOut>(JReader reader)
+        private TOut Deserialize<TOut>(JsonReader reader)
         {
             if (_buffer == null) _buffer = new StringBuilder(200);
 

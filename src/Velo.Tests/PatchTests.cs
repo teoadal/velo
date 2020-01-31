@@ -10,7 +10,7 @@ using Xunit.Abstractions;
 
 namespace Velo
 {
-    public class PatchTests : TestBase
+    public class PatchTests : TestClass
     {
         private readonly PatchBuilder _builder;
 

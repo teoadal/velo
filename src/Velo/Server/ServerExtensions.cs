@@ -18,11 +18,11 @@ namespace Velo.Server
             return collection;
         }
 
-        public static DependencyCollection AddFileServer(this DependencyCollection collection, string path = "")
+        public static DependencyCollection AddFileServer(this DependencyCollection collection, string path = null)
         {
             if (!collection.Contains<HttpServer>()) AddServer(collection);
 
-            collection.AddSingleton<IHttpRequestHandler>(s => new FileRequestHandler(path));
+            collection.AddInstance<IHttpRequestHandler>(new FileRequestHandler(path));
             return collection;
         }
 

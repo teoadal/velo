@@ -152,11 +152,13 @@ namespace Velo.Benchmark.DependencyInjection
                 .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
                 .AddSingleton<IConfiguration>(ctx => new Configuration())
                 .AddSingleton<ISession, Session>()
+                
                 .AddSingleton<IFooService, FooService>()
                 .AddSingleton<IFooRepository, FooRepository>()
-                .AddSingleton<IBooService, BooService>()
                 
+                .AddSingleton<IBooService, BooService>()
                 .AddSingleton<IBooRepository, BooRepository>()
+                
                 .AddSingleton<SomethingController>();
         }
         

@@ -5,7 +5,7 @@ using Xunit.Abstractions;
 
 namespace Velo.ECS.Assets
 {
-    public class AssetContextTests : EcsTestBase
+    public class AssetContextTests : EcsTestClass
     {
         private readonly AssetContext _assetContext;
         

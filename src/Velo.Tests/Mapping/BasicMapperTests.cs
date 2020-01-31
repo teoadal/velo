@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 
 namespace Velo.Mapping
 {
-    public class BasicMapperTests : TestBase
+    public class BasicMapperTests : TestClass
     {
         private readonly BasicMapper<Foo> _mapper;
 

@@ -2,6 +2,10 @@ namespace Velo.Settings
 {
     public interface IConfiguration
     {
-        string GetString(string path);
+        string Get(string path);
+
+        T Get<T>(string path);
+
+        void Reload();
     }
 }

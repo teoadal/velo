@@ -11,7 +11,7 @@ using Boos = Velo.TestsModels.Emitting.Boos;
 
 namespace Velo.CQRS
 {
-    public class QueryTests : TestBase
+    public class QueryTests : TestClass
     {
         private readonly DependencyCollection _dependencies;
 

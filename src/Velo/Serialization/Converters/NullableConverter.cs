@@ -1,10 +1,11 @@
 using System.Text;
+using Velo.Serialization.Models;
 using Velo.Serialization.Tokenization;
 
 namespace Velo.Serialization.Converters
 {
-    internal sealed class NullableConverter<TNullable>: IJsonConverter<TNullable?>
-        where TNullable: struct
+    internal sealed class NullableConverter<TNullable> : IJsonConverter<TNullable?>
+        where TNullable : struct
     {
         public bool IsPrimitive => true;
 
@@ -20,6 +21,13 @@ namespace Velo.Serialization.Converters
             var token = tokenizer.Current;
             if (token.TokenType == JsonTokenType.Null) return null;
             return _valueConverter.Deserialize(ref tokenizer);
+        }
+
+        public TNullable? Read(JsonData jsonData)
+        {
+            var jsonValue = (JsonValue) jsonData;
+            if (jsonValue.Type == JsonDataType.Null) return null;
+            return _valueConverter.Read(jsonData);
         }
 
         public void Serialize(TNullable? value, StringBuilder builder)

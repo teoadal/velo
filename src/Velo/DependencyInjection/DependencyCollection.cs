@@ -205,10 +205,10 @@ namespace Velo.DependencyInjection
 
         public DependencyCollection Scan(Action<DependencyScanner> action)
         {
-            var scanner = new DependencyScanner();
+            var scanner = new DependencyScanner(this);
 
             action(scanner);
-            scanner.Execute(this);
+            scanner.Execute();
 
             return this;
         }

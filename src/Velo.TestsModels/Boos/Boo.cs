@@ -10,16 +10,18 @@ namespace Velo.TestsModels.Boos
 
         public bool Bool { get; set; }
 
+        public double Double { get; set; }
+        
         public float Float { get; set; }
 
         public int Int { get; set; }
 
         public int? IntNullable { get; set; }
-
-        public double Double { get; set; }
-
-        public List<int> Values { get; set; }
-
+        
+        public string String { get; set; }
+        
         public ModelType Type { get; set; }
+        
+        public List<int> Values { get; set; }
     }
 }

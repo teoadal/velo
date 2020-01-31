@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Velo.Collections;
+using Velo.Serialization.Models;
 using Velo.Serialization.Tokenization;
 
 namespace Velo.Serialization.Converters
@@ -33,12 +34,25 @@ namespace Velo.Serialization.Converters
                 var element = _elementConverter.Deserialize(ref tokenizer);
                 buffer.Add(element);
             }
-            
+
             var list = new List<TElement>(buffer.Length);
 
             foreach (var element in buffer)
             {
                 list.Add(element);
+            }
+
+            return list;
+        }
+
+        public List<TElement> Read(JsonData jsonData)
+        {
+            var listData = (JsonArray) jsonData;
+
+            var list = new List<TElement>(listData.Length);
+            for (var i = 0; i < listData.Length; i++)
+            {
+                list.Add(_elementConverter.Read(listData[i]));
             }
 
             return list;

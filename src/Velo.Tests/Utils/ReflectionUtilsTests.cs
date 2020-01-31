@@ -11,7 +11,7 @@ using Xunit.Abstractions;
 
 namespace Velo.Utils
 {
-    public class ReflectionUtilsTests : TestBase
+    public class ReflectionUtilsTests : TestClass
     {
         public ReflectionUtilsTests(ITestOutputHelper output) : base(output)
         {
@@ -54,7 +54,7 @@ namespace Velo.Utils
         [Fact]
         public void GetConstructor_Throw_Abstract()
         {
-            Assert.Throws<InvalidOperationException>(() => ReflectionUtils.GetConstructor(typeof(TestBase)));
+            Assert.Throws<InvalidOperationException>(() => ReflectionUtils.GetConstructor(typeof(TestClass)));
         }
 
         [Fact]

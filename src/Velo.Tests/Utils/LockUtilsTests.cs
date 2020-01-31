@@ -4,7 +4,7 @@ using Xunit.Abstractions;
 
 namespace Velo.Utils
 {
-    public class LockUtilsTests : TestBase
+    public class LockUtilsTests : TestClass
     {
         private readonly object _lock;
         

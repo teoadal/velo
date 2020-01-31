@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace Velo.Server
 {
-    public class FileRequestTests : TestBase, IClassFixture<ServerFixture>
+    public class FileRequestTests : TestClass, IClassFixture<ServerFixture>
     {
         private readonly ServerFixture _fixture;
 

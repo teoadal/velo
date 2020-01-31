@@ -5,7 +5,7 @@ using Velo.Utils;
 
 namespace Velo.Pools
 {
-    public sealed class PoolArray<T> : IArrayPool<T>
+    internal sealed class PoolArray<T> : IArrayPool<T>
     {
         private readonly ConcurrentDictionary<int, Pool<T[]>> _buckets;
         private readonly int _capacity;

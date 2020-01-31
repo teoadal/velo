@@ -1,5 +1,5 @@
 using System.Text;
-
+using Velo.Serialization.Models;
 using Velo.Serialization.Tokenization;
 
 namespace Velo.Serialization.Converters
@@ -14,6 +14,12 @@ namespace Velo.Serialization.Converters
             return int.Parse(token.Value);
         }
 
+        public int Read(JsonData jsonData)
+        {
+            var jsonValue = (JsonValue) jsonData;
+            return int.Parse(jsonValue.Value);
+        }
+        
         public void Serialize(int value, StringBuilder builder)
         {
             builder.Append(value);

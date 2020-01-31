@@ -16,7 +16,8 @@ namespace Velo.Benchmark
             // RunDependencyInjection();
             // RunMappers();
             // RunPooling();
-            RunSerialization();
+            // RunSerialization();
+            RunSettings();
         }
 
         private static void RunCollections()
@@ -50,6 +51,11 @@ namespace Velo.Benchmark
         {
             BenchmarkRunner.Run<DeserializationBenchmark>();
             // BenchmarkRunner.Run<SerializationBenchmark>();
+        }
+
+        private static void RunSettings()
+        {
+            BenchmarkRunner.Run<SettingsBenchmark>();
         }
     }
 }

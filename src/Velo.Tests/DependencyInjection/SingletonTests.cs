@@ -12,7 +12,7 @@ using Xunit.Abstractions;
 
 namespace Velo.DependencyInjection
 {
-    public class SingletonTests : TestBase
+    public class SingletonTests : TestClass
     {
         private readonly DependencyCollection _dependencies;
 

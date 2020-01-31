@@ -1,5 +1,6 @@
 using System.Text;
 using Velo.Collections;
+using Velo.Serialization.Models;
 using Velo.Serialization.Tokenization;
 
 namespace Velo.Serialization.Converters
@@ -34,6 +35,19 @@ namespace Velo.Serialization.Converters
             }
 
             return buffer.ToArray();
+        }
+
+        public TElement[] Read(JsonData jsonData)
+        {
+            var arrayData = (JsonArray) jsonData;
+            
+            var array = new TElement[arrayData.Length];
+            for (var i = 0; i < array.Length; i++)
+            {
+                array[i] = _elementConverter.Read(arrayData[i]);
+            }
+            
+            return array;
         }
 
         public void Serialize(TElement[] array, StringBuilder builder)

@@ -5,7 +5,7 @@ using Xunit.Abstractions;
 
 namespace Velo.ECS.Actors
 {
-    public class ActorTests : EcsTestBase
+    public class ActorTests : EcsTestClass
     {
         private readonly Actor _actor;
         private readonly int _actorId;

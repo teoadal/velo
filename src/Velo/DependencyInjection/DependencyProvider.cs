@@ -39,7 +39,7 @@ namespace Velo.DependencyInjection
         {
             return (T) Activate(typeof(T), constructor);
         }
-        
+
         public object Activate(Type implementation, ConstructorInfo constructor = null)
         {
             if (implementation.IsInterface || implementation.IsGenericTypeDefinition)
@@ -70,7 +70,14 @@ namespace Velo.DependencyInjection
                     parameterInstances[i] = dependency?.GetInstance(parameterType, this);
                 }
 
-                return constructor.Invoke(parameterInstances);
+                try
+                {
+                    return constructor.Invoke(parameterInstances);
+                }
+                catch (TargetInvocationException e)
+                {
+                    throw e.InnerException ?? e;
+                }
             }
         }
 
@@ -85,13 +92,12 @@ namespace Velo.DependencyInjection
 
                 return dependency.GetInstance(contract, this);
             }
-            
         }
-        
+
         public T GetRequiredService<T>() => (T) GetRequiredService(Typeof<T>.Raw);
-        
+
         public T GetService<T>() => (T) GetService(Typeof<T>.Raw);
-        
+
         public object GetService(Type contract)
         {
             lock (_lock)
@@ -104,9 +110,9 @@ namespace Velo.DependencyInjection
                 return dependency?.GetInstance(contract, this);
             }
         }
-        
+
         public T[] GetServices<T>() => (T[]) GetService(Typeof<T[]>.Raw);
-        
+
         private IDependency BuildSelfDependency()
         {
             var contracts = new[] {Typeof<DependencyProvider>.Raw, Typeof<IServiceProvider>.Raw};
