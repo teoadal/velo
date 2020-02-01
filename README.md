@@ -105,50 +105,45 @@ var json = converter.Serialize(data);
 ### Create container
 
 ```cs
-var container = new DependencyBuilder()
-    .AddScope<SomethingController>()
+var container = new DependencyCollection()
+    .AddScoped<SomethingController>()
     .AddSingleton<IFooService, FooService>()
-    .AddSingleton<JConverter>("converter")
     .AddSingleton(typof(IMapper<>), typeof(CompiledMapper<>))
     .AddSingleton<IConfiguration>(ctx => new Configuration())
     .AddTransient<ISession, Session>()
-    .Configure(dataRepository => dataRepository
-        .Contracts<IRepository, IFooRepository>()
-        .Implementation<FooRepository>()
-        .Singleton())
-    .BuildContainer();
+    .BuildProvider();
 ```
 
 ### Use assembly scanner for find generic interface implementations
 
 ```cs
-var container = new DependencyBuilder()
+var provider = new DependencyCollection()
     .Scan(scanner => scanner
-        .Assembly(typeof(IRepository).Assembly)
-        .RegisterGenericInterfaceAsSingleton(typeof(IRepository<>)));
+        .AssemblyOf<IRepository>()
+        .SingletoneOf(typeof(IRepository<>)))
+    .BuildProvider();
 ```
 
 ### Resolve dependency
 
 ```cs
-var repositoryArray = container.Resolve<IRepository[]>();
-var converterSingleton = container.Resolve<JConverter>();
+// possible null or empty
+var repositoryArray = provider.GetService<IRepository[]>();
+
+// not null
+var converterSingleton = provider.GetRequiredService<JConverter>();
 
 // registered as Transient
-var session = container.Resolve<ISession>();
-var otherSession = container.Resolve<ISession>();
-
-// registered by name
-var booRepository = container.Resolve<IRepository>("booRepository");
-var fooRepository = container.Resolve<IRepository>("fooRepository");
+var session = container.GetService<ISession>();
+var otherSession = container.GetService<ISession>();
 ```
 
 ### Use scope
 
 ```cs
-using (container.StartScope())
+using (var scope = provider.CreateScope())
 {
-    var controller = container.Resolve<SomethingController>();
+    var controller = scope.GetService<SomethingController>();
 }
 ```
 
