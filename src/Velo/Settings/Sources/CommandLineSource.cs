@@ -42,7 +42,11 @@ namespace Velo.Settings.Sources
             }
         }
 
-        public JsonObject FetchData() => _configuration;
+        public bool TryGet(out JsonObject data)
+        {
+            data = _configuration;
+            return true;
+        }
 
         private static void SetValueByPath(JsonObject node, ReadOnlySpan<char> path, JsonData value)
         {
@@ -51,7 +55,7 @@ namespace Velo.Settings.Sources
             for (var i = 0; i < path.Length; i++)
             {
                 if (path[i] != '.') continue;
-                
+
                 var property = new string(path.Slice(start, i - start));
 
                 if (!node.TryGet(property, out var propertyNode))
@@ -67,7 +71,7 @@ namespace Velo.Settings.Sources
             var valueProperty = new string(path.Slice(start, path.Length - start));
             node[valueProperty] = value;
         }
-        
+
         private static JsonData VisitValue(ReadOnlySpan<char> value)
         {
             if (value.IsEmpty) return JsonValue.Null;
@@ -92,7 +96,7 @@ namespace Velo.Settings.Sources
                 case 'n':
                     return JsonValue.Null;
             }
-            
+
             return JsonValue.String(new string(value));
         }
     }

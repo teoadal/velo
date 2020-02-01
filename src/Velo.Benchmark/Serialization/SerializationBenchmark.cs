@@ -62,22 +62,7 @@ namespace Velo.Benchmark.Serialization
 
             return stub;
         }
-        
-        [Benchmark]
-        public long Simple_Json()
-        {
-            long stub = 0;
 
-            for (var i = 0; i < _dataset.Length; i++)
-            {
-                var element = _dataset[i];
-                var serialized = SimpleJson.SimpleJson.SerializeObject(element);
-                stub += serialized.Length;
-            }
-
-            return stub;
-        }
-        
         [Benchmark]
         public long SpanJson()
         {
@@ -92,7 +77,7 @@ namespace Velo.Benchmark.Serialization
 
             return stub;
         }
-        
+
         [Benchmark]
         public long Velo()
         {

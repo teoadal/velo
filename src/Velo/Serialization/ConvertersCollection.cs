@@ -8,24 +8,20 @@ using Velo.Utils;
 
 namespace Velo.Serialization
 {
-    internal sealed class ConvertersCollection : ConcurrentDictionary<Type, IJsonConverter>
+    internal interface IConvertersCollection
+    {
+        IJsonConverter Get(Type type);
+    }
+
+    internal sealed class ConvertersCollection : ConcurrentDictionary<Type, IJsonConverter>, IConvertersCollection
     {
         private readonly Func<Type, IJsonConverter> _buildConverter;
         private readonly Type _listGenericType;
 
-        public ConvertersCollection(CultureInfo culture) : base(new[]
+        public ConvertersCollection(CultureInfo culture)
+            : base(BuildDefaultConverters(culture))
         {
-            new KeyValuePair<Type, IJsonConverter>(typeof(bool), new BoolConverter()),
-            new KeyValuePair<Type, IJsonConverter>(typeof(DateTime), new DateTimeConverter(culture)),
-            new KeyValuePair<Type, IJsonConverter>(typeof(double), new DoubleConverter(culture)),
-            new KeyValuePair<Type, IJsonConverter>(typeof(float), new FloatConverter(culture)),
-            new KeyValuePair<Type, IJsonConverter>(typeof(Guid), new GuidConverter()),
-            new KeyValuePair<Type, IJsonConverter>(typeof(int), new IntConverter()),
-            new KeyValuePair<Type, IJsonConverter>(typeof(string), new StringConverter()),
-        })
-        {
-            // ReSharper disable once ConvertClosureToMethodGroup
-            _buildConverter = t => Build(t);
+            _buildConverter = Build;
             _listGenericType = typeof(List<>);
         }
 
@@ -42,9 +38,9 @@ namespace Velo.Serialization
             if (underlyingType != null) return BuildNullableConverter(underlyingType);
 
             if (type.IsEnum) return BuildEnumConverter(type);
-            
-            return ReflectionUtils.IsGenericTypeImplementation(type, _listGenericType) 
-                ? BuildListConverter(type) 
+
+            return ReflectionUtils.IsGenericTypeImplementation(type, _listGenericType)
+                ? BuildListConverter(type)
                 : BuildObjectConverter(type);
         }
 
@@ -57,7 +53,7 @@ namespace Velo.Serialization
             return (IJsonConverter) Activator.CreateInstance(converterType, elementConverter);
         }
 
-        private IJsonConverter BuildEnumConverter(Type type)
+        private static IJsonConverter BuildEnumConverter(Type type)
         {
             var converterType = typeof(EnumConverter<>).MakeGenericType(type);
             return (IJsonConverter) Activator.CreateInstance(converterType);
@@ -71,7 +67,7 @@ namespace Velo.Serialization
             var converterType = typeof(ListConverter<>).MakeGenericType(elementType);
             return (IJsonConverter) Activator.CreateInstance(converterType, elementConverter);
         }
-        
+
         private IJsonConverter BuildNullableConverter(Type underlyingType)
         {
             var valueConverter = GetOrAdd(underlyingType, _buildConverter);
@@ -82,16 +78,31 @@ namespace Velo.Serialization
         private IJsonConverter BuildObjectConverter(Type type)
         {
             var properties = type.GetProperties();
-            var propertyConverters = new Dictionary<PropertyInfo, IJsonConverter>(properties.Length);
+            var propertyConverters = new (PropertyInfo, IJsonConverter)[properties.Length];
 
-            foreach (var property in properties)
+            for (var i = 0; i < properties.Length; i++)
             {
+                var property = properties[i];
                 var propertyConverter = GetOrAdd(property.PropertyType, _buildConverter);
-                propertyConverters.Add(property, propertyConverter);
+                propertyConverters[i] = (property, propertyConverter);
             }
 
             var converterType = typeof(ObjectConverter<>).MakeGenericType(type);
             return (IJsonConverter) Activator.CreateInstance(converterType, propertyConverters);
+        }
+
+        private static KeyValuePair<Type, IJsonConverter>[] BuildDefaultConverters(CultureInfo culture)
+        {
+            return new[]
+            {
+                new KeyValuePair<Type, IJsonConverter>(typeof(bool), new BoolConverter()),
+                new KeyValuePair<Type, IJsonConverter>(typeof(DateTime), new DateTimeConverter(culture)),
+                new KeyValuePair<Type, IJsonConverter>(typeof(double), new DoubleConverter(culture)),
+                new KeyValuePair<Type, IJsonConverter>(typeof(float), new FloatConverter(culture)),
+                new KeyValuePair<Type, IJsonConverter>(typeof(Guid), new GuidConverter()),
+                new KeyValuePair<Type, IJsonConverter>(typeof(int), new IntConverter()),
+                new KeyValuePair<Type, IJsonConverter>(typeof(string), new StringConverter()),
+            };
         }
     }
 }

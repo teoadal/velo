@@ -4,6 +4,6 @@ namespace Velo.Settings.Sources
 {
     internal interface IConfigurationSource
     {
-        JsonObject FetchData();
+        bool TryGet(out JsonObject data);
     }
 }

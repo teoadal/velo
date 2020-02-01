@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using Velo.Collections;
 using Velo.Serialization.Models;
 using Velo.Serialization.Tokenization;
 using Velo.Utils;
@@ -12,12 +13,12 @@ namespace Velo.Serialization.Converters
     internal sealed class ObjectConverter<TObject> : IJsonConverter<TObject>
     {
         public bool IsPrimitive => false;
-        
+
         private readonly Func<TObject> _activator;
         private readonly EqualityComparer<TObject> _equalityComparer;
-        private readonly Dictionary<string, PropertyConverter> _propertyConverters;
+        private readonly Dictionary<string, PropertyConverter<TObject>> _propertyConverters;
 
-        public ObjectConverter(Dictionary<PropertyInfo, IJsonConverter> propertyConverters)
+        public ObjectConverter((PropertyInfo, IJsonConverter)[] propertyConverters)
         {
             var outInstanceConstructor = typeof(TObject).GetConstructor(Array.Empty<Type>());
 
@@ -26,18 +27,16 @@ namespace Velo.Serialization.Converters
                 : Expression.Lambda<Func<TObject>>(Expression.New(outInstanceConstructor)).Compile();
 
             _equalityComparer = EqualityComparer<TObject>.Default;
-            
-            _propertyConverters = new Dictionary<string, PropertyConverter>(propertyConverters.Count);
+
+            var converters = new Dictionary<string, PropertyConverter<TObject>>(propertyConverters.Length);
             foreach (var (propertyInfo, converter) in propertyConverters)
             {
                 var propertyName = propertyInfo.Name;
-                var propertyConverter = new PropertyConverter(
-                    BuildDeserializeMethod(propertyInfo, converter),
-                    BuildReadMethod(propertyInfo, converter),
-                    BuildSerializeMethod(propertyInfo, converter));
-                
-                _propertyConverters.Add(propertyName, propertyConverter);
+                var propertyConverter = new PropertyConverter<TObject>(propertyInfo, converter);
+
+                converters.Add(propertyName, propertyConverter);
             }
+            _propertyConverters = converters;
         }
 
         public TObject Deserialize(ref JsonTokenizer tokenizer)
@@ -75,7 +74,7 @@ namespace Velo.Serialization.Converters
         public TObject Read(JsonData jsonData)
         {
             var instance = _activator();
-            
+
             var objectData = (JsonObject) jsonData;
             foreach (var (property, value) in objectData)
             {
@@ -110,85 +109,6 @@ namespace Velo.Serialization.Converters
             builder.Append('}');
         }
 
-        private static DeserializeMethod BuildDeserializeMethod(PropertyInfo property,
-            IJsonConverter propertyValueConverter)
-        {
-            const string deserializeMethodName = nameof(IJsonConverter<object>.Deserialize);
-
-            var instance = Expression.Parameter(typeof(TObject), "instance");
-            var tokenizer = Expression.Parameter(typeof(JsonTokenizer).MakeByRefType(), "tokenizer");
-
-            var converterType = propertyValueConverter.GetType();
-            var deserializeMethod = converterType.GetMethod(deserializeMethodName);
-
-            var converter = Expression.Constant(propertyValueConverter, converterType);
-            // ReSharper disable once AssignNullToNotNullAttribute
-            var propertyValue = Expression.Call(converter, deserializeMethod, tokenizer);
-
-            var body = Expression.Assign(Expression.Property(instance, property), propertyValue);
-            return Expression
-                .Lambda<DeserializeMethod>(body, instance, tokenizer)
-                .Compile();
-        }
-
-        private static Action<TObject, JsonData> BuildReadMethod(PropertyInfo property,
-            IJsonConverter propertyValueConverter)
-        {
-            const string readMethodName = nameof(IJsonConverter<object>.Read);
-
-            var instance = Expression.Parameter(typeof(TObject), "instance");
-            var tokenizer = Expression.Parameter(typeof(JsonData), "data");
-
-            var converterType = propertyValueConverter.GetType();
-            var deserializeMethod = converterType.GetMethod(readMethodName);
-
-            var converter = Expression.Constant(propertyValueConverter, converterType);
-            // ReSharper disable once AssignNullToNotNullAttribute
-            var propertyValue = Expression.Call(converter, deserializeMethod, tokenizer);
-
-            var body = Expression.Assign(Expression.Property(instance, property), propertyValue);
-            return Expression
-                .Lambda<Action<TObject, JsonData>>(body, instance, tokenizer)
-                .Compile();
-        }
-        
-        private static Action<TObject, StringBuilder> BuildSerializeMethod(PropertyInfo property,
-            IJsonConverter propertyValueConverter)
-        {
-            const string serializeMethodName = nameof(IJsonConverter<object>.Serialize);
-
-            var instance = Expression.Parameter(typeof(TObject), "instance");
-            var builder = Expression.Parameter(typeof(StringBuilder), "builder");
-
-            var converterType = propertyValueConverter.GetType();
-            var serializeMethod = converterType.GetMethod(serializeMethodName);
-
-            var converter = Expression.Constant(propertyValueConverter, converterType);
-            var propertyValue = Expression.Property(instance, property);
-
-            // ReSharper disable once AssignNullToNotNullAttribute
-            var body = Expression.Call(converter, serializeMethod, propertyValue, builder);
-            return Expression
-                .Lambda<Action<TObject, StringBuilder>>(body, instance, builder)
-                .Compile();
-        }
-        
         void IJsonConverter.Serialize(object value, StringBuilder builder) => Serialize((TObject) value, builder);
-
-        private delegate void DeserializeMethod(TObject obj, ref JsonTokenizer tokenizer);
-        
-        private readonly struct PropertyConverter
-        {
-            public readonly DeserializeMethod Deserialize;
-            public readonly Action<TObject, JsonData> Read;
-            public readonly Action<TObject, StringBuilder> Serialize;
-
-            public PropertyConverter(DeserializeMethod deserialize, Action<TObject, JsonData> read, Action<TObject, StringBuilder> serialize)
-            {
-                Deserialize = deserialize;
-                Read = read;
-                Serialize = serialize;
-            }
-        }
     }
 }

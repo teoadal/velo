@@ -13,13 +13,18 @@ namespace Velo.Serialization
         [ThreadStatic] 
         private static StringBuilder _buffer;
 
-        private readonly ConvertersCollection _converters;
+        private readonly IConvertersCollection _converters;
 
         public JConverter(CultureInfo culture = null)
         {
             _converters = new ConvertersCollection(culture ?? CultureInfo.InvariantCulture);
         }
 
+        internal JConverter(IConvertersCollection convertersCollection)
+        {
+            _converters = convertersCollection;
+        }
+        
         public TOut Deserialize<TOut>(string source)
         {
             var reader = new JsonReader(source);

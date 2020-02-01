@@ -2,24 +2,27 @@ using System.Threading;
 
 namespace Velo.Utils
 {
-    public readonly ref struct Lock
+    public ref struct Lock
     {
         private readonly object _lockObject;
+        private bool _lockTaken;
 
         private Lock(object lockObject)
         {
             _lockObject = lockObject;
+            _lockTaken = false;
         }
 
         public static Lock Enter(object lockObject)
         {
-            Monitor.Enter(lockObject);
-            return new Lock(lockObject);
+            var locker = new Lock(lockObject);
+            Monitor.Enter(lockObject, ref locker._lockTaken);
+            return locker;
         }
         
         public void Dispose()
         {
-            Monitor.Exit(_lockObject);
+            if (_lockTaken) Monitor.Exit(_lockObject);
         }
     }
 }

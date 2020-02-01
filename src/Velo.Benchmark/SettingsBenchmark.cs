@@ -1,8 +1,10 @@
+using System.Globalization;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Jobs;
 using Microsoft.Extensions.Configuration;
+using Velo.Serialization;
 using Velo.Settings;
 using Velo.Settings.Sources;
 using Velo.TestsModels.Settings;
@@ -52,8 +54,31 @@ namespace Velo.Benchmark
             return configuration.Sources.Length;
         }
 
+        [BenchmarkCategory("Cold")]
+        [Benchmark(Baseline = true)]
+        public int Core_Cold()
+        {
+            var configuration = BuildCoreConfiguration();
+            var settings = configuration
+                .GetSection("Logging")
+                .GetSection("LogLevel")
+                .Get<LogLevelSettings>();
+
+            return settings.Default.Length + settings.Microsoft.Length + settings.System.Length;
+        }
+
+        [BenchmarkCategory("Cold")]
+        [Benchmark]
+        public int Velo_Cold()
+        {
+            var configuration = BuildVeloConfiguration();
+            var settings = configuration.Get<LogLevelSettings>(LogLevelNode);
+
+            return settings.Default.Length + settings.Microsoft.Length + settings.System.Length;
+        }
+
         [BenchmarkCategory("Get")]
-        [Benchmark(Baseline = true, OperationsPerInvoke = 10)]
+        [Benchmark(Baseline = true)]
         public int Core_Get()
         {
             var settings = _coreConfiguration
@@ -64,17 +89,50 @@ namespace Velo.Benchmark
         }
 
         [BenchmarkCategory("Get")]
-        [Benchmark(OperationsPerInvoke = 10)]
-        public int Core_Get_Section()
+        [Benchmark]
+        public int Core_GetSection()
         {
             var settings = _coreConfigurationSection.Get<LogLevelSettings>();
             return settings.Default.Length + settings.Microsoft.Length + settings.System.Length;
         }
 
         [BenchmarkCategory("Get")]
-        [Benchmark(OperationsPerInvoke = 10)]
+        [Benchmark]
         public int Velo_Get()
         {
+            var settings = _veloConfiguration.Get<LogLevelSettings>(LogLevelNode);
+            return settings.Default.Length + settings.Microsoft.Length + settings.System.Length;
+        }
+
+        [BenchmarkCategory("Reload")]
+        [Benchmark(Baseline = true)]
+        public int Core_Reload()
+        {
+            _coreConfiguration.Reload();
+
+            var settings = _coreConfiguration
+                .GetSection("Logging")
+                .GetSection("LogLevel").Get<LogLevelSettings>();
+
+            return settings.Default.Length + settings.Microsoft.Length + settings.System.Length;
+        }
+
+        [BenchmarkCategory("Reload")]
+        [Benchmark]
+        public int Core_ReloadSection()
+        {
+            _coreConfiguration.Reload();
+
+            var settings = _coreConfigurationSection.Get<LogLevelSettings>();
+            return settings.Default.Length + settings.Microsoft.Length + settings.System.Length;
+        }
+
+        [BenchmarkCategory("Reload")]
+        [Benchmark]
+        public int Velo_Reload()
+        {
+            _veloConfiguration.Reload();
+
             var settings = _veloConfiguration.Get<LogLevelSettings>(LogLevelNode);
             return settings.Default.Length + settings.Microsoft.Length + settings.System.Length;
         }
@@ -90,7 +148,8 @@ namespace Velo.Benchmark
 
         private Configuration BuildVeloConfiguration()
         {
-            return new Configuration(new Settings.Sources.IConfigurationSource[]
+            var converters = new ConvertersCollection(CultureInfo.InvariantCulture);
+            return new Configuration(converters, new Settings.Sources.IConfigurationSource[]
             {
                 new JsonFileSource("appsettings.json", true),
                 new JsonFileSource("appsettings.develop.json", true),

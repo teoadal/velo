@@ -50,7 +50,7 @@ namespace Velo.Benchmark
         private static void RunSerialization()
         {
             BenchmarkRunner.Run<DeserializationBenchmark>();
-            // BenchmarkRunner.Run<SerializationBenchmark>();
+            BenchmarkRunner.Run<SerializationBenchmark>();
         }
 
         private static void RunSettings()

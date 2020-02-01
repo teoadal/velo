@@ -27,6 +27,15 @@ namespace Velo.Settings
         }
 
         [Fact]
+        public void Contains()
+        {
+            Assert.True(_configuration.Contains(LogLevelNode));
+            Assert.True(_configuration.Contains(LogLevelNode.Split('.')[0]));
+            Assert.False(_configuration.Contains("abc"));
+            Assert.False(_configuration.Contains("Logging.Abc"));
+        }
+
+        [Fact]
         public void GetObject()
         {
             var logSettings = _configuration.Get<LogLevelSettings>(LogLevelNode);
@@ -48,6 +57,18 @@ namespace Velo.Settings
             });
         }
 
+        [Fact]
+        public void GetObject_Try()
+        {
+            Assert.True(_configuration.TryGet<LogLevelSettings>(LogLevelNode, out var logSettings));
+
+            Assert.Equal("Information", logSettings.Default);
+            Assert.Equal("Information", logSettings.Microsoft);
+            Assert.Equal("Information", logSettings.System);
+            
+            Assert.False(_configuration.TryGet<LogLevelSettings>("Logging.Abc", out _));
+        }
+        
         [Fact]
         public void Override_CommandLineArgs()
         {
@@ -134,7 +155,7 @@ namespace Velo.Settings
             Assert.Throws<KeyNotFoundException>(() =>
                 _configuration.Get<LogLevelSettings>($"abc.def"));
         }
-        
+
         [Fact]
         public void Throw_RequiredFileNotFound()
         {

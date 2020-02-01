@@ -16,16 +16,17 @@ namespace Velo.Settings.Sources
             _required = required;
         }
 
-        public JsonObject FetchData()
+        public bool TryGet(out JsonObject data)
         {
             if (!File.Exists(_path))
             {
                 if (_required) throw Error.FileNotFound(_path);
-                return null;
+                data = null;
+                return false;
             }
 
-            var data = JsonData.Parse(File.OpenRead(_path), Encoding.UTF8);
-            return (JsonObject) data;
+            data = (JsonObject) JsonData.Parse(File.OpenRead(_path), Encoding.UTF8);
+            return true;
         }
     }
 }

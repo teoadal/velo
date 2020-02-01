@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Threading;
 using Velo.Serialization;
 using Velo.Serialization.Converters;
 using Velo.Serialization.Models;
@@ -15,56 +14,72 @@ namespace Velo.Settings
         public IConfigurationSource[] Sources => _sources;
 
         private readonly Dictionary<string, object> _cache;
-        private readonly ConvertersCollection _converters;
+        private readonly IConvertersCollection _converters;
         private readonly IConfigurationSource[] _sources;
 
         private JsonObject _configuration;
 
-        public Configuration(IConfigurationSource[] sources = null)
+        public Configuration(IConvertersCollection converters = null, IConfigurationSource[] sources = null)
         {
             if (sources == null) sources = Array.Empty<IConfigurationSource>();
 
             _cache = new Dictionary<string, object>();
-            _converters = new ConvertersCollection(CultureInfo.InvariantCulture);
+            _converters = converters ?? new ConvertersCollection(CultureInfo.InvariantCulture);
             _sources = sources;
 
             Reload();
         }
 
+        public bool Contains(string path)
+        {
+            return TryGetJsonData(path, out _);
+        }
+
         public string Get(string path)
         {
-            var value = (JsonValue) GetJsonData(path);
+            if (!TryGetJsonData(path, out var jsonData))
+            {
+                throw PathNotFound(path);
+            }
 
-            return value?.Value;
+            var jsonDataType = jsonData.Type;
+            if (jsonDataType == JsonDataType.Array || jsonDataType == JsonDataType.Object)
+            {
+                throw CastException(jsonDataType, "string");
+            }
+
+            var value = (JsonValue) jsonData;
+            return value.Value;
         }
 
         public T Get<T>(string path)
         {
-            var lockTaken = false;
+            if (TryGet<T>(path, out var value)) return value;
+            throw PathNotFound(path);
+        }
 
-            try
+        public bool TryGet<T>(string path, out T value)
+        {
+            using (Lock.Enter(_cache))
             {
-                Monitor.Enter(_cache, ref lockTaken);
-
-                if (_cache.TryGetValue(path, out var cached)) return (T) cached;
-
-                var data = GetJsonData(path);
-                var primitiveData = data.Type != JsonDataType.Object && data.Type != JsonDataType.Array;
-
-                var converter = (IJsonConverter<T>) _converters.Get(Typeof<T>.Raw);
-
-                if (converter.IsPrimitive && !primitiveData || !converter.IsPrimitive && primitiveData)
+                if (_cache.TryGetValue(path, out var cached))
                 {
-                    throw Error.Cast($"Can't cast '{data.Type}' to {ReflectionUtils.GetName<T>()}");
+                    value = (T) cached;
+                    return true;
                 }
 
-                var section = converter.Read(data);
-                _cache.Add(path, section);
-                return section;
-            }
-            finally
-            {
-                if (lockTaken) Monitor.Exit(_cache);
+                if (!TryGetJsonData(path, out var jsonData))
+                {
+                    value = default;
+                    return false;
+                }
+
+                var converter = GetValidConverter<T>(jsonData);
+                value = converter.Read(jsonData);
+
+                _cache.Add(path, value);
+
+                return true;
             }
         }
 
@@ -72,48 +87,20 @@ namespace Velo.Settings
         {
             if (_sources == null) return;
 
-            var lockTaken = false;
-            try
+            var root = new JsonObject();
+            foreach (var source in _sources)
             {
-                Monitor.Enter(_cache, ref lockTaken);
-
-                _cache.Clear();
-
-                var root = new JsonObject();
-
-                foreach (var source in _sources)
+                if (source.TryGet(out var sourceData))
                 {
-                    var sourceData = source.FetchData();
-                    if (sourceData == null) continue;
-
                     CopyValues(sourceData, root);
                 }
+            }
 
+            using (Lock.Enter(_cache))
+            {
+                _cache.Clear();
                 _configuration = root;
             }
-            finally
-            {
-                if (lockTaken) Monitor.Exit(_cache);
-            }
-        }
-
-        private JsonData GetJsonData(string path)
-        {
-            var properties = path.Split('.');
-
-            var instance = _configuration;
-            JsonData data = null;
-            foreach (var property in properties)
-            {
-                if (data != null) instance = (JsonObject) data;
-
-                if (!instance.TryGet(property, out data))
-                {
-                    throw Error.NotFound($"Configuration path '{path}' not found");
-                }
-            }
-
-            return data;
         }
 
         private static void CopyValues(JsonObject from, JsonObject to)
@@ -129,6 +116,49 @@ namespace Velo.Settings
                     to[property] = value;
                 }
             }
+        }
+
+        private IJsonConverter<T> GetValidConverter<T>(JsonData data)
+        {
+            var jsonDataType = data.Type;
+            var primitiveData = jsonDataType != JsonDataType.Object && jsonDataType != JsonDataType.Array;
+            
+            var converter = (IJsonConverter<T>) _converters.Get(Typeof<T>.Raw);
+            if (converter.IsPrimitive && !primitiveData || !converter.IsPrimitive && primitiveData)
+            {
+                throw CastException(jsonDataType, ReflectionUtils.GetName<T>());
+            }
+
+            return converter;
+        }
+
+        private bool TryGetJsonData(string path, out JsonData data)
+        {
+            var properties = path.Split('.');
+
+            var instance = _configuration;
+
+            data = null;
+            foreach (var property in properties)
+            {
+                if (data != null) instance = (JsonObject) data;
+                if (instance.TryGet(property, out data)) continue;
+
+                data = null;
+                return false;
+            }
+
+            return true;
+        }
+
+        private static InvalidCastException CastException(JsonDataType dataType, string targetTypeName)
+        {
+            return Error.Cast($"Can't cast '{dataType}' to '{targetTypeName}'");
+        }
+
+        private static KeyNotFoundException PathNotFound(string path)
+        {
+            return Error.NotFound($"Configuration path '{path}' not found");
         }
     }
 }
