@@ -12,12 +12,12 @@ namespace Velo.Benchmark
         private static void Main(string[] args)
         {
             RunCollections();
-            // RunCQRS();
-            // RunDependencyInjection();
-            // RunMappers();
-            // RunPooling();
-            // RunSerialization();
-            // RunSettings();
+            RunCQRS();
+            RunDependencyInjection();
+            RunMappers();
+            RunPooling();
+            RunSerialization();
+            RunSettings();
         }
 
         private static void RunCollections()

@@ -8,19 +8,67 @@ namespace Velo.ECS
         // ReSharper disable once InconsistentNaming
         public const int EMPTY_INDEX = -1;
 
+        public readonly int Length;
+
         private readonly int _c0;
         private readonly int _c1;
         private readonly int _c2;
         private readonly int _c3;
         private readonly int _c4;
 
-        internal Sign(int c0, int c1 = EMPTY_INDEX, int c2 = EMPTY_INDEX, int c3 = EMPTY_INDEX, int c4 = EMPTY_INDEX)
+        internal Sign(int c0)
+        {
+            _c0 = c0;
+            _c1 = EMPTY_INDEX;
+            _c2 = EMPTY_INDEX;
+            _c3 = EMPTY_INDEX;
+            _c4 = EMPTY_INDEX;
+
+            Length = 1;
+        }
+
+        internal Sign(int c0, int c1)
+        {
+            _c0 = c0;
+            _c1 = c1;
+            _c2 = EMPTY_INDEX;
+            _c3 = EMPTY_INDEX;
+            _c4 = EMPTY_INDEX;
+
+            Length = 2;
+        }
+
+        internal Sign(int c0, int c1, int c2)
+        {
+            _c0 = c0;
+            _c1 = c1;
+            _c2 = c2;
+            _c3 = EMPTY_INDEX;
+            _c4 = EMPTY_INDEX;
+
+            Length = 3;
+        }
+
+        internal Sign(int c0, int c1, int c2, int c3)
+        {
+            _c0 = c0;
+            _c1 = c1;
+            _c2 = c2;
+            _c3 = c3;
+            _c4 = EMPTY_INDEX;
+
+            Length = 4;
+        }
+
+        internal Sign(int c0, int c1, int c2, int c3, int c4)
         {
             _c0 = c0;
             _c1 = c1;
             _c2 = c2;
             _c3 = c3;
             _c4 = c4;
+
+            Length = 5;
         }
 
         internal Sign Add(int typeId, out int index)
@@ -36,6 +84,8 @@ namespace Velo.ECS
 
         public bool ContainsAll(int[] typeIds)
         {
+            if (Length < typeIds.Length) return false;
+            
             var containsCount = 0;
             foreach (var typeId in typeIds)
             {
@@ -46,7 +96,7 @@ namespace Velo.ECS
         }
 
         public Enumerator GetEnumerator() => new Enumerator(this);
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int IndexOf(int typeId)
         {

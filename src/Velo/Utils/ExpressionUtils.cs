@@ -11,23 +11,20 @@ namespace Velo.Utils
 
         #region Builders
 
-        public static Delegate BuildInitializer(Type owner, PropertyInfo propertyInfo)
+        public static Func<T> BuildActivator<T>(ConstructorInfo constructor = null)
         {
-            var instance = Expression.Parameter(owner, "instance");
-            var property = Expression.Property(instance, propertyInfo);
+            var type = typeof(T);
 
-            var constructor = ReflectionUtils.GetEmptyConstructor(propertyInfo.PropertyType);
-            var assign = Expression.Assign(property, constructor == null
-                ? (Expression) Expression.Default(propertyInfo.PropertyType)
-                : Expression.New(constructor));
+            if (constructor == null)
+            {
+                constructor = ReflectionUtils.GetEmptyConstructor(type);
+            }
 
-            var body = Expression.Block(
-                assign,
-                VoidResult);
-
-            return Expression.Lambda(body, instance).Compile();
+            return constructor == null
+                ? throw Error.DefaultConstructorNotFound(type)
+                : Expression.Lambda<Func<T>>(Expression.New(constructor)).Compile();
         }
-
+        
         public static Delegate BuildDecrement(Type owner, PropertyInfo propertyInfo)
         {
             var instance = Expression.Parameter(owner, "instance");
@@ -52,6 +49,23 @@ namespace Velo.Utils
             return Expression.Lambda(body, instance).Compile();
         }
 
+        public static Delegate BuildInitializer(Type owner, PropertyInfo propertyInfo)
+        {
+            var instance = Expression.Parameter(owner, "instance");
+            var property = Expression.Property(instance, propertyInfo);
+
+            var constructor = ReflectionUtils.GetEmptyConstructor(propertyInfo.PropertyType);
+            var assign = Expression.Assign(property, constructor == null
+                ? (Expression) Expression.Default(propertyInfo.PropertyType)
+                : Expression.New(constructor));
+
+            var body = Expression.Block(
+                assign,
+                VoidResult);
+
+            return Expression.Lambda(body, instance).Compile();
+        }
+        
         public static Delegate BuildGetter(Type owner, PropertyInfo propertyInfo)
         {
             var instance = Expression.Parameter(owner, "instance");

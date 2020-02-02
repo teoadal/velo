@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using Velo.Serialization.Models;
@@ -19,12 +18,7 @@ namespace Velo.Serialization.Converters
 
         public ObjectConverter((PropertyInfo, IJsonConverter)[] propertyConverters)
         {
-            var outInstanceConstructor = typeof(TObject).GetConstructor(Array.Empty<Type>());
-
-            _activator = outInstanceConstructor == null
-                ? throw Error.DefaultConstructorNotFound(typeof(TObject))
-                : Expression.Lambda<Func<TObject>>(Expression.New(outInstanceConstructor)).Compile();
-
+            _activator = ExpressionUtils.BuildActivator<TObject>();
             _equalityComparer = EqualityComparer<TObject>.Default;
 
             var converters = new Dictionary<string, PropertyConverter<TObject>>(propertyConverters.Length);
