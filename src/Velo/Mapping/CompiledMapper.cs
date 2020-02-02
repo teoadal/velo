@@ -63,17 +63,14 @@ namespace Velo.Mapping
             };
 
             var sourceProperties = sourceType.GetProperties();
-            for (var i = 0; i < sourceProperties.Length; i++)
+            foreach (var sourceProperty in sourceProperties)
             {
-                var sourceProperty = sourceProperties[i];
+                if (!_outProperties.TryGetValue(sourceProperty.Name, out var outProperty)) continue;
+                
+                var sourceValue = Expression.Property(sourceInstance, sourceProperty);
+                var outValue = Expression.Property(outInstance, outProperty);
 
-                if (_outProperties.TryGetValue(sourceProperty.Name, out var outProperty))
-                {
-                    var sourceValue = Expression.Property(sourceInstance, sourceProperty);
-                    var outValue = Expression.Property(outInstance, outProperty);
-
-                    expressions.Add(Expression.Assign(outValue, sourceValue));
-                }
+                expressions.Add(Expression.Assign(outValue, sourceValue));
             }
 
             expressions.Add(outInstance); // return

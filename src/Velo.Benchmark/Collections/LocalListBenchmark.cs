@@ -16,7 +16,7 @@ namespace Velo.Benchmark.Collections
     {
         private const int InvokeCount = 10;
 
-        [Params(10)] 
+        [Params(4, 10, 15, 25)] 
         public int Count;
 
         private Boo[] _items;

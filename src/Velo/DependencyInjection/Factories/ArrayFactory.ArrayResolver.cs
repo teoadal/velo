@@ -6,7 +6,7 @@ namespace Velo.DependencyInjection.Factories
 {
     internal sealed partial class ArrayFactory
     {
-        private class ArrayResolver<T> : DependencyResolver
+        private sealed class ArrayResolver<T> : DependencyResolver
         {
             private readonly IDependency[] _dependencies;
             private readonly Type _elementType;

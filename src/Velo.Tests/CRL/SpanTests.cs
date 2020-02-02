@@ -1,8 +1,9 @@
 using System;
+using System.Security.Cryptography;
 using AutoFixture.Xunit2;
 using Xunit;
 
-namespace Velo
+namespace Velo.CRL
 {
     public class SpanTests
     {

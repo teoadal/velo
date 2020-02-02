@@ -14,7 +14,7 @@ namespace Velo.ECS
         private readonly int _c3;
         private readonly int _c4;
 
-        public Sign(int c0, int c1 = EMPTY_INDEX, int c2 = EMPTY_INDEX, int c3 = EMPTY_INDEX, int c4 = EMPTY_INDEX)
+        internal Sign(int c0, int c1 = EMPTY_INDEX, int c2 = EMPTY_INDEX, int c3 = EMPTY_INDEX, int c4 = EMPTY_INDEX)
         {
             _c0 = c0;
             _c1 = c1;
@@ -37,15 +37,16 @@ namespace Velo.ECS
         public bool ContainsAll(int[] typeIds)
         {
             var containsCount = 0;
-            for (var i = 0; i < typeIds.Length; i++)
+            foreach (var typeId in typeIds)
             {
-                ref readonly var typeId = ref typeIds[i];
                 if (IndexOf(typeId) != -1) containsCount++;
             }
 
             return containsCount == typeIds.Length;
         }
 
+        public Enumerator GetEnumerator() => new Enumerator(this);
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int IndexOf(int typeId)
         {
@@ -88,6 +89,49 @@ namespace Velo.ECS
 
             newSign = Set(oldIndex, EMPTY_INDEX);
             return true;
+        }
+        
+        public ref struct Enumerator
+        {
+            public int Current => _current;
+
+            private int _current;
+            private int _position;
+            private Sign _sign;
+
+            internal Enumerator(Sign sign)
+            {
+                _current = EMPTY_INDEX;
+                _sign = sign;
+                _position = -1;
+            }
+            
+            public bool MoveNext()
+            {
+                _position++;
+                switch (_position)
+                {
+                    case 0:
+                        _current = _sign._c0;
+                        break;
+                    case 1:
+                        _current = _sign._c1;
+                        break;
+                    case 2:
+                        _current = _sign._c2;
+                        break;
+                    case 3:
+                        _current = _sign._c3;
+                        break;
+                    case 4:
+                        _current = _sign._c4;
+                        break;
+                    default:
+                        return false;
+                }
+
+                return _current != EMPTY_INDEX;
+            }
         }
     }
 }

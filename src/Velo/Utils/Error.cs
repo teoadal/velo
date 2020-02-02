@@ -7,6 +7,11 @@ namespace Velo.Utils
 {
     internal static class Error
     {
+        public static ArgumentException AlreadyExists(string message = null)
+        {
+            return new ArgumentException(message ?? "Element already exists");
+        }
+        
         public static TypeAccessException CircularDependency(Type contract)
         {
             return new TypeAccessException($"Detected circular dependency '{ReflectionUtils.GetName(contract)}'");

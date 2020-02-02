@@ -45,9 +45,8 @@ namespace Velo.Utils
         public static void DisposeValuesIfDisposable<T>(T[] array)
             where T : class
         {
-            for (var i = 0; i < array.Length; i++)
+            foreach (var value in array)
             {
-                var value = array[i];
                 if (ReflectionUtils.IsDisposable(value, out var disposable))
                 {
                     disposable.Dispose();

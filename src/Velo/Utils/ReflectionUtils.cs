@@ -98,9 +98,8 @@ namespace Velo.Utils
             }
 
             var interfaces = type.GetInterfaces();
-            for (var i = 0; i < interfaces.Length; i++)
+            foreach (var typeInterface in interfaces)
             {
-                var typeInterface = interfaces[i];
                 if (IsGenericTypeImplementation(typeInterface, genericInterface))
                 {
                     return typeInterface.GenericTypeArguments;
@@ -122,9 +121,8 @@ namespace Velo.Utils
             }
 
             var interfaces = type.GetInterfaces();
-            for (var i = 0; i < interfaces.Length; i++)
+            foreach (var typeInterface in interfaces)
             {
-                var typeInterface = interfaces[i];
                 if (IsGenericTypeImplementation(typeInterface, genericInterface))
                 {
                     implementations.Add(typeInterface);
