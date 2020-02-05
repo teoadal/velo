@@ -58,5 +58,8 @@
       <Compile Update="Collections\LocalList.Row.cs">
         <DependentUpon>LocalList.cs</DependentUpon>
       </Compile>
+      <Compile Update="Settings\SettingsResolver.cs">
+        <DependentUpon>SettingsFactory.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 </Project>

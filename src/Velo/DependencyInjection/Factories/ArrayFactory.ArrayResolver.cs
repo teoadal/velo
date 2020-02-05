@@ -1,6 +1,10 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 using Velo.DependencyInjection.Dependencies;
 using Velo.DependencyInjection.Resolvers;
+using Velo.Utils;
 
 namespace Velo.DependencyInjection.Factories
 {
@@ -11,8 +15,10 @@ namespace Velo.DependencyInjection.Factories
             private readonly IDependency[] _dependencies;
             private readonly Type _elementType;
 
-            public ArrayResolver(IDependency[] dependencies)
+            public ArrayResolver(IDependency[] dependencies) : base(Typeof<T[]>.Raw)
             {
+                Array.Sort(dependencies, DependencyOrderComparer.Default);
+
                 _dependencies = dependencies;
                 _elementType = typeof(T);
             }

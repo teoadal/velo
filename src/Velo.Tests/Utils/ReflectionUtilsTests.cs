@@ -121,7 +121,7 @@ namespace Velo.Utils
         public void Throw_GenericInterfaceParameters_Abstract()
         {
             Assert.Throws<InvalidDataException>(() =>
-                ReflectionUtils.GetGenericInterfaceParameters(typeof(ScopeDependency), typeof(Dependency)));
+                ReflectionUtils.GetGenericInterfaceParameters(typeof(ScopedDependency), typeof(Dependency)));
         }
         
         

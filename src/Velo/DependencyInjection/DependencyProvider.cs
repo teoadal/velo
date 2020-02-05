@@ -1,8 +1,6 @@
 using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Velo.DependencyInjection.Dependencies;
-using Velo.DependencyInjection.Resolvers;
 using Velo.Utils;
 
 namespace Velo.DependencyInjection
@@ -18,8 +16,6 @@ namespace Velo.DependencyInjection
 
         internal DependencyProvider(DependencyEngine engine)
         {
-            engine.AddDependency(BuildSelfDependency());
-
             _engine = engine;
             _lock = new object();
         }
@@ -47,20 +43,20 @@ namespace Velo.DependencyInjection
                 throw Error.InvalidOperation($"Type {ReflectionUtils.GetName(implementation)} can't be activated");
             }
 
+            if (_disposed) throw Error.Disposed(nameof(DependencyProvider));
+
+            if (constructor == null)
+            {
+                constructor = ReflectionUtils.GetConstructor(implementation);
+            }
+
+            var engine = GetEngine();
+            var parameters = constructor.GetParameters();
+
+            var parameterInstances = new object[parameters.Length];
+
             lock (_lock)
             {
-                if (_disposed) throw Error.Disposed(nameof(DependencyProvider));
-
-                if (constructor == null)
-                {
-                    constructor = ReflectionUtils.GetConstructor(implementation);
-                }
-
-                var engine = GetEngine();
-                var parameters = constructor.GetParameters();
-
-                var parameterInstances = new object[parameters.Length];
-                
                 for (var i = 0; i < parameters.Length; i++)
                 {
                     var parameter = parameters[i];
@@ -70,27 +66,27 @@ namespace Velo.DependencyInjection
                     var dependency = engine.GetDependency(parameterType, required);
                     parameterInstances[i] = dependency?.GetInstance(parameterType, this);
                 }
+            }
 
-                try
-                {
-                    return constructor.Invoke(parameterInstances);
-                }
-                catch (TargetInvocationException e)
-                {
-                    throw e.InnerException ?? e;
-                }
+            try
+            {
+                return constructor.Invoke(parameterInstances);
+            }
+            catch (TargetInvocationException e)
+            {
+                throw e.InnerException ?? e;
             }
         }
 
         public object GetRequiredService(Type contract)
         {
+            if (_disposed) throw Error.Disposed(nameof(DependencyProvider));
+
+            var engine = GetEngine();
+
             lock (_lock)
             {
-                if (_disposed) throw Error.Disposed(nameof(DependencyProvider));
-
-                var engine = GetEngine();
                 var dependency = engine.GetDependency(contract, true);
-
                 return dependency.GetInstance(contract, this);
             }
         }
@@ -101,26 +97,17 @@ namespace Velo.DependencyInjection
 
         public object GetService(Type contract)
         {
+            if (_disposed) throw Error.Disposed(nameof(DependencyProvider));
+            var engine = GetEngine();
+
             lock (_lock)
             {
-                if (_disposed) throw Error.Disposed(nameof(DependencyProvider));
-
-                var engine = GetEngine();
                 var dependency = engine.GetDependency(contract);
-
                 return dependency?.GetInstance(contract, this);
             }
         }
 
         public T[] GetServices<T>() => (T[]) GetService(Typeof<T[]>.Raw);
-
-        private IDependency BuildSelfDependency()
-        {
-            var contracts = new[] {Typeof<DependencyProvider>.Raw, Typeof<IServiceProvider>.Raw};
-            var resolver = new InstanceResolver(this);
-
-            return new SingletonDependency(contracts, resolver);
-        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private DependencyEngine GetEngine()
@@ -130,11 +117,8 @@ namespace Velo.DependencyInjection
 
         public void Dispose()
         {
-            lock (_lock)
-            {
-                if (_disposed) return;
-                _disposed = true; // contains self
-            }
+            if (_disposed) return;
+            _disposed = true; // contains self
 
             var evt = Destroy;
             evt?.Invoke(this);

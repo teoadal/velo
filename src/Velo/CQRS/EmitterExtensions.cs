@@ -2,6 +2,7 @@ using System;
 using System.Runtime.CompilerServices;
 using Velo.CQRS.Commands;
 using Velo.CQRS.Notifications;
+using Velo.CQRS.Pipeline;
 using Velo.CQRS.Queries;
 using Velo.DependencyInjection;
 using Velo.DependencyInjection.Scan;
@@ -14,9 +15,9 @@ namespace Velo.CQRS
         public static DependencyCollection AddEmitter(this DependencyCollection collection)
         {
             collection
-                .AddSingleton<CommandRouter>()
-                .AddSingleton<QueryRouter>()
-                .AddSingleton<NotificationRouter>()
+                .AddFactory(new PipelineFactory(typeof(CommandPipeline<>)))
+                .AddFactory(new PipelineFactory(typeof(NotificationPipeline<>)))
+                .AddFactory(new PipelineFactory(typeof(QueryPipeline<,>)))
                 .AddScoped<Emitter>();
 
             return collection;
@@ -26,7 +27,9 @@ namespace Velo.CQRS
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
             where TProcessor : ICommandProcessor
         {
-            AddProcessor(collection, Typeof<TProcessor>.Raw, CommandRouter.ProcessorTypes, lifetime);
+            var commandProcessorTypes = ProcessorsAllover.CommandProcessorTypes;
+            AddProcessor(collection, Typeof<TProcessor>.Raw, commandProcessorTypes, lifetime);
+
             return collection;
         }
 
@@ -34,7 +37,9 @@ namespace Velo.CQRS
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
             where TProcessor : INotificationProcessor
         {
-            AddProcessor(collection, Typeof<TProcessor>.Raw, NotificationRouter.ProcessorTypes, lifetime);
+            var notificationProcessorTypes = ProcessorsAllover.NotificationProcessorTypes;
+            AddProcessor(collection, Typeof<TProcessor>.Raw, notificationProcessorTypes, lifetime);
+
             return collection;
         }
 
@@ -42,11 +47,8 @@ namespace Velo.CQRS
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
             where TProcessor : IQueryProcessor
         {
-            var implementation = Typeof<TProcessor>.Raw;
-            var contracts =
-                ReflectionUtils.GetGenericInterfaceImplementations(implementation, QueryRouter.ProcessorTypes);
-
-            collection.AddDependency(contracts.ToArray(), implementation, lifetime);
+            var queryProcessorTypes = ProcessorsAllover.QueryProcessorTypes;
+            AddProcessor(collection, Typeof<TProcessor>.Raw, queryProcessorTypes, lifetime);
 
             return collection;
         }

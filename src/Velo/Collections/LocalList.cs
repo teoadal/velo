@@ -48,6 +48,25 @@ namespace Velo.Collections
             _length = 0;
         }
 
+        public LocalList(T item0, T item1)
+            : this(2)
+        {
+            _element0 = item0;
+            _element1 = item1;
+
+            _length = 3;
+        }
+
+        public LocalList(T item0, T item1, T item2)
+            : this(3)
+        {
+            _element0 = item0;
+            _element1 = item1;
+            _element2 = item2;
+
+            _length = 3;
+        }
+
         public LocalList(T[] collection)
             : this(collection.Length)
         {

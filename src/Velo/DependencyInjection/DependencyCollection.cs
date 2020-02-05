@@ -38,20 +38,9 @@ namespace Velo.DependencyInjection
 
         public DependencyCollection AddDependency(Type[] contracts, Type implementation, DependencyLifetime lifetime)
         {
-            switch (lifetime)
-            {
-                case DependencyLifetime.Scope:
-                    var scopeResolver = new CompiledResolver(implementation, _engine);
-                    return AddDependency(new ScopeDependency(contracts, scopeResolver));
-                case DependencyLifetime.Singleton:
-                    var singletonResolver = new ActivatorResolver(implementation);
-                    return AddDependency(new SingletonDependency(contracts, singletonResolver));
-                case DependencyLifetime.Transient:
-                    var transientResolver = new CompiledResolver(implementation, _engine);
-                    return AddDependency(new TransientDependency(contracts, transientResolver));
-            }
-
-            throw Error.InvalidDependencyLifetime();
+            var resolver = DependencyResolver.Build(lifetime, implementation, _engine);
+            var dependency = Dependency.Build(lifetime, contracts, resolver);
+            return AddDependency(dependency);
         }
 
         public DependencyCollection AddDependency<TContract>(Func<IDependencyScope, TContract> builder,
@@ -61,17 +50,8 @@ namespace Velo.DependencyInjection
             var contracts = new[] {Typeof<TContract>.Raw};
             var resolver = new DelegateResolver<TContract>(builder);
 
-            switch (lifetime)
-            {
-                case DependencyLifetime.Scope:
-                    return AddDependency(new ScopeDependency(contracts, resolver));
-                case DependencyLifetime.Singleton:
-                    return AddDependency(new SingletonDependency(contracts, resolver));
-                case DependencyLifetime.Transient:
-                    return AddDependency(new TransientDependency(contracts, resolver));
-            }
-
-            throw Error.InvalidDependencyLifetime();
+            var dependency = Dependency.Build(lifetime, contracts, resolver);
+            return AddDependency(dependency);
         }
 
         public DependencyCollection AddFactory(IDependencyFactory factory)
@@ -84,31 +64,31 @@ namespace Velo.DependencyInjection
             where TContract : class
         {
             var resolver = new InstanceResolver(instance);
-            return AddDependency(new ScopeDependency(Typeof<TContract>.Raw, resolver));
+            return AddDependency(new ScopedDependency(Typeof<TContract>.Raw, resolver));
         }
 
         #region AddScoped
 
         public DependencyCollection AddScoped(Type implementation)
         {
-            return AddDependency(implementation, implementation, DependencyLifetime.Scope);
+            return AddDependency(implementation, implementation, DependencyLifetime.Scoped);
         }
 
         public DependencyCollection AddScoped(Type contract, Type implementation)
         {
-            return AddDependency(contract, implementation, DependencyLifetime.Scope);
+            return AddDependency(contract, implementation, DependencyLifetime.Scoped);
         }
 
         public DependencyCollection AddScoped<TImplementation>()
         {
             var implementation = Typeof<TImplementation>.Raw;
-            return AddDependency(implementation, implementation, DependencyLifetime.Scope);
+            return AddDependency(implementation, implementation, DependencyLifetime.Scoped);
         }
 
         public DependencyCollection AddScoped<TContract>(Func<IDependencyScope, TContract> builder)
             where TContract : class
         {
-            return AddDependency(builder, DependencyLifetime.Scope);
+            return AddDependency(builder, DependencyLifetime.Scoped);
         }
 
         public DependencyCollection AddScoped<TContract, TImplementation>()
@@ -117,7 +97,7 @@ namespace Velo.DependencyInjection
             var contract = Typeof<TContract>.Raw;
             var implementation = typeof(TImplementation);
 
-            return AddDependency(contract, implementation, DependencyLifetime.Scope);
+            return AddDependency(contract, implementation, DependencyLifetime.Scoped);
         }
 
         #endregion
@@ -196,11 +176,19 @@ namespace Velo.DependencyInjection
 
         public DependencyProvider BuildProvider()
         {
-            return new DependencyProvider(_engine);
+            var provider = new DependencyProvider(_engine);
+
+            var providerContracts = new[] {Typeof<DependencyProvider>.Raw, Typeof<IServiceProvider>.Raw};
+            var providerDependency = new SingletonDependency(providerContracts, new InstanceResolver(provider));
+
+            _engine.AddDependency(providerDependency);
+            _engine.Initialize();
+
+            return provider;
         }
 
         public bool Contains<TContract>() => _engine.Contains(Typeof<TContract>.Raw);
-        
+
         public bool Contains(Type type) => _engine.Contains(type);
 
         public DependencyCollection Scan(Action<DependencyScanner> action)

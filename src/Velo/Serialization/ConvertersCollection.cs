@@ -61,7 +61,7 @@ namespace Velo.Serialization
 
         private IJsonConverter BuildListConverter(Type type)
         {
-            var elementType = type.GetGenericArguments()[0];
+            var elementType = type.GenericTypeArguments[0];
             var elementConverter = GetOrAdd(elementType, _buildConverter);
 
             var converterType = typeof(ListConverter<>).MakeGenericType(elementType);

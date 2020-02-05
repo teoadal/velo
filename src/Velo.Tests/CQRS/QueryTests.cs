@@ -72,7 +72,7 @@ namespace Velo.CQRS
         public async Task MultiThreading_WithDifferentScopes(int id, int number)
         {
             var provider = _dependencies
-                .AddQueryProcessor<Boos.Get.Processor>(DependencyLifetime.Scope)
+                .AddQueryProcessor<Boos.Get.Processor>(DependencyLifetime.Scoped)
                 .BuildProvider();
 
             var repository = provider.GetService<IBooRepository>();

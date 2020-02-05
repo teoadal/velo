@@ -209,7 +209,7 @@ namespace Velo.DependencyInjection
 
             var provider = _dependencies
                 .AddSingleton<ISession, Session>()
-                .AddDependency(contracts, implementation, DependencyLifetime.Scope)
+                .AddDependency(contracts, implementation, DependencyLifetime.Scoped)
                 .BuildProvider();
 
             var byImplementation = provider.GetRequiredService<FooRepository>();

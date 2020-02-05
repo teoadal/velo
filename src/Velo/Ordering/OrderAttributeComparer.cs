@@ -4,12 +4,16 @@ using Velo.Utils;
 
 namespace Velo.Ordering
 {
-    internal sealed class OrderAttributeComparer<T> : IComparer<T>
+    internal sealed class OrderAttributeComparer<T> : Comparer<T>
         where T : class
     {
+        public new static readonly Comparer<T> Default = new OrderAttributeComparer<T>();
+        
         public static T[] Sort(T[] array, int defaultValue = OrderAttribute.DEFAULT_ORDER)
         {
-            Array.Sort(array, new OrderAttributeComparer<T>(defaultValue));
+            Array.Sort(array, defaultValue == OrderAttribute.DEFAULT_ORDER
+                ? Default
+                : new OrderAttributeComparer<T>(defaultValue));
             return array;
         }
 
@@ -20,7 +24,7 @@ namespace Velo.Ordering
             _defaultValue = defaultValue;
         }
 
-        public int Compare(T first, T second)
+        public override int Compare(T first, T second)
         {
             var firstOrder = GetOrder(first);
             var secondOrder = GetOrder(second);

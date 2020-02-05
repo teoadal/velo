@@ -7,19 +7,17 @@ using Velo.Utils;
 namespace Velo.DependencyInjection.Dependencies
 {
     [DebuggerDisplay("Contract = {Contracts[0]}")]
-    internal sealed class ScopeDependency : Dependency
+    internal sealed class ScopedDependency : Dependency
     {
         private readonly Dictionary<IDependencyScope, object> _instances;
-        private readonly DependencyResolver _resolver;
 
-        public ScopeDependency(Type[] contracts, DependencyResolver resolver) 
-            : base(contracts, DependencyLifetime.Scope)
+        public ScopedDependency(Type[] contracts, DependencyResolver resolver) 
+            : base(contracts, resolver, DependencyLifetime.Scoped)
         {
             _instances = new Dictionary<IDependencyScope, object>();
-            _resolver = resolver;
         }
 
-        public ScopeDependency(Type contract, DependencyResolver resolver) : this(new[] {contract}, resolver)
+        public ScopedDependency(Type contract, DependencyResolver resolver) : this(new[] {contract}, resolver)
         {
         }
 
@@ -27,7 +25,7 @@ namespace Velo.DependencyInjection.Dependencies
         {
             if (_instances.TryGetValue(scope, out var existsInstance)) return existsInstance;
 
-            var instance = _resolver.Resolve(contract, scope);
+            var instance = Resolve(contract, scope);
             _instances.Add(scope, instance);
             scope.Destroy += OnScopeDestroy;
 

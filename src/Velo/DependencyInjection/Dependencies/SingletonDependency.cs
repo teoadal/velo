@@ -9,21 +9,15 @@ namespace Velo.DependencyInjection.Dependencies
     internal sealed class SingletonDependency : Dependency
     {
         private object _instance;
-        private readonly DependencyResolver _resolver;
 
-        public SingletonDependency(Type[] contracts, DependencyResolver resolver) 
-            : base(contracts, DependencyLifetime.Singleton)
-        {
-            _resolver = resolver;
-        }
-
-        public SingletonDependency(Type contract, DependencyResolver resolver) : this(new[] {contract}, resolver)
+        public SingletonDependency(Type[] contracts, DependencyResolver resolver)
+            : base(contracts, resolver, DependencyLifetime.Singleton)
         {
         }
 
         public override object GetInstance(Type contract, IDependencyScope scope)
         {
-            return _instance ??= _resolver.Resolve(contract, scope);
+            return _instance ??= Resolve(contract, scope);
         }
 
         public override void Dispose()

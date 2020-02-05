@@ -13,12 +13,12 @@ namespace Velo.DependencyInjection
 
         IDependency GetDependency(Type contract, bool required = false);
     }
-    
+
     internal sealed class DependencyEngine : IDependencyEngine, IDisposable
     {
         private readonly List<IDependency> _dependencies;
         private readonly List<IDependencyFactory> _factories;
-        
+
         private readonly Dictionary<Type, IDependency> _resolvedDependencies;
 
         public DependencyEngine(int capacity)
@@ -56,7 +56,12 @@ namespace Velo.DependencyInjection
 
             return false;
         }
-        
+
+        public void Initialize()
+        {
+            _resolvedDependencies.EnsureCapacity(_dependencies.Count);
+        }
+
         public LocalList<IDependency> GetApplicable(Type contract)
         {
             var localList = new LocalList<IDependency>();
@@ -120,7 +125,7 @@ namespace Velo.DependencyInjection
             {
                 dependency.Dispose();
             }
-            
+
             _dependencies.Clear();
             _resolvedDependencies.Clear();
         }

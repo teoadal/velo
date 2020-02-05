@@ -5,13 +5,14 @@ using BenchmarkDotNet.Jobs;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Velo.CQRS;
+using Velo.CQRS.Queries;
 using Velo.DependencyInjection;
 using Velo.TestsModels.Boos;
 using Boos = Velo.TestsModels.Emitting.Boos;
 
 namespace Velo.Benchmark.CQRS
 {
-    [SimpleJob(RuntimeMoniker.NetCoreApp22)]
+    [SimpleJob(RuntimeMoniker.NetCoreApp31)]
     [MeanColumn, MemoryDiagnoser]
     public class MediatorRequestBenchmark
     {
@@ -20,6 +21,7 @@ namespace Velo.Benchmark.CQRS
         private IMediator _mediator;
         private IMediator _mediatorOnVelo;
         private Emitter _emitter;
+        private Emitter _emitterOnCore;
 
         [GlobalSetup]
         public void Init()
@@ -50,6 +52,14 @@ namespace Velo.Benchmark.CQRS
                 .AddQueryProcessor<Boos.Get.Processor>()
                 .AddEmitter()
                 .BuildProvider()
+                .GetService<Emitter>();
+
+            _emitterOnCore = new ServiceCollection()
+                .AddSingleton<IBooRepository>(ctx => repository)
+                .AddSingleton<IQueryProcessor<Boos.Get.Query, Boo>, Boos.Get.Processor>()
+                .AddSingleton(ctx => new QueryPipeline<Boos.Get.Query, Boo>(ctx.GetRequiredService<IQueryProcessor<Boos.Get.Query, Boo>>()))
+                .AddScoped(ctx => new Emitter(ctx))
+                .BuildServiceProvider()
                 .GetService<Emitter>();
         }
 
@@ -88,6 +98,34 @@ namespace Velo.Benchmark.CQRS
             for (var i = 0; i < ElementsCount; i++)
             {
                 var boo = await _emitter.Ask(new Boos.Get.Query {Id = i});
+
+                sum += boo.Int;
+            }
+
+            return sum;
+        }
+
+        [Benchmark]
+        public async Task<long> Emitter_Concrete()
+        {
+            long sum = 0;
+            for (var i = 0; i < ElementsCount; i++)
+            {
+                var boo = await _emitter.Ask<Boos.Get.Query, Boo>(new Boos.Get.Query {Id = i});
+
+                sum += boo.Int;
+            }
+
+            return sum;
+        }
+
+        [Benchmark]
+        public async Task<long> Emitter_OnCore()
+        {
+            long sum = 0;
+            for (var i = 0; i < ElementsCount; i++)
+            {
+                var boo = await _emitterOnCore.Ask(new Boos.Get.Query {Id = i});
 
                 sum += boo.Int;
             }

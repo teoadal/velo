@@ -15,6 +15,7 @@ namespace Velo.DependencyInjection.Resolvers
         private readonly IDependencyEngine _dependencyEngine;
 
         public CompiledResolver(Type implementation, IDependencyEngine dependencyEngine)
+            : base(implementation)
         {
             _constructor = ReflectionUtils.GetConstructor(implementation);
             _dependencyEngine = dependencyEngine;
@@ -55,7 +56,7 @@ namespace Velo.DependencyInjection.Resolvers
 
             switch (parameterDependency.Lifetime)
             {
-                case DependencyLifetime.Scope:
+                case DependencyLifetime.Scoped:
                 case DependencyLifetime.Transient:
                     var dependencyConstant = Expression.Constant(parameterDependency);
 

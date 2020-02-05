@@ -9,7 +9,7 @@ namespace Velo.DependencyInjection.Resolvers
     {
         private readonly Func<IDependencyScope, T> _builder;
 
-        public DelegateResolver(Func<IDependencyScope, T> builder)
+        public DelegateResolver(Func<IDependencyScope, T> builder): base(typeof(T))
         {
             _builder = builder;
         }

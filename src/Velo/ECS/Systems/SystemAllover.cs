@@ -30,7 +30,7 @@ namespace Velo.ECS.Systems
             TryAdd(ref contracts, _initializeSystem, implementation);
             TryAdd(ref contracts, _updateSystem, implementation);
 
-            collection.AddDependency(contracts.ToArray(), implementation, DependencyLifetime.Scope);
+            collection.AddDependency(contracts.ToArray(), implementation, DependencyLifetime.Scoped);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

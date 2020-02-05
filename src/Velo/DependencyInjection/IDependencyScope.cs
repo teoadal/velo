@@ -17,6 +17,8 @@ namespace Velo.DependencyInjection
         
         T GetService<T>();
         
+        T[] GetServices<T>();
+        
         T GetRequiredService<T>();
     }
 }

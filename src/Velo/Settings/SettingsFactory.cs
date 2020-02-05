@@ -3,14 +3,14 @@ using System.Reflection;
 using Velo.DependencyInjection;
 using Velo.DependencyInjection.Dependencies;
 using Velo.DependencyInjection.Factories;
-using Velo.Utils;
+using Velo.DependencyInjection.Resolvers;
 
 namespace Velo.Settings
 {
     internal sealed class SettingsFactory : IDependencyFactory
     {
         private readonly Type _attributeType = typeof(SettingsAttribute);
-        private readonly Type _dependencyType = typeof(SettingsDependency<>);
+        private readonly Type _resolverType = typeof(SettingsResolver<>);
         
         public bool Applicable(Type contract)
         {
@@ -19,13 +19,11 @@ namespace Velo.Settings
 
         public IDependency BuildDependency(Type contract, IDependencyEngine engine)
         {
-            var configurationDependency = engine.GetDependency(Typeof<IConfiguration>.Raw);
-            
             var path = contract.GetCustomAttribute<SettingsAttribute>().Path;
-            var dependencyType = _dependencyType.MakeGenericType(contract);
-
-            var dependencyParams = new object[] {configurationDependency, path};
-            return (IDependency) Activator.CreateInstance(dependencyType, dependencyParams);
+            var resolverType = _resolverType.MakeGenericType(contract);
+            var resolver = (DependencyResolver) Activator.CreateInstance(resolverType, path);
+            
+            return new TransientDependency(contract, resolver);
         }
     }
 }

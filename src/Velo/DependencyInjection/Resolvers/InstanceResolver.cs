@@ -8,7 +8,7 @@ namespace Velo.DependencyInjection.Resolvers
     {
         private readonly object _instance;
 
-        public InstanceResolver(object instance)
+        public InstanceResolver(object instance): base(instance.GetType())
         {
             _instance = instance;
         }

@@ -7,22 +7,16 @@ namespace Velo.DependencyInjection.Dependencies
     [DebuggerDisplay("Contract = {Contracts[0]}")]
     internal sealed class TransientDependency : Dependency
     {
-        private readonly DependencyResolver _resolver;
-
-        public TransientDependency(Type[] contracts, DependencyResolver resolver) 
-            : base(contracts, DependencyLifetime.Transient)
+        public TransientDependency(Type[] contracts, DependencyResolver resolver)
+            : base(contracts, resolver, DependencyLifetime.Transient)
         {
-            _resolver = resolver;
         }
 
         public TransientDependency(Type contract, DependencyResolver resolver) : this(new[] {contract}, resolver)
         {
         }
 
-        public override object GetInstance(Type contract, IDependencyScope scope)
-        {
-            return _resolver.Resolve(contract, scope);
-        }
+        public override object GetInstance(Type contract, IDependencyScope scope) => Resolve(contract, scope);
 
         public override void Dispose()
         {

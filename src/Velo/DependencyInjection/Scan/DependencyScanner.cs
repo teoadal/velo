@@ -41,11 +41,11 @@ namespace Velo.DependencyInjection.Scan
         {
             if (contract.IsGenericTypeDefinition)
             {
-                _alloverCollection.Add(new GenericInterfaceAllover(contract, DependencyLifetime.Scope));
+                _alloverCollection.Add(new GenericInterfaceAllover(contract, DependencyLifetime.Scoped));
             }
             else
             {
-                _alloverCollection.Add(new AssignableAllover(contract, DependencyLifetime.Scope));
+                _alloverCollection.Add(new AssignableAllover(contract, DependencyLifetime.Scoped));
             }
 
             return this;

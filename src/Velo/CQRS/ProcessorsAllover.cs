@@ -11,6 +11,20 @@ namespace Velo.CQRS
 {
     internal sealed class ProcessorsAllover : IDependencyAllover
     {
+        public static readonly Type[] CommandProcessorTypes =
+        {
+            typeof(ICommandPreProcessor<>),
+            typeof(ICommandProcessor<>),
+            typeof(ICommandPostProcessor<>)
+        };
+
+        public static readonly Type[] NotificationProcessorTypes =
+        {
+            typeof(INotificationProcessor<>)
+        };
+
+        public static readonly Type[] QueryProcessorTypes = {typeof(IQueryProcessor<,>)};
+
         private readonly DependencyLifetime _lifetime;
         private readonly ProcessorDescription[] _processorDescriptions;
 
@@ -20,16 +34,16 @@ namespace Velo.CQRS
 
             _processorDescriptions = new[]
             {
-                new ProcessorDescription(typeof(ICommandProcessor), CommandRouter.ProcessorTypes),
-                new ProcessorDescription(typeof(INotificationProcessor), NotificationRouter.ProcessorTypes),
-                new ProcessorDescription(typeof(IQueryProcessor), QueryRouter.ProcessorTypes)
+                new ProcessorDescription(typeof(ICommandProcessor), CommandProcessorTypes),
+                new ProcessorDescription(typeof(INotificationProcessor), NotificationProcessorTypes),
+                new ProcessorDescription(typeof(IQueryProcessor), QueryProcessorTypes)
             };
         }
 
         public void TryRegister(DependencyCollection collection, Type implementation)
         {
             Type[] genericInterfaces = null;
-            
+
             foreach (var description in _processorDescriptions)
             {
                 if (!description.BaseType.IsAssignableFrom(implementation)) continue;
@@ -41,7 +55,7 @@ namespace Velo.CQRS
             if (genericInterfaces == null) return;
 
             var contracts = ReflectionUtils.GetGenericInterfaceImplementations(implementation, genericInterfaces);
-            
+
             if (implementation.IsGenericTypeDefinition)
             {
                 var contract = contracts[0];
@@ -49,7 +63,7 @@ namespace Velo.CQRS
             }
             else
             {
-                collection.AddDependency(contracts.ToArray(), implementation, _lifetime);    
+                collection.AddDependency(contracts.ToArray(), implementation, _lifetime);
             }
         }
 

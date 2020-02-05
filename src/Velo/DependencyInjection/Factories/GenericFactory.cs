@@ -31,17 +31,8 @@ namespace Velo.DependencyInjection.Factories
                 ? contract
                 : _genericImplementation.MakeGenericType(contract.GenericTypeArguments);
 
-            switch (_lifetime)
-            {
-                case DependencyLifetime.Scope:
-                    return new ScopeDependency(contract, new CompiledResolver(implementation, engine));
-                case DependencyLifetime.Singleton:
-                    return new SingletonDependency(contract, new ActivatorResolver(implementation));
-                case DependencyLifetime.Transient:
-                    return new TransientDependency(contract, new CompiledResolver(implementation, engine));
-                default:
-                    throw Error.InvalidDependencyLifetime();
-            }
+            var resolver = DependencyResolver.Build(_lifetime, implementation, engine);
+            return Dependency.Build(_lifetime, new[] {contract}, resolver);
         }
     }
 }
