@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Velo.Benchmark.DependencyInjection
 {
     [SimpleJob(RuntimeMoniker.NetCoreApp22)]
+    [MarkdownExporterAttribute.GitHub]
     [MeanColumn, MemoryDiagnoser]
     [CategoriesColumn, GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
     public class DependencyBuildBenchmark

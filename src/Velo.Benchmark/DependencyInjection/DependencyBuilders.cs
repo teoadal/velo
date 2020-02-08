@@ -1,3 +1,4 @@
+using System;
 using Autofac;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
@@ -7,6 +8,8 @@ using SimpleInjector;
 using Unity;
 using Unity.Lifetime;
 using Velo.DependencyInjection;
+using Velo.Logging;
+using Velo.Logging.Enrichers;
 using Velo.Mapping;
 using Velo.Serialization;
 using Velo.Settings;
@@ -23,7 +26,8 @@ namespace Velo.Benchmark.DependencyInjection
         {
             var builder = new ContainerBuilder();
             builder.RegisterType<JConverter>().SingleInstance();
-            builder.RegisterType<Logger>().As<ILogger>().SingleInstance();
+            builder.RegisterType<Logger<SomethingController>>().As<ILogger<SomethingController>>().SingleInstance();
+            builder.Register(ctx => new LogProvider(Array.Empty<ILogWriter>(), Array.Empty<ILogEnricher>())).SingleInstance();
             builder.RegisterType<CompiledMapper<Boo>>().As<IMapper<Boo>>().SingleInstance();
             builder.RegisterType<CompiledMapper<Foo>>().As<IMapper<Foo>>().SingleInstance();
             builder.Register(ctx => new Configuration()).As<IConfiguration>().SingleInstance();
@@ -44,7 +48,8 @@ namespace Velo.Benchmark.DependencyInjection
         {
             return new WindsorContainer().Register(
                 Component.For<JConverter>().LifeStyle.Singleton,
-                Component.For<ILogger>().ImplementedBy<Logger>().LifeStyle.Singleton,
+                Component.For<ILogger<SomethingController>>().ImplementedBy<Logger<SomethingController>>().LifeStyle.Singleton,
+                Component.For<LogProvider>().UsingFactoryMethod(() => new LogProvider(Array.Empty<ILogWriter>(), Array.Empty<ILogEnricher>())),
                 Component.For<IMapper<Boo>>().ImplementedBy<CompiledMapper<Boo>>().LifeStyle.Singleton,
                 Component.For<IMapper<Foo>>().ImplementedBy<CompiledMapper<Foo>>().LifeStyle.Singleton,
                 Component.For<IConfiguration>().UsingFactoryMethod(() => new Configuration()).LifeStyle.Singleton, 
@@ -64,7 +69,8 @@ namespace Velo.Benchmark.DependencyInjection
         {
             return new ServiceCollection()
                 .AddSingleton<JConverter>()
-                .AddSingleton<ILogger, Logger>()
+                .AddSingleton<ILogger<SomethingController>, Logger<SomethingController>>()
+                .AddSingleton(ctx => new LogProvider(Array.Empty<ILogWriter>(), Array.Empty<ILogEnricher>()))
                 .AddSingleton<IMapper<Boo>, CompiledMapper<Boo>>()
                 .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
                 .AddSingleton<IConfiguration>(ctx => new Configuration())
@@ -83,7 +89,8 @@ namespace Velo.Benchmark.DependencyInjection
         {
             return new ServiceCollection()
                 .AddSingleton<JConverter>()
-                .AddSingleton<ILogger, Logger>()
+                .AddSingleton<ILogger<SomethingController>, Logger<SomethingController>>()
+                .AddSingleton(ctx => new LogProvider(Array.Empty<ILogWriter>(), Array.Empty<ILogEnricher>()))
                 .AddSingleton<IMapper<Boo>, CompiledMapper<Boo>>()
                 .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
                 .AddSingleton<IConfiguration>(ctx => new Configuration())
@@ -104,7 +111,8 @@ namespace Velo.Benchmark.DependencyInjection
             
             container
                 .RegisterSingleton(provider => new JConverter())
-                .RegisterSingleton<ILogger, Logger>()
+                .RegisterSingleton<ILogger<SomethingController>, Logger<SomethingController>>()
+                .RegisterSingleton(provider => new LogProvider(Array.Empty<ILogWriter>(), Array.Empty<ILogEnricher>()))
                 .RegisterSingleton<IMapper<Boo>, CompiledMapper<Boo>>()
                 .RegisterSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
                 .RegisterSingleton<IConfiguration>(provider => new Configuration())
@@ -126,7 +134,8 @@ namespace Velo.Benchmark.DependencyInjection
             var container = new Container();
             
             container.Register(typeof(JConverter), () => new JConverter(), Lifestyle.Singleton);
-            container.RegisterSingleton<ILogger, Logger>();
+            container.RegisterSingleton<ILogger<SomethingController>, Logger<SomethingController>>();
+            container.Register(typeof(LogProvider), () => new LogProvider(Array.Empty<ILogWriter>(), Array.Empty<ILogEnricher>()), Lifestyle.Singleton);
             container.RegisterSingleton<IMapper<Boo>, CompiledMapper<Boo>>();
             container.RegisterSingleton<IMapper<Foo>, CompiledMapper<Foo>>();
             container.Register(typeof(IConfiguration), () => new Configuration(), Lifestyle.Singleton);
@@ -147,7 +156,8 @@ namespace Velo.Benchmark.DependencyInjection
         {
             return new DependencyCollection()
                 .AddSingleton<JConverter>()
-                .AddSingleton<ILogger, Logger>()
+                .AddSingleton<ILogger<SomethingController>, Logger<SomethingController>>()
+                .AddSingleton(ctx => new LogProvider(Array.Empty<ILogWriter>(), Array.Empty<ILogEnricher>()))
                 .AddSingleton<IMapper<Boo>, CompiledMapper<Boo>>()
                 .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
                 .AddSingleton<IConfiguration>(ctx => new Configuration())
@@ -166,7 +176,8 @@ namespace Velo.Benchmark.DependencyInjection
         {
             return new DependencyCollection()
                 .AddSingleton<JConverter>()
-                .AddSingleton<ILogger, Logger>()
+                .AddSingleton<ILogger<SomethingController>, Logger<SomethingController>>()
+                .AddSingleton(ctx => new LogProvider(Array.Empty<ILogWriter>(), Array.Empty<ILogEnricher>()))
                 .AddSingleton<IMapper<Boo>, CompiledMapper<Boo>>()
                 .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
                 .AddSingleton<IConfiguration>(ctx => new Configuration())
@@ -185,7 +196,8 @@ namespace Velo.Benchmark.DependencyInjection
         {
             return new UnityContainer()
                 .RegisterSingleton<JConverter>()
-                .RegisterSingleton<ILogger, Logger>()
+                .RegisterSingleton<ILogger<SomethingController>, Logger<SomethingController>>()
+                .RegisterFactory<LogProvider>(ctx => new LogProvider(Array.Empty<ILogWriter>(), Array.Empty<ILogEnricher>()), new SingletonLifetimeManager())
                 .RegisterSingleton<IMapper<Boo>, CompiledMapper<Boo>>()
                 .RegisterSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
                 .RegisterFactory<IConfiguration>(ctx => new Configuration(), new SingletonLifetimeManager())

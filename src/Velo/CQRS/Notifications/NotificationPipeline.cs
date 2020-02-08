@@ -15,9 +15,11 @@ namespace Velo.CQRS.Notifications
 
         public async ValueTask Publish(TNotification notification, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+            
             foreach (var processor in _processors)
             {
-                if (notification.StopPropagation || cancellationToken.IsCancellationRequested) break;
+                if (notification.StopPropagation) break;
                 await processor.Process(notification, cancellationToken);
             }
         }

@@ -1,4 +1,4 @@
-using System.Text;
+using System.IO;
 using Velo.Serialization.Models;
 using Velo.Serialization.Tokenization;
 using Velo.Utils;
@@ -30,11 +30,11 @@ namespace Velo.Serialization.Converters
             return jsonValue.Type == JsonDataType.True;
         }
 
-        public void Serialize(bool value, StringBuilder builder)
+        public void Serialize(bool value, TextWriter writer)
         {
-            builder.Append(value ? JsonTokenizer.TokenTrueValue : JsonTokenizer.TokenFalseValue);
+            writer.Write(value ? JsonTokenizer.TokenTrueValue : JsonTokenizer.TokenFalseValue);
         }
 
-        void IJsonConverter.Serialize(object value, StringBuilder builder) => Serialize((bool) value, builder);
+        void IJsonConverter.Serialize(object value, TextWriter writer) => Serialize((bool) value, writer);
     }
 }

@@ -9,18 +9,29 @@ namespace Velo.CQRS.Pipeline
 {
     internal static class PipelineTypes
     {
-        private static readonly Type CommandPipelineType = typeof(CommandPipeline<>);
-
-        private static readonly Type QueryPipelineType = typeof(QueryPipeline<,>);
+        public static readonly Type Command = typeof(CommandPipeline<>);
+        public static readonly Type[] CommandProcessorTypes =
+        {
+            typeof(ICommandPreProcessor<>),
+            typeof(ICommandProcessor<>),
+            typeof(ICommandPostProcessor<>)
+        };
+        public static readonly Type[] CommandBehaviourTypes = {typeof(ICommandBehaviour<>)};
+        
+        public static readonly Type Notification = typeof(NotificationPipeline<>);
+        public static readonly Type[] NotificationProcessorTypes = {typeof(INotificationProcessor<>)};
+        
+        public static readonly Type Query = typeof(QueryPipeline<,>);
+        public static readonly Type[] QueryProcessorTypes = {typeof(IQueryProcessor<,>)};
         private static readonly Type QueryType = typeof(IQuery<>);
-
-        private static readonly Type NotificationPipelineType = typeof(NotificationPipeline<>);
-
+        
         private static readonly ConcurrentDictionary<Type, Type> ResolvedTypes = new ConcurrentDictionary<Type, Type>();
 
-        private static readonly Func<Type, Type> CommandBuilder = t => CommandPipelineType.MakeGenericType(t);
-        private static readonly Func<Type, Type> QueryBuilder = BuildQueryPipelineType;
-        private static readonly Func<Type, Type> NotificationBuilder = t => NotificationPipelineType.MakeGenericType(t);
+        // ReSharper disable ConvertClosureToMethodGroup
+        private static readonly Func<Type, Type> CommandBuilder = t => Command.MakeGenericType(t);
+        private static readonly Func<Type, Type> QueryBuilder = t => BuildQueryPipelineType(t);
+        private static readonly Func<Type, Type> NotificationBuilder = t => Notification.MakeGenericType(t);
+        // ReSharper restore ConvertClosureToMethodGroup
 
         public static Type GetForCommand(Type commandType)
         {
@@ -40,7 +51,7 @@ namespace Velo.CQRS.Pipeline
         private static Type BuildQueryPipelineType(Type queryType)
         {
             var resultType = ReflectionUtils.GetGenericInterfaceParameters(queryType, QueryType)[0];
-            return QueryPipelineType.MakeGenericType(queryType, resultType);
+            return Query.MakeGenericType(queryType, resultType);
         }
     }
 }

@@ -1,5 +1,5 @@
 using System.Globalization;
-using System.Text;
+using System.IO;
 using Velo.Serialization.Models;
 using Velo.Serialization.Tokenization;
 
@@ -28,11 +28,11 @@ namespace Velo.Serialization.Converters
             return double.Parse(jsonValue.Value, _cultureInfo);
         }
         
-        public void Serialize(double value, StringBuilder builder)
+        public void Serialize(double value, TextWriter builder)
         {
-            builder.Append(value.ToString(_cultureInfo));
+            builder.Write(value.ToString(_cultureInfo));
         }
 
-        void IJsonConverter.Serialize(object value, StringBuilder builder) => Serialize((double) value, builder);
+        void IJsonConverter.Serialize(object value, TextWriter builder) => Serialize((double) value, builder);
     }
 }

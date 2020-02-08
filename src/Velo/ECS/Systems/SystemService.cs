@@ -18,7 +18,7 @@ namespace Velo.ECS.Systems
             var initSystems = _provider.GetServices<IInitializeSystem>();
             foreach (var initSystem in initSystems)
             {
-                if (cancellationToken.IsCancellationRequested) break;
+                cancellationToken.ThrowIfCancellationRequested();
                 await initSystem.Initialize(cancellationToken);
             }
         }
@@ -28,21 +28,22 @@ namespace Velo.ECS.Systems
             var beforeUpdateSystems = _provider.GetServices<IBeforeUpdateSystem>();
             foreach (var beforeUpdateSystem in beforeUpdateSystems)
             {
-                if (cancellationToken.IsCancellationRequested) break;
                 await beforeUpdateSystem.BeforeUpdate(cancellationToken);
             }
 
+            cancellationToken.ThrowIfCancellationRequested();
+            
             var updateSystems = _provider.GetServices<IUpdateSystem>();
             foreach (var updateSystem in updateSystems)
             {
-                if (cancellationToken.IsCancellationRequested) break;
                 await updateSystem.Update(cancellationToken);
             }
-
+            
+            cancellationToken.ThrowIfCancellationRequested();
+            
             var afterUpdateSystems = _provider.GetServices<IAfterUpdateSystem>();
             foreach (var afterUpdateSystem in afterUpdateSystems)
             {
-                if (cancellationToken.IsCancellationRequested) break;
                 await afterUpdateSystem.AfterUpdate(cancellationToken);
             }
         }

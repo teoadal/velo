@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Text;
 using Velo.Collections;
@@ -8,6 +9,8 @@ namespace Velo.Serialization.Models
 {
     internal abstract class JsonData
     {
+        [ThreadStatic] private static StringBuilder _buffer;
+
         public static JsonData Parse(Stream stream, Encoding encoding = null)
         {
             var reader = new JsonReader(stream, encoding ?? Encoding.UTF8);
@@ -35,7 +38,9 @@ namespace Velo.Serialization.Models
 
         private static JsonData Parse(JsonReader reader)
         {
-            var tokenizer = new JsonTokenizer(reader);
+            if (_buffer == null) _buffer = new StringBuilder(200);
+
+            var tokenizer = new JsonTokenizer(reader, _buffer);
 
             tokenizer.MoveNext();
 

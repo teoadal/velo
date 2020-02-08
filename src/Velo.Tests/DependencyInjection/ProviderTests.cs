@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Velo.Logging;
 using Velo.Mapping;
 using Velo.Serialization;
 using Velo.Settings;
@@ -60,7 +61,6 @@ namespace Velo.DependencyInjection
         {
             var provider = new DependencyCollection()
                 .AddSingleton<JConverter>()
-                .AddSingleton<ILogger, Logger>()
                 .AddSingleton<IMapper<Boo>, CompiledMapper<Boo>>()
                 .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
                 .AddSingleton<IConfiguration>(ctx => new Configuration())
@@ -70,6 +70,7 @@ namespace Velo.DependencyInjection
                 .AddSingleton<IBooService, BooService>()
                 .AddSingleton<IBooRepository, BooRepository>()
                 .AddSingleton<SomethingController>()
+                .AddLogging()
                 .BuildProvider();
 
             var controller = provider.GetService<SomethingController>();
@@ -108,6 +109,21 @@ namespace Velo.DependencyInjection
         }
         
         [Fact]
+        public void Resolve_FirstFromAssignable()
+        {
+            var provider = _dependencies
+                .AddSingleton<IRepository, BooRepository>()
+                .AddSingleton<IRepository, FooRepository>()
+                .BuildProvider();
+
+            var firstAdded = provider.GetRequiredService<IRepository>();
+            Assert.IsType<BooRepository>(firstAdded);
+            
+            var notFound = provider.GetService<BooRepository>();
+            Assert.Null(notFound);
+        }
+        
+        [Fact]
         public void Resolve_Enumerable()
         {
             var provider = _dependencies
@@ -117,7 +133,6 @@ namespace Velo.DependencyInjection
                 .BuildProvider();
 
             var array = provider.GetService<IEnumerable<IRepository>>();
-
             Assert.Equal(3, array.Count());
         }
         
@@ -155,13 +170,13 @@ namespace Velo.DependencyInjection
         public async Task Resolve_MultiThreading()
         {
             var provider = _dependencies
-                .AddInstance<ILogger>(new Logger())
                 .AddSingleton(typeof(IMapper<>), typeof(CompiledMapper<>))
                 .AddSingleton<IFooService, FooService>()
                 .AddSingleton<IFooRepository, FooRepository>()
                 .AddSingleton<IBooService, BooService>()
                 .AddSingleton<IBooRepository, BooRepository>()
                 .AddSingleton<SomethingController>()
+                .AddLogging()
                 .BuildProvider();
 
             var resolvedControllers = new ConcurrentBag<SomethingController>();

@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -61,30 +62,7 @@ namespace Velo.Utils
         public static string GetName(Type type, StringBuilder sb = null)
         {
             var builder = sb ?? new StringBuilder();
-
-            if (type.IsArray)
-            {
-                GetName(GetArrayElementType(type), builder);
-                builder.Append("[]");
-            }
-            else if (type.IsGenericType)
-            {
-                var genericDefinitionName = type.GetGenericTypeDefinition().Name;
-                builder
-                    .Append(genericDefinitionName.Remove(genericDefinitionName.IndexOf('`')))
-                    .Append('<');
-
-                var genericArguments = type.GenericTypeArguments;
-                for (var i = 0; i < genericArguments.Length; i++)
-                {
-                    if (i > 0) builder.Append(", ");
-                    GetName(genericArguments[i], builder);
-                }
-
-                builder.Append('>');
-            }
-            else builder.Append(type.Name);
-
+            WriteName(type, new StringWriter(builder));
             return sb == null ? builder.ToString() : null;
         }
 
@@ -197,6 +175,31 @@ namespace Velo.Utils
         {
             if (type.IsAbstract) throw Error.InvalidOperation($"'{GetName(type)}' is abstract or static");
             if (type.IsInterface) throw Error.InvalidOperation($"'{GetName(type)}' is interface");
+        }
+        
+        public static void WriteName(Type type, TextWriter writer)
+        {
+            if (type.IsArray)
+            {
+                WriteName(GetArrayElementType(type), writer);
+                writer.Write("[]");
+            }
+            else if (type.IsGenericType)
+            {
+                var genericDefinitionName = type.GetGenericTypeDefinition().Name;
+                writer.Write(genericDefinitionName.Remove(genericDefinitionName.IndexOf('`')));
+                writer.Write('<');
+                
+                var genericArguments = type.GenericTypeArguments;
+                for (var i = 0; i < genericArguments.Length; i++)
+                {
+                    if (i > 0) writer.Write(", ");
+                    WriteName(genericArguments[i], writer);
+                }
+
+                writer.Write('>');
+            }
+            else writer.Write(type.Name);
         }
     }
 }

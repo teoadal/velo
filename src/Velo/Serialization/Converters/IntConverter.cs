@@ -1,4 +1,4 @@
-using System.Text;
+using System.IO;
 using Velo.Serialization.Models;
 using Velo.Serialization.Tokenization;
 
@@ -20,11 +20,11 @@ namespace Velo.Serialization.Converters
             return int.Parse(jsonValue.Value);
         }
         
-        public void Serialize(int value, StringBuilder builder)
+        public void Serialize(int value, TextWriter writer)
         {
-            builder.Append(value);
+            writer.Write(value);
         }
 
-        void IJsonConverter.Serialize(object value, StringBuilder builder) => Serialize((int) value, builder);
+        void IJsonConverter.Serialize(object value, TextWriter writer) => Serialize((int) value, writer);
     }
 }

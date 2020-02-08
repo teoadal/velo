@@ -1,4 +1,4 @@
-using System.Text;
+using System.IO;
 using Velo.Serialization.Models;
 using Velo.Serialization.Tokenization;
 
@@ -20,20 +20,20 @@ namespace Velo.Serialization.Converters
             return jsonValue.Value;
         }
         
-        public void Serialize(string value, StringBuilder builder)
+        public void Serialize(string value, TextWriter writer)
         {
             if (value == null)
             {
-                builder.Append(JsonTokenizer.TokenNullValue);
+                writer.Write(JsonTokenizer.TokenNullValue);
             }
             else
             {
-                builder.Append('"');
-                builder.Append(value);
-                builder.Append('"');
+                writer.Write('"');
+                writer.Write(value);
+                writer.Write('"');
             }
         }
 
-        void IJsonConverter.Serialize(object value, StringBuilder builder) => Serialize((string) value, builder);
+        void IJsonConverter.Serialize(object value, TextWriter writer) => Serialize((string) value, writer);
     }
 }

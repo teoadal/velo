@@ -10,6 +10,7 @@ using JsonSerializer = SpanJson.JsonSerializer;
 namespace Velo.Benchmark.Serialization
 {
     [SimpleJob(RuntimeMoniker.NetCoreApp31)]
+    [MarkdownExporterAttribute.GitHub]
     [MeanColumn, MemoryDiagnoser]
     public class SerializationBenchmark
     {

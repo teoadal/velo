@@ -123,7 +123,7 @@ namespace Velo.Settings
             var jsonDataType = data.Type;
             var primitiveData = jsonDataType != JsonDataType.Object && jsonDataType != JsonDataType.Array;
             
-            var converter = (IJsonConverter<T>) _converters.Get(Typeof<T>.Raw);
+            var converter = _converters.Get<T>();
             if (converter.IsPrimitive && !primitiveData || !converter.IsPrimitive && primitiveData)
             {
                 throw CastException(jsonDataType, ReflectionUtils.GetName<T>());

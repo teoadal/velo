@@ -9,6 +9,7 @@ using Velo.TestsModels.Boos;
 namespace Velo.Benchmark.Collections
 {
     [SimpleJob(RuntimeMoniker.NetCoreApp31)]
+    [MarkdownExporterAttribute.GitHub]
     [MeanColumn, MemoryDiagnoser]
     [CategoriesColumn, GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
     public class IterationBenchmark

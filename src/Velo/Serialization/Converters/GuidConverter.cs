@@ -1,5 +1,5 @@
 using System;
-using System.Text;
+using System.IO;
 using Velo.Serialization.Models;
 using Velo.Serialization.Tokenization;
 
@@ -21,13 +21,13 @@ namespace Velo.Serialization.Converters
             return Guid.Parse(jsonValue.Value);
         }
         
-        public void Serialize(Guid value, StringBuilder builder)
+        public void Serialize(Guid value, TextWriter writer)
         {
-            builder.Append('"');
-            builder.Append(value.ToString());
-            builder.Append('"');
+            writer.Write('"');
+            writer.Write(value.ToString());
+            writer.Write('"');
         }
 
-        void IJsonConverter.Serialize(object value, StringBuilder builder) => Serialize((Guid) value, builder);
+        void IJsonConverter.Serialize(object value, TextWriter writer) => Serialize((Guid) value, writer);
     }
 }

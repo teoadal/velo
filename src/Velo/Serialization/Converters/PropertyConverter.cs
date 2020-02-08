@@ -1,7 +1,7 @@
 using System;
+using System.IO;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 using Velo.Serialization.Models;
 using Velo.Serialization.Tokenization;
 using Velo.Utils;
@@ -12,7 +12,7 @@ namespace Velo.Serialization.Converters
     {
         public readonly DeserializeMethod<TObject> Deserialize;
         public readonly Action<TObject, JsonData> Read;
-        public readonly Action<TObject, StringBuilder> Serialize;
+        public readonly Action<TObject, TextWriter> Serialize;
 
         public PropertyConverter(PropertyInfo propertyInfo, IJsonConverter valueConverter)
         {
@@ -54,18 +54,18 @@ namespace Velo.Serialization.Converters
                 .Compile();
         }
 
-        private static Action<TObject, StringBuilder> BuildSerializeMethod(ParameterExpression instance,
+        private static Action<TObject, TextWriter> BuildSerializeMethod(ParameterExpression instance,
             PropertyInfo property, Expression valueConverter)
         {
             const string serializeMethodName = nameof(IJsonConverter<object>.Serialize);
 
-            var builder = Expression.Parameter(Typeof<StringBuilder>.Raw, "builder");
+            var writer = Expression.Parameter(Typeof<TextWriter>.Raw, "writer");
 
             var propertyValue = Expression.Property(instance, property);
-            var body = ExpressionUtils.Call(valueConverter, serializeMethodName, propertyValue, builder);
+            var body = ExpressionUtils.Call(valueConverter, serializeMethodName, propertyValue, writer);
 
             return Expression
-                .Lambda<Action<TObject, StringBuilder>>(body, instance, builder)
+                .Lambda<Action<TObject, TextWriter>>(body, instance, writer)
                 .Compile();
         }
     }

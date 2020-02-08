@@ -1,6 +1,6 @@
+using Velo.Logging;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Foos;
-using Velo.TestsModels.Infrastructure;
 
 namespace Velo.TestsModels.Domain
 {
@@ -12,9 +12,9 @@ namespace Velo.TestsModels.Domain
 
         public IBooService BooService { get; }
 
-        public ILogger Logger { get; }
+        public ILogger<SomethingController> Logger { get; }
 
-        public SomethingController(IFooService fooService, IBooService booService, ILogger logger)
+        public SomethingController(IFooService fooService, IBooService booService, ILogger<SomethingController> logger)
         {
             Name = fooService.Repository.Session.Id.ToString("N");
 

@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using System.Text;
+using System.IO;
 using Velo.Collections;
 using Velo.Serialization.Models;
 using Velo.Serialization.Tokenization;
@@ -58,29 +58,29 @@ namespace Velo.Serialization.Converters
             return list;
         }
 
-        public void Serialize(List<TElement> list, StringBuilder builder)
+        public void Serialize(List<TElement> list, TextWriter writer)
         {
             if (list == null)
             {
-                builder.Append(JsonTokenizer.TokenNullValue);
+                writer.Write(JsonTokenizer.TokenNullValue);
                 return;
             }
 
-            builder.Append('[');
+            writer.Write('[');
 
             var first = true;
             foreach (var element in list)
             {
                 if (first) first = false;
-                else builder.Append(',');
+                else writer.Write(',');
 
-                _elementConverter.Serialize(element, builder);
+                _elementConverter.Serialize(element, writer);
             }
 
-            builder.Append("]");
+            writer.Write(']');
         }
 
-        void IJsonConverter.Serialize(object value, StringBuilder builder) =>
-            Serialize((List<TElement>) value, builder);
+        void IJsonConverter.Serialize(object value, TextWriter writer) =>
+            Serialize((List<TElement>) value, writer);
     }
 }

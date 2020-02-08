@@ -2,9 +2,7 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using Velo.Serialization.Converters;
 using Velo.Serialization.Tokenization;
-using Velo.Utils;
 
 namespace Velo.Serialization
 {
@@ -49,16 +47,29 @@ namespace Velo.Serialization
 
             if (_buffer == null) _buffer = new StringBuilder(200);
 
-            var type = source.GetType();
-            var converter = _converters.Get(type);
-
-            converter.Serialize(source, _buffer);
-
+            using var stringWriter = new StringWriter(_buffer);
+            
+            Serialize(source, stringWriter);
+            
             var json = _buffer.ToString();
             _buffer.Clear();
             return json;
         }
 
+        public void Serialize(object source, TextWriter writer)
+        {
+            if (source == null)
+            {
+                writer.Write(JsonTokenizer.TokenNullValue);
+                return;
+            }
+            
+            var type = source.GetType();
+            var converter = _converters.Get(type);
+            
+            converter.Serialize(source, writer);
+        }
+        
         public void PrepareConverterFor<TSource>()
         {
             var sourceType = typeof(TSource);
@@ -69,13 +80,12 @@ namespace Velo.Serialization
         {
             if (_buffer == null) _buffer = new StringBuilder(200);
 
-            var converter = _converters.Get(Typeof<TOut>.Raw);
+            var converter = _converters.Get<TOut>();
 
             var tokenizer = new JsonTokenizer(reader, _buffer);
             if (converter.IsPrimitive) tokenizer.MoveNext();
 
-            var typedConverter = (IJsonConverter<TOut>) converter;
-            var result = typedConverter.Deserialize(ref tokenizer);
+            var result = converter.Deserialize(ref tokenizer);
 
             tokenizer.Dispose();
 

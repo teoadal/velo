@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
@@ -13,6 +14,7 @@ using Boos = Velo.TestsModels.Emitting.Boos;
 namespace Velo.Benchmark.CQRS
 {
     [SimpleJob(RuntimeMoniker.NetCoreApp31)]
+    [MarkdownExporterAttribute.GitHub]
     [MeanColumn, MemoryDiagnoser]
     public class MediatorRequestBenchmark
     {
@@ -57,7 +59,11 @@ namespace Velo.Benchmark.CQRS
             _emitterOnCore = new ServiceCollection()
                 .AddSingleton<IBooRepository>(ctx => repository)
                 .AddSingleton<IQueryProcessor<Boos.Get.Query, Boo>, Boos.Get.Processor>()
-                .AddSingleton(ctx => new QueryPipeline<Boos.Get.Query, Boo>(ctx.GetRequiredService<IQueryProcessor<Boos.Get.Query, Boo>>()))
+                .AddSingleton(ctx => new QueryPipeline<Boos.Get.Query, Boo>(
+                    Array.Empty<IQueryBehaviour<Boos.Get.Query, Boo>>(),
+                    Array.Empty<IQueryPreProcessor<Boos.Get.Query, Boo>>(),
+                    ctx.GetRequiredService<IQueryProcessor<Boos.Get.Query, Boo>>(),
+                    Array.Empty<IQueryPostProcessor<Boos.Get.Query, Boo>>()))
                 .AddScoped(ctx => new Emitter(ctx))
                 .BuildServiceProvider()
                 .GetService<Emitter>();

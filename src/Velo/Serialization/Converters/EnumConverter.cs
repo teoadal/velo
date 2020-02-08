@@ -1,5 +1,5 @@
 using System;
-using System.Text;
+using System.IO;
 using Velo.Serialization.Models;
 using Velo.Serialization.Tokenization;
 
@@ -29,12 +29,12 @@ namespace Velo.Serialization.Converters
             return _values[int.Parse(jsonValue.Value)];
         }
         
-        public void Serialize(TEnum value, StringBuilder builder)
+        public void Serialize(TEnum value, TextWriter writer)
         {
             var index = Array.IndexOf(_values, value);
-            builder.Append(index);
+            writer.Write(index);
         }
         
-        void IJsonConverter.Serialize(object value, StringBuilder builder) => Serialize((TEnum) value, builder);
+        void IJsonConverter.Serialize(object value, TextWriter writer) => Serialize((TEnum) value, writer);
     }
 }

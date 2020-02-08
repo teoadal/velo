@@ -1,6 +1,7 @@
 using System;
 using Velo.CQRS.Commands;
 using Velo.CQRS.Notifications;
+using Velo.CQRS.Pipeline;
 using Velo.CQRS.Queries;
 using Velo.DependencyInjection;
 using Velo.DependencyInjection.Factories;
@@ -11,20 +12,6 @@ namespace Velo.CQRS
 {
     internal sealed class ProcessorsAllover : IDependencyAllover
     {
-        public static readonly Type[] CommandProcessorTypes =
-        {
-            typeof(ICommandPreProcessor<>),
-            typeof(ICommandProcessor<>),
-            typeof(ICommandPostProcessor<>)
-        };
-
-        public static readonly Type[] NotificationProcessorTypes =
-        {
-            typeof(INotificationProcessor<>)
-        };
-
-        public static readonly Type[] QueryProcessorTypes = {typeof(IQueryProcessor<,>)};
-
         private readonly DependencyLifetime _lifetime;
         private readonly ProcessorDescription[] _processorDescriptions;
 
@@ -34,9 +21,9 @@ namespace Velo.CQRS
 
             _processorDescriptions = new[]
             {
-                new ProcessorDescription(typeof(ICommandProcessor), CommandProcessorTypes),
-                new ProcessorDescription(typeof(INotificationProcessor), NotificationProcessorTypes),
-                new ProcessorDescription(typeof(IQueryProcessor), QueryProcessorTypes)
+                new ProcessorDescription(typeof(ICommandProcessor), PipelineTypes.CommandProcessorTypes),
+                new ProcessorDescription(typeof(INotificationProcessor), PipelineTypes.NotificationProcessorTypes),
+                new ProcessorDescription(typeof(IQueryProcessor), PipelineTypes.QueryProcessorTypes)
             };
         }
 

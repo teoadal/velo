@@ -1,10 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
-using Velo.Collections;
 using Velo.DependencyInjection.Dependencies;
 using Velo.DependencyInjection.Resolvers;
-using Velo.Ordering;
 using Velo.Utils;
 
 namespace Velo.DependencyInjection.Factories

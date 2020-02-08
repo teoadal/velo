@@ -1,4 +1,4 @@
-using System.Text;
+using System.IO;
 using Velo.Serialization.Models;
 using Velo.Serialization.Tokenization;
 
@@ -7,8 +7,8 @@ namespace Velo.Serialization.Converters
     internal interface IJsonConverter
     {
         bool IsPrimitive { get; }
-        
-        void Serialize(object value, StringBuilder builder);
+
+        void Serialize(object value, TextWriter writer);
     }
 
     internal interface IJsonConverter<T> : IJsonConverter
@@ -16,7 +16,7 @@ namespace Velo.Serialization.Converters
         T Deserialize(ref JsonTokenizer tokenizer);
 
         T Read(JsonData jsonData);
-        
-        void Serialize(T value, StringBuilder builder);
+
+        void Serialize(T value, TextWriter writer);
     }
 }

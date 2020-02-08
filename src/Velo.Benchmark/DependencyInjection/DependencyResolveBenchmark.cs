@@ -15,6 +15,7 @@ using Velo.TestsModels.Foos;
 namespace Velo.Benchmark.DependencyInjection
 {
     [SimpleJob(RuntimeMoniker.NetCoreApp22)]
+    [MarkdownExporterAttribute.GitHub]
     [MeanColumn, MemoryDiagnoser]
     [CategoriesColumn, GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
     public class DependencyResolveBenchmark

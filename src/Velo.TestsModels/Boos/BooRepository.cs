@@ -28,6 +28,7 @@ namespace Velo.TestsModels.Boos
         {
             lock (_storage)
             {
+                if (element.Id < 0) throw new InvalidOperationException($"Id '{element.Id}' less zero");
                 _storage.Add(element.Id, element);    
             }
         }

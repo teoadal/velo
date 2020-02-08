@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
-using System.Text;
 using Velo.Serialization.Models;
 using Velo.Serialization.Tokenization;
 using Velo.Utils;
@@ -29,6 +29,7 @@ namespace Velo.Serialization.Converters
 
                 converters.Add(propertyName, propertyConverter);
             }
+
             _propertyConverters = converters;
         }
 
@@ -79,29 +80,31 @@ namespace Velo.Serialization.Converters
             return instance;
         }
 
-        public void Serialize(TObject instance, StringBuilder builder)
+        public void Serialize(TObject instance, TextWriter writer)
         {
             if (_equalityComparer.Equals(instance, default))
             {
-                builder.Append(JsonTokenizer.TokenNullValue);
+                writer.Write(JsonTokenizer.TokenNullValue);
                 return;
             }
 
-            builder.Append('{');
+            writer.Write('{');
 
             var first = true;
             foreach (var (name, converter) in _propertyConverters)
             {
                 if (first) first = false;
-                else builder.Append(',');
+                else writer.Write(',');
 
-                builder.Append('"').Append(name).Append("\":");
-                converter.Serialize(instance, builder);
+                writer.Write('"');
+                writer.Write(name);
+                writer.Write("\":");
+                converter.Serialize(instance, writer);
             }
 
-            builder.Append('}');
+            writer.Write('}');
         }
 
-        void IJsonConverter.Serialize(object value, StringBuilder builder) => Serialize((TObject) value, builder);
+        void IJsonConverter.Serialize(object value, TextWriter writer) => Serialize((TObject) value, writer);
     }
 }

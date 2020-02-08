@@ -1,6 +1,6 @@
 using System;
 using System.Globalization;
-using System.Text;
+using System.IO;
 using Velo.Serialization.Models;
 using Velo.Serialization.Tokenization;
 
@@ -29,13 +29,13 @@ namespace Velo.Serialization.Converters
             return DateTime.Parse(jsonValue.Value, _cultureInfo);
         }
         
-        public void Serialize(DateTime value, StringBuilder builder)
+        public void Serialize(DateTime value, TextWriter writer)
         {
-            builder.Append('"');
-            builder.Append(value.ToString("O", _cultureInfo));
-            builder.Append('"');
+            writer.Write('"');
+            writer.Write(value.ToString("O", _cultureInfo));
+            writer.Write('"');
         }
 
-        void IJsonConverter.Serialize(object value, StringBuilder builder) => Serialize((DateTime) value, builder);
+        void IJsonConverter.Serialize(object value, TextWriter writer) => Serialize((DateTime) value, writer);
     }
 }

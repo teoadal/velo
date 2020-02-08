@@ -50,14 +50,14 @@ namespace Velo
         [Fact]
         public void Order_Array_Sort_Without_OrderAttribute()
         {
-            var instances = new object[] {new Boo(), new Foo(), new Logger() };
+            var instances = new object[] {new Boo(), new Foo(), new Session(null) };
             var comparer = new OrderAttributeComparer<object>();
             
             Array.Sort(instances, comparer);
 
             Assert.IsType<Boo>(instances[0]);
             Assert.IsType<Foo>(instances[1]);
-            Assert.IsType<Logger>(instances[2]);
+            Assert.IsType<Session>(instances[2]);
         }
 
         [Fact]

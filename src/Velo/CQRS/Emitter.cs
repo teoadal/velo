@@ -22,7 +22,7 @@ namespace Velo.CQRS
 
         public ValueTask<TResult> Ask<TResult>(IQuery<TResult> query, CancellationToken cancellationToken = default)
         {
-            if (_disposed) throw Error.Disposed(nameof(Emitter));
+            EnsureNotDisposed();
 
             var handlerType = PipelineTypes.GetForQuery(query.GetType());
             var handler = (IQueryPipeline<TResult>) _scope.GetService(handlerType);
@@ -33,7 +33,7 @@ namespace Velo.CQRS
         public ValueTask<TResult> Ask<TQuery, TResult>(TQuery query, CancellationToken cancellationToken = default)
             where TQuery : IQuery<TResult>
         {
-            if (_disposed) throw Error.Disposed(nameof(Emitter));
+            EnsureNotDisposed();
 
             var handler = GetService<QueryPipeline<TQuery, TResult>>();
             return handler.GetResponse(query, cancellationToken);
@@ -42,7 +42,7 @@ namespace Velo.CQRS
         public ValueTask Execute<TCommand>(TCommand command, CancellationToken cancellationToken = default)
             where TCommand : ICommand
         {
-            if (_disposed) throw Error.Disposed(nameof(Emitter));
+            EnsureNotDisposed();
 
             var executor = GetService<CommandPipeline<TCommand>>();
             return executor.Execute(command, cancellationToken);
@@ -52,7 +52,7 @@ namespace Velo.CQRS
             CancellationToken cancellationToken = default)
             where TNotification : INotification
         {
-            if (_disposed) throw Error.Disposed(nameof(Emitter));
+            EnsureNotDisposed();
 
             var publisher = GetService<NotificationPipeline<TNotification>>();
             return publisher.Publish(notification, cancellationToken);
@@ -60,12 +60,12 @@ namespace Velo.CQRS
 
         public ValueTask Send(ICommand command, CancellationToken cancellationToken)
         {
-            if (_disposed) throw Error.Disposed(nameof(Emitter));
+            EnsureNotDisposed();
 
             var executorType = PipelineTypes.GetForCommand(command.GetType());
             var executor = (ICommandPipeline) _scope.GetService(executorType);
 
-            return executor.Execute(command, cancellationToken);
+            return executor.Send(command, cancellationToken);
         }
 
         public ValueTask Send(INotification notification, CancellationToken cancellationToken)
@@ -78,18 +78,24 @@ namespace Velo.CQRS
             return publisher.Publish(notification, cancellationToken);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private T GetService<T>()
+        {
+            return (T) _scope.GetService(Typeof<T>.Raw);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void EnsureNotDisposed()
+        {
+            if (_disposed) throw Error.Disposed(nameof(Emitter));
+        }
+
         public void Dispose()
         {
             if (_disposed) return;
 
             _scope = null;
             _disposed = true;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private T GetService<T>()
-        {
-            return (T) _scope.GetService(Typeof<T>.Raw);
         }
     }
 }

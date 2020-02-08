@@ -15,9 +15,9 @@ namespace Velo.CQRS
         public static DependencyCollection AddEmitter(this DependencyCollection collection)
         {
             collection
-                .AddFactory(new PipelineFactory(typeof(CommandPipeline<>)))
-                .AddFactory(new PipelineFactory(typeof(NotificationPipeline<>)))
-                .AddFactory(new PipelineFactory(typeof(QueryPipeline<,>)))
+                .AddFactory(new PipelineFactory(PipelineTypes.Command))
+                .AddFactory(new PipelineFactory(PipelineTypes.Notification))
+                .AddFactory(new PipelineFactory(PipelineTypes.Query))
                 .AddScoped<Emitter>();
 
             return collection;
@@ -27,8 +27,17 @@ namespace Velo.CQRS
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
             where TProcessor : ICommandProcessor
         {
-            var commandProcessorTypes = ProcessorsAllover.CommandProcessorTypes;
-            AddProcessor(collection, Typeof<TProcessor>.Raw, commandProcessorTypes, lifetime);
+            var commandProcessorTypes = PipelineTypes.CommandProcessorTypes;
+            AddDependencies(collection, typeof(TProcessor), commandProcessorTypes, lifetime);
+
+            return collection;
+        }
+
+        public static DependencyCollection AddCommandBehaviour<TBehaviour>(this DependencyCollection collection,
+            DependencyLifetime lifetime = DependencyLifetime.Singleton)
+        {
+            var commandProcessorTypes = PipelineTypes.CommandBehaviourTypes;
+            AddDependencies(collection, typeof(TBehaviour), commandProcessorTypes, lifetime);
 
             return collection;
         }
@@ -37,8 +46,8 @@ namespace Velo.CQRS
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
             where TProcessor : INotificationProcessor
         {
-            var notificationProcessorTypes = ProcessorsAllover.NotificationProcessorTypes;
-            AddProcessor(collection, Typeof<TProcessor>.Raw, notificationProcessorTypes, lifetime);
+            var notificationProcessorTypes = PipelineTypes.NotificationProcessorTypes;
+            AddDependencies(collection, typeof(TProcessor), notificationProcessorTypes, lifetime);
 
             return collection;
         }
@@ -47,8 +56,8 @@ namespace Velo.CQRS
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
             where TProcessor : IQueryProcessor
         {
-            var queryProcessorTypes = ProcessorsAllover.QueryProcessorTypes;
-            AddProcessor(collection, Typeof<TProcessor>.Raw, queryProcessorTypes, lifetime);
+            var queryProcessorTypes = PipelineTypes.QueryProcessorTypes;
+            AddDependencies(collection, typeof(TProcessor), queryProcessorTypes, lifetime);
 
             return collection;
         }
@@ -60,7 +69,7 @@ namespace Velo.CQRS
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void AddProcessor(
+        private static void AddDependencies(
             DependencyCollection collection,
             Type implementation,
             Type[] genericInterfaces,

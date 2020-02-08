@@ -11,6 +11,8 @@ namespace Velo.Serialization
     internal interface IConvertersCollection
     {
         IJsonConverter Get(Type type);
+
+        IJsonConverter<T> Get<T>();
     }
 
     internal sealed class ConvertersCollection : ConcurrentDictionary<Type, IJsonConverter>, IConvertersCollection
@@ -28,6 +30,11 @@ namespace Velo.Serialization
         public IJsonConverter Get(Type type)
         {
             return GetOrAdd(type, _buildConverter);
+        }
+
+        public IJsonConverter<T> Get<T>()
+        {
+            return (IJsonConverter<T>) GetOrAdd(Typeof<T>.Raw, _buildConverter);
         }
 
         private IJsonConverter Build(Type type)

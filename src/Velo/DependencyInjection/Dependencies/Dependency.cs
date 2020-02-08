@@ -53,13 +53,15 @@ namespace Velo.DependencyInjection.Dependencies
 
         public bool Applicable(Type request)
         {
-            // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var contract in _contracts)
+            if (request.IsInterface)
             {
-                if (contract.IsAssignableFrom(request)) return true;
+                foreach (var contract in _contracts)
+                {
+                    if (contract.IsAssignableFrom(request)) return true;
+                }
             }
 
-            return false;
+            return Array.IndexOf(_contracts, request) != -1;
         }
 
         public abstract object GetInstance(Type contract, IDependencyScope scope);

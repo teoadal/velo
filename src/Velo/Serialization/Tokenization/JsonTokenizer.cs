@@ -21,10 +21,10 @@ namespace Velo.Serialization.Tokenization
 
         private bool _disposed;
 
-        public JsonTokenizer(JsonReader reader, StringBuilder stringBuilder = null)
+        public JsonTokenizer(JsonReader reader, StringBuilder stringBuilder)
         {
             _reader = reader;
-            _builder = stringBuilder ?? new StringBuilder();
+            _builder = stringBuilder;
             _disposed = false;
 
             Current = default;

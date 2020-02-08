@@ -87,6 +87,16 @@ namespace Velo.Collections
             }
         }
 
+        public LocalList(IEnumerable<T> collection, int count)
+            : this(count)
+        {
+            foreach (var element in collection)
+            {
+                Set(_length, element);
+                _length++;
+            }
+        }
+        
         #endregion
 
         public readonly bool All(Predicate<T> predicate)

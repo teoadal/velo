@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Diagnosers;
 using BenchmarkDotNet.Jobs;
 using Velo.Collections;
 using Velo.TestsModels.Boos;
@@ -10,7 +11,9 @@ using Velo.TestsModels.Boos;
 namespace Velo.Benchmark.Collections
 {
     [SimpleJob(RuntimeMoniker.NetCoreApp31)]
+    [MarkdownExporterAttribute.GitHub]
     [MeanColumn, MemoryDiagnoser]
+    [HardwareCounters(HardwareCounter.BranchMispredictions)]
     [CategoriesColumn, GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
     public class LocalVectorBenchmark
     {
@@ -40,9 +43,9 @@ namespace Velo.Benchmark.Collections
         public int List_Add()
         {
             var list = new List<Boo>();
-            for (var j = 0; j < _items.Length; j++)
+            foreach (var item in _items)
             {
-                list.Add(_items[j]);
+                list.Add(item);
             }
         
             return list.Count;
@@ -53,9 +56,9 @@ namespace Velo.Benchmark.Collections
         public int LocalVector_Add()
         {
             var localList = new LocalList<Boo>();
-            for (var j = 0; j < _items.Length; j++)
+            foreach (var item in _items)
             {
-                localList.Add(_items[j]);
+                localList.Add(item);
             }
         
             return localList.Length;
@@ -74,48 +77,6 @@ namespace Velo.Benchmark.Collections
             return span.Length;
         }
         
-        [BenchmarkCategory("Allocation")]
-        [Benchmark(Baseline = true, OperationsPerInvoke = InvokeCount)]
-        public int List_Allocation()
-        {
-            var list = new List<Boo>();
-        
-            foreach (var boo in _items)
-            {
-                list.Add(boo);
-            }
-        
-            return list.Count;
-        }
-        
-        [BenchmarkCategory("Allocation")]
-        [Benchmark(OperationsPerInvoke = InvokeCount)]
-        public int LocalVector_Allocation()
-        {
-            var localList = new LocalList<Boo>();
-        
-            foreach (var boo in _items)
-            {
-                localList.Add(boo);
-            }
-        
-            return localList.Length;
-        }
-        
-        [BenchmarkCategory("Allocation")]
-        [Benchmark(OperationsPerInvoke = InvokeCount)]
-        public int Span_Allocation()
-        {
-            var span = new Span<Boo>(new Boo[Count]);
-        
-            for (var j = 0; j < _items.Length; j++)
-            {
-                span[j] = _items[j];
-            }
-        
-            return span.Length;
-        }
-
         [BenchmarkCategory("Iteration")]
         [Benchmark(Baseline = true, OperationsPerInvoke = InvokeCount)]
         public int List_Iteration()
