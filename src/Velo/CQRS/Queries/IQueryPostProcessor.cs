@@ -3,8 +3,9 @@ using System.Threading.Tasks;
 
 namespace Velo.CQRS.Queries
 {
-    public interface IQueryPostProcessor<in TQuery, TResult> : IQueryProcessor
+    public interface IQueryPostProcessor<in TQuery, in TResult>
+        where TQuery: IQuery<TResult>
     {
-        ValueTask<TResult> PostProcess(TQuery query, TResult result, CancellationToken cancellationToken);
+        ValueTask PostProcess(TQuery query, TResult result, CancellationToken cancellationToken);
     }
 }

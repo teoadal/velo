@@ -3,12 +3,8 @@ using System.Threading.Tasks;
 
 namespace Velo.CQRS.Notifications
 {
-    public interface INotificationProcessor<in TNotification> : INotificationProcessor
+    public interface INotificationProcessor<in TNotification>
     {
         ValueTask Process(TNotification notification, CancellationToken cancellationToken);
-    }
-
-    public interface INotificationProcessor
-    {
     }
 }

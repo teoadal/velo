@@ -17,28 +17,38 @@ Install-Package Velo
 ## Emitter (mediator)
 
 ```cs
-var container = new DependencyBuilder()
+var dependencyProvider = new DependencyCollection()
     .AddEmitter()
     .Scan(scanner => scanner
         .AssemblyOf<IBooRepository>()
-        .AddEmitterHandlers())
-    .BuildContainer();
+        .AddEmitterProcessors())
+    .BuildProvider();
 
-var emitter = container.Resolve<Emitter>();
+var emitter = dependencyProvider.GetRequiredService<Emitter>();
 
 // execute command or publish notification
-await emitter.ExecuteAsync(new CreateBoo {Id = id}); 
+await emitter.Execute(new CreateBoo {Id = id}); 
 
 // ask query or send requst
-Boo boo = await emitter.AskAsync(new GetBoo {Id = id}); 
+Boo boo = await emitter.Ask(new GetBoo {Id = id}); 
 ```
 
-### Mediator request (query) benchmark
+### Mediator request (query) benchmark (after 1000 requests)
 
-|  Method |     Mean |     Error |   StdDev | Ratio | Allocated |
-|-------- |---------:|----------:|---------:|------:|----------:|
-| MediatR | 941.2 us | 18.788 us | 24.43 us |  1.00 | 781.32 KB |
-| Velo | 290.2 us |  5.722 us | 12.80 us |  0.31 | 187.57 KB |
+|                  Method |      Mean |     Error |    StdDev | Ratio | Allocated |
+|------------------------ |----------:|----------:|----------:|------:|----------:|
+|       Behaviour_MediatR | 370.49 us |  3.436 us |  3.046 us |  1.00 |  376 073 B |
+|       Behaviour_Emitter | 156.32 us |  2.918 us |  2.730 us |  0.42 |      74 B |
+|                         |           |           |           |       |           |
+|    MediatR | 820.10 us | 11.991 us | 11.216 us |  1.00 | 1 056 082 B |
+|    **Emitter** | 303.51 us |  3.169 us |  2.964 us |  **0.37** |  **168 074 B** |
+|                         |           |           |           |       |           |
+|         Request_MediatR | 369.60 us |  6.935 us |  6.487 us |  1.00 |  376 072 B |
+|         Request_Emitter | 161.68 us |  3.233 us |  4.937 us |  0.43 |      72 B |
+| Request_EmitterConcrete | 119.43 us |  1.061 us |  0.992 us |  0.32 |      72 B |
+|                         |           |           |           |       |           |
+|   StructRequest_MediatR | 339.55 us |  3.533 us |  3.305 us |  1.00 |  440 072 B |
+|   **StructRequest_Emitter** |  73.41 us |  1.452 us |  1.358 us |  0.22 |      **73 B** |
 
 
 ## Mapper
@@ -61,7 +71,7 @@ var foo = compiledMapper.Map(source);
 |              Method |        Mean |      Error |     StdDev | Ratio |  Allocated |
 |-------------------- |------------:|-----------:|-----------:|------:|-----------:|
 |          AutoMapper |  1,267.2 us |  10.499 us |   8.197 us |  1.00 |   312.5 KB |
-|                Velo |    348.6 us |   4.400 us |   4.116 us |  0.28 |   312.5 KB |
+|                **Velo** |    348.6 us |   4.400 us |   4.116 us |  **0.28** |   **312.5 KB** |
 
 ## Serialization/Deserialization
 

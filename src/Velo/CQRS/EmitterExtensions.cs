@@ -1,9 +1,6 @@
 using System;
 using System.Runtime.CompilerServices;
-using Velo.CQRS.Commands;
-using Velo.CQRS.Notifications;
 using Velo.CQRS.Pipeline;
-using Velo.CQRS.Queries;
 using Velo.DependencyInjection;
 using Velo.DependencyInjection.Scan;
 using Velo.Utils;
@@ -23,42 +20,63 @@ namespace Velo.CQRS
             return collection;
         }
 
-        public static DependencyCollection AddCommandProcessor<TProcessor>(this DependencyCollection collection,
-            DependencyLifetime lifetime = DependencyLifetime.Singleton)
-            where TProcessor : ICommandProcessor
-        {
-            var commandProcessorTypes = PipelineTypes.CommandProcessorTypes;
-            AddDependencies(collection, typeof(TProcessor), commandProcessorTypes, lifetime);
-
-            return collection;
-        }
-
         public static DependencyCollection AddCommandBehaviour<TBehaviour>(this DependencyCollection collection,
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
         {
-            var commandProcessorTypes = PipelineTypes.CommandBehaviourTypes;
-            AddDependencies(collection, typeof(TBehaviour), commandProcessorTypes, lifetime);
+            var behaviourTypes = PipelineTypes.CommandBehaviourTypes;
+            if (!AddDependencies(collection, typeof(TBehaviour), behaviourTypes, lifetime))
+            {
+                throw Error.InvalidOperation($"'{ReflectionUtils.GetName<TBehaviour>()}' not implemented command behaviour interface");
+            }
+
+            return collection;
+        }
+        
+        public static DependencyCollection AddCommandProcessor<TProcessor>(this DependencyCollection collection,
+            DependencyLifetime lifetime = DependencyLifetime.Singleton)
+        {
+            var processorTypes = PipelineTypes.CommandProcessorTypes;
+            if (!AddDependencies(collection, typeof(TProcessor), processorTypes, lifetime))
+            {
+                throw Error.InvalidOperation($"'{ReflectionUtils.GetName<TProcessor>()}' not implemented any of command processors interface");
+            }
 
             return collection;
         }
 
         public static DependencyCollection AddNotificationProcessor<TProcessor>(this DependencyCollection collection,
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
-            where TProcessor : INotificationProcessor
         {
-            var notificationProcessorTypes = PipelineTypes.NotificationProcessorTypes;
-            AddDependencies(collection, typeof(TProcessor), notificationProcessorTypes, lifetime);
+            var processorTypes = PipelineTypes.NotificationProcessorTypes;
+            if (!AddDependencies(collection, typeof(TProcessor), processorTypes, lifetime))
+            {
+                throw Error.InvalidOperation($"'{ReflectionUtils.GetName<TProcessor>()}' not implemented notification processor interface");
+            }
 
             return collection;
         }
 
         public static DependencyCollection AddQueryProcessor<TProcessor>(this DependencyCollection collection,
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
-            where TProcessor : IQueryProcessor
         {
-            var queryProcessorTypes = PipelineTypes.QueryProcessorTypes;
-            AddDependencies(collection, typeof(TProcessor), queryProcessorTypes, lifetime);
+            var processorTypes = PipelineTypes.QueryProcessorTypes;
+            if (!AddDependencies(collection, typeof(TProcessor), processorTypes, lifetime))
+            {
+                throw Error.InvalidOperation($"'{ReflectionUtils.GetName<TProcessor>()}' not implemented any of query processors interface");
+            }
 
+            return collection;
+        }
+
+        public static DependencyCollection AddQueryBehaviour<TBehaviour>(this DependencyCollection collection,
+            DependencyLifetime lifetime = DependencyLifetime.Singleton)
+        {
+            var behaviourTypes = PipelineTypes.QueryBehaviourTypes;
+            if (!AddDependencies(collection, typeof(TBehaviour), behaviourTypes, lifetime))
+            {
+                throw Error.InvalidOperation($"'{ReflectionUtils.GetName<TBehaviour>()}' not implemented query behaviour interface");
+            }
+            
             return collection;
         }
 
@@ -69,16 +87,22 @@ namespace Velo.CQRS
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void AddDependencies(
+        private static bool AddDependencies(
             DependencyCollection collection,
             Type implementation,
             Type[] genericInterfaces,
             DependencyLifetime lifetime)
         {
             var contracts = ReflectionUtils.GetGenericInterfaceImplementations(implementation, genericInterfaces);
-            contracts.Add(implementation);
 
+            if (contracts.Length == 0)
+            {
+                return false;
+            }
+            
+            contracts.Add(implementation);
             collection.AddDependency(contracts.ToArray(), implementation, lifetime);
+            return true;
         }
     }
 }

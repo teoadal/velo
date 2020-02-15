@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using AutoFixture.Xunit2;
+using FluentAssertions;
+using Velo.CQRS.Commands;
 using Velo.CQRS.Queries;
 using Velo.DependencyInjection.Dependencies;
 using Velo.TestsModels.Boos;
@@ -72,6 +74,30 @@ namespace Velo.Utils
 
             Assert.Contains(typeof(Query), genericInterfaceParameters);
             Assert.Contains(typeof(Boo), genericInterfaceParameters);
+        }
+
+        [Fact]
+        public void GenericInterfaceImplementation()
+        {
+            var genericInterface = typeof(ICommandProcessor<>);
+            var type = typeof(TestsModels.Emitting.Boos.Create.Processor);
+            
+            var implementations = ReflectionUtils.GetGenericInterfaceImplementations(type, genericInterface);
+            
+            implementations.Length.Should().Be(1);
+            
+            Assert.True(implementations.Contains(typeof(ICommandProcessor<TestsModels.Emitting.Boos.Create.Command>)));
+        }
+        
+        [Fact]
+        public void GenericInterfaceImplementations()
+        {
+            var genericInterfaces = new[] {typeof(ICommandProcessor<>), typeof(ICommandPostProcessor<>)};
+            var type = typeof(TestsModels.Emitting.Boos.Create.Processor);
+            
+            var implementations = ReflectionUtils.GetGenericInterfaceImplementations(type, genericInterfaces);
+            Assert.True(implementations.Contains(typeof(ICommandProcessor<TestsModels.Emitting.Boos.Create.Command>)));
+            Assert.Equal(1, implementations.Length);
         }
         
         [Fact]

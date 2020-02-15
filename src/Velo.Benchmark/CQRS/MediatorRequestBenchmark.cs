@@ -1,162 +1,205 @@
-using System;
-using System.Threading;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Jobs;
 using MediatR;
+using MediatR.Pipeline;
 using Microsoft.Extensions.DependencyInjection;
 using Velo.CQRS;
 using Velo.CQRS.Queries;
-using Velo.DependencyInjection;
 using Velo.TestsModels.Boos;
-using Boos = Velo.TestsModels.Emitting.Boos;
+using Velo.TestsModels.Emitting.Boos.Get;
+using Velo.TestsModels.Emitting.PingPong;
 
 namespace Velo.Benchmark.CQRS
 {
     [SimpleJob(RuntimeMoniker.NetCoreApp31)]
     [MarkdownExporterAttribute.GitHub]
     [MeanColumn, MemoryDiagnoser]
+    [CategoriesColumn, GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
     public class MediatorRequestBenchmark
     {
-        private const int ElementsCount = 1000;
-
+        private MediatorBuilder.GetBooRequest[] _requests;
+        private MediatorBuilder.StructRequest[] _requestsStruct;
         private IMediator _mediator;
-        private IMediator _mediatorOnVelo;
+        private IMediator _mediatorWithBehaviour;
+        private IMediator _mediatorWithFullPipeline;
+
+        private Query[] _queries;
+        private Ping[] _queriesStruct;
         private Emitter _emitter;
-        private Emitter _emitterOnCore;
+        private Emitter _emitterWithBehaviour;
+        private Emitter _emitterWithFullPipeline;
 
         [GlobalSetup]
         public void Init()
         {
+            const int requestsCount = 1000;
+
             var repository = new BooRepository(null, null);
 
-            for (var i = 0; i < ElementsCount; i++)
+            _queries = new Query[requestsCount];
+            _queriesStruct = new Ping[requestsCount];
+
+            _requests = new MediatorBuilder.GetBooRequest[requestsCount];
+            _requestsStruct = new MediatorBuilder.StructRequest[requestsCount];
+
+            for (var i = 0; i < requestsCount; i++)
             {
                 repository.AddElement(new Boo {Id = i, Int = i});
+
+                _queries[i] = new Query(i);
+                _queriesStruct[i] = new Ping(i);
+
+                _requests[i] = new MediatorBuilder.GetBooRequest {Id = i};
+                _requestsStruct[i] = new MediatorBuilder.StructRequest(i.ToString());
             }
 
-            _mediator = new ServiceCollection()
-                .AddSingleton<IBooRepository>(ctx => repository)
-                .AddSingleton<IRequestHandler<GetRequest, Boo>, GetHandler>()
-                .AddSingleton<IMediator>(ctx => new Mediator(ctx.GetService))
-                .BuildServiceProvider()
-                .GetRequiredService<IMediator>();
+            _mediator = MediatorBuilder.BuildMediatR(repository);
+            _mediatorWithBehaviour = MediatorBuilder.BuildMediatR(repository, services =>
+                services.AddSingleton<MediatorBuilder.GetBooRequestBehaviour>());
+            _mediatorWithFullPipeline = MediatorBuilder.BuildMediatR(repository, services =>
+                services
+                    .AddSingleton(typeof(IPipelineBehavior<,>), typeof(RequestPreProcessorBehavior<,>))
+                    .AddSingleton(typeof(IPipelineBehavior<,>), typeof(RequestPostProcessorBehavior<,>))
+                    .AddSingleton<IPipelineBehavior<MediatorBuilder.GetBooRequest, Boo>, MediatorBuilder.GetBooRequestBehaviour>()
+                    .AddSingleton<IRequestPreProcessor<MediatorBuilder.GetBooRequest>, MediatorBuilder.GetBooPreProcessor>()
+                    .AddSingleton<IRequestPostProcessor<MediatorBuilder.GetBooRequest, Boo>, MediatorBuilder.GetBooPostProcessor>());
 
-            _mediatorOnVelo = new DependencyCollection()
-                .AddSingleton<IBooRepository>(ctx => repository)
-                .AddSingleton<IRequestHandler<GetRequest, Boo>, GetHandler>()
-                .AddSingleton<IMediator>(ctx => new Mediator(ctx.GetService))
-                .BuildProvider()
-                .GetRequiredService<IMediator>();
-
-            _emitter = new DependencyCollection()
-                .AddInstance<IBooRepository>(repository)
-                .AddQueryProcessor<Boos.Get.Processor>()
-                .AddEmitter()
-                .BuildProvider()
-                .GetService<Emitter>();
-
-            _emitterOnCore = new ServiceCollection()
-                .AddSingleton<IBooRepository>(ctx => repository)
-                .AddSingleton<IQueryProcessor<Boos.Get.Query, Boo>, Boos.Get.Processor>()
-                .AddSingleton(ctx => new QueryPipeline<Boos.Get.Query, Boo>(
-                    Array.Empty<IQueryBehaviour<Boos.Get.Query, Boo>>(),
-                    Array.Empty<IQueryPreProcessor<Boos.Get.Query, Boo>>(),
-                    ctx.GetRequiredService<IQueryProcessor<Boos.Get.Query, Boo>>(),
-                    Array.Empty<IQueryPostProcessor<Boos.Get.Query, Boo>>()))
-                .AddScoped(ctx => new Emitter(ctx))
-                .BuildServiceProvider()
-                .GetService<Emitter>();
+            _emitter = _emitterWithBehaviour = MediatorBuilder.BuildEmitter(repository);
+            _emitterWithBehaviour = MediatorBuilder.BuildEmitter(repository, services =>
+                services.AddSingleton<Behaviour>());
+            _emitterWithFullPipeline = MediatorBuilder.BuildEmitter(repository, services =>
+                services
+                    .AddSingleton<IQueryBehaviour<Query, Boo>, Behaviour>()
+                    .AddSingleton<IQueryPreProcessor<Query, Boo>, PreProcessor>()
+                    .AddSingleton<IQueryPostProcessor<Query, Boo>, PostProcessor>());
         }
 
+        [BenchmarkCategory("Behaviour")]
         [Benchmark(Baseline = true)]
-        public async Task<long> MediatR()
+        public async Task<long> Behaviour_MediatR()
         {
-            long sum = 0;
-            for (var i = 0; i < ElementsCount; i++)
+            var sum = 0L;
+            foreach (var request in _requests)
             {
-                var boo = await _mediator.Send(new GetRequest {Id = i});
-
+                var boo = await _mediatorWithBehaviour.Send(request);
                 sum += boo.Int;
             }
 
             return sum;
         }
 
+        [BenchmarkCategory("Behaviour")]
         [Benchmark]
-        public async Task<long> MediatR_OnVelo()
+        public async Task<long> Behaviour_Emitter()
         {
-            long sum = 0;
-            for (var i = 0; i < ElementsCount; i++)
+            var sum = 0L;
+            foreach (var query in _queries)
             {
-                var boo = await _mediatorOnVelo.Send(new GetRequest {Id = i});
-
+                var boo = await _emitterWithBehaviour.Ask(query);
                 sum += boo.Int;
             }
 
             return sum;
         }
 
+        [BenchmarkCategory("Pipeline")]
+        [Benchmark(Baseline = true)]
+        public async Task<long> FullPipeline_MediatR()
+        {
+            var sum = 0L;
+            foreach (var request in _requests)
+            {
+                var boo = await _mediatorWithFullPipeline.Send(request);
+                sum += boo.Int;
+            }
+
+            return sum;
+        }
+
+        [BenchmarkCategory("Pipeline")]
         [Benchmark]
-        public async Task<long> Emitter()
+        public async Task<long> FullPipeline_Emitter()
         {
-            long sum = 0;
-            for (var i = 0; i < ElementsCount; i++)
+            var sum = 0L;
+            foreach (var query in _queries)
             {
-                var boo = await _emitter.Ask(new Boos.Get.Query {Id = i});
-
+                var boo = await _emitterWithFullPipeline.Ask(query);
                 sum += boo.Int;
             }
 
             return sum;
         }
 
+        [BenchmarkCategory("Request")]
+        [Benchmark(Baseline = true)]
+        public async Task<long> Request_MediatR()
+        {
+            var sum = 0L;
+            foreach (var request in _requests)
+            {
+                var boo = await _mediator.Send(request);
+                sum += boo.Int;
+            }
+
+            return sum;
+        }
+
+        [BenchmarkCategory("Request")]
         [Benchmark]
-        public async Task<long> Emitter_Concrete()
+        public async Task<long> Request_Emitter()
         {
-            long sum = 0;
-            for (var i = 0; i < ElementsCount; i++)
+            var sum = 0L;
+            foreach (var query in _queries)
             {
-                var boo = await _emitter.Ask<Boos.Get.Query, Boo>(new Boos.Get.Query {Id = i});
-
+                var boo = await _emitter.Ask(query);
                 sum += boo.Int;
             }
 
             return sum;
         }
 
+        [BenchmarkCategory("Request")]
         [Benchmark]
-        public async Task<long> Emitter_OnCore()
+        public async Task<long> Request_EmitterConcrete()
         {
-            long sum = 0;
-            for (var i = 0; i < ElementsCount; i++)
+            var sum = 0L;
+            foreach (var query in _queries)
             {
-                var boo = await _emitterOnCore.Ask(new Boos.Get.Query {Id = i});
-
+                var boo = await _emitter.Ask<Query, Boo>(query);
                 sum += boo.Int;
             }
 
             return sum;
         }
 
-        private sealed class GetRequest : IRequest<Boo>
+        [BenchmarkCategory("Struct")]
+        [Benchmark(Baseline = true)]
+        public async Task<long> StructRequest_MediatR()
         {
-            public int Id { get; set; }
+            var sum = 0L;
+            foreach (var structRequest in _requestsStruct)
+            {
+                var response = await _mediator.Send(structRequest);
+                sum += response.Message.Length;
+            }
+
+            return sum;
         }
 
-        private sealed class GetHandler : IRequestHandler<GetRequest, Boo>
+        [BenchmarkCategory("Struct")]
+        [Benchmark]
+        public async Task<long> StructRequest_Emitter()
         {
-            private readonly IBooRepository _repository;
-
-            public GetHandler(IBooRepository repository)
+            var sum = 0L;
+            foreach (var ping in _queriesStruct)
             {
-                _repository = repository;
+                var pong = await _emitter.Ask<Ping, Pong>(ping);
+                sum += pong.Message;
             }
 
-            public Task<Boo> Handle(GetRequest request, CancellationToken cancellationToken)
-            {
-                return Task.FromResult(_repository.GetElement(request.Id));
-            }
+            return sum;
         }
     }
 }

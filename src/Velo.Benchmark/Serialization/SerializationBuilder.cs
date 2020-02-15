@@ -1,12 +1,11 @@
 using System;
-
 using Velo.TestsModels;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Foos;
 
-namespace Velo.Benchmark
+namespace Velo.Benchmark.Serialization
 {
-    public static class TestDataBuilder
+    public static class SerializationBuilder
     {
         public static BigObject CreateBigObject(Random random)
         {

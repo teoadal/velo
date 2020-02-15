@@ -22,7 +22,13 @@ namespace Velo.CQRS.Pipeline
         public static readonly Type[] NotificationProcessorTypes = {typeof(INotificationProcessor<>)};
         
         public static readonly Type Query = typeof(QueryPipeline<,>);
-        public static readonly Type[] QueryProcessorTypes = {typeof(IQueryProcessor<,>)};
+        public static readonly Type[] QueryProcessorTypes =
+        {
+            typeof(IQueryPreProcessor<,>),
+            typeof(IQueryProcessor<,>),
+            typeof(IQueryPostProcessor<,>)
+        };
+        public static readonly Type[] QueryBehaviourTypes = {typeof(IQueryBehaviour<,>)};
         private static readonly Type QueryType = typeof(IQuery<>);
         
         private static readonly ConcurrentDictionary<Type, Type> ResolvedTypes = new ConcurrentDictionary<Type, Type>();

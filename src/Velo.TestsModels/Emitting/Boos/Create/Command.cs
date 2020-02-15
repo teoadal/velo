@@ -1,8 +1,6 @@
-using Velo.CQRS.Commands;
-
 namespace Velo.TestsModels.Emitting.Boos.Create
 {
-    public class Command : ICommand
+    public class Command : IMeasureCommand
     {
         public int Id { get; set; }
 

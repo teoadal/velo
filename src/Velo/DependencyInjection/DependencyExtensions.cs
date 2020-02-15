@@ -10,6 +10,8 @@ namespace Velo.DependencyInjection
             int singleton = 0, scoped = 0;
             foreach (var dependency in dependencies)
             {
+                if (dependency == null) continue;
+                
                 switch (dependency.Lifetime)
                 {
                     case DependencyLifetime.Singleton:

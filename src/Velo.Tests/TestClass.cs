@@ -32,6 +32,20 @@ namespace Velo
             return new StopwatchScope(_stopwatch);
         }
         
+        protected async Task Measure(ValueTask task)
+        {
+            _stopwatch = Stopwatch.StartNew();
+            await task;
+            _stopwatch.Stop();
+        }
+        
+        protected async Task Measure(Func<Task> action)
+        {
+            _stopwatch = Stopwatch.StartNew();
+            await action();
+            _stopwatch.Stop();
+        }
+        
         protected TResult Measure<TResult>(Func<TResult> action)
         {
             _stopwatch = Stopwatch.StartNew();
@@ -84,6 +98,17 @@ namespace Velo
         protected static Task RunTasks<T>(T[] array, Func<T, ValueTask> action)
         {
             var tasks = new ValueTask[array.Length];
+            for (var i = 0; i < array.Length; i++)
+            {
+                tasks[i] = action(array[i]);
+            }
+
+            return Task.WhenAll(tasks.Select(t => t.AsTask()));
+        }
+        
+        protected static Task<TResult[]> RunTasks<T, TResult>(T[] array, Func<T, ValueTask<TResult>> action)
+        {
+            var tasks = new ValueTask<TResult>[array.Length];
             for (var i = 0; i < array.Length; i++)
             {
                 tasks[i] = action(array[i]);

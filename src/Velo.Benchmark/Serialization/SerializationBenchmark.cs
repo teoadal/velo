@@ -27,7 +27,7 @@ namespace Velo.Benchmark.Serialization
             _dataset = new BigObject[Count];
             for (var i = 0; i < _dataset.Length; i++)
             {
-                _dataset[i] = TestDataBuilder.CreateBigObject(random);
+                _dataset[i] = SerializationBuilder.CreateBigObject(random);
             }
 
             _converter = new JConverter();

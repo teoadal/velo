@@ -30,7 +30,8 @@ namespace Velo.CQRS.Pipeline
             var dependencies = new LocalList<IDependency>();
             foreach (var parameter in parameters)
             {
-                var dependency = engine.GetDependency(parameter.ParameterType);
+                var required = !parameter.HasDefaultValue;
+                var dependency = engine.GetDependency(parameter.ParameterType, required);
                 dependencies.Add(dependency);
             }
 

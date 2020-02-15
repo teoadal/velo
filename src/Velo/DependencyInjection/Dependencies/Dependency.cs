@@ -57,7 +57,7 @@ namespace Velo.DependencyInjection.Dependencies
             {
                 foreach (var contract in _contracts)
                 {
-                    if (contract.IsAssignableFrom(request)) return true;
+                    if (request.IsAssignableFrom(contract)) return true;
                 }
             }
 

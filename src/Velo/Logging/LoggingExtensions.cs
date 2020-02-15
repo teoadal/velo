@@ -25,14 +25,20 @@ namespace Velo.Logging
             return collection;
         }
         
-        public static DependencyCollection AddLogWriter<TSink>(this DependencyCollection collection)
-            where TSink : ILogWriter
+        public static DependencyCollection AddLogWriter<TWriter>(this DependencyCollection collection)
+            where TWriter : ILogWriter
         {
-            var implementation = Typeof<TSink>.Raw;
+            var implementation = Typeof<TWriter>.Raw;
             var contracts = new [] { Typeof<ILogWriter>.Raw, implementation };
 
             collection.AddDependency(contracts, implementation, DependencyLifetime.Singleton);
             
+            return collection;
+        }
+        
+        public static DependencyCollection AddLogWriter(this DependencyCollection collection, ILogWriter logWriter)
+        {
+            collection.AddInstance(logWriter);
             return collection;
         }
     }

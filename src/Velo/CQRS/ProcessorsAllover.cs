@@ -1,8 +1,6 @@
 using System;
-using Velo.CQRS.Commands;
-using Velo.CQRS.Notifications;
+using System.Linq;
 using Velo.CQRS.Pipeline;
-using Velo.CQRS.Queries;
 using Velo.DependencyInjection;
 using Velo.DependencyInjection.Factories;
 using Velo.DependencyInjection.Scan;
@@ -13,35 +11,25 @@ namespace Velo.CQRS
     internal sealed class ProcessorsAllover : IDependencyAllover
     {
         private readonly DependencyLifetime _lifetime;
-        private readonly ProcessorDescription[] _processorDescriptions;
+        private readonly Type[] _processorTypes;
 
         public ProcessorsAllover(DependencyLifetime lifetime)
         {
             _lifetime = lifetime;
 
-            _processorDescriptions = new[]
-            {
-                new ProcessorDescription(typeof(ICommandProcessor), PipelineTypes.CommandProcessorTypes),
-                new ProcessorDescription(typeof(INotificationProcessor), PipelineTypes.NotificationProcessorTypes),
-                new ProcessorDescription(typeof(IQueryProcessor), PipelineTypes.QueryProcessorTypes)
-            };
+            _processorTypes = PipelineTypes.CommandProcessorTypes
+                .Concat(PipelineTypes.CommandBehaviourTypes)
+                .Concat(PipelineTypes.NotificationProcessorTypes)
+                .Concat(PipelineTypes.QueryProcessorTypes)
+                .Concat(PipelineTypes.QueryBehaviourTypes)
+                .ToArray();
         }
 
         public void TryRegister(DependencyCollection collection, Type implementation)
         {
-            Type[] genericInterfaces = null;
+            var contracts = ReflectionUtils.GetGenericInterfaceImplementations(implementation, _processorTypes);
 
-            foreach (var description in _processorDescriptions)
-            {
-                if (!description.BaseType.IsAssignableFrom(implementation)) continue;
-
-                genericInterfaces = description.ProcessorTypes;
-                break;
-            }
-
-            if (genericInterfaces == null) return;
-
-            var contracts = ReflectionUtils.GetGenericInterfaceImplementations(implementation, genericInterfaces);
+            if (contracts.Length == 0) return;
 
             if (implementation.IsGenericTypeDefinition)
             {
@@ -50,19 +38,8 @@ namespace Velo.CQRS
             }
             else
             {
+                contracts.Add(implementation);
                 collection.AddDependency(contracts.ToArray(), implementation, _lifetime);
-            }
-        }
-
-        private readonly struct ProcessorDescription
-        {
-            public readonly Type BaseType;
-            public readonly Type[] ProcessorTypes;
-
-            public ProcessorDescription(Type baseType, Type[] processorTypes)
-            {
-                BaseType = baseType;
-                ProcessorTypes = processorTypes;
             }
         }
     }

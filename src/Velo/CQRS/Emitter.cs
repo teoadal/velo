@@ -55,10 +55,10 @@ namespace Velo.CQRS
             EnsureNotDisposed();
 
             var publisher = GetService<NotificationPipeline<TNotification>>();
-            return publisher.Publish(notification, cancellationToken);
+            return publisher?.Publish(notification, cancellationToken) ?? new ValueTask();
         }
 
-        public ValueTask Send(ICommand command, CancellationToken cancellationToken)
+        public ValueTask Send(ICommand command, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
 
@@ -68,14 +68,14 @@ namespace Velo.CQRS
             return executor.Send(command, cancellationToken);
         }
 
-        public ValueTask Send(INotification notification, CancellationToken cancellationToken)
+        public ValueTask Send(INotification notification, CancellationToken cancellationToken = default)
         {
             if (_disposed) throw Error.Disposed(nameof(Emitter));
 
             var publisherType = PipelineTypes.GetForNotification(notification.GetType());
             var publisher = (INotificationPipeline) _scope.GetService(publisherType);
 
-            return publisher.Publish(notification, cancellationToken);
+            return publisher?.Publish(notification, cancellationToken) ?? new ValueTask();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

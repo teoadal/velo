@@ -9,4 +9,10 @@
       <ProjectReference Include="..\Velo\Velo.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Update="Emitting\IMeasureCommand.cs">
+        <DependentUpon>MeasureBehaviour.cs</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
 </Project>

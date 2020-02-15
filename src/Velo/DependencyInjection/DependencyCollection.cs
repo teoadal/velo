@@ -189,7 +189,11 @@ namespace Velo.DependencyInjection
 
         public bool Contains<TContract>() => _engine.Contains(Typeof<TContract>.Raw);
 
-        public bool Contains(Type type) => _engine.Contains(type);
+        public bool Contains(Type contract) => _engine.Contains(contract);
+
+        public DependencyLifetime GetLifetime<TContract>() => _engine.GetDependency(Typeof<TContract>.Raw).Lifetime;
+        
+        public DependencyLifetime GetLifetime(Type contract) => _engine.GetDependency(contract).Lifetime;
 
         public DependencyCollection Scan(Action<DependencyScanner> action)
         {
