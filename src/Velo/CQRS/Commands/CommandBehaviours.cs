@@ -7,41 +7,58 @@ namespace Velo.CQRS.Commands
     internal sealed class CommandBehaviours<TCommand>
         where TCommand : ICommand
     {
+        public readonly bool HasBehaviours;
+
         private readonly ICommandBehaviour<TCommand>[] _behaviours;
-        private readonly TCommand _command;
-        private readonly CancellationToken _cancellationToken;
-        private readonly Func<ValueTask> _next;
         private readonly CommandPipeline<TCommand> _pipeline;
 
-        private int _position;
-
-        public CommandBehaviours(
-            TCommand command,
-            ICommandBehaviour<TCommand>[] behaviours,
-            CommandPipeline<TCommand> pipeline,
-            CancellationToken cancellationToken)
+        public CommandBehaviours(CommandPipeline<TCommand> pipeline, ICommandBehaviour<TCommand>[] behaviours)
         {
+            HasBehaviours = behaviours.Length > 0;
+
             _behaviours = behaviours;
-            _command = command;
             _pipeline = pipeline;
-            _cancellationToken = cancellationToken;
-
-            // ReSharper disable once ConvertClosureToMethodGroup
-            _next = () => Execute();
-
-            _position = 0;
         }
 
-        public ValueTask Execute()
+        public ValueTask Execute(TCommand command, CancellationToken cancellationToken)
         {
-            // ReSharper disable once InvertIf
-            if ((uint) _position < (uint) _behaviours.Length)
+            var closure = new Closure(this, command, cancellationToken);
+            return closure.Execute();
+        }
+
+        private sealed class Closure
+        {
+            private readonly CommandBehaviours<TCommand> _context;
+            private readonly TCommand _command;
+            private readonly CancellationToken _cancellationToken;
+            private readonly Func<ValueTask> _next;
+
+            private int _position;
+
+            public Closure(CommandBehaviours<TCommand> context, TCommand command, CancellationToken cancellationToken)
             {
-                var behaviour = _behaviours[_position++];
-                return behaviour.Execute(_command, _next, _cancellationToken);
+                _context = context;
+                _command = command;
+                _cancellationToken = cancellationToken;
+
+                _next = Execute;
+
+                _position = 0;
             }
 
-            return _pipeline.RunProcessors(_command, _cancellationToken);
+            public ValueTask Execute()
+            {
+                var behaviours = _context._behaviours;
+
+                // ReSharper disable once InvertIf
+                if ((uint) _position < (uint) behaviours.Length)
+                {
+                    var behaviour = behaviours[_position++];
+                    return behaviour.Execute(_command, _next, _cancellationToken);
+                }
+
+                return _context._pipeline.RunProcessors(_command, _cancellationToken);
+            }
         }
     }
 }

@@ -57,18 +57,19 @@ var dependencyProvider = new DependencyCollection()
 
 |                  Method |      Mean |     Error |    StdDev | Ratio | Allocated |
 |------------------------ |----------:|----------:|----------:|------:|----------:|
-|       Behaviour_MediatR | 383.64 us |  6.404 us |  5.990 us |  1.00 |  376 077 B |
-|       Behaviour_Emitter | 146.75 us |  1.998 us |  1.668 us |  0.38 |      73 B |
+|       Behaviour_MediatR | 372.36 us |  7.410 us |  6.931 us |  1.00 |  376 072 B |
+|       Behaviour_Emitter | 143.04 us |  2.817 us |  2.635 us |  0.38 |      72 B |
 |                         |           |           |           |       |           |
-|    FullPipeline_MediatR | 808.80 us | 12.960 us | 12.122 us |  1.00 | 1 056 081 B |
-|    **FullPipeline_Emitter** | 302.28 us |  3.621 us |  3.387 us |  **0.37** |  **168 074 B** |
+|    FullPipeline_MediatR | 810.32 us | 15.942 us | 18.978 us |  1.00 | 1 056 072 B |
+|    **FullPipeline_Emitter** | 284.52 us |  5.193 us |  4.858 us |  **0.35** |   **40 072 B** |
 |                         |           |           |           |       |           |
-|         Request_MediatR | 374.47 us |  3.345 us |  3.129 us |  1.00 |  376 074 B |
-|         **Request_Emitter** | 140.37 us |  2.729 us |  2.553 us |  **0.37** |      **72 B** |
-| Request_EmitterConcrete | 112.54 us |  1.987 us |  1.859 us |  0.30 |      72 B |
+|         Request_MediatR | 373.77 us |  7.414 us |  8.538 us |  1.00 |  376 072 B |
+|         **Request_Emitter** | 138.92 us |  1.959 us |  1.832 us |  0.37 |      **72 B** |
+| Request_EmitterConcrete | 105.11 us |  1.549 us |  1.449 us |  0.28 |      72 B |
 |                         |           |           |           |       |           |
-|   StructRequest_MediatR | 354.85 us |  2.821 us |  2.356 us |  1.00 |  440 074 B |
-|   **StructRequest_Emitter** |  69.52 us |  1.045 us |  0.978 us |  **0.20** |      **72 B** |
+|   StructRequest_MediatR | 352.24 us |  3.022 us |  2.826 us |  1.00 |  440 074 B |
+|   **StructRequest_Emitter** |  68.80 us |  0.909 us |  0.806 us |  0.20 |      **73 B** |
+
 
 ### Mediator notification benchmark (per 1000 notifications)
 

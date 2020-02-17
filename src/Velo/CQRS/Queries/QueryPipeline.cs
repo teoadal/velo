@@ -6,7 +6,7 @@ namespace Velo.CQRS.Queries
     internal sealed class QueryPipeline<TQuery, TResult> : IQueryPipeline<TResult>
         where TQuery : IQuery<TResult>
     {
-        private readonly IQueryBehaviour<TQuery, TResult>[] _behaviours;
+        private readonly QueryBehaviours<TQuery, TResult> _behaviours;
         private readonly IQueryPreProcessor<TQuery, TResult>[] _preProcessors;
         private readonly IQueryProcessor<TQuery, TResult> _processor;
         private readonly IQueryPostProcessor<TQuery, TResult>[] _postProcessors;
@@ -17,7 +17,7 @@ namespace Velo.CQRS.Queries
             IQueryProcessor<TQuery, TResult> processor,
             IQueryPostProcessor<TQuery, TResult>[] postProcessors)
         {
-            _behaviours = behaviours;
+            _behaviours = new QueryBehaviours<TQuery, TResult>(this, behaviours);
             _preProcessors = preProcessors;
             _processor = processor;
             _postProcessors = postProcessors;
@@ -25,10 +25,9 @@ namespace Velo.CQRS.Queries
 
         public ValueTask<TResult> GetResponse(TQuery query, CancellationToken cancellationToken)
         {
-            if (_behaviours.Length == 0) return RunProcessors(query, cancellationToken);
-
-            var closure = new QueriesBehaviours<TQuery, TResult>(query, _behaviours, this, cancellationToken);
-            return closure.GetResponse();
+            return _behaviours.HasBehaviours
+                ? _behaviours.GetResponse(query, cancellationToken)
+                : RunProcessors(query, cancellationToken);
         }
 
         internal async ValueTask<TResult> RunProcessors(TQuery query, CancellationToken cancellationToken)

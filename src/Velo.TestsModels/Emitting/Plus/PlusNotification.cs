@@ -6,6 +6,6 @@ namespace Velo.TestsModels.Emitting.Plus
     {
         public int Counter { get; set; }
         
-        public bool StopPropagation { get; }
+        public bool StopPropagation { get; set; }
     }
 }

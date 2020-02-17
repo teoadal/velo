@@ -21,7 +21,7 @@ namespace Velo.Benchmark.CQRS
     {
         [Params(1000)] 
         public int Count;
-        
+
         private MediatorBuilder.GetBooRequest[] _requests;
         private MediatorBuilder.StructRequest[] _requestsStruct;
         private IMediator _mediator;
