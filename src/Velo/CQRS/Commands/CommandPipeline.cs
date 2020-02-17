@@ -45,14 +45,26 @@ namespace Velo.CQRS.Commands
             
             foreach (var preProcessor in _preProcessors)
             {
-                await preProcessor.PreProcess(command, cancellationToken);
+                var preProcess = preProcessor.PreProcess(command, cancellationToken);
+                if (!preProcess.IsCompletedSuccessfully)
+                {
+                    await preProcess;
+                }
             }
 
-            await _processor.Process(command, cancellationToken);
+            var process = _processor.Process(command, cancellationToken);
+            if (!process.IsCompletedSuccessfully)
+            {
+                await process;
+            }
             
             foreach (var postProcessor in _postProcessors)
             {
-                await postProcessor.PostProcess(command, cancellationToken);
+                var postProcess = postProcessor.PostProcess(command, cancellationToken);
+                if (!postProcess.IsCompletedSuccessfully)
+                {
+                    await postProcess;
+                }
             }
         }
 

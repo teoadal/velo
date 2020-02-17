@@ -26,7 +26,7 @@ namespace Velo.CQRS.Queries
         public ValueTask<TResult> GetResponse(TQuery query, CancellationToken cancellationToken)
         {
             if (_behaviours.Length == 0) return RunProcessors(query, cancellationToken);
-            
+
             var closure = new QueriesBehaviours<TQuery, TResult>(query, _behaviours, this, cancellationToken);
             return closure.GetResponse();
         }
@@ -34,22 +34,33 @@ namespace Velo.CQRS.Queries
         internal async ValueTask<TResult> RunProcessors(TQuery query, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            
+
             foreach (var preProcessor in _preProcessors)
             {
-                await preProcessor.PreProcess(query, cancellationToken);
+                var preProcess = preProcessor.PreProcess(query, cancellationToken);
+                if (!preProcess.IsCompletedSuccessfully)
+                {
+                    await preProcess;
+                }
             }
 
-            var result = await _processor.Process(query, cancellationToken);
+            var process = _processor.Process(query, cancellationToken);
+            var result = process.IsCompletedSuccessfully
+                ? process.Result
+                : await process;
 
             foreach (var postProcessor in _postProcessors)
             {
-                await postProcessor.PostProcess(query, result, cancellationToken);
+                var postProcess = postProcessor.PostProcess(query, result, cancellationToken);
+                if (!postProcess.IsCompletedSuccessfully)
+                {
+                    await postProcess;
+                }
             }
 
             return result;
         }
-        
+
         public ValueTask<TResult> GetResponse(IQuery<TResult> query, CancellationToken cancellationToken)
         {
             return GetResponse((TQuery) query, cancellationToken);

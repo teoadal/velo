@@ -14,7 +14,8 @@ namespace Velo.Benchmark.CQRS
 {
     public static class MediatorBuilder
     {
-        public static IMediator BuildMediatR(IBooRepository repository, Action<IServiceCollection> dependencyBuilder = null)
+        public static IMediator BuildMediatR(IBooRepository repository,
+            Action<IServiceCollection> dependencyBuilder = null)
         {
             var serviceCollection = new ServiceCollection()
                 .AddSingleton(repository)
@@ -23,13 +24,14 @@ namespace Velo.Benchmark.CQRS
                 .AddScoped<IMediator>(ctx => new Mediator(ctx.GetService));
 
             dependencyBuilder?.Invoke(serviceCollection);
-            
+
             return serviceCollection
                 .BuildServiceProvider()
                 .GetRequiredService<IMediator>();
         }
 
-        public static Emitter BuildEmitter(IBooRepository repository, Action<IServiceCollection> dependencyBuilder = null)
+        public static Emitter BuildEmitter(IBooRepository repository,
+            Action<IServiceCollection> dependencyBuilder = null)
         {
             var serviceCollection = new ServiceCollection()
                 .AddSingleton(repository)
@@ -43,32 +45,47 @@ namespace Velo.Benchmark.CQRS
                 .BuildServiceProvider()
                 .GetService<Emitter>();
         }
+
+        public sealed class Notification : INotification
+        {
+            public int Counter { get; set; }
+        }
+        
+        public sealed class NotificationHandler: INotificationHandler<Notification>
+        {
+            public Task Handle(Notification notification, CancellationToken cancellationToken)
+            {
+                notification.Counter++;
+                return Task.CompletedTask;
+            }
+        }
         
         public sealed class GetBooRequest : IRequest<Boo>
         {
             public int Id { get; set; }
-            
+
             public bool PostProcessed { get; set; }
-        
+
             public bool PreProcessed { get; set; }
         }
 
         public sealed class GetBooRequestBehaviour : IPipelineBehavior<GetBooRequest, Boo>
         {
             public TimeSpan Elapsed { get; private set; }
-            
-            public async Task<Boo> Handle(GetBooRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<Boo> next)
+
+            public async Task<Boo> Handle(GetBooRequest request, CancellationToken cancellationToken,
+                RequestHandlerDelegate<Boo> next)
             {
                 var timer = Stopwatch.StartNew();
 
                 var result = await next();
 
                 Elapsed = timer.Elapsed;
-                
+
                 return result;
             }
         }
-        
+
         public sealed class GetBooPreProcessor : IRequestPreProcessor<GetBooRequest>
         {
             public Task Process(GetBooRequest request, CancellationToken cancellationToken)
@@ -77,7 +94,7 @@ namespace Velo.Benchmark.CQRS
                 return Task.CompletedTask;
             }
         }
-        
+
         public sealed class GetBooPostProcessor : IRequestPostProcessor<GetBooRequest, Boo>
         {
             public Task Process(GetBooRequest request, Boo response, CancellationToken cancellationToken)
@@ -86,7 +103,7 @@ namespace Velo.Benchmark.CQRS
                 return Task.CompletedTask;
             }
         }
-        
+
         private sealed class GetBooHandler : IRequestHandler<GetBooRequest, Boo>
         {
             private readonly IBooRepository _repository;
@@ -101,7 +118,7 @@ namespace Velo.Benchmark.CQRS
                 return Task.FromResult(_repository.GetElement(request.Id));
             }
         }
-        
+
         public readonly struct StructRequest : IRequest<StructResponse>
         {
             public readonly string Message;
@@ -111,7 +128,7 @@ namespace Velo.Benchmark.CQRS
                 Message = message;
             }
         }
-        
+
         public readonly struct StructResponse
         {
             public readonly string Message;

@@ -19,6 +19,9 @@ namespace Velo.Benchmark.CQRS
     [CategoriesColumn, GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
     public class MediatorRequestBenchmark
     {
+        [Params(1000)] 
+        public int Count;
+        
         private MediatorBuilder.GetBooRequest[] _requests;
         private MediatorBuilder.StructRequest[] _requestsStruct;
         private IMediator _mediator;
@@ -34,17 +37,15 @@ namespace Velo.Benchmark.CQRS
         [GlobalSetup]
         public void Init()
         {
-            const int requestsCount = 1000;
-
             var repository = new BooRepository(null, null);
 
-            _queries = new Query[requestsCount];
-            _queriesStruct = new Ping[requestsCount];
+            _queries = new Query[Count];
+            _queriesStruct = new Ping[Count];
 
-            _requests = new MediatorBuilder.GetBooRequest[requestsCount];
-            _requestsStruct = new MediatorBuilder.StructRequest[requestsCount];
+            _requests = new MediatorBuilder.GetBooRequest[Count];
+            _requestsStruct = new MediatorBuilder.StructRequest[Count];
 
-            for (var i = 0; i < requestsCount; i++)
+            for (var i = 0; i < Count; i++)
             {
                 repository.AddElement(new Boo {Id = i, Int = i});
 

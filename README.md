@@ -19,36 +19,63 @@ Install-Package Velo
 ```cs
 var dependencyProvider = new DependencyCollection()
     .AddEmitter()
-    .Scan(scanner => scanner
+    .Scan(scanner => scanner // collect all processors and behaviours
         .AssemblyOf<IBooRepository>()
-        .AddEmitterProcessors())
+        .AddEmitterProcessors())     
     .BuildProvider();
 
 var emitter = dependencyProvider.GetRequiredService<Emitter>();
 
-// execute command or publish notification
-await emitter.Execute(new CreateBoo {Id = id}); 
+// ask query (send requst)
+Boo boo = await emitter.Ask(new GetBoo { Id = id }); 
 
-// ask query or send requst
-Boo boo = await emitter.Ask(new GetBoo {Id = id}); 
+// execute command
+await emitter.Execute(new CreateBoo { Id = id }); 
+
+// publish notification
+await emitter.Publish(new Notification { Created = true });
+
+// or ask as struct for reduce memory traffic
+Boo boo = await emitter.Ask<GetBooStruct, Boo>(new GetBooStruct {Id = id}); 
 ```
 
-### Mediator request (query) benchmark (after 1000 requests)
+### Registration
+
+```cs
+var dependencyProvider = new DependencyCollection()
+    .AddCommandBehaviour<MeasureBehaviour>() // add behaviours
+    .AddCommandProcessor<PreProcessor>()
+    .AddCommandProcessor<Processor>(DependencyLifetime.Scoped) 
+    .AddCommandProcessor<PostProcessor>()
+    .AddQueryProcessor<QueryPreProcessor>()
+    .AddQueryProcessor<QueryProcessor>()
+    .AddQueryProcessor<QueryPostProcessor>()
+    .AddNotificationProcessor<OnBooCreated>()
+```
+
+### Mediator query (request) benchmark (per 1000 requests)
 
 |                  Method |      Mean |     Error |    StdDev | Ratio | Allocated |
 |------------------------ |----------:|----------:|----------:|------:|----------:|
-|       Behaviour_MediatR | 370.49 us |  3.436 us |  3.046 us |  1.00 |  376 073 B |
-|       Behaviour_Emitter | 156.32 us |  2.918 us |  2.730 us |  0.42 |      74 B |
+|       Behaviour_MediatR | 383.64 us |  6.404 us |  5.990 us |  1.00 |  376 077 B |
+|       Behaviour_Emitter | 146.75 us |  1.998 us |  1.668 us |  0.38 |      73 B |
 |                         |           |           |           |       |           |
-|    MediatR | 820.10 us | 11.991 us | 11.216 us |  1.00 | 1 056 082 B |
-|    **Emitter** | 303.51 us |  3.169 us |  2.964 us |  **0.37** |  **168 074 B** |
+|    FullPipeline_MediatR | 808.80 us | 12.960 us | 12.122 us |  1.00 | 1 056 081 B |
+|    **FullPipeline_Emitter** | 302.28 us |  3.621 us |  3.387 us |  **0.37** |  **168 074 B** |
 |                         |           |           |           |       |           |
-|         Request_MediatR | 369.60 us |  6.935 us |  6.487 us |  1.00 |  376 072 B |
-|         Request_Emitter | 161.68 us |  3.233 us |  4.937 us |  0.43 |      72 B |
-| Request_EmitterConcrete | 119.43 us |  1.061 us |  0.992 us |  0.32 |      72 B |
+|         Request_MediatR | 374.47 us |  3.345 us |  3.129 us |  1.00 |  376 074 B |
+|         **Request_Emitter** | 140.37 us |  2.729 us |  2.553 us |  **0.37** |      **72 B** |
+| Request_EmitterConcrete | 112.54 us |  1.987 us |  1.859 us |  0.30 |      72 B |
 |                         |           |           |           |       |           |
-|   StructRequest_MediatR | 339.55 us |  3.533 us |  3.305 us |  1.00 |  440 072 B |
-|   **StructRequest_Emitter** |  73.41 us |  1.452 us |  1.358 us |  0.22 |      **73 B** |
+|   StructRequest_MediatR | 354.85 us |  2.821 us |  2.356 us |  1.00 |  440 074 B |
+|   **StructRequest_Emitter** |  69.52 us |  1.045 us |  0.978 us |  **0.20** |      **72 B** |
+
+### Mediator notification benchmark (per 1000 notifications)
+
+|  Method |     Mean |   Error |  StdDev | Ratio | Allocated |
+|-------- |---------:|--------:|--------:|------:|----------:|
+| MediatR | 454.3 us | 4.16 us | 3.89 us |  1.00 |  776 074 B |
+| **Emitter** | 105.7 us | 1.08 us | 1.01 us |  **0.23** |      **73 B** |
 
 
 ## Mapper
