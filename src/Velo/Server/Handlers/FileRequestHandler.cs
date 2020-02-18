@@ -9,7 +9,7 @@ namespace Velo.Server.Handlers
     internal sealed class FileRequestHandler : IHttpRequestHandler
     {
         private readonly string _fileDirectory;
-        
+
         public FileRequestHandler(string path)
         {
             _fileDirectory = string.IsNullOrWhiteSpace(path)
@@ -24,8 +24,8 @@ namespace Velo.Server.Handlers
 
         public Task Handle(HttpListenerContext context, CancellationToken cancellationToken)
         {
-            var filePath = Path.Join(_fileDirectory, context.Request.Url.LocalPath);
-            
+            var filePath = string.Concat(_fileDirectory, context.Request.Url.LocalPath);
+
             if (File.Exists(filePath))
             {
                 using var fileStream = File.OpenRead(filePath);

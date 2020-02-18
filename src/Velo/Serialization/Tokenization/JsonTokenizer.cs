@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Velo.Collections;
 
 namespace Velo.Serialization.Tokenization
 {
@@ -133,17 +134,17 @@ namespace Velo.Serialization.Tokenization
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private JsonToken ReadNumber()
         {
-            Span<char> chars = stackalloc char[20];
-            var length = 0;
+            var buffer = new LocalList<char>();
+
             do
             {
                 var ch = _reader.Current;
                 if (!char.IsDigit(ch) && ch != '.') break;
 
-                chars[length++] = ch;
+                buffer.Add(ch);
             } while (_reader.MoveNext());
 
-            var value = new string(chars.Slice(0, length));
+            var value = new string(buffer.ToArray());
             return new JsonToken(JsonTokenType.Number, value);
         }
 

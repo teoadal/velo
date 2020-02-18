@@ -14,7 +14,7 @@ namespace Velo.Benchmark.Serialization
     [MeanColumn, MemoryDiagnoser]
     public class DeserializationBenchmark
     {
-        [Params(10000, 10003)] 
+        [Params(10000)] 
         public int Count;
 
         private string[] _dataset;

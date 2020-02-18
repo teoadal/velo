@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
@@ -95,26 +94,15 @@ namespace Velo
             return Task.WhenAll(tasks);
         }
 
-        protected static Task RunTasks<T>(T[] array, Func<T, ValueTask> action)
+        protected static Task<TResult[]> RunTasks<T, TResult>(T[] array, Func<T, Task<TResult>> action)
         {
-            var tasks = new ValueTask[array.Length];
+            var tasks = new Task<TResult>[array.Length];
             for (var i = 0; i < array.Length; i++)
             {
                 tasks[i] = action(array[i]);
             }
 
-            return Task.WhenAll(tasks.Select(t => t.AsTask()));
-        }
-        
-        protected static Task<TResult[]> RunTasks<T, TResult>(T[] array, Func<T, ValueTask<TResult>> action)
-        {
-            var tasks = new ValueTask<TResult>[array.Length];
-            for (var i = 0; i < array.Length; i++)
-            {
-                tasks[i] = action(array[i]);
-            }
-
-            return Task.WhenAll(tasks.Select(t => t.AsTask()));
+            return Task.WhenAll(tasks);
         }
         
         protected void WriteLine(string text, [CallerMemberName] string from = null)

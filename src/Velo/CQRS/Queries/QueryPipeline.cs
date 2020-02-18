@@ -23,44 +23,33 @@ namespace Velo.CQRS.Queries
             _postProcessors = postProcessors;
         }
 
-        public ValueTask<TResult> GetResponse(TQuery query, CancellationToken cancellationToken)
+        public Task<TResult> GetResponse(TQuery query, CancellationToken cancellationToken)
         {
             return _behaviours.HasBehaviours
                 ? _behaviours.GetResponse(query, cancellationToken)
                 : RunProcessors(query, cancellationToken);
         }
 
-        internal async ValueTask<TResult> RunProcessors(TQuery query, CancellationToken cancellationToken)
+        internal async Task<TResult> RunProcessors(TQuery query, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             foreach (var preProcessor in _preProcessors)
             {
-                var preProcess = preProcessor.PreProcess(query, cancellationToken);
-                if (!preProcess.IsCompletedSuccessfully)
-                {
-                    await preProcess;
-                }
+                await preProcessor.PreProcess(query, cancellationToken);
             }
 
-            var process = _processor.Process(query, cancellationToken);
-            var result = process.IsCompletedSuccessfully
-                ? process.Result
-                : await process;
+            var result = await _processor.Process(query, cancellationToken);
 
             foreach (var postProcessor in _postProcessors)
             {
-                var postProcess = postProcessor.PostProcess(query, result, cancellationToken);
-                if (!postProcess.IsCompletedSuccessfully)
-                {
-                    await postProcess;
-                }
+                await postProcessor.PostProcess(query, result, cancellationToken);
             }
 
             return result;
         }
 
-        public ValueTask<TResult> GetResponse(IQuery<TResult> query, CancellationToken cancellationToken)
+        public Task<TResult> GetResponse(IQuery<TResult> query, CancellationToken cancellationToken)
         {
             return GetResponse((TQuery) query, cancellationToken);
         }
@@ -68,6 +57,6 @@ namespace Velo.CQRS.Queries
 
     internal interface IQueryPipeline<TResult>
     {
-        ValueTask<TResult> GetResponse(IQuery<TResult> query, CancellationToken cancellationToken);
+        Task<TResult> GetResponse(IQuery<TResult> query, CancellationToken cancellationToken);
     }
 }

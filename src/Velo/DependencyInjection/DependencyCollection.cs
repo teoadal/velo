@@ -182,7 +182,6 @@ namespace Velo.DependencyInjection
             var providerDependency = new SingletonDependency(providerContracts, new InstanceResolver(provider));
 
             _engine.AddDependency(providerDependency);
-            _engine.Initialize();
 
             return provider;
         }

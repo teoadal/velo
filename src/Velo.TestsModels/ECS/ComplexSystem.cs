@@ -13,28 +13,28 @@ namespace Velo.TestsModels.ECS
         
         private int _nextStep = 1;
         
-        public ValueTask Initialize(CancellationToken cancellationToken)
+        public Task Initialize(CancellationToken cancellationToken)
         {
             InitStep = _nextStep++;
-            return new ValueTask();
+            return Task.CompletedTask;
         }
 
-        public ValueTask BeforeUpdate(CancellationToken cancellationToken)
+        public Task BeforeUpdate(CancellationToken cancellationToken)
         {
             BeforeStep = _nextStep++;
-            return new ValueTask();
+            return Task.CompletedTask;
         }
 
-        public ValueTask Update(CancellationToken cancellationToken)
+        public Task Update(CancellationToken cancellationToken)
         {
             UpdateStep = _nextStep++;
-            return new ValueTask();
+            return Task.CompletedTask;
         }
 
-        public ValueTask AfterUpdate(CancellationToken cancellationToken)
+        public Task AfterUpdate(CancellationToken cancellationToken)
         {
             AfterStep = _nextStep++;
-            return new ValueTask();
+            return Task.CompletedTask;
         }
     }
 }

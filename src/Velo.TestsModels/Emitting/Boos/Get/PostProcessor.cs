@@ -7,10 +7,10 @@ namespace Velo.TestsModels.Emitting.Boos.Get
 {
     public class PostProcessor : IQueryPostProcessor<Query, Boo>
     {
-        public ValueTask PostProcess(Query query, Boo result, CancellationToken cancellationToken)
+        public Task PostProcess(Query query, Boo result, CancellationToken cancellationToken)
         {
             query.PostProcessed = true;
-            return new ValueTask();
+            return Task.CompletedTask;
         }
     }
 }

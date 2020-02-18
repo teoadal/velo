@@ -23,7 +23,7 @@ namespace Velo.CQRS.Queries
             _pipeline = pipeline;
         }
 
-        public ValueTask<TResult> GetResponse(TQuery query, CancellationToken cancellationToken)
+        public Task<TResult> GetResponse(TQuery query, CancellationToken cancellationToken)
         {
             Closure closure;
             if (_closure == null) closure = new Closure(this, query, cancellationToken);
@@ -45,7 +45,7 @@ namespace Velo.CQRS.Queries
             public QueryBehaviours<TQuery, TResult> Context;
             public TQuery Query;
 
-            private readonly Func<ValueTask<TResult>> _next;
+            private readonly Func<Task<TResult>> _next;
             private int _position;
 
             public Closure(QueryBehaviours<TQuery, TResult> context, TQuery query, CancellationToken cancellationToken)
@@ -59,7 +59,7 @@ namespace Velo.CQRS.Queries
                 _position = 0;
             }
 
-            public ValueTask<TResult> GetResponse()
+            public Task<TResult> GetResponse()
             {
                 var behaviours = Context._behaviours;
 

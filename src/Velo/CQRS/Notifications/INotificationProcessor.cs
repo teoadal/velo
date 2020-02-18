@@ -5,6 +5,6 @@ namespace Velo.CQRS.Notifications
 {
     public interface INotificationProcessor<in TNotification>
     {
-        ValueTask Process(TNotification notification, CancellationToken cancellationToken);
+        Task Process(TNotification notification, CancellationToken cancellationToken);
     }
 }

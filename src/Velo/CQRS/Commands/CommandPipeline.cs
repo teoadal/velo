@@ -23,43 +23,31 @@ namespace Velo.CQRS.Commands
             _postProcessors = postProcessors;
         }
 
-        public ValueTask Execute(TCommand command, CancellationToken cancellationToken)
+        public Task Execute(TCommand command, CancellationToken cancellationToken)
         {
             return _behaviours.HasBehaviours
                 ? _behaviours.Execute(command, cancellationToken)
                 : RunProcessors(command, cancellationToken);
         }
 
-        internal async ValueTask RunProcessors(TCommand command, CancellationToken cancellationToken)
+        internal async Task RunProcessors(TCommand command, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             foreach (var preProcessor in _preProcessors)
             {
-                var preProcess = preProcessor.PreProcess(command, cancellationToken);
-                if (!preProcess.IsCompletedSuccessfully)
-                {
-                    await preProcess;
-                }
+                await preProcessor.PreProcess(command, cancellationToken);
             }
 
-            var process = _processor.Process(command, cancellationToken);
-            if (!process.IsCompletedSuccessfully)
-            {
-                await process;
-            }
+            await _processor.Process(command, cancellationToken);
 
             foreach (var postProcessor in _postProcessors)
             {
-                var postProcess = postProcessor.PostProcess(command, cancellationToken);
-                if (!postProcess.IsCompletedSuccessfully)
-                {
-                    await postProcess;
-                }
+                await postProcessor.PostProcess(command, cancellationToken);
             }
         }
 
-        ValueTask ICommandPipeline.Send(ICommand command, CancellationToken cancellationToken)
+        Task ICommandPipeline.Send(ICommand command, CancellationToken cancellationToken)
         {
             return Execute((TCommand) command, cancellationToken);
         }
@@ -67,6 +55,6 @@ namespace Velo.CQRS.Commands
 
     internal interface ICommandPipeline
     {
-        ValueTask Send(ICommand command, CancellationToken cancellationToken);
+        Task Send(ICommand command, CancellationToken cancellationToken);
     }
 }
