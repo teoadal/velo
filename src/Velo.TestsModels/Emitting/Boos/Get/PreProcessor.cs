@@ -7,10 +7,10 @@ namespace Velo.TestsModels.Emitting.Boos.Get
 {
     public class PreProcessor : IQueryPreProcessor<Query, Boo>
     {
-        public ValueTask PreProcess(Query query, CancellationToken cancellationToken)
+        public Task PreProcess(Query query, CancellationToken cancellationToken)
         {
             query.PreProcessed = true;
-            return new ValueTask();
+            return Task.CompletedTask;
         }
     }
 }

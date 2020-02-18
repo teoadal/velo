@@ -14,10 +14,10 @@ namespace Velo.TestsModels.Emitting.Boos.Create
             _logger = logger;
         }
 
-        public ValueTask Process(Notification notification, CancellationToken cancellationToken)
+        public Task Process(Notification notification, CancellationToken cancellationToken)
         {
             _logger.Debug(nameof(NotificationProcessor));
-            return new ValueTask();
+            return Task.CompletedTask;
         }
     }
 }

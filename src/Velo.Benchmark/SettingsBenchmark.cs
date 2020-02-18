@@ -12,6 +12,7 @@ using Velo.TestsModels.Settings;
 namespace Velo.Benchmark
 {
     [SimpleJob(RuntimeMoniker.NetCoreApp31)]
+    [MarkdownExporterAttribute.GitHub]
     [MeanColumn, MemoryDiagnoser]
     [CategoriesColumn, GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
     public class SettingsBenchmark

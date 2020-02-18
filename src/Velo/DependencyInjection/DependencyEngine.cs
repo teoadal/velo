@@ -57,11 +57,6 @@ namespace Velo.DependencyInjection
             return false;
         }
 
-        public void Initialize()
-        {
-            _resolvedDependencies.EnsureCapacity(_dependencies.Count);
-        }
-
         public LocalList<IDependency> GetApplicable(Type contract)
         {
             var localList = new LocalList<IDependency>();

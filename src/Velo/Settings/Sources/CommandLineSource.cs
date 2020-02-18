@@ -1,4 +1,3 @@
-using System;
 using Velo.Serialization.Models;
 
 namespace Velo.Settings.Sources
@@ -17,9 +16,9 @@ namespace Velo.Settings.Sources
                 ref readonly var element = ref args[i];
                 var verbatim = element.StartsWith("--");
 
-                var key = verbatim ? element.AsSpan(2) : element;
+                var key = verbatim ? element.Substring(2) : element;
 
-                var value = ReadOnlySpan<char>.Empty;
+                var value = string.Empty;
                 if (verbatim)
                 {
                     value = i < args.Length - 1 ? args[++i] : null;
@@ -29,15 +28,15 @@ namespace Velo.Settings.Sources
                     var valueIndex = element.IndexOf('=');
                     if (valueIndex > -1)
                     {
-                        key = element.AsSpan(0, valueIndex);
-                        value = element.AsSpan(valueIndex + 1);
+                        key = element.Substring(0, valueIndex);
+                        value = element.Substring(valueIndex + 1);
                     }
                 }
 
                 var jsonValue = VisitValue(value);
 
                 var dotIndex = key.IndexOf('.');
-                if (dotIndex == -1) _configuration.Add(new string(value), jsonValue);
+                if (dotIndex == -1) _configuration.Add(value, jsonValue);
                 else SetValueByPath(_configuration, key, jsonValue);
             }
         }
@@ -48,7 +47,7 @@ namespace Velo.Settings.Sources
             return true;
         }
 
-        private static void SetValueByPath(JsonObject node, ReadOnlySpan<char> path, JsonData value)
+        private static void SetValueByPath(JsonObject node, string path, JsonData value)
         {
             var start = 0;
 
@@ -56,7 +55,7 @@ namespace Velo.Settings.Sources
             {
                 if (path[i] != '.') continue;
 
-                var property = new string(path.Slice(start, i - start));
+                var property = path.Substring(start, i - start);
 
                 if (!node.TryGet(property, out var propertyNode))
                 {
@@ -68,13 +67,13 @@ namespace Velo.Settings.Sources
                 start = i + 1;
             }
 
-            var valueProperty = new string(path.Slice(start, path.Length - start));
+            var valueProperty = path.Substring(start, path.Length - start);
             node[valueProperty] = value;
         }
 
-        private static JsonData VisitValue(ReadOnlySpan<char> value)
+        private static JsonData VisitValue(string value)
         {
-            if (value.IsEmpty) return JsonValue.Null;
+            if (string.IsNullOrEmpty(value)) return JsonValue.Null;
 
             var firstChar = value[0];
 
@@ -82,13 +81,13 @@ namespace Velo.Settings.Sources
             {
                 return value.Length == 1 && firstChar == '0'
                     ? JsonValue.Zero
-                    : new JsonValue(new string(value), JsonDataType.Number);
+                    : new JsonValue(value, JsonDataType.Number);
             }
 
             switch (firstChar)
             {
                 case '"':
-                    return JsonValue.String(new string(value.Slice(1, value.Length - 2)));
+                    return JsonValue.String(value.Substring(1, value.Length - 2));
                 case 'f':
                     return JsonValue.False;
                 case 't':
@@ -97,7 +96,7 @@ namespace Velo.Settings.Sources
                     return JsonValue.Null;
             }
 
-            return JsonValue.String(new string(value));
+            return JsonValue.String(value);
         }
     }
 }

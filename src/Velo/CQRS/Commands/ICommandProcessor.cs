@@ -6,6 +6,6 @@ namespace Velo.CQRS.Commands
     public interface ICommandProcessor<in TCommand>
         where TCommand: ICommand
     {
-        ValueTask Process(TCommand command, CancellationToken cancellationToken);
+        Task Process(TCommand command, CancellationToken cancellationToken);
     }
 }

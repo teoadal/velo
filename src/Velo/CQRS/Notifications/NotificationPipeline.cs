@@ -13,7 +13,7 @@ namespace Velo.CQRS.Notifications
             _processors = processors;
         }
 
-        public async ValueTask Publish(TNotification notification, CancellationToken cancellationToken)
+        public async Task Publish(TNotification notification, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -21,15 +21,11 @@ namespace Velo.CQRS.Notifications
             {
                 if (notification.StopPropagation) break;
 
-                var process = processor.Process(notification, cancellationToken);
-                if (!process.IsCompletedSuccessfully)
-                {
-                    await process;
-                }
+                await processor.Process(notification, cancellationToken);
             }
         }
 
-        ValueTask INotificationPipeline.Publish(INotification notification, CancellationToken cancellationToken)
+        Task INotificationPipeline.Publish(INotification notification, CancellationToken cancellationToken)
         {
             return Publish((TNotification) notification, cancellationToken);
         }
@@ -37,6 +33,6 @@ namespace Velo.CQRS.Notifications
 
     internal interface INotificationPipeline
     {
-        ValueTask Publish(INotification notification, CancellationToken cancellationToken);
+        Task Publish(INotification notification, CancellationToken cancellationToken);
     }
 }

@@ -8,11 +8,12 @@ using Velo.TestsModels.Foos;
 
 namespace Velo.Benchmark
 {
-    [SimpleJob(RuntimeMoniker.NetCoreApp22)]
+    [SimpleJob(RuntimeMoniker.NetCoreApp31)]
+    [MarkdownExporterAttribute.GitHub]
     [MeanColumn, MemoryDiagnoser]
     public class MappersBenchmark
     {
-        [Params(10000, 10003)] 
+        [Params(10000)] 
         public int Count;
 
         private Boo[] _dataset;

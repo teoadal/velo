@@ -173,9 +173,9 @@ namespace Velo.CQRS
                 .BuildProvider()
                 .GetRequiredService<Emitter>();
 
-            Assert.Throws<KeyNotFoundException>(() => emitter.Ask(Mock.Of<Query>()));
-            Assert.Throws<KeyNotFoundException>(() => emitter.Execute(Mock.Of<Command>()));
-            Assert.Throws<KeyNotFoundException>(() => emitter.Send(Mock.Of<ICommand>()));
+            Assert.ThrowsAsync<KeyNotFoundException>(() => emitter.Ask(Mock.Of<Query>()));
+            Assert.ThrowsAsync<KeyNotFoundException>(() => emitter.Execute(Mock.Of<Command>()));
+            Assert.ThrowsAsync<KeyNotFoundException>(() => emitter.Send(Mock.Of<ICommand>()));
         }
 
         [Fact]
@@ -185,10 +185,10 @@ namespace Velo.CQRS
             var emitter = scope.GetRequiredService<Emitter>();
             scope.Dispose();
 
-            Assert.Throws<ObjectDisposedException>(() => emitter.Ask(Mock.Of<Query>()));
-            Assert.Throws<ObjectDisposedException>(() => emitter.Execute(Mock.Of<Command>()));
-            Assert.Throws<ObjectDisposedException>(() => emitter.Send(Mock.Of<ICommand>()));
-            Assert.Throws<ObjectDisposedException>(() => emitter.Send(Mock.Of<INotification>()));
+            Assert.ThrowsAsync<ObjectDisposedException>(() => emitter.Ask(Mock.Of<Query>()));
+            Assert.ThrowsAsync<ObjectDisposedException>(() => emitter.Execute(Mock.Of<Command>()));
+            Assert.ThrowsAsync<ObjectDisposedException>(() => emitter.Send(Mock.Of<ICommand>()));
+            Assert.ThrowsAsync<ObjectDisposedException>(() => emitter.Send(Mock.Of<INotification>()));
         }
     }
 }

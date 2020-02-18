@@ -5,6 +5,6 @@ namespace Velo.ECS.Systems
 {
     public interface IInitializeSystem : ISystem
     {
-        ValueTask Initialize(CancellationToken cancellationToken);
+        Task Initialize(CancellationToken cancellationToken);
     }
 }

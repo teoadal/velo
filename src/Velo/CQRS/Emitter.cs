@@ -20,7 +20,7 @@ namespace Velo.CQRS
             _scope = scope;
         }
 
-        public ValueTask<TResult> Ask<TResult>(IQuery<TResult> query, CancellationToken cancellationToken = default)
+        public Task<TResult> Ask<TResult>(IQuery<TResult> query, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
 
@@ -30,7 +30,7 @@ namespace Velo.CQRS
             return handler.GetResponse(query, cancellationToken);
         }
 
-        public ValueTask<TResult> Ask<TQuery, TResult>(TQuery query, CancellationToken cancellationToken = default)
+        public Task<TResult> Ask<TQuery, TResult>(TQuery query, CancellationToken cancellationToken = default)
             where TQuery : IQuery<TResult>
         {
             EnsureNotDisposed();
@@ -39,7 +39,7 @@ namespace Velo.CQRS
             return handler.GetResponse(query, cancellationToken);
         }
 
-        public ValueTask Execute<TCommand>(TCommand command, CancellationToken cancellationToken = default)
+        public Task Execute<TCommand>(TCommand command, CancellationToken cancellationToken = default)
             where TCommand : ICommand
         {
             EnsureNotDisposed();
@@ -48,17 +48,17 @@ namespace Velo.CQRS
             return executor.Execute(command, cancellationToken);
         }
 
-        public ValueTask Publish<TNotification>(TNotification notification,
+        public Task Publish<TNotification>(TNotification notification,
             CancellationToken cancellationToken = default)
             where TNotification : INotification
         {
             EnsureNotDisposed();
 
             var publisher = GetService<NotificationPipeline<TNotification>>();
-            return publisher?.Publish(notification, cancellationToken) ?? new ValueTask();
+            return publisher?.Publish(notification, cancellationToken) ?? Task.CompletedTask;
         }
 
-        public ValueTask Send(ICommand command, CancellationToken cancellationToken = default)
+        public Task Send(ICommand command, CancellationToken cancellationToken = default)
         {
             EnsureNotDisposed();
 
@@ -68,14 +68,14 @@ namespace Velo.CQRS
             return executor.Send(command, cancellationToken);
         }
 
-        public ValueTask Send(INotification notification, CancellationToken cancellationToken = default)
+        public Task Send(INotification notification, CancellationToken cancellationToken = default)
         {
             if (_disposed) throw Error.Disposed(nameof(Emitter));
 
             var publisherType = PipelineTypes.GetForNotification(notification.GetType());
             var publisher = (INotificationPipeline) _scope.GetService(publisherType);
 
-            return publisher?.Publish(notification, cancellationToken) ?? new ValueTask();
+            return publisher?.Publish(notification, cancellationToken) ?? Task.CompletedTask;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

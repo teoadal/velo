@@ -7,11 +7,13 @@ namespace Velo.Server
     {
         private readonly IHttpRequestHandler[] _requestHandlers;
         private readonly Dictionary<Definition, IHttpRequestHandler> _concreteHandlers;
+        private readonly Type _verbType;
 
         public HttpRouter(IHttpRequestHandler[] requestHandlers)
         {
             _requestHandlers = requestHandlers;
             _concreteHandlers = new Dictionary<Definition, IHttpRequestHandler>(new DefinitionComparer());
+            _verbType = typeof(HttpVerb);
         }
 
         public bool TryGetHandler(string method, Uri url, out IHttpRequestHandler handler)
@@ -19,7 +21,7 @@ namespace Velo.Server
             var definition = new Definition(method, url);
             if (_concreteHandlers.TryGetValue(definition, out handler)) return true;
 
-            var httpMethod = Enum.Parse<HttpVerb>(method, true);
+            var httpMethod = (HttpVerb) Enum.Parse(_verbType, method, true);
             foreach (var requestHandler in _requestHandlers)
             {
                 if (!requestHandler.Applicable(httpMethod, url)) continue;
@@ -46,14 +48,17 @@ namespace Velo.Server
 
         private sealed class DefinitionComparer : IEqualityComparer<Definition>
         {
-            public bool Equals(Definition x, Definition y)
+            public bool Equals(Definition first, Definition second)
             {
-                return x.Method.Equals(y.Method) && x.Url.Equals(y.Url);
+                return first.Method.Equals(second.Method) && first.Url.Equals(second.Url);
             }
 
             public int GetHashCode(Definition def)
             {
-                return HashCode.Combine(def.Method, def.Url);
+                unchecked
+                {
+                    return (def.Method.GetHashCode() * 397) ^ def.GetHashCode();
+                }
             }
         }
     }

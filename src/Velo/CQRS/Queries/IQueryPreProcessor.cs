@@ -6,6 +6,6 @@ namespace Velo.CQRS.Queries
     public interface IQueryPreProcessor<in TQuery, TResult>
         where TQuery : IQuery<TResult>
     {
-        ValueTask PreProcess(TQuery query, CancellationToken cancellationToken);
+        Task PreProcess(TQuery query, CancellationToken cancellationToken);
     }
 }

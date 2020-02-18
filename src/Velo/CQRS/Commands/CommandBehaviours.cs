@@ -20,7 +20,7 @@ namespace Velo.CQRS.Commands
             _pipeline = pipeline;
         }
 
-        public ValueTask Execute(TCommand command, CancellationToken cancellationToken)
+        public Task Execute(TCommand command, CancellationToken cancellationToken)
         {
             var closure = new Closure(this, command, cancellationToken);
             return closure.Execute();
@@ -31,7 +31,7 @@ namespace Velo.CQRS.Commands
             private readonly CommandBehaviours<TCommand> _context;
             private readonly TCommand _command;
             private readonly CancellationToken _cancellationToken;
-            private readonly Func<ValueTask> _next;
+            private readonly Func<Task> _next;
 
             private int _position;
 
@@ -46,7 +46,7 @@ namespace Velo.CQRS.Commands
                 _position = 0;
             }
 
-            public ValueTask Execute()
+            public Task Execute()
             {
                 var behaviours = _context._behaviours;
 

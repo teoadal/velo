@@ -10,7 +10,7 @@ namespace Velo.TestsModels.Emitting
     {
         public TimeSpan Elapsed { get; private set; }
 
-        public async ValueTask Execute(IMeasureCommand command, Func<ValueTask> next,
+        public async Task Execute(IMeasureCommand command, Func<Task> next,
             CancellationToken cancellationToken)
         {
             var stopwatch = Stopwatch.StartNew();

@@ -15,7 +15,7 @@ namespace Velo.TestsModels.Emitting.Foos.Create
             _emitter = emitter;
         }
 
-        public ValueTask Process(Notification notification, CancellationToken cancellationToken)
+        public Task Process(Notification notification, CancellationToken cancellationToken)
         {
             var command = new Command {Id = notification.Id, Type = ModelType.Boo};
             return _emitter.Execute(command, cancellationToken);

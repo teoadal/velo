@@ -10,7 +10,7 @@ namespace Velo.TestsModels.Emitting
     {
         public Exception Exception { get; private set; }
         
-        public async ValueTask Execute(TCommand command, Func<ValueTask> next, CancellationToken cancellationToken)
+        public async Task Execute(TCommand command, Func<Task> next, CancellationToken cancellationToken)
         {
             try
             {

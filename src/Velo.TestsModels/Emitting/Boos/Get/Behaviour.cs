@@ -11,7 +11,7 @@ namespace Velo.TestsModels.Emitting.Boos.Get
     {
         public TimeSpan Elapsed { get; private set; }
         
-        public async ValueTask<Boo> Execute(Query query, Func<ValueTask<Boo>> next, CancellationToken cancellationToken)
+        public async Task<Boo> Execute(Query query, Func<Task<Boo>> next, CancellationToken cancellationToken)
         {
             var timer = Stopwatch.StartNew();
             
