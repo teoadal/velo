@@ -19,7 +19,7 @@ namespace Velo.Benchmark.CQRS
     [CategoriesColumn, GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
     public class MediatorRequestBenchmark
     {
-        [Params(1000)] 
+        [Params(1, 10, 100, 1000)] 
         public int Count;
 
         private MediatorBuilder.GetBooRequest[] _requests;

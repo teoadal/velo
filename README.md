@@ -64,11 +64,11 @@ var dependencyProvider = new DependencyCollection()
 |    **FullPipeline_Emitter** | 284.52 us |  5.193 us |  4.858 us |  **0.35** |   **40 072 B** |
 |                         |           |           |           |       |           |
 |         Request_MediatR | 373.77 us |  7.414 us |  8.538 us |  1.00 |  376 072 B |
-|         **Request_Emitter** | 138.92 us |  1.959 us |  1.832 us |  0.37 |      **72 B** |
+|         **Request_Emitter** | 138.92 us |  1.959 us |  1.832 us |  **0.37** |      **72 B** |
 | Request_EmitterConcrete | 105.11 us |  1.549 us |  1.449 us |  0.28 |      72 B |
 |                         |           |           |           |       |           |
 |   StructRequest_MediatR | 352.24 us |  3.022 us |  2.826 us |  1.00 |  440 074 B |
-|   **StructRequest_Emitter** |  68.80 us |  0.909 us |  0.806 us |  0.20 |      **73 B** |
+|   **StructRequest_Emitter** |  68.80 us |  0.909 us |  0.806 us |  **0.20** |      **73 B** |
 
 
 ### Mediator notification benchmark (per 1000 notifications)
