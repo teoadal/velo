@@ -14,7 +14,7 @@ Install Velo with the following command [from nuget](https://www.nuget.org/packa
 Install-Package Velo
 ```
 
-For integration with IServiceCollection, install Velo.Extensions.DependencyInjection [from nuget](https://www.nuget.org/packages/Velo/):
+For integration with IServiceCollection, install Velo.Extensions.DependencyInjection [from nuget](https://www.nuget.org/packages/Velo.Extensions.DependencyInjection):
 
 ```ini
 Install-Package Velo.Extensions.DependencyInjection
