@@ -87,8 +87,6 @@ namespace Velo.Benchmark.DependencyInjection
 
         public static IServiceCollection ForCore_Mixed()
         {
-            var a = new ServiceCollection().BuildServiceProvider();
-            
             return new ServiceCollection()
                 .AddSingleton<JConverter>()
                 .AddSingleton<ILogger<SomethingController>, Logger<SomethingController>>()

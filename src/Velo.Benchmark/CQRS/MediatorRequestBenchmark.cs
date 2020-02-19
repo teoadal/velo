@@ -6,7 +6,6 @@ using MediatR;
 using MediatR.Pipeline;
 using Microsoft.Extensions.DependencyInjection;
 using Velo.CQRS;
-using Velo.CQRS.Queries;
 using Velo.Extensions.DependencyInjection.CQRS;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting.Boos.Get;

@@ -89,8 +89,7 @@ namespace Velo.Extensions.DependencyInjection
         }
 
         private static DependencyResolver BuildDelegateResolver(ServiceDescriptor descriptor)
-        {
-            var contracts = new[] {descriptor.ServiceType};
+        { 
             var implementation = descriptor.ServiceType ?? descriptor.ImplementationType;
             return new DelegateResolver(implementation, descriptor.ImplementationFactory);
         }

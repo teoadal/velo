@@ -15,19 +15,18 @@ namespace Velo.CQRS
 {
     public class ServiceCollectionShould : TestClass
     {
-        private readonly Mock<IBooRepository> _repository;
         private readonly IServiceCollection _serviceCollection;
 
         public ServiceCollectionShould(ITestOutputHelper output) : base(output)
         {
-            _repository = new Mock<IBooRepository>();
+            var repository = new Mock<IBooRepository>();
 
-            _repository
-                .Setup(repository => repository.GetElement(It.IsAny<int>()))
+            repository
+                .Setup(r => r.GetElement(It.IsAny<int>()))
                 .Returns<int>(id => new Boo {Id = id});
 
             _serviceCollection = new ServiceCollection()
-                .AddSingleton(_repository.Object)
+                .AddSingleton(repository.Object)
                 .AddEmitter();
         }
 
