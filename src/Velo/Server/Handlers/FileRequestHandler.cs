@@ -3,6 +3,7 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Velo.Utils;
 
 namespace Velo.Server.Handlers
 {
@@ -36,7 +37,7 @@ namespace Velo.Server.Handlers
                 context.Response.StatusCode = (int) HttpStatusCode.NotFound;
             }
 
-            return Task.CompletedTask;
+            return TaskUtils.CompletedTask;
         }
     }
 }

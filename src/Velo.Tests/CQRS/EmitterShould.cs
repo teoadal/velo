@@ -30,6 +30,10 @@ namespace Velo.CQRS
             _logger = new Mock<ILogWriter>();
             _repository = new Mock<IBooRepository>();
 
+            _repository
+                .Setup(repository => repository.GetElement(It.IsAny<int>()))
+                .Returns<int>(id => new Boo {Id = id});
+            
             _dependencyProvider = new DependencyCollection()
                 .AddInstance(_repository.Object)
                 .AddCommandProcessor<Emitting.Boos.Create.Processor>()
@@ -61,28 +65,20 @@ namespace Velo.CQRS
         }
 
         [Theory, AutoData]
-        public async Task ReturnAskResult(Boo boo)
+        public async Task ReturnAskResult(int booId)
         {
-            _repository
-                .Setup(repository => repository.GetElement(It.IsAny<int>()))
-                .Returns(boo);
-
-            var query = new Query(boo.Id);
+            var query = new Query(booId);
             var askResult = await _emitter.Ask(query);
 
-            askResult.Should().Be(boo);
+            askResult.Id.Should().Be(booId);
         }
 
         [Theory, AutoData]
-        public async Task ReturnConcreteAskResult(Boo boo)
+        public async Task ReturnConcreteAskResult(int booId)
         {
-            _repository
-                .Setup(repository => repository.GetElement(It.IsAny<int>()))
-                .Returns(boo);
-
-            var query = new Query(boo.Id);
+            var query = new Query(booId);
             var concreteAskResult = await _emitter.Ask<Query, Boo>(query);
-            concreteAskResult.Should().Be(boo);
+            concreteAskResult.Id.Should().Be(booId);
         }
 
         [Fact]

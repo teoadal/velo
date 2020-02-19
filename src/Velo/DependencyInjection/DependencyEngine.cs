@@ -7,14 +7,14 @@ using Velo.Utils;
 
 namespace Velo.DependencyInjection
 {
-    public interface IDependencyEngine
+    public interface IDependencyEngine : IDisposable
     {
         LocalList<IDependency> GetApplicable(Type contract);
 
         IDependency GetDependency(Type contract, bool required = false);
     }
 
-    internal sealed class DependencyEngine : IDependencyEngine, IDisposable
+    internal sealed class DependencyEngine : IDependencyEngine
     {
         private readonly List<IDependency> _dependencies;
         private readonly List<IDependencyFactory> _factories;

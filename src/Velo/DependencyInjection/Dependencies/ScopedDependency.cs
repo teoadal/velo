@@ -18,10 +18,6 @@ namespace Velo.DependencyInjection.Dependencies
             _instances = new Dictionary<IDependencyScope, object>();
         }
 
-        public ScopedDependency(Type contract, DependencyResolver resolver) : this(new[] {contract}, resolver)
-        {
-        }
-
         public override object GetInstance(Type contract, IDependencyScope scope)
         {
             if (_instances.TryGetValue(scope, out var existsInstance)) return existsInstance;

@@ -5,16 +5,16 @@ using Velo.Utils;
 
 namespace Velo.DependencyInjection
 {
-    public sealed class DependencyProvider : IDependencyScope, IServiceProvider
+    public sealed class DependencyProvider : IDependencyScope
     {
         public event Action<IDependencyScope> Destroy;
 
         private bool _disposed;
-        private readonly DependencyEngine _engine;
+        private readonly IDependencyEngine _engine;
         private readonly object _lock;
         private readonly DependencyProvider _parent;
 
-        internal DependencyProvider(DependencyEngine engine)
+        internal DependencyProvider(IDependencyEngine engine)
         {
             _engine = engine;
             _lock = new object();
@@ -110,7 +110,7 @@ namespace Velo.DependencyInjection
         public T[] GetServices<T>() => (T[]) GetService(Typeof<T[]>.Raw);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private DependencyEngine GetEngine()
+        private IDependencyEngine GetEngine()
         {
             return _engine ?? _parent.GetEngine();
         }

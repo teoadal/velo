@@ -55,7 +55,7 @@ namespace Velo.CQRS
             EnsureNotDisposed();
 
             var publisher = GetService<NotificationPipeline<TNotification>>();
-            return publisher?.Publish(notification, cancellationToken) ?? Task.CompletedTask;
+            return publisher?.Publish(notification, cancellationToken) ?? TaskUtils.CompletedTask;
         }
 
         public Task Send(ICommand command, CancellationToken cancellationToken = default)
@@ -75,7 +75,7 @@ namespace Velo.CQRS
             var publisherType = PipelineTypes.GetForNotification(notification.GetType());
             var publisher = (INotificationPipeline) _scope.GetService(publisherType);
 
-            return publisher?.Publish(notification, cancellationToken) ?? Task.CompletedTask;
+            return publisher?.Publish(notification, cancellationToken) ?? TaskUtils.CompletedTask;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

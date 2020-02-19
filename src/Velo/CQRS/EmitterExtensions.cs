@@ -56,18 +56,6 @@ namespace Velo.CQRS
             return collection;
         }
 
-        public static DependencyCollection AddQueryProcessor<TProcessor>(this DependencyCollection collection,
-            DependencyLifetime lifetime = DependencyLifetime.Singleton)
-        {
-            var processorTypes = PipelineTypes.QueryProcessorTypes;
-            if (!AddDependencies(collection, typeof(TProcessor), processorTypes, lifetime))
-            {
-                throw Error.InvalidOperation($"'{ReflectionUtils.GetName<TProcessor>()}' not implemented any of query processors interface");
-            }
-
-            return collection;
-        }
-
         public static DependencyCollection AddQueryBehaviour<TBehaviour>(this DependencyCollection collection,
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
         {
@@ -77,6 +65,18 @@ namespace Velo.CQRS
                 throw Error.InvalidOperation($"'{ReflectionUtils.GetName<TBehaviour>()}' not implemented query behaviour interface");
             }
             
+            return collection;
+        }
+        
+        public static DependencyCollection AddQueryProcessor<TProcessor>(this DependencyCollection collection,
+            DependencyLifetime lifetime = DependencyLifetime.Singleton)
+        {
+            var processorTypes = PipelineTypes.QueryProcessorTypes;
+            if (!AddDependencies(collection, typeof(TProcessor), processorTypes, lifetime))
+            {
+                throw Error.InvalidOperation($"'{ReflectionUtils.GetName<TProcessor>()}' not implemented any of query processors interface");
+            }
+
             return collection;
         }
 

@@ -18,6 +18,7 @@ namespace Velo.TestsModels.Emitting.Boos.Get
             var result = await next();
 
             Elapsed = timer.Elapsed;
+            query.Measured = true;
 
             return result;
         }

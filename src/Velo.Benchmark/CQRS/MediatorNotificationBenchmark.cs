@@ -1,9 +1,11 @@
+using System;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Velo.CQRS;
+using Velo.Extensions.DependencyInjection.CQRS;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting.Plus;
 
@@ -29,7 +31,7 @@ namespace Velo.Benchmark.CQRS
             _emitterNotifications = new PlusNotification[Count];
             _mediatorNotifications = new MediatorBuilder.Notification[Count];
 
-            for (int i = 0; i < Count; i++)
+            for (var i = 0; i < Count; i++)
             {
                 _emitterNotifications[i] = new PlusNotification();
                 _mediatorNotifications[i] = new MediatorBuilder.Notification();
@@ -61,7 +63,7 @@ namespace Velo.Benchmark.CQRS
                 await _mediator.Publish(notification);
                 sum += notification.Counter;
             }
-
+        
             return sum;
         }
 

@@ -7,6 +7,7 @@ using MediatR.Pipeline;
 using Microsoft.Extensions.DependencyInjection;
 using Velo.CQRS;
 using Velo.CQRS.Queries;
+using Velo.Extensions.DependencyInjection.CQRS;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting.Boos.Get;
 using Velo.TestsModels.Emitting.PingPong;
@@ -19,8 +20,7 @@ namespace Velo.Benchmark.CQRS
     [CategoriesColumn, GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
     public class MediatorRequestBenchmark
     {
-        [Params(1, 10, 100, 1000)] 
-        public int Count;
+        [Params(1, 10, 100, 1000)] public int Count;
 
         private MediatorBuilder.GetBooRequest[] _requests;
         private MediatorBuilder.StructRequest[] _requestsStruct;
@@ -57,24 +57,31 @@ namespace Velo.Benchmark.CQRS
             }
 
             _mediator = MediatorBuilder.BuildMediatR(repository);
+
             _mediatorWithBehaviour = MediatorBuilder.BuildMediatR(repository, services =>
                 services.AddSingleton<MediatorBuilder.GetBooRequestBehaviour>());
+
             _mediatorWithFullPipeline = MediatorBuilder.BuildMediatR(repository, services =>
                 services
                     .AddSingleton(typeof(IPipelineBehavior<,>), typeof(RequestPreProcessorBehavior<,>))
                     .AddSingleton(typeof(IPipelineBehavior<,>), typeof(RequestPostProcessorBehavior<,>))
-                    .AddSingleton<IPipelineBehavior<MediatorBuilder.GetBooRequest, Boo>, MediatorBuilder.GetBooRequestBehaviour>()
-                    .AddSingleton<IRequestPreProcessor<MediatorBuilder.GetBooRequest>, MediatorBuilder.GetBooPreProcessor>()
-                    .AddSingleton<IRequestPostProcessor<MediatorBuilder.GetBooRequest, Boo>, MediatorBuilder.GetBooPostProcessor>());
+                    .AddSingleton<IPipelineBehavior<MediatorBuilder.GetBooRequest, Boo>,
+                        MediatorBuilder.GetBooRequestBehaviour>()
+                    .AddSingleton<IRequestPreProcessor<MediatorBuilder.GetBooRequest>,
+                        MediatorBuilder.GetBooPreProcessor>()
+                    .AddSingleton<IRequestPostProcessor<MediatorBuilder.GetBooRequest, Boo>,
+                        MediatorBuilder.GetBooPostProcessor>());
 
             _emitter = _emitterWithBehaviour = MediatorBuilder.BuildEmitter(repository);
+
             _emitterWithBehaviour = MediatorBuilder.BuildEmitter(repository, services =>
-                services.AddSingleton<Behaviour>());
+                services.AddQueryBehaviour<Behaviour>());
+
             _emitterWithFullPipeline = MediatorBuilder.BuildEmitter(repository, services =>
                 services
-                    .AddSingleton<IQueryBehaviour<Query, Boo>, Behaviour>()
-                    .AddSingleton<IQueryPreProcessor<Query, Boo>, PreProcessor>()
-                    .AddSingleton<IQueryPostProcessor<Query, Boo>, PostProcessor>());
+                    .AddQueryBehaviour<Behaviour>()
+                    .AddQueryProcessor<PreProcessor>()
+                    .AddQueryProcessor<PostProcessor>());
         }
 
         [BenchmarkCategory("Behaviour")]
@@ -87,10 +94,10 @@ namespace Velo.Benchmark.CQRS
                 var boo = await _mediatorWithBehaviour.Send(request);
                 sum += boo.Int;
             }
-
+        
             return sum;
         }
-
+        
         [BenchmarkCategory("Behaviour")]
         [Benchmark]
         public async Task<long> Behaviour_Emitter()
@@ -101,7 +108,7 @@ namespace Velo.Benchmark.CQRS
                 var boo = await _emitterWithBehaviour.Ask(query);
                 sum += boo.Int;
             }
-
+        
             return sum;
         }
 
@@ -171,10 +178,10 @@ namespace Velo.Benchmark.CQRS
                 var boo = await _emitter.Ask<Query, Boo>(query);
                 sum += boo.Int;
             }
-
+        
             return sum;
         }
-
+        
         [BenchmarkCategory("Struct")]
         [Benchmark(Baseline = true)]
         public async Task<long> StructRequest_MediatR()
@@ -185,10 +192,10 @@ namespace Velo.Benchmark.CQRS
                 var response = await _mediator.Send(structRequest);
                 sum += response.Message.Length;
             }
-
+        
             return sum;
         }
-
+        
         [BenchmarkCategory("Struct")]
         [Benchmark]
         public async Task<long> StructRequest_Emitter()
@@ -199,7 +206,7 @@ namespace Velo.Benchmark.CQRS
                 var pong = await _emitter.Ask<Ping, Pong>(ping);
                 sum += pong.Message;
             }
-
+        
             return sum;
         }
     }

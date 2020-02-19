@@ -8,6 +8,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Velo.Benchmark", "src\Velo.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Velo.TestsModels", "src\Velo.TestsModels\Velo.TestsModels.csproj", "{38B6767C-03C4-48AF-A251-220BCD7E5989}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Velo.Extensions.DependencyInjection", "src\Velo.Extensions.DependencyInjection\Velo.Extensions.DependencyInjection.csproj", "{65170373-5BC5-43D3-9544-42AA9323A5F6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{63514FF9-F91F-47D1-BB72-AAD48F3B1E7C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,5 +33,14 @@ Global
 		{38B6767C-03C4-48AF-A251-220BCD7E5989}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{38B6767C-03C4-48AF-A251-220BCD7E5989}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{38B6767C-03C4-48AF-A251-220BCD7E5989}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65170373-5BC5-43D3-9544-42AA9323A5F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65170373-5BC5-43D3-9544-42AA9323A5F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65170373-5BC5-43D3-9544-42AA9323A5F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65170373-5BC5-43D3-9544-42AA9323A5F6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E13E2572-CCFF-4737-87FA-B740897FF407} = {63514FF9-F91F-47D1-BB72-AAD48F3B1E7C}
+		{19C8D859-62E5-44C1-AF91-032CD03E3EAF} = {63514FF9-F91F-47D1-BB72-AAD48F3B1E7C}
+		{38B6767C-03C4-48AF-A251-220BCD7E5989} = {63514FF9-F91F-47D1-BB72-AAD48F3B1E7C}
 	EndGlobalSection
 EndGlobal

@@ -14,6 +14,12 @@ Install Velo with the following command [from nuget](https://www.nuget.org/packa
 Install-Package Velo
 ```
 
+For integration with IServiceCollection, install Velo.Extensions.DependencyInjection [from nuget](https://www.nuget.org/packages/Velo/):
+
+```ini
+Install-Package Velo.Extensions.DependencyInjection
+```
+
 ## Emitter (mediator)
 
 ```cs
@@ -53,12 +59,17 @@ var dependencyProvider = new DependencyCollection()
     .AddNotificationProcessor<OnBooCreated>()
 ```
 
-### Mediator query (request) benchmark (per 1000 requests with behaviour, pre- and post-processor)
+### Mediator query (request) benchmark (per 1000 requests)
 
-|     Method |      Mean |    Error |   StdDev | Ratio |  Allocated |
-|----------- |----------:|---------:|---------:|------:|-----------:|
-|    MediatR | 803.85 us | 9.508 us | 8.428 us |  1.00 | 1031.32 KB |
-|    **Velo** | 276.42 us | 1.367 us | 1.142 us |  **0.34** |  **250.08 KB** |
+|               Method |      Mean |    Error |   StdDev | Ratio |  Allocated |
+|--------------------- |----------:|---------:|---------:|------:|-----------:|
+| FullPipeline_MediatR | 805,866.1 ns | 15,881.23 ns | 21,738.41 ns |  1.00 | 1056.07 KB |
+|    **FullPipeline_Velo** | 272,772.9 ns |  5,236.39 ns |  6,430.75 ns |  **0.34** |  **256.07 KB** |
+|                      |              |              |              |       |           |
+|  One_Request_MediatR | 358,579.4 ns |  6,727.49 ns |  7,198.33 ns |  1.00 |  376.07 KB |
+|     **One_Request_Velo** | 132,259.3 ns |  2,136.00 ns |  1,998.02 ns |  **0.37** |  **144.07 KB** |
+
+*FullPipeline - behaviour, pre- and post-processor*.
 
 ### Mediator notification benchmark (per 1000 notifications)
 

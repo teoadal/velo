@@ -19,4 +19,20 @@ namespace Velo.DependencyInjection.Resolvers
             return _builder(scope);
         }
     }
+    
+    [DebuggerDisplay("Implementation = {" + nameof(Implementation) + "}")]
+    internal sealed class DelegateResolver : DependencyResolver
+    {
+        private readonly Func<IServiceProvider, object> _builder;
+
+        public DelegateResolver(Type implementation, Func<IServiceProvider, object> builder): base(implementation)
+        {
+            _builder = builder;
+        }
+
+        protected override object GetInstance(Type contract, IDependencyScope scope)
+        {
+            return _builder(scope);
+        }
+    }
 }

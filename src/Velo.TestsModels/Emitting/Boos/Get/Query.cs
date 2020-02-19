@@ -6,6 +6,8 @@ namespace Velo.TestsModels.Emitting.Boos.Get
     public class Query : IQuery<Boo>
     {
         public int Id { get; set; }
+
+        public bool Measured { get; set; }
         
         public bool PostProcessed { get; set; }
         

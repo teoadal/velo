@@ -60,11 +60,16 @@ namespace Velo.DependencyInjection
             return this;
         }
 
+        public DependencyCollection AddInstance(Type contract, object instance)
+        {
+            var resolver = new InstanceResolver(instance);
+            return AddDependency(new SingletonDependency(new[] {contract}, resolver));
+        }
+        
         public DependencyCollection AddInstance<TContract>(TContract instance)
             where TContract : class
         {
-            var resolver = new InstanceResolver(instance);
-            return AddDependency(new ScopedDependency(Typeof<TContract>.Raw, resolver));
+            return AddInstance(Typeof<TContract>.Raw, instance);
         }
 
         #region AddScoped

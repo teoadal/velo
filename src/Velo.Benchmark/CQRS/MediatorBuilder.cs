@@ -6,6 +6,7 @@ using MediatR;
 using MediatR.Pipeline;
 using Microsoft.Extensions.DependencyInjection;
 using Velo.CQRS;
+using Velo.Extensions.DependencyInjection.CQRS;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting.PingPong;
 using Boos = Velo.TestsModels.Emitting.Boos;
@@ -37,7 +38,7 @@ namespace Velo.Benchmark.CQRS
                 .AddSingleton(repository)
                 .AddQueryProcessor<PingPongProcessor>()
                 .AddQueryProcessor<Boos.Get.Processor>()
-                .AddScoped(ctx => new Emitter(ctx));
+                .AddEmitter();
 
             dependencyBuilder?.Invoke(serviceCollection);
 
@@ -64,6 +65,8 @@ namespace Velo.Benchmark.CQRS
         {
             public int Id { get; set; }
 
+            public bool Measured { get; set; }
+            
             public bool PostProcessed { get; set; }
 
             public bool PreProcessed { get; set; }
@@ -81,6 +84,7 @@ namespace Velo.Benchmark.CQRS
                 var result = await next();
 
                 Elapsed = timer.Elapsed;
+                request.Measured = true;
 
                 return result;
             }
