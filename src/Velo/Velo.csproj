@@ -17,9 +17,7 @@
         <Product>teoadal</Product>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <AssemblyOriginatorKeyFile>..\..\Velo.snk</AssemblyOriginatorKeyFile>
         <AssemblyName>Velo</AssemblyName>
-        <SignAssembly>true</SignAssembly>
         <Nullable>disable</Nullable>
     </PropertyGroup>
 
