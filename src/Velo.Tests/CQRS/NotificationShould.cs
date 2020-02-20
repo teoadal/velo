@@ -1,3 +1,5 @@
+using System;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture.Xunit2;
 using Moq;
@@ -112,6 +114,23 @@ namespace Velo.CQRS
 
             _fooRepository.Verify(repository => repository
                 .AddElement(It.Is<Foo>(foo => foo.Int == notification.Id)), Times.Never);
+        }
+        
+        [Theory, AutoData]
+        public async Task ThrowCancellation(Notification notification)
+        {
+            var cancellationTokenSource = new CancellationTokenSource();
+            var token = cancellationTokenSource.Token;
+            cancellationTokenSource.Cancel();
+
+            var emitter = new DependencyCollection()
+                .AddInstance(_fooRepository.Object)
+                .AddEmitter()
+                .AddNotificationProcessor<OnBooCreated>()
+                .BuildProvider()
+                .GetRequiredService<Emitter>();
+
+            await Assert.ThrowsAsync<OperationCanceledException>(() => emitter.Publish(notification, token));
         }
     }
 }

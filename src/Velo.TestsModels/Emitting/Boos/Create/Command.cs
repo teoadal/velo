@@ -8,6 +8,8 @@ namespace Velo.TestsModels.Emitting.Boos.Create
 
         public bool Bool { get; set; }
         
+        public bool Measured { get; set; }
+        
         public bool PostProcessed { get; set; }
         
         public bool PreProcessed { get; set; }

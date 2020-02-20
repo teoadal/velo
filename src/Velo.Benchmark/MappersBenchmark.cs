@@ -38,9 +38,7 @@ namespace Velo.Benchmark
             }
 
             _basicMapper = new BasicMapper<Foo>();
-
             _compiledMapper = new CompiledMapper<Foo>();
-            _compiledMapper.PrepareConverterFor<Boo>();
 
             var config = new MapperConfiguration(cfg => cfg.CreateMap<Boo, Foo>());
             _autoMapper = config.CreateMapper();

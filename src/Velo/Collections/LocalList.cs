@@ -54,7 +54,7 @@ namespace Velo.Collections
             _element0 = item0;
             _element1 = item1;
 
-            _length = 3;
+            _length = 2;
         }
 
         public LocalList(T item0, T item1, T item2)

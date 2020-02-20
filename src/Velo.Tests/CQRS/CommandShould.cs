@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture.Xunit2;
 using FluentAssertions;
@@ -55,6 +56,39 @@ namespace Velo.CQRS
             exceptionBehaviour.Exception.Should().BeOfType<InvalidOperationException>();
         }
 
+        [Fact]
+        public async Task ExecuteActionCommandProcessor()
+        {
+            var emitter = new DependencyCollection()
+                .AddEmitter()
+                .AddCommandProcessor<Command>(cmd => { cmd.Id++; })
+                .BuildProvider()
+                .GetRequiredService<Emitter>();
+            
+            var command = new Command();
+            await emitter.Execute(command);
+
+            command.Id.Should().Be(1);
+        }
+        
+        [Fact]
+        public async Task ExecuteActionCommandProcessorWithContext()
+        {
+            var emitter = new DependencyCollection()
+                .AddInstance(_repository.Object)
+                .AddEmitter()
+                .AddCommandProcessor<Command, IBooRepository>((cmd, repository) => repository
+                    .AddElement(new Boo{ Id = cmd.Id }))
+                .BuildProvider()
+                .GetRequiredService<Emitter>();
+            
+            var command = new Command();
+            await emitter.Execute(command);
+            
+            _repository.Verify(repository => repository
+                .AddElement(It.Is<Boo>(boo => boo.Id == command.Id)));
+        }
+        
         [Theory, AutoData]
         public async Task ExecutedMultiThreading(Boo[] boos)
         {
@@ -66,6 +100,7 @@ namespace Velo.CQRS
 
             foreach (var command in commands)
             {
+                command.Measured.Should().BeTrue();
                 command.PreProcessed.Should().BeTrue();
                 command.PostProcessed.Should().BeTrue();
 
@@ -90,6 +125,7 @@ namespace Velo.CQRS
 
             foreach (var command in commands)
             {
+                command.Measured.Should().BeTrue();
                 command.PreProcessed.Should().BeTrue();
                 command.PostProcessed.Should().BeTrue();
 
@@ -127,6 +163,7 @@ namespace Velo.CQRS
                 {
                     await emitter.Execute(command);
 
+                    command.Measured.Should().BeTrue();
                     command.PreProcessed.Should().BeTrue();
                     command.PostProcessed.Should().BeTrue();
 
@@ -165,13 +202,30 @@ namespace Velo.CQRS
             command.PostProcessed.Should().BeTrue();
         }
 
-        [Fact]
-        public async Task RiseNotification()
+        [Theory, AutoData]
+        public async Task RiseNotification(Command command)
         {
-            await _emitter.Execute(Mock.Of<Command>()); // post processor must publish notification
+            await _emitter.Execute(command); // post processor must publish notification
 
             _logger.Verify(logger => logger
                 .Write(LogLevel.Debug, nameof(NotificationProcessor)));
+        }
+
+        [Theory, AutoData]
+        public async Task ThrowCancellation(Command command)
+        {
+            var cancellationTokenSource = new CancellationTokenSource();
+            var token = cancellationTokenSource.Token;
+            cancellationTokenSource.Cancel();
+
+            var emitter = new DependencyCollection()
+                .AddInstance(_repository.Object)
+                .AddEmitter()
+                .AddCommandProcessor<Processor>()
+                .BuildProvider()
+                .GetRequiredService<Emitter>();
+
+            await Assert.ThrowsAsync<OperationCanceledException>(() => emitter.Execute(command, token));
         }
     }
 }

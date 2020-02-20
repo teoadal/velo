@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
-using BenchmarkDotNet.Diagnosers;
 using BenchmarkDotNet.Jobs;
 using Velo.Collections;
 using Velo.TestsModels.Boos;
@@ -13,7 +12,6 @@ namespace Velo.Benchmark.Collections
     [SimpleJob(RuntimeMoniker.NetCoreApp31)]
     [MarkdownExporterAttribute.GitHub]
     [MeanColumn, MemoryDiagnoser]
-    [HardwareCounters(HardwareCounter.BranchMispredictions)]
     [CategoriesColumn, GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
     public class LocalVectorBenchmark
     {

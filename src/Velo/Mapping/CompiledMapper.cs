@@ -7,7 +7,7 @@ using Velo.Utils;
 
 namespace Velo.Mapping
 {
-    public sealed class CompiledMapper<TOut> : IMapper<TOut>
+    internal sealed class CompiledMapper<TOut> : IMapper<TOut>
     {
         private readonly Dictionary<Type, Func<object, TOut>> _converters;
         private readonly ConstructorInfo _outConstructor;
@@ -20,7 +20,7 @@ namespace Velo.Mapping
 
             _outType = typeof(TOut);
             _outProperties = _outType.GetProperties().ToDictionary(p => p.Name);
-            _outConstructor = _outType.GetConstructor(Array.Empty<Type>());
+            _outConstructor = ReflectionUtils.GetEmptyConstructor(_outType);
 
             if (_outConstructor == null) throw Error.DefaultConstructorNotFound(_outType);
         }
@@ -37,16 +37,6 @@ namespace Velo.Mapping
             _converters.Add(sourceType, converter);
 
             return converter(source);
-        }
-
-        public void PrepareConverterFor<TSource>()
-        {
-            var sourceType = typeof(TSource);
-
-            if (!_converters.ContainsKey(sourceType)) return;
-
-            var converter = BuildConverter(sourceType);
-            _converters.Add(sourceType, converter);
         }
 
         private Func<object, TOut> BuildConverter(Type sourceType)
@@ -66,7 +56,7 @@ namespace Velo.Mapping
             foreach (var sourceProperty in sourceProperties)
             {
                 if (!_outProperties.TryGetValue(sourceProperty.Name, out var outProperty)) continue;
-                
+
                 var sourceValue = Expression.Property(sourceInstance, sourceProperty);
                 var outValue = Expression.Property(outInstance, outProperty);
 

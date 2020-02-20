@@ -204,6 +204,8 @@ using (var scope = provider.CreateScope())
 
 ## LocalVector (small collection on stack)
 
+Ref struct for collect values on stack. This collection allows you to reduce memory consumption. Also, it allows you to work with several variables as a collection without extra costs. Read about LocalList [here](https://github.com/teoadal/veloimplementations/wiki/LocalList-(collection-on-stack)).
+
 ### Usage
 
 ```cs
@@ -232,106 +234,36 @@ return counter;
 
 ### Local vector benchmarks
 
-|                                Method | Count |         Mean |       Error |      StdDev |       Median | Ratio | Allocated |
-|-------------------------------------- |------ |-------------:|------------:|------------:|-------------:|------:|----------:|
-|                              **List_Add** |     **6** |    **70.934 ns** |   **0.8841 ns** |   **0.7838 ns** |    **71.026 ns** |  **1.00** |     **184 B** |
-|                       LocalVector_Add |     6 |    35.313 ns |   0.3948 ns |   0.3500 ns |    35.322 ns |  0.50 |         - |
-|                              Span_Add |     6 |    25.172 ns |   0.3537 ns |   0.3309 ns |    25.041 ns |  0.35 |      72 B |
-|                                       |       |              |             |             |              |       |           |
-|                       List_Allocation |     6 |     6.970 ns |   0.1368 ns |   0.1280 ns |     6.964 ns |  1.00 |      18 B |
-|                LocalVector_Allocation |     6 |     3.357 ns |   0.0462 ns |   0.0432 ns |     3.341 ns |  0.48 |         - |
-|                       Span_Allocation |     6 |     2.458 ns |   0.0336 ns |   0.0314 ns |     2.454 ns |  0.35 |       7 B |
-|                                       |       |              |             |             |              |       |           |
-|                        List_Iteration |     6 |    90.763 ns |   0.9395 ns |   0.8328 ns |    90.709 ns |  1.00 |     112 B |
-|                 LocalVector_Iteration |     6 |    84.531 ns |   1.7477 ns |   3.2826 ns |    84.120 ns |  0.94 |         - |
-|                        Span_Iteration |     6 |     8.317 ns |   0.0699 ns |   0.0654 ns |     8.303 ns |  0.09 |         - |
-|                                       |       |              |             |             |              |       |           |
-|                          List_GroupBy |     6 |   521.716 ns |  10.3672 ns |   9.6975 ns |   521.845 ns |  1.00 |     816 B |
-|                   LocalVector_GroupBy |     6 |   697.650 ns |  18.6314 ns |  32.6314 ns |   679.490 ns |  1.36 |         - |
-|                                       |       |              |             |             |              |       |           |
-|        List_MoreLinq |     6 | 1,747.245 ns |  10.7722 ns |  10.0764 ns | 1,746.922 ns |  1.00 |    1840 B |
-| LocalVector_MoreLinq |     6 |   614.650 ns |  14.5216 ns |  41.4311 ns |   592.375 ns |  0.36 |         - |
-|                                       |       |              |             |             |              |       |           |
-|                           List_Remove |     6 |   216.125 ns |   1.3028 ns |   1.1549 ns |   215.846 ns |  1.00 |     112 B |
-|                    LocalVector_Remove |     6 |   185.718 ns |   1.1246 ns |   0.9969 ns |   185.648 ns |  0.86 |         - |
-|                                       |       |              |             |             |              |       |           |
-|                           List_Select |     6 |   185.795 ns |   2.7152 ns |   2.4070 ns |   184.959 ns |  1.00 |     184 B |
-|                    LocalVector_Select |     6 |   146.682 ns |   3.5299 ns |   3.9235 ns |   144.845 ns |  0.79 |         - |
-|                                       |       |              |             |             |              |       |           |
-|                          List_ToArray |     6 |    87.699 ns |   0.8934 ns |   0.8357 ns |    87.469 ns |  1.00 |     184 B |
-|                   LocalVector_ToArray |     6 |    53.201 ns |   0.3991 ns |   0.3538 ns |    53.151 ns |  0.61 |      72 B |
-|                          Span_ToArray |     6 |    20.654 ns |   0.1678 ns |   0.1570 ns |    20.612 ns |  0.24 |      72 B |
-|                                       |       |              |             |             |              |       |           |
-|                            List_Where |     6 |   230.537 ns |   2.0439 ns |   1.7067 ns |   230.668 ns |  1.00 |     184 B |
-|                     LocalVector_Where |     6 |   147.815 ns |   2.8671 ns |   2.5416 ns |   147.066 ns |  0.64 |         - |
-|                                       |       |              |             |             |              |       |           |
-|                    List_Where_ToArray |     6 |   307.613 ns |   1.7394 ns |   1.6271 ns |   307.827 ns |  1.00 |     240 B |
-|             LocalVector_Where_ToArray |     6 |   180.913 ns |   3.6185 ns |   5.5258 ns |   179.677 ns |  0.59 |      56 B |
-|                                       |       |              |             |             |              |       |           |
-|                              **List_Add** |    **10** |   **109.992 ns** |   **0.5531 ns** |   **0.5174 ns** |   **109.963 ns** |  **1.00** |     **336 B** |
-|                       LocalVector_Add |    10 |    51.921 ns |   0.3682 ns |   0.3444 ns |    51.865 ns |  0.47 |         - |
-|                              Span_Add |    10 |    32.637 ns |   0.1159 ns |   0.1084 ns |    32.643 ns |  0.30 |     104 B |
-|                                       |       |              |             |             |              |       |           |
-|                       List_Allocation |    10 |    10.952 ns |   0.0963 ns |   0.0901 ns |    10.957 ns |  1.00 |      34 B |
-|                LocalVector_Allocation |    10 |     4.894 ns |   0.0289 ns |   0.0270 ns |     4.886 ns |  0.45 |         - |
-|                       Span_Allocation |    10 |     3.269 ns |   0.0237 ns |   0.0222 ns |     3.263 ns |  0.30 |      10 B |
-|                                       |       |              |             |             |              |       |           |
-|                        List_Iteration |    10 |   105.256 ns |   0.6105 ns |   0.5711 ns |   105.231 ns |  1.00 |     144 B |
-|                 LocalVector_Iteration |    10 |   119.870 ns |   2.3141 ns |   2.0514 ns |   119.860 ns |  1.14 |         - |
-|                        Span_Iteration |    10 |    10.746 ns |   0.2140 ns |   0.2002 ns |    10.814 ns |  0.10 |         - |
-|                                       |       |              |             |             |              |       |           |
-|                          List_GroupBy |    10 |   738.832 ns |  13.3283 ns |  26.6181 ns |   739.727 ns |  1.00 |    1024 B |
-|                   LocalVector_GroupBy |    10 | 1,090.561 ns |  21.6888 ns |  55.2049 ns | 1,071.196 ns |  1.49 |         - |
-|                                       |       |              |             |             |              |       |           |
-|        List_MoreLinq |    10 | 2,871.348 ns |  61.5866 ns |  68.4533 ns | 2,853.588 ns |  1.00 |    2384 B |
-| LocalVector_MoreLinq |    10 | 1,253.259 ns |  24.2574 ns |  27.9349 ns | 1,247.557 ns |  0.44 |         - |
-|                                       |       |              |             |             |              |       |           |
-|                           List_Remove |    10 |   388.861 ns |   7.7686 ns |   9.2480 ns |   388.455 ns |  1.00 |     144 B |
-|                    LocalVector_Remove |    10 |   499.922 ns |   6.9172 ns |   5.7761 ns |   501.994 ns |  1.30 |         - |
-|                                       |       |              |             |             |              |       |           |
-|                           List_Select |    10 |   278.151 ns |   5.5763 ns |   6.1980 ns |   277.986 ns |  1.00 |     216 B |
-|                    LocalVector_Select |    10 |   230.832 ns |   4.4488 ns |   4.9448 ns |   230.019 ns |  0.83 |         - |
-|                                       |       |              |             |             |              |       |           |
-|                          List_ToArray |    10 |   105.120 ns |   2.4976 ns |   7.2061 ns |   103.721 ns |  1.00 |     248 B |
-|                   LocalVector_ToArray |    10 |    84.546 ns |   1.7605 ns |   2.1621 ns |    84.729 ns |  0.73 |     104 B |
-|                          Span_ToArray |    10 |    26.499 ns |   0.5832 ns |   0.8176 ns |    26.633 ns |  0.23 |     104 B |
-|                                       |       |              |             |             |              |       |           |
-|                            List_Where |    10 |   321.476 ns |   6.3157 ns |   9.4531 ns |   321.736 ns |  1.00 |     216 B |
-|                     LocalVector_Where |    10 |   228.611 ns |   4.4318 ns |   5.2757 ns |   228.700 ns |  0.71 |         - |
-|                                       |       |              |             |             |              |       |           |
-|                    List_Where_ToArray |    10 |   473.972 ns |   9.4344 ns |  15.5009 ns |   475.596 ns |  1.00 |     360 B |
-|             LocalVector_Where_ToArray |    10 |   256.186 ns |   5.0873 ns |   9.0427 ns |   257.439 ns |  0.54 |      88 B |
-|                                       |       |              |             |             |              |       |           |
-|                              **List_Add** |    **26** |   **218.854 ns** |   **4.3118 ns** |   **7.2040 ns** |**219.815 ns** | **1.00** |     **616 B** |
-|                       LocalVector_Add |    26 |   235.415 ns |   4.6626 ns |   7.3953 ns |   237.527 ns |  1.08 |     296 B |
-|                              Span_Add |    26 |    81.367 ns |   1.6209 ns |   3.0045 ns |    82.280 ns |  0.37 |     232 B |
-|                                       |       |              |             |             |              |       |           |
-|                       List_Allocation |    26 |    21.658 ns |   0.4340 ns |   0.6884 ns |    21.817 ns |  1.00 |      62 B |
-|                LocalVector_Allocation |    26 |    22.216 ns |   0.4469 ns |   0.6409 ns |    21.842 ns |  1.03 |      30 B |
-|                       Span_Allocation |    26 |     8.289 ns |   0.1667 ns |   0.2495 ns |     8.276 ns |  0.38 |      23 B |
-|                                       |       |              |             |             |              |       |           |
-|                        List_Iteration |    26 |   190.310 ns |   3.7977 ns |   4.2211 ns |   191.128 ns |  1.00 |     272 B |
-|                 LocalVector_Iteration |    26 |   271.090 ns |   5.3886 ns |   8.2290 ns |   272.364 ns |  1.43 |     152 B |
-|                        Span_Iteration |    26 |    15.647 ns |   0.3324 ns |   0.3110 ns |    15.682 ns |  0.08 |         - |
-|                                       |       |              |             |             |              |       |           |
-|                          List_GroupBy |    26 | 1,351.803 ns |  27.0455 ns |  50.7980 ns | 1,337.776 ns |  1.00 |    1456 B |
-|                   LocalVector_GroupBy |    26 | 2,294.437 ns |  45.8452 ns |  97.6998 ns | 2,325.693 ns |  1.69 |     544 B |
-|                                       |       |              |             |             |              |       |           |
-|        List_MoreLinq |    26 | 5,924.927 ns | 115.6725 ns | 146.2887 ns | 5,954.385 ns |  1.00 |    4568 B |
-| LocalVector_MoreLinq |    26 | 4,854.369 ns |  95.4935 ns | 117.2746 ns | 4,862.657 ns |  0.82 |     304 B |
-|                                       |       |              |             |             |              |       |           |
-|                           List_Remove |    26 |   864.966 ns |  17.2935 ns |  25.8841 ns |   871.352 ns |  1.00 |     272 B |
-|                    LocalVector_Remove |    26 | 2,630.239 ns |  52.4246 ns |  62.4077 ns | 2,644.387 ns |  3.06 |     152 B |
-|                                       |       |              |             |             |              |       |           |
-|                           List_Select |    26 |   408.902 ns |   8.1518 ns |  12.9297 ns |   410.874 ns |  1.00 |     344 B |
-|                    LocalVector_Select |    26 |   475.331 ns |   9.0550 ns |   8.4700 ns |   476.712 ns |  1.19 |     152 B |
-|                                       |       |              |             |             |              |       |           |
-|                          List_ToArray |    26 |   119.094 ns |   2.4068 ns |   4.3400 ns |   119.817 ns |  1.00 |     504 B |
-|                   LocalVector_ToArray |    26 |   289.539 ns |   5.0091 ns |   4.4404 ns |   288.938 ns |  2.46 |     384 B |
-|                          Span_ToArray |    26 |    32.871 ns |   0.7085 ns |   1.2409 ns |    32.854 ns |  0.28 |     232 B |
-|                                       |       |              |             |             |              |       |           |
-|                            List_Where |    26 |   568.846 ns |   8.5706 ns |   8.0170 ns |   568.138 ns |  1.00 |     344 B |
-|                     LocalVector_Where |    26 |   548.809 ns |  10.3536 ns |   9.1782 ns |   551.173 ns |  0.96 |     152 B |
-|                                       |       |              |             |             |              |       |           |
-|                    List_Where_ToArray |    26 | 1,043.988 ns |  20.5161 ns |  25.1956 ns | 1,044.046 ns |  1.00 |     952 B |
-|             LocalVector_Where_ToArray |    26 |   694.211 ns |  13.6259 ns |  12.7457 ns |   696.338 ns |  0.66 |     520 B |
+|                    Method |         Mean |      Error |     StdDev | Ratio | Allocated |
+|-------------------------- |-------------:|-----------:|-----------:|------:|----------:|
+|                  List_Add |    12.926 ns |  0.1850 ns |  0.1731 ns |  1.00 |      33 B |
+|           LocalVector_Add |     5.502 ns |  0.0313 ns |  0.0244 ns |  0.42 |         - |
+|                  Span_Add |     3.852 ns |  0.0196 ns |  0.0153 ns |  0.30 |      10 B |
+|                           |              |            |            |       |           |
+|            List_Iteration |     9.937 ns |  0.2311 ns |  0.2923 ns |  1.00 |      14 B |
+|     LocalVector_Iteration |     9.701 ns |  0.0504 ns |  0.0472 ns |  0.97 |         - |
+|            Span_Iteration |     8.521 ns |  0.0899 ns |  0.0797 ns |  0.85 |      10 B |
+|                           |              |            |            |       |           |
+|              List_GroupBy |    71.959 ns |  0.5214 ns |  0.4877 ns |  1.00 |     102 B |
+|       LocalVector_GroupBy |    83.630 ns |  0.2430 ns |  0.2273 ns |  1.16 |         - |
+|                           |              |            |            |       |           |
+|                 List_Join |   111.531 ns |  0.3870 ns |  0.3232 ns |  1.00 |     167 B |
+|          LocalVector_Join |   117.925 ns |  0.3964 ns |  0.3708 ns |  1.06 |         - |
+|                           |              |            |            |       |           |
+|             List_ManyLinq |   238.136 ns |  1.0246 ns |  0.9584 ns |  1.00 |     366 B |
+|      LocalVector_ManyLinq |   425.516 ns |  1.3847 ns |  1.2952 ns |  1.79 |         - |
+|                           |              |            |            |       |           |
+|               List_Remove |    31.604 ns |  0.2091 ns |  0.1956 ns |  1.00 |      14 B |
+|        LocalVector_Remove |    52.423 ns |  0.3658 ns |  0.3422 ns |  1.66 |         - |
+|                           |              |            |            |       |           |
+|               List_Select |    22.865 ns |  0.0749 ns |  0.0664 ns |  1.00 |      21 B |
+|        LocalVector_Select |    17.396 ns |  0.0883 ns |  0.0737 ns |  0.76 |         - |
+|                           |              |            |            |       |           |
+|              List_ToArray |     8.174 ns |  0.0553 ns |  0.0461 ns |  1.00 |      24 B |
+|       LocalVector_ToArray |    11.211 ns |  0.0623 ns |  0.0583 ns |  1.37 |      10 B |
+|              Span_ToArray |     2.284 ns |  0.0195 ns |  0.0182 ns |  0.28 |      10 B |
+|                           |              |            |            |       |           |
+|                List_Where |    22.720 ns |  0.0935 ns |  0.0874 ns |  1.00 |      21 B |
+|              List_FindAll |    20.528 ns |  0.1968 ns |  0.1744 ns |  0.90 |      31 B |
+|         LocalVector_Where |    18.991 ns |  0.0860 ns |  0.0805 ns |  0.84 |         - |
+

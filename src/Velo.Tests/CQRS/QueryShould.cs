@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture.Xunit2;
 using FluentAssertions;
@@ -165,6 +166,54 @@ namespace Velo.CQRS
                 .GetElement(It.Is<int>(id => id == query.Id)));
 
             boo.Id.Should().Be(query.Id);
+        }
+        
+        [Fact]
+        public async Task ReturnFromActionQueryProcessor()
+        {
+            var emitter = new DependencyCollection()
+                .AddEmitter()
+                .AddQueryProcessor<Query, Boo>(q => new Boo { Id = q.Id })
+                .BuildProvider()
+                .GetRequiredService<Emitter>();
+
+            var getBooQuery = new Query {Id = 1};
+            var boo = await emitter.Ask(getBooQuery);
+            
+            boo.Id.Should().Be(getBooQuery.Id);
+        }
+        
+        [Fact]
+        public async Task ReturnFromActionQueryProcessorWithContext()
+        {
+            var emitter = new DependencyCollection()
+                .AddInstance(_repository.Object)
+                .AddEmitter()
+                .AddQueryProcessor<Query, IBooRepository, Boo>((query, repository) => repository.GetElement(query.Id))
+                .BuildProvider()
+                .GetRequiredService<Emitter>();
+
+            var getBooQuery = new Query {Id = 1};
+            var boo = await emitter.Ask(getBooQuery);
+            
+            boo.Id.Should().Be(getBooQuery.Id);
+        }
+        
+        [Theory, AutoData]
+        public async Task ThrowCancellation(Query query)
+        {
+            var cancellationTokenSource = new CancellationTokenSource();
+            var token = cancellationTokenSource.Token;
+            cancellationTokenSource.Cancel();
+
+            var emitter = new DependencyCollection()
+                .AddInstance(_repository.Object)
+                .AddEmitter()
+                .AddQueryProcessor<Processor>()
+                .BuildProvider()
+                .GetRequiredService<Emitter>();
+
+            await Assert.ThrowsAsync<OperationCanceledException>(() => emitter.Ask(query, token));
         }
     }
 }

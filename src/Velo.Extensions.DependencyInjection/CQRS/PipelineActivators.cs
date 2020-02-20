@@ -59,6 +59,7 @@ namespace Velo.Extensions.DependencyInjection.CQRS
 
         private static Func<IServiceProvider, object> GetMethod(string name, params Type[] genericParameters)
         {
+            // ReSharper disable once PossibleNullReferenceException
             var method = typeof(PipelineActivators)
                 .GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic)
                 .MakeGenericMethod(genericParameters);
