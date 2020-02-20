@@ -1,5 +1,9 @@
 # Velo
 
+[![Build Status](https://ci.appveyor.com/api/projects/status/github/teoadal/veloimplementations?branch=master&svg=true)](https://ci.appveyor.com/project/teoadal/veloimplementations) 
+[![NuGet](https://img.shields.io/nuget/dt/velo.svg)](https://www.nuget.org/packages/velo) 
+[![NuGet](https://img.shields.io/nuget/vpre/velo.svg)](https://www.nuget.org/packages/velo)
+
 ## Install from nuget
 
 Install Velo with the following command [from nuget](https://www.nuget.org/packages/Velo/):
