@@ -2,38 +2,36 @@
 
     <PropertyGroup>
         <TargetFramework>netcoreapp3.1</TargetFramework>
-
         <IsPackable>false</IsPackable>
-
         <RootNamespace>Velo</RootNamespace>
-
         <LangVersion>8</LangVersion>
+        <DebugType>Full</DebugType>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AutoFixture.Xunit2" Version="4.11.0" />
-        <PackageReference Include="FluentAssertions" Version="5.10.0" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.2" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
-        <PackageReference Include="Moq" Version="4.13.1" />
-        <PackageReference Include="xunit" Version="2.4.1" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1" />
+        <PackageReference Include="AutoFixture.Xunit2" Version="4.11.0"/>
+        <PackageReference Include="FluentAssertions" Version="5.10.0"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.2"/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0"/>
+        <PackageReference Include="Moq" Version="4.13.1"/>
+        <PackageReference Include="xunit" Version="2.4.1"/>
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Velo.Extensions.DependencyInjection\Velo.Extensions.DependencyInjection.csproj" />
-        <ProjectReference Include="..\Velo.TestsModels\Velo.TestsModels.csproj" />
-        <ProjectReference Include="..\Velo\Velo.csproj" />
+        <ProjectReference Include="..\Velo.Extensions.DependencyInjection\Velo.Extensions.DependencyInjection.csproj"/>
+        <ProjectReference Include="..\Velo.TestsModels\Velo.TestsModels.csproj"/>
+        <ProjectReference Include="..\Velo\Velo.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="appsettings.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="appsettings.develop.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <DependentUpon>appsettings.json</DependentUpon>
-      </None>
+        <None Update="appsettings.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="appsettings.develop.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <DependentUpon>appsettings.json</DependentUpon>
+        </None>
     </ItemGroup>
 
 </Project>
