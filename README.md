@@ -1,6 +1,6 @@
 # Velo
 
-[![Build status](https://ci.appveyor.com/api/projects/status/8232b3rpxogycgmt?svg=true)](https://ci.appveyor.com/project/teoadal/veloimplementations)
+![.NET Core](https://github.com/teoadal/veloimplementations/workflows/.NET%20Core/badge.svg?branch=master)
 [![NuGet](https://img.shields.io/nuget/dt/velo.svg)](https://www.nuget.org/packages/velo) 
 [![NuGet](https://img.shields.io/nuget/vpre/velo.svg)](https://www.nuget.org/packages/velo)
 
