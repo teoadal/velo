@@ -21,6 +21,8 @@ jobs:
       run: |
         cd ./src/Velo.Tests/
         dotnet test -c Release --no-build /p:CollectCoverage=true /p:CoverletOutput=TestResults/ /p:CoverletOutputFormat=opencover
+    - name: Publish coverage report
+      run: bash <(curl -s https://codecov.io/bash)
     
 
       
