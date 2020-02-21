@@ -35,7 +35,7 @@ namespace Velo.CQRS
                 .AddCommandBehaviour<ExceptionBehaviour<Command>>()
                 .AddCommandProcessor<PreProcessor>()
                 .AddCommandProcessor<Processor>()
-                .AddCommandProcessor<PostProcessor>()
+                .AddCommandProcessor<PostProcessor>(DependencyLifetime.Scoped)
                 .AddNotificationProcessor<NotificationProcessor>()
                 .AddEmitter()
                 .BuildProvider();

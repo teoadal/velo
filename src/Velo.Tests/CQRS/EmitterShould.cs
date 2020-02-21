@@ -173,7 +173,7 @@ namespace Velo.CQRS
             Assert.ThrowsAsync<KeyNotFoundException>(() => emitter.Execute(Mock.Of<Command>()));
             Assert.ThrowsAsync<KeyNotFoundException>(() => emitter.Send(Mock.Of<ICommand>()));
         }
-
+        
         [Fact]
         public void ThrowDisposedAfterCloseScope()
         {

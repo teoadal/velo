@@ -14,7 +14,7 @@ namespace Velo.DependencyInjection.Factories
             {
             }
             
-            protected override object GetInstance(Type contract, IDependencyScope scope)
+            protected override object ResolveInstance(Type contract, IDependencyScope scope)
             {
                 return Array.Empty<T>();
             }

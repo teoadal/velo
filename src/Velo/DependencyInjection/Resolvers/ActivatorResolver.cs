@@ -16,7 +16,7 @@ namespace Velo.DependencyInjection.Resolvers
             _constructor = ReflectionUtils.GetConstructor(implementation);
         }
 
-        protected override object GetInstance(Type contract, IDependencyScope scope)
+        protected override object ResolveInstance(Type contract, IDependencyScope scope)
         {
             return scope.Activate(Implementation, _constructor);
         }

@@ -15,11 +15,6 @@ namespace Velo.DependencyInjection.Dependencies
         {
         }
 
-        public SingletonDependency(Type[] contracts, object instance)
-            : base(contracts, new InstanceResolver(instance), DependencyLifetime.Singleton)
-        {
-        }
-        
         public override object GetInstance(Type contract, IDependencyScope scope)
         {
             return _instance ??= Resolve(contract, scope);

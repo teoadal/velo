@@ -18,7 +18,7 @@ namespace Velo.CQRS
 {
     public class ServiceCollectionShould : TestClass
     {
-        private Mock<IBooRepository> _repository;
+        private readonly Mock<IBooRepository> _repository;
         private readonly IServiceCollection _serviceCollection;
 
         public ServiceCollectionShould(ITestOutputHelper output) : base(output)
@@ -73,7 +73,7 @@ namespace Velo.CQRS
                 .AddCommandBehaviour<MeasureBehaviour<BoosCreate.Command>>()
                 .AddCommandProcessor<BoosCreate.PreProcessor>()
                 .AddCommandProcessor<BoosCreate.Processor>()
-                .AddCommandProcessor<BoosCreate.PostProcessor>()
+                .AddCommandProcessor<BoosCreate.PostProcessor>(ServiceLifetime.Scoped)
                 .BuildServiceProvider()
                 .GetRequiredService<Emitter>();
 

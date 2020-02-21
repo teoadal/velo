@@ -21,7 +21,7 @@ namespace Velo.DependencyInjection.Resolvers
             _dependencyEngine = dependencyEngine;
         }
 
-        protected override object GetInstance(Type contract, IDependencyScope scope)
+        protected override object ResolveInstance(Type contract, IDependencyScope scope)
         {
             if (_builder == null) _builder = CreateBuilder(scope);
             return _builder(scope);

@@ -14,7 +14,7 @@ namespace Velo.DependencyInjection.Resolvers
             _builder = builder;
         }
 
-        protected override object GetInstance(Type contract, IDependencyScope scope)
+        protected override object ResolveInstance(Type contract, IDependencyScope scope)
         {
             return _builder(scope);
         }
@@ -30,7 +30,7 @@ namespace Velo.DependencyInjection.Resolvers
             _builder = builder;
         }
 
-        protected override object GetInstance(Type contract, IDependencyScope scope)
+        protected override object ResolveInstance(Type contract, IDependencyScope scope)
         {
             return _builder(scope);
         }

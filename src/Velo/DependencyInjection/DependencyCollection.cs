@@ -62,8 +62,7 @@ namespace Velo.DependencyInjection
 
         public DependencyCollection AddInstance(Type contract, object instance)
         {
-            var resolver = new InstanceResolver(instance);
-            return AddDependency(new SingletonDependency(new[] {contract}, resolver));
+            return AddDependency(new InstanceDependency(new[] {contract}, instance));
         }
         
         public DependencyCollection AddInstance<TContract>(TContract instance)
@@ -184,7 +183,7 @@ namespace Velo.DependencyInjection
             var provider = new DependencyProvider(_engine);
 
             var providerContracts = new[] {Typeof<DependencyProvider>.Raw, Typeof<IServiceProvider>.Raw};
-            var providerDependency = new SingletonDependency(providerContracts, new InstanceResolver(provider));
+            var providerDependency = new InstanceDependency(providerContracts, provider);
 
             _engine.AddDependency(providerDependency);
 

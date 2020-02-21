@@ -35,13 +35,13 @@ namespace Velo.DependencyInjection.Resolvers
 
             _resolveInProgress = true;
 
-            var instance = GetInstance(contract, scope);
+            var instance = ResolveInstance(contract, scope);
 
             _resolveInProgress = false;
 
             return instance;
         }
 
-        protected abstract object GetInstance(Type contract, IDependencyScope scope);
+        protected abstract object ResolveInstance(Type contract, IDependencyScope scope);
     }
 }
