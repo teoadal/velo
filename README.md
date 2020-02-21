@@ -237,7 +237,7 @@ foreach (var number in outer
 return counter;
 ```
 
-### Local vector benchmarks
+### Local vector benchmarks (collection with 10 elements)
 
 |                    Method |         Mean |      Error |     StdDev | Ratio | Allocated |
 |-------------------------- |-------------:|-----------:|-----------:|------:|----------:|
