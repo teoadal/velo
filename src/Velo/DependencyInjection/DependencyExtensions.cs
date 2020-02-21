@@ -5,14 +5,12 @@ namespace Velo.DependencyInjection
 {
     internal static class DependencyExtensions
     {
-        public static DependencyLifetime DefineLifetime(this LocalList<IDependency> dependencies)
+        public static DependencyLifetime DefineLifetime(this LocalList<DependencyLifetime> lifetimes)
         {
             int singleton = 0, scoped = 0;
-            foreach (var dependency in dependencies)
+            foreach (var lifetime in lifetimes)
             {
-                if (dependency == null) continue;
-                
-                switch (dependency.Lifetime)
+                switch (lifetime)
                 {
                     case DependencyLifetime.Singleton:
                         singleton++;
@@ -23,10 +21,24 @@ namespace Velo.DependencyInjection
                 }
             }
 
-            if (singleton == dependencies.Length) return DependencyLifetime.Singleton;
-            return scoped == dependencies.Length
+            if (singleton == lifetimes.Length) return DependencyLifetime.Singleton;
+            return scoped == lifetimes.Length
                 ? DependencyLifetime.Scoped
                 : DependencyLifetime.Transient;
+        }
+
+        public static DependencyLifetime DefineLifetime(this LocalList<IDependency> dependencies)
+        {
+            var lifetimes = dependencies
+                .Where(dependency => dependency != null)
+                .Select(dependency => dependency.Lifetime);
+
+            return DefineLifetime(lifetimes);
+        }
+
+        public static DependencyLifetime DefineLifetime(this DependencyLifetime[] lifetimes)
+        {
+            return DefineLifetime(new LocalList<DependencyLifetime>(lifetimes));
         }
     }
 }

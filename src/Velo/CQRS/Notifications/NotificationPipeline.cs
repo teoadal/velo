@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -6,7 +7,7 @@ namespace Velo.CQRS.Notifications
     internal sealed class NotificationPipeline<TNotification> : INotificationPipeline
         where TNotification : INotification
     {
-        private readonly INotificationProcessor<TNotification>[] _processors;
+        private INotificationProcessor<TNotification>[] _processors;
 
         public NotificationPipeline(INotificationProcessor<TNotification>[] processors)
         {
@@ -29,9 +30,14 @@ namespace Velo.CQRS.Notifications
         {
             return Publish((TNotification) notification, cancellationToken);
         }
+
+        public void Dispose()
+        {
+            _processors = null;
+        }
     }
 
-    internal interface INotificationPipeline
+    internal interface INotificationPipeline : IDisposable
     {
         Task Publish(INotification notification, CancellationToken cancellationToken);
     }

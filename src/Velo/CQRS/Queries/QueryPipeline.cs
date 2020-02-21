@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -6,10 +7,10 @@ namespace Velo.CQRS.Queries
     internal sealed class QueryPipeline<TQuery, TResult> : IQueryPipeline<TResult>
         where TQuery : IQuery<TResult>
     {
-        private readonly QueryBehaviours<TQuery, TResult> _behaviours;
-        private readonly IQueryPreProcessor<TQuery, TResult>[] _preProcessors;
-        private readonly IQueryProcessor<TQuery, TResult> _processor;
-        private readonly IQueryPostProcessor<TQuery, TResult>[] _postProcessors;
+        private QueryBehaviours<TQuery, TResult> _behaviours;
+        private IQueryPreProcessor<TQuery, TResult>[] _preProcessors;
+        private IQueryProcessor<TQuery, TResult> _processor;
+        private IQueryPostProcessor<TQuery, TResult>[] _postProcessors;
 
         public QueryPipeline(
             IQueryBehaviour<TQuery, TResult>[] behaviours,
@@ -53,9 +54,19 @@ namespace Velo.CQRS.Queries
         {
             return GetResponse((TQuery) query, cancellationToken);
         }
+
+        public void Dispose()
+        {
+            _behaviours.Dispose();
+
+            _behaviours = null;
+            _preProcessors = null;
+            _processor = null;
+            _postProcessors = null;
+        }
     }
 
-    internal interface IQueryPipeline<TResult>
+    internal interface IQueryPipeline<TResult> : IDisposable
     {
         Task<TResult> GetResponse(IQuery<TResult> query, CancellationToken cancellationToken);
     }

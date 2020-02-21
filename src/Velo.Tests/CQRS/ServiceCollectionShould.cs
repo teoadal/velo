@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture.Xunit2;
 using FluentAssertions;
@@ -34,6 +35,13 @@ namespace Velo.CQRS
                 .AddEmitter();
         }
 
+        [Fact]
+        public void RegisterEmitterAsScoped()
+        {
+            var serviceDescriptor = _serviceCollection.First(s => s.ServiceType == typeof(Emitter));
+            serviceDescriptor.Lifetime.Should().Be(ServiceLifetime.Scoped);
+        }
+        
         [Theory, AutoData]
         public async Task ResolveCommandPipeline(int booId)
         {

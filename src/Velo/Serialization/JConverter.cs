@@ -70,12 +70,6 @@ namespace Velo.Serialization
             converter.Serialize(source, writer);
         }
         
-        public void PrepareConverterFor<TSource>()
-        {
-            var sourceType = typeof(TSource);
-            _converters.Get(sourceType);
-        }
-
         private TOut Deserialize<TOut>(JsonReader reader)
         {
             if (_buffer == null) _buffer = new StringBuilder(200);

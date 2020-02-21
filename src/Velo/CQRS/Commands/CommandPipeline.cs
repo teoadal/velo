@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -6,10 +7,10 @@ namespace Velo.CQRS.Commands
     internal sealed class CommandPipeline<TCommand> : ICommandPipeline
         where TCommand : ICommand
     {
-        private readonly CommandBehaviours<TCommand> _behaviours;
-        private readonly ICommandPreProcessor<TCommand>[] _preProcessors;
-        private readonly ICommandProcessor<TCommand> _processor;
-        private readonly ICommandPostProcessor<TCommand>[] _postProcessors;
+        private CommandBehaviours<TCommand> _behaviours;
+        private ICommandPreProcessor<TCommand>[] _preProcessors;
+        private ICommandProcessor<TCommand> _processor;
+        private ICommandPostProcessor<TCommand>[] _postProcessors;
 
         public CommandPipeline(
             ICommandBehaviour<TCommand>[] behaviours,
@@ -51,9 +52,19 @@ namespace Velo.CQRS.Commands
         {
             return Execute((TCommand) command, cancellationToken);
         }
+
+        public void Dispose()
+        {
+            _behaviours.Dispose();
+
+            _behaviours = null;
+            _preProcessors = null;
+            _processor = null;
+            _postProcessors = null;
+        }
     }
 
-    internal interface ICommandPipeline
+    internal interface ICommandPipeline : IDisposable
     {
         Task Send(ICommand command, CancellationToken cancellationToken);
     }

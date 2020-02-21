@@ -67,6 +67,29 @@ namespace Velo.Collections
             _length = 3;
         }
 
+        public LocalList(T item0, T item1, T item2, T item3)
+            : this(4)
+        {
+            _element0 = item0;
+            _element1 = item1;
+            _element2 = item2;
+            _element3 = item3;
+
+            _length = 4;
+        }
+        
+        public LocalList(T item0, T item1, T item2, T item3, T item4)
+            : this(5)
+        {
+            _element0 = item0;
+            _element1 = item1;
+            _element2 = item2;
+            _element3 = item3;
+            _element4 = item4;
+
+            _length = 5;
+        }
+        
         public LocalList(T[] collection)
             : this(collection.Length)
         {
@@ -96,7 +119,7 @@ namespace Velo.Collections
                 _length++;
             }
         }
-        
+
         #endregion
 
         public readonly bool All(Predicate<T> predicate)

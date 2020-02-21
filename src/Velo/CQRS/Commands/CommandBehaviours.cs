@@ -4,13 +4,13 @@ using System.Threading.Tasks;
 
 namespace Velo.CQRS.Commands
 {
-    internal sealed class CommandBehaviours<TCommand>
+    internal sealed class CommandBehaviours<TCommand> : IDisposable
         where TCommand : ICommand
     {
         public readonly bool HasBehaviours;
 
-        private readonly ICommandBehaviour<TCommand>[] _behaviours;
-        private readonly CommandPipeline<TCommand> _pipeline;
+        private ICommandBehaviour<TCommand>[] _behaviours;
+        private CommandPipeline<TCommand> _pipeline;
 
         public CommandBehaviours(CommandPipeline<TCommand> pipeline, ICommandBehaviour<TCommand>[] behaviours)
         {
@@ -59,6 +59,12 @@ namespace Velo.CQRS.Commands
 
                 return _context._pipeline.RunProcessors(_command, _cancellationToken);
             }
+        }
+
+        public void Dispose()
+        {
+            _behaviours = null;
+            _pipeline = null;
         }
     }
 }

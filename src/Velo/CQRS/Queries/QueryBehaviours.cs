@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Velo.CQRS.Queries
 {
-    internal sealed class QueryBehaviours<TQuery, TResult>
+    internal sealed class QueryBehaviours<TQuery, TResult> : IDisposable
         where TQuery : IQuery<TResult>
     {
         public readonly bool HasBehaviours;
@@ -12,8 +12,8 @@ namespace Velo.CQRS.Queries
         [ThreadStatic] 
         private static Closure _closure;
 
-        private readonly IQueryBehaviour<TQuery, TResult>[] _behaviours;
-        private readonly QueryPipeline<TQuery, TResult> _pipeline;
+        private IQueryBehaviour<TQuery, TResult>[] _behaviours;
+        private QueryPipeline<TQuery, TResult> _pipeline;
 
         public QueryBehaviours(QueryPipeline<TQuery, TResult> pipeline, IQueryBehaviour<TQuery, TResult>[] behaviours)
         {
@@ -88,6 +88,12 @@ namespace Velo.CQRS.Queries
                 _position = 0;
                 _closure = this;
             }
+        }
+
+        public void Dispose()
+        {
+            _behaviours = null;
+            _pipeline = null;
         }
     }
 }

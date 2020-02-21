@@ -46,7 +46,7 @@ namespace Velo.CQRS
 
             _emitter = _dependencyProvider.GetRequiredService<Emitter>();
         }
-
+        
         [Theory, AutoData]
         public async Task ExecuteCommand(Command command)
         {
@@ -64,6 +64,15 @@ namespace Velo.CQRS
                 .Write(LogLevel.Debug, nameof(NotificationProcessor)));
         }
 
+        [Fact]
+        public void RegisteredAsScoped()
+        {
+            var dependencies = new DependencyCollection()
+                .AddEmitter();
+
+            dependencies.GetLifetime<Emitter>().Should().Be(DependencyLifetime.Scoped);
+        }
+        
         [Theory, AutoData]
         public async Task ReturnAskResult(int booId)
         {

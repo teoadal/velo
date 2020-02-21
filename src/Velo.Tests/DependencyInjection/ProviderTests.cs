@@ -11,6 +11,7 @@ using Velo.TestsModels.Boos;
 using Velo.TestsModels.Domain;
 using Velo.TestsModels.Foos;
 using Velo.TestsModels.Infrastructure;
+using Velo.Utils;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -33,6 +34,27 @@ namespace Velo.DependencyInjection
         {
             var provider = _dependencies.BuildProvider();
             var repository = provider.Activate(typeof(FooRepository));
+            
+            Assert.NotNull(repository);
+            Assert.IsType<FooRepository>(repository);
+        }
+        
+        [Fact]
+        public void ActivateGeneric()
+        {
+            var provider = _dependencies.BuildProvider();
+            var repository = provider.Activate<FooRepository>();
+            
+            Assert.NotNull(repository);
+            Assert.IsType<FooRepository>(repository);
+        }
+        
+        [Fact]
+        public void ActivateGenericWithConstructor()
+        {
+            var provider = _dependencies.BuildProvider();
+            var repositoryConstructor = ReflectionUtils.GetConstructor(typeof(FooRepository));
+            var repository = provider.Activate<FooRepository>(repositoryConstructor);
             
             Assert.NotNull(repository);
             Assert.IsType<FooRepository>(repository);

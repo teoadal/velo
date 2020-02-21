@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Moq;
+using Velo.CQRS.Commands;
 using Velo.DependencyInjection;
 using Velo.Logging;
 using Velo.TestsModels.Boos;
@@ -64,13 +65,13 @@ namespace Velo.CQRS
                 .AddCommandProcessor<Command>(cmd => { cmd.Id++; })
                 .BuildProvider()
                 .GetRequiredService<Emitter>();
-            
+
             var command = new Command();
             await emitter.Execute(command);
 
             command.Id.Should().Be(1);
         }
-        
+
         [Fact]
         public async Task ExecuteActionCommandProcessorWithContext()
         {
@@ -78,17 +79,17 @@ namespace Velo.CQRS
                 .AddInstance(_repository.Object)
                 .AddEmitter()
                 .AddCommandProcessor<Command, IBooRepository>((cmd, repository) => repository
-                    .AddElement(new Boo{ Id = cmd.Id }))
+                    .AddElement(new Boo {Id = cmd.Id}))
                 .BuildProvider()
                 .GetRequiredService<Emitter>();
-            
+
             var command = new Command();
             await emitter.Execute(command);
-            
+
             _repository.Verify(repository => repository
                 .AddElement(It.Is<Boo>(boo => boo.Id == command.Id)));
         }
-        
+
         [Theory, AutoData]
         public async Task ExecutedMultiThreading(Boo[] boos)
         {
@@ -143,7 +144,8 @@ namespace Velo.CQRS
             DependencyLifetime processorLifetime,
             DependencyLifetime postProcessorLifetime)
         {
-            var dependencyProvider = new DependencyCollection()
+            var dependencyCollection = new DependencyCollection();
+            var dependencyProvider = dependencyCollection
                 .AddInstance(_repository.Object)
                 .AddCommandBehaviour<MeasureBehaviour>(measureLifetime)
                 .AddCommandBehaviour<ExceptionBehaviour<Command>>(exceptionLifetime)
@@ -153,9 +155,12 @@ namespace Velo.CQRS
                 .AddEmitter()
                 .BuildProvider();
 
+            var expectedLifetime = new[] {measureLifetime, exceptionLifetime, preProcessorLifetime, processorLifetime, postProcessorLifetime}.DefineLifetime();
+            dependencyCollection.GetLifetime<CommandPipeline<Command>>().Should().Be(expectedLifetime);
+
             var emitter = dependencyProvider.GetRequiredService<Emitter>();
 
-            for (int i = 0; i < 10; i++)
+            for (var i = 0; i < 10; i++)
             {
                 var commands = boos.Select(b => new Command {Id = b.Id, Int = b.Int});
 

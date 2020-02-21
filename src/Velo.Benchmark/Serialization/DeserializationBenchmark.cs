@@ -32,7 +32,6 @@ namespace Velo.Benchmark.Serialization
             }
 
             _converter = new JConverter();
-            _converter.PrepareConverterFor<BigObject>();
         }
 
         [Benchmark(Baseline = true)]

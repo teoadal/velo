@@ -2,7 +2,9 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture.Xunit2;
+using FluentAssertions;
 using Moq;
+using Velo.CQRS.Notifications;
 using Velo.DependencyInjection;
 using Velo.TestsModels.Emitting.Boos.Create;
 using Velo.TestsModels.Emitting.Foos.Create;
@@ -85,12 +87,15 @@ namespace Velo.CQRS
             DependencyLifetime commandProcessorLifetime,
             DependencyLifetime notificationProcessorLifetime)
         {
-            var provider = new DependencyCollection()
+            var dependencyCollection = new DependencyCollection();
+            var provider = dependencyCollection
                 .AddInstance(_fooRepository.Object)
                 .AddCommandProcessor<Processor>(commandProcessorLifetime)
                 .AddNotificationProcessor<OnBooCreated>(notificationProcessorLifetime)
                 .AddEmitter()
                 .BuildProvider();
+            
+            dependencyCollection.GetLifetime<NotificationPipeline<Notification>>().Should().Be(notificationProcessorLifetime);
 
             var emitter = provider.GetRequiredService<Emitter>();
 
@@ -115,7 +120,7 @@ namespace Velo.CQRS
             _fooRepository.Verify(repository => repository
                 .AddElement(It.Is<Foo>(foo => foo.Int == notification.Id)), Times.Never);
         }
-        
+
         [Theory, AutoData]
         public async Task ThrowCancellation(Notification notification)
         {

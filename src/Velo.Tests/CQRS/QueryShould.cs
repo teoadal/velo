@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Moq;
+using Velo.CQRS.Queries;
 using Velo.DependencyInjection;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting.Boos.Get;
@@ -44,9 +45,9 @@ namespace Velo.CQRS
         public async Task AskMultiThreading(Boo[] boos)
         {
             var queries = boos.Select(b => new Query(b.Id)).ToArray();
-            
+
             var results = await RunTasks(queries, query => _emitter.Ask(query));
-            
+
             foreach (var query in queries)
             {
                 query.PreProcessed.Should().BeTrue();
@@ -58,19 +59,19 @@ namespace Velo.CQRS
                 results.Should().Contain(b => b.Id == query.Id);
             }
         }
-        
+
         [Theory, AutoData]
         public async Task AskMultiThreadingWithDifferentScopes(Boo[] boos)
         {
             var queries = boos.Select(b => new Query(b.Id)).ToArray();
-            
+
             var results = await RunTasks(queries, query =>
             {
                 using var scope = _dependencyProvider.CreateScope();
                 var scopeEmitter = scope.GetRequiredService<Emitter>();
                 return scopeEmitter.Ask(query);
             });
-            
+
             foreach (var query in queries)
             {
                 query.PreProcessed.Should().BeTrue();
@@ -89,16 +90,17 @@ namespace Velo.CQRS
             var pong = await _emitter.Ask<Ping, Pong>(new Ping(1));
             pong.Message.Should().Be(2);
         }
-        
+
         [Theory, AutoData]
         public async Task ExecutedWithDifferentLifetimes(
             Boo[] boos,
-            DependencyLifetime behaviourLifetime, 
+            DependencyLifetime behaviourLifetime,
             DependencyLifetime preProcessorLifetime,
             DependencyLifetime processorLifetime,
             DependencyLifetime postProcessorLifetime)
         {
-            var dependencyProvider = new DependencyCollection()
+            var dependencyCollection = new DependencyCollection();
+            var dependencyProvider = dependencyCollection
                 .AddInstance(_repository.Object)
                 .AddQueryBehaviour<Behaviour>(behaviourLifetime)
                 .AddQueryProcessor<PreProcessor>(preProcessorLifetime)
@@ -107,16 +109,19 @@ namespace Velo.CQRS
                 .AddEmitter()
                 .BuildProvider();
 
+            var expectedLifetime = new[] {behaviourLifetime, preProcessorLifetime, processorLifetime, postProcessorLifetime}.DefineLifetime();
+            dependencyCollection.GetLifetime<QueryPipeline<Query, Boo>>().Should().Be(expectedLifetime);
+
             var emitter = dependencyProvider.GetRequiredService<Emitter>();
 
             for (var i = 0; i < 10; i++)
             {
                 var queries = boos.Select(b => new Query(b.Id));
-            
+
                 foreach (var query in queries)
                 {
                     var result = await emitter.Ask(query);
-                
+
                     query.PreProcessed.Should().BeTrue();
                     query.PostProcessed.Should().BeTrue();
 
@@ -124,15 +129,15 @@ namespace Velo.CQRS
                         .GetElement(It.Is<int>(id => id == query.Id)));
 
                     result.Id.Should().Be(query.Id);
-                }    
+                }
             }
         }
-        
+
         [Theory, AutoData]
         public async Task MeasuredByBehaviour(Query query)
         {
             await _emitter.Ask(query);
-            
+
             var measureBehaviour = _dependencyProvider.GetRequiredService<Behaviour>();
             measureBehaviour.Elapsed.Should().BeGreaterThan(TimeSpan.Zero);
         }
@@ -167,22 +172,22 @@ namespace Velo.CQRS
 
             boo.Id.Should().Be(query.Id);
         }
-        
+
         [Fact]
         public async Task ReturnFromActionQueryProcessor()
         {
             var emitter = new DependencyCollection()
                 .AddEmitter()
-                .AddQueryProcessor<Query, Boo>(q => new Boo { Id = q.Id })
+                .AddQueryProcessor<Query, Boo>(q => new Boo {Id = q.Id})
                 .BuildProvider()
                 .GetRequiredService<Emitter>();
 
             var getBooQuery = new Query {Id = 1};
             var boo = await emitter.Ask(getBooQuery);
-            
+
             boo.Id.Should().Be(getBooQuery.Id);
         }
-        
+
         [Fact]
         public async Task ReturnFromActionQueryProcessorWithContext()
         {
@@ -195,10 +200,10 @@ namespace Velo.CQRS
 
             var getBooQuery = new Query {Id = 1};
             var boo = await emitter.Ask(getBooQuery);
-            
+
             boo.Id.Should().Be(getBooQuery.Id);
         }
-        
+
         [Theory, AutoData]
         public async Task ThrowCancellation(Query query)
         {

@@ -30,9 +30,26 @@ namespace Velo.Mapping
             provider.GetRequiredService<IMapper<Foo>>();
             provider.GetRequiredService<IMapper<Boo>>();
         }
-        
+
         [Theory, AutoData]
-        public void ConvertFooToBoo(Boo source)
+        public void ConvertAnonymousToFoo(bool boolValue, float floatValue, int intValue)
+        {
+            var source = new
+            {
+                Bool = boolValue,
+                Float = floatValue,
+                Int = intValue
+            };
+
+            var foo = _mapper.Map(source);
+
+            foo.Bool.Should().Be(source.Bool);
+            foo.Float.Should().Be(source.Float);
+            foo.Int.Should().Be(source.Int);
+        }
+
+        [Theory, AutoData]
+        public void ConvertBooToFoo(Boo source)
         {
             var foo = _mapper.Map(source);
 
@@ -52,29 +69,31 @@ namespace Velo.Mapping
         public void ConvertObjectToFoo(object source)
         {
             var foo = _mapper.Map(source);
-            
+
             foo.Bool.Should().Be(default);
             foo.Float.Should().Be(default);
             foo.Int.Should().Be(default);
         }
-        
+
         [Theory, AutoData]
-        public void ConvertAnonymousToFoo(bool boolValue, float floatValue, int intValue)
+        public void ConvertManyDifferentTypes(Boo boo, Foo foo, bool boolValue, float floatValue, int intValue)
         {
-            var source = new
+            for (var i = 0; i < 5; i++)
             {
-                Bool = boolValue,
-                Float = floatValue,
-                Int = intValue
-            };
+                ConvertBooToFoo(boo);
+            }
 
-            var foo = _mapper.Map(source);
-
-            foo.Bool.Should().Be(source.Bool);
-            foo.Float.Should().Be(source.Float);
-            foo.Int.Should().Be(source.Int);
+            for (var i = 0; i < 5; i++)
+            {
+                ConvertFooToFoo(foo);
+            }
+            
+            for (var i = 0; i < 5; i++)
+            {
+                ConvertAnonymousToFoo(boolValue, floatValue, intValue);
+            }
         }
-
+        
         [Fact]
         public void NotThrowIfBadSource()
         {
@@ -83,13 +102,13 @@ namespace Velo.Mapping
             foreach (var source in list)
             {
                 var foo = _mapper.Map(source);
-            
+
                 foo.Bool.Should().Be(default);
                 foo.Float.Should().Be(default);
-                foo.Int.Should().Be(default);    
+                foo.Int.Should().Be(default);
             }
         }
-        
+
         [Fact]
         public void ThrowIfDefaultConstructorNotExists()
         {
@@ -102,7 +121,7 @@ namespace Velo.Mapping
         {
             Assert.Throws<NullReferenceException>(() => _mapper.Map(null));
         }
-        
+
         private sealed class ClassWithoutDefaultConstructor
         {
             // ReSharper disable UnusedParameter.Local
