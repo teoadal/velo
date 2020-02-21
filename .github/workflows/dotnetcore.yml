@@ -19,7 +19,7 @@ jobs:
       run: dotnet test -c Release --no-build
     - name: Generate coverage report
       run: |
-        cd ./Velo.Tests/
+        cd ./src/Velo.Tests/
         dotnet test -c Release --no-build /p:CollectCoverage=true /p:CoverletOutput=TestResults/ /p:CoverletOutputFormat=opencover
     
 
