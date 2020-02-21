@@ -14,6 +14,13 @@ jobs:
       with:
         dotnet-version: 3.1.100
     - name: Build with dotnet
-      run: dotnet build --configuration Release
-    - name: Test
-      run: dotnet test
+      run: dotnet build -c Release
+    - name: Run tests
+      run: dotnet test -c Release --no-build
+    - name: Generate coverage report
+      run: |
+        cd ./Velo.Tests/
+        dotnet test -c Release --no-build /p:CollectCoverage=true /p:CoverletOutput=TestResults/ /p:CoverletOutputFormat=opencover
+    
+
+      
