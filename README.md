@@ -1,5 +1,7 @@
 # Velo
 
+Performance oriented small library with simple implementations of popular patterns ans workflows: CQRS, IoC, serialization/deseerialization and mapping. Under construction.
+
 ![.NET Core](https://github.com/teoadal/veloimplementations/workflows/.NET%20Core/badge.svg?branch=master)
 [![codecov](https://codecov.io/gh/teoadal/veloimplementations/branch/master/graph/badge.svg)](https://codecov.io/gh/teoadal/veloimplementations)
 [![NuGet](https://img.shields.io/nuget/dt/velo.svg)](https://www.nuget.org/packages/velo) 
