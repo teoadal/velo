@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Moq;
-using Velo.CQRS.Notifications;
 using Velo.DependencyInjection;
 using Velo.TestsModels.Emitting.Boos.Create;
 using Velo.TestsModels.Emitting.Foos.Create;
@@ -13,7 +12,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Processor = Velo.TestsModels.Emitting.Foos.Create.Processor;
 
-namespace Velo.CQRS
+namespace Velo.CQRS.Notifications
 {
     public class NotificationShould : TestClass
     {

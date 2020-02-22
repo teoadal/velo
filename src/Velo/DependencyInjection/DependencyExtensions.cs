@@ -7,7 +7,7 @@ namespace Velo.DependencyInjection
     {
         public static DependencyLifetime DefineLifetime(this LocalList<DependencyLifetime> lifetimes)
         {
-            int singleton = 0, scoped = 0;
+            int singleton = 0, transient = 0;
             foreach (var lifetime in lifetimes)
             {
                 switch (lifetime)
@@ -15,14 +15,14 @@ namespace Velo.DependencyInjection
                     case DependencyLifetime.Singleton:
                         singleton++;
                         break;
-                    case DependencyLifetime.Scoped:
-                        scoped++;
+                    case DependencyLifetime.Transient:
+                        transient++;
                         break;
                 }
             }
 
             if (singleton == lifetimes.Length) return DependencyLifetime.Singleton;
-            return scoped == lifetimes.Length
+            return transient == 0
                 ? DependencyLifetime.Scoped
                 : DependencyLifetime.Transient;
         }

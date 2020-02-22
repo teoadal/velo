@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Moq;
-using Velo.CQRS.Commands;
 using Velo.DependencyInjection;
 using Velo.Logging;
 using Velo.TestsModels.Boos;
@@ -14,7 +13,7 @@ using Velo.TestsModels.Emitting.Boos.Create;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.CQRS
+namespace Velo.CQRS.Commands
 {
     public class CommandShould : TestClass
     {

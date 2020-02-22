@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Moq;
-using Velo.CQRS.Queries;
 using Velo.DependencyInjection;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting.Boos.Get;
@@ -13,7 +12,7 @@ using Velo.TestsModels.Emitting.PingPong;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.CQRS
+namespace Velo.CQRS.Queries
 {
     public class QueryShould : TestClass
     {
