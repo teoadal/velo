@@ -129,6 +129,12 @@ namespace Velo.Utils
             Assert.True(ReflectionUtils.IsDisposableType(disposable.GetType()));
         }
         
+        [Theory, AutoData]
+        public void ThrowGetArrayElement_NotArray(Type elementType)
+        {
+            Assert.Throws<InvalidDataException>(() => ReflectionUtils.GetArrayElementType(elementType));
+        }
+        
         [Fact]
         public void Throw_GenericInterfaceParameters_NotInterface()
         {

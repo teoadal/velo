@@ -2,7 +2,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Moq;
-using Velo.CQRS.Commands;
 using Velo.DependencyInjection;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting.Boos.Get;

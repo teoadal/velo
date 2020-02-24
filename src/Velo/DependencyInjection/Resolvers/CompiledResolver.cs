@@ -45,7 +45,7 @@ namespace Velo.DependencyInjection.Resolvers
 
             var body = Expression.New(_constructor, parameters);
             var result = Expression.Lambda<Func<IDependencyScope, object>>(body, argument).Compile();
-            
+
             return result;
         }
 
@@ -60,10 +60,12 @@ namespace Velo.DependencyInjection.Resolvers
                 case DependencyLifetime.Transient:
                     var dependencyConstant = Expression.Constant(parameterDependency);
 
+                    // ReSharper disable AssignNullToNotNullAttribute
                     var getInstanceMethod = parameterDependency.GetType().GetMethod(nameof(IDependency.GetInstance));
                     var parameterInstanceCall = Expression.Call(
                         dependencyConstant, getInstanceMethod,
                         Expression.Constant(parameterType), argument);
+                    // ReSharper restore AssignNullToNotNullAttribute
 
                     return Expression.Convert(parameterInstanceCall, parameterType);
 

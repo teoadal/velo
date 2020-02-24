@@ -33,7 +33,7 @@ namespace Velo.CQRS
             _repository
                 .Setup(repository => repository.GetElement(It.IsAny<int>()))
                 .Returns<int>(id => new Boo {Id = id});
-            
+
             _dependencyProvider = new DependencyCollection()
                 .AddInstance(_repository.Object)
                 .AddCommandProcessor<Emitting.Boos.Create.Processor>()
@@ -46,7 +46,7 @@ namespace Velo.CQRS
 
             _emitter = _dependencyProvider.GetRequiredService<Emitter>();
         }
-        
+
         [Theory, AutoData]
         public async Task ExecuteCommand(Command command)
         {
@@ -72,7 +72,7 @@ namespace Velo.CQRS
 
             dependencies.GetLifetime<Emitter>().Should().Be(DependencyLifetime.Scoped);
         }
-        
+
         [Theory, AutoData]
         public async Task ReturnAskResult(int booId)
         {
@@ -182,7 +182,7 @@ namespace Velo.CQRS
             await Assert.ThrowsAsync<KeyNotFoundException>(() => emitter.Execute(Mock.Of<Command>()));
             await Assert.ThrowsAsync<KeyNotFoundException>(() => emitter.Send(Mock.Of<ICommand>()));
         }
-        
+
         [Fact]
         public async Task ThrowDisposedAfterCloseScope()
         {
