@@ -171,29 +171,29 @@ namespace Velo.CQRS
         }
 
         [Fact]
-        public void ThrowIfProcessorNotRegistered()
+        public async Task ThrowIfProcessorNotRegistered()
         {
             var emitter = new DependencyCollection()
                 .AddEmitter()
                 .BuildProvider()
                 .GetRequiredService<Emitter>();
 
-            Assert.ThrowsAsync<KeyNotFoundException>(() => emitter.Ask(Mock.Of<Query>()));
-            Assert.ThrowsAsync<KeyNotFoundException>(() => emitter.Execute(Mock.Of<Command>()));
-            Assert.ThrowsAsync<KeyNotFoundException>(() => emitter.Send(Mock.Of<ICommand>()));
+            await Assert.ThrowsAsync<KeyNotFoundException>(() => emitter.Ask(Mock.Of<Query>()));
+            await Assert.ThrowsAsync<KeyNotFoundException>(() => emitter.Execute(Mock.Of<Command>()));
+            await Assert.ThrowsAsync<KeyNotFoundException>(() => emitter.Send(Mock.Of<ICommand>()));
         }
         
         [Fact]
-        public void ThrowDisposedAfterCloseScope()
+        public async Task ThrowDisposedAfterCloseScope()
         {
             var scope = _dependencyProvider.CreateScope();
             var emitter = scope.GetRequiredService<Emitter>();
             scope.Dispose();
 
-            Assert.ThrowsAsync<ObjectDisposedException>(() => emitter.Ask(Mock.Of<Query>()));
-            Assert.ThrowsAsync<ObjectDisposedException>(() => emitter.Execute(Mock.Of<Command>()));
-            Assert.ThrowsAsync<ObjectDisposedException>(() => emitter.Send(Mock.Of<ICommand>()));
-            Assert.ThrowsAsync<ObjectDisposedException>(() => emitter.Send(Mock.Of<INotification>()));
+            await Assert.ThrowsAsync<ObjectDisposedException>(() => emitter.Ask(Mock.Of<Query>()));
+            await Assert.ThrowsAsync<ObjectDisposedException>(() => emitter.Execute(Mock.Of<Command>()));
+            await Assert.ThrowsAsync<ObjectDisposedException>(() => emitter.Send(Mock.Of<ICommand>()));
+            await Assert.ThrowsAsync<ObjectDisposedException>(() => emitter.Send(Mock.Of<INotification>()));
         }
     }
 }

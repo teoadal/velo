@@ -5,7 +5,7 @@
 [![NuGet](https://img.shields.io/nuget/vpre/velo.svg)](https://www.nuget.org/packages/velo) 
 [![NuGet](https://img.shields.io/nuget/dt/velo.svg)](https://www.nuget.org/packages/velo)
 
-Performance oriented small library with simple implementations of popular patterns ans workflows: CQRS, IoC, serialization/deseerialization and mapping. Under construction.
+Performance oriented small library with simple implementations of popular patterns and workflows: CQRS, IoC, serialization/deserialization and mapping. *Under construction*.
 
 ## Install from nuget
 
