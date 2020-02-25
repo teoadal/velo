@@ -1,5 +1,6 @@
 using Velo.DependencyInjection;
 using Velo.Logging.Enrichers;
+using Velo.Logging.Writers;
 using Velo.Utils;
 
 namespace Velo.Logging

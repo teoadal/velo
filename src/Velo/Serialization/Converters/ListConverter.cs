@@ -80,6 +80,21 @@ namespace Velo.Serialization.Converters
             writer.Write(']');
         }
 
+        public JsonData Write(List<TElement> list)
+        {
+            if (list == null) return JsonValue.Null;
+            if (list.Count == 0) return JsonArray.Empty;
+
+            var jsonElements = new JsonData[list.Count];
+
+            for (var i = 0; i < list.Count; i++)
+            {
+                jsonElements[i] = _elementConverter.Write(list[i]);
+            }
+
+            return new JsonArray(jsonElements);
+        }
+
         void IJsonConverter.Serialize(object value, TextWriter writer) =>
             Serialize((List<TElement>) value, writer);
     }

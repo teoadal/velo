@@ -25,6 +25,13 @@ namespace Velo.Serialization.Converters
             writer.Write(value);
         }
 
+        public JsonData Write(int value)
+        {
+            return value == 0 
+                ? JsonValue.Zero 
+                : new JsonValue(value.ToString(), JsonDataType.Number);
+        }
+
         void IJsonConverter.Serialize(object value, TextWriter writer) => Serialize((int) value, writer);
     }
 }

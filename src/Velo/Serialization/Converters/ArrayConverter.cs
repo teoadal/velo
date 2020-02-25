@@ -8,7 +8,7 @@ namespace Velo.Serialization.Converters
     internal sealed class ArrayConverter<TElement> : IJsonConverter<TElement[]>
     {
         public bool IsPrimitive => false;
-        
+
         private readonly IJsonConverter<TElement> _elementConverter;
 
         public ArrayConverter(IJsonConverter<TElement> elementConverter)
@@ -19,7 +19,7 @@ namespace Velo.Serialization.Converters
         public TElement[] Deserialize(ref JsonTokenizer tokenizer)
         {
             var buffer = new LocalList<TElement>();
-            
+
             while (tokenizer.MoveNext())
             {
                 var token = tokenizer.Current;
@@ -40,13 +40,13 @@ namespace Velo.Serialization.Converters
         public TElement[] Read(JsonData jsonData)
         {
             var arrayData = (JsonArray) jsonData;
-            
+
             var array = new TElement[arrayData.Length];
             for (var i = 0; i < array.Length; i++)
             {
                 array[i] = _elementConverter.Read(arrayData[i]);
             }
-            
+
             return array;
         }
 
@@ -68,7 +68,22 @@ namespace Velo.Serialization.Converters
 
             writer.Write(']');
         }
-        
+
+        public JsonData Write(TElement[] array)
+        {
+            if (array == null) return JsonValue.Null;
+            if (array.Length == 0) return JsonArray.Empty;
+
+            var jsonElements = new JsonData[array.Length];
+
+            for (var i = 0; i < array.Length; i++)
+            {
+                jsonElements[i] = _elementConverter.Write(array[i]);
+            }
+
+            return new JsonArray(jsonElements);
+        }
+
         void IJsonConverter.Serialize(object value, TextWriter writer) => Serialize((TElement[]) value, writer);
     }
 }

@@ -30,7 +30,8 @@ namespace Velo.Benchmark.Serialization
                 Float = seed + 6,
                 Int = seed + 7,
                 Double = seed + 8,
-                String = Guid.NewGuid().ToString()
+                String = Guid.NewGuid().ToString(),
+                TimeSpan = TimeSpan.FromMinutes(seed)
             };
         }
     }

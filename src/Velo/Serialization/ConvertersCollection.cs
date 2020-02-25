@@ -109,6 +109,7 @@ namespace Velo.Serialization
                 new KeyValuePair<Type, IJsonConverter>(typeof(Guid), new GuidConverter()),
                 new KeyValuePair<Type, IJsonConverter>(typeof(int), new IntConverter()),
                 new KeyValuePair<Type, IJsonConverter>(typeof(string), new StringConverter()),
+                new KeyValuePair<Type, IJsonConverter>(typeof(TimeSpan), new TimeSpanConverter(culture)), 
             };
         }
     }

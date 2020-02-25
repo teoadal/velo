@@ -33,6 +33,11 @@ namespace Velo.Serialization.Converters
             writer.Write(value.ToString(_cultureInfo));
         }
 
+        public JsonData Write(float value)
+        {
+            return new JsonValue(value.ToString(_cultureInfo), JsonDataType.Number);
+        }
+
         void IJsonConverter.Serialize(object value, TextWriter writer) => Serialize((float) value, writer);
     }
 }

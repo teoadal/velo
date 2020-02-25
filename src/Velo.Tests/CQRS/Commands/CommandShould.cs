@@ -7,6 +7,7 @@ using FluentAssertions;
 using Moq;
 using Velo.DependencyInjection;
 using Velo.Logging;
+using Velo.Logging.Writers;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting;
 using Velo.TestsModels.Emitting.Boos.Create;

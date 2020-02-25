@@ -28,6 +28,11 @@ namespace Velo.Serialization.Converters
             writer.Write('"');
         }
 
+        public JsonData Write(Guid value)
+        {
+            return new JsonValue(value.ToString(), JsonDataType.String);
+        }
+
         void IJsonConverter.Serialize(object value, TextWriter writer) => Serialize((Guid) value, writer);
     }
 }

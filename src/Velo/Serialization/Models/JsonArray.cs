@@ -1,10 +1,11 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Velo.Serialization.Models
 {
-    internal sealed class JsonArray : JsonData
+    internal sealed class JsonArray : JsonData, IEnumerable<JsonData>
     {
         public static readonly JsonArray Empty = new JsonArray(Array.Empty<JsonData>());
 
@@ -34,6 +35,13 @@ namespace Velo.Serialization.Models
             return false;
         }
 
+        public IEnumerator<JsonData> GetEnumerator()
+        {
+            return ((IEnumerable<JsonData>) _elements).GetEnumerator();
+        }
+
         public ref JsonData this[int index] => ref _elements[index];
+
+        IEnumerator IEnumerable.GetEnumerator() => _elements.GetEnumerator();
     }
 }

@@ -18,5 +18,7 @@ namespace Velo.Serialization.Converters
         T Read(JsonData jsonData);
 
         void Serialize(T value, TextWriter writer);
+        
+        JsonData Write(T value);
     }
 }

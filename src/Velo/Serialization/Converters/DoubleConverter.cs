@@ -8,7 +8,7 @@ namespace Velo.Serialization.Converters
     internal sealed class DoubleConverter : IJsonConverter<double>
     {
         public bool IsPrimitive => true;
-        
+
         private readonly CultureInfo _cultureInfo;
 
         public DoubleConverter(CultureInfo cultureInfo)
@@ -27,10 +27,15 @@ namespace Velo.Serialization.Converters
             var jsonValue = (JsonValue) jsonData;
             return double.Parse(jsonValue.Value, _cultureInfo);
         }
-        
+
         public void Serialize(double value, TextWriter builder)
         {
             builder.Write(value.ToString(_cultureInfo));
+        }
+
+        public JsonData Write(double value)
+        {
+            return new JsonValue(value.ToString(_cultureInfo), JsonDataType.Number);
         }
 
         void IJsonConverter.Serialize(object value, TextWriter builder) => Serialize((double) value, builder);

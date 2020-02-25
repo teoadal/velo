@@ -1,4 +1,4 @@
-namespace Velo.Logging
+namespace Velo.Logging.Writers
 {
     public interface ILogWriter
     {

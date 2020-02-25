@@ -10,6 +10,7 @@ using Unity.Lifetime;
 using Velo.DependencyInjection;
 using Velo.Logging;
 using Velo.Logging.Enrichers;
+using Velo.Logging.Writers;
 using Velo.Mapping;
 using Velo.Serialization;
 using Velo.Settings;

@@ -280,5 +280,14 @@ namespace Velo.Serialization
             
             Assert.Equal(source, deserialized);
         }
+        
+        [Theory, AutoData]
+        public void Serialize_TimeSpan(TimeSpan source)
+        {
+            var json = _converter.Serialize(source);
+            var deserialized = JsonConvert.DeserializeObject<TimeSpan>(json);
+            
+            Assert.Equal(source, deserialized);
+        }
     }
 }

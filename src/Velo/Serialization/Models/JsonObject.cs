@@ -4,11 +4,18 @@ namespace Velo.Serialization.Models
 {
     internal sealed class JsonObject : JsonData
     {
+        public static readonly JsonData Null = JsonValue.Null;
+
         private readonly Dictionary<string, JsonData> _properties;
 
         public JsonObject() : base(JsonDataType.Object)
         {
             _properties = new Dictionary<string, JsonData>();
+        }
+
+        public JsonObject(int capacity) : base(JsonDataType.Object)
+        {
+            _properties = new Dictionary<string, JsonData>(capacity);
         }
 
         public void Add(string property, JsonData value)

@@ -36,6 +36,13 @@ namespace Velo.Serialization.Converters
             else _valueConverter.Serialize(value.Value, writer);
         }
 
+        public JsonData Write(TNullable? value)
+        {
+            return value == null
+                ? JsonValue.Null
+                : _valueConverter.Write(value.Value);
+        }
+
         void IJsonConverter.Serialize(object value, TextWriter writer) => Serialize((TNullable?) value, writer);
     }
 }

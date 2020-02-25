@@ -6,7 +6,7 @@ using Velo.Serialization.Tokenization;
 namespace Velo.Serialization.Converters
 {
     internal sealed class EnumConverter<TEnum> : IJsonConverter<TEnum>
-        where TEnum: Enum
+        where TEnum : Enum
     {
         public bool IsPrimitive => true;
 
@@ -25,16 +25,22 @@ namespace Velo.Serialization.Converters
 
         public TEnum Read(JsonData jsonData)
         {
-            var jsonValue = (JsonValue) jsonData; 
+            var jsonValue = (JsonValue) jsonData;
             return _values[int.Parse(jsonValue.Value)];
         }
-        
+
         public void Serialize(TEnum value, TextWriter writer)
         {
             var index = Array.IndexOf(_values, value);
             writer.Write(index);
         }
-        
+
+        public JsonData Write(TEnum value)
+        {
+            var index = Array.IndexOf(_values, value);
+            return new JsonValue(index.ToString(), JsonDataType.Number);
+        }
+
         void IJsonConverter.Serialize(object value, TextWriter writer) => Serialize((TEnum) value, writer);
     }
 }

@@ -13,6 +13,7 @@ namespace Velo.Serialization.Converters
         public readonly DeserializeMethod<TObject> Deserialize;
         public readonly Action<TObject, JsonData> Read;
         public readonly Action<TObject, TextWriter> Serialize;
+        public readonly Func<TObject, JsonData> Write;
 
         public PropertyConverter(PropertyInfo propertyInfo, IJsonConverter valueConverter)
         {
@@ -22,6 +23,7 @@ namespace Velo.Serialization.Converters
             Deserialize = BuildDeserializeMethod(instance, propertyInfo, converter);
             Read = BuildReadMethod(instance, propertyInfo, converter);
             Serialize = BuildSerializeMethod(instance, propertyInfo, converter);
+            Write = BuildWriteMethod(instance, propertyInfo, converter);
         }
 
         private static DeserializeMethod<TObject> BuildDeserializeMethod(ParameterExpression instance,
@@ -66,6 +68,19 @@ namespace Velo.Serialization.Converters
 
             return Expression
                 .Lambda<Action<TObject, TextWriter>>(body, instance, writer)
+                .Compile();
+        }
+
+        private static Func<TObject, JsonData> BuildWriteMethod(ParameterExpression instance, PropertyInfo property,
+            Expression valueConverter)
+        {
+            const string writeMethodName = nameof(IJsonConverter<object>.Write);
+
+            var propertyValue = Expression.Property(instance, property);
+            var body = ExpressionUtils.Call(valueConverter, writeMethodName, propertyValue);
+
+            return Expression
+                .Lambda<Func<TObject, JsonData>>(body, instance)
                 .Compile();
         }
     }

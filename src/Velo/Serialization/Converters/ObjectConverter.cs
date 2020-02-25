@@ -106,6 +106,23 @@ namespace Velo.Serialization.Converters
             writer.Write('}');
         }
 
+        public JsonData Write(TObject instance)
+        {
+            if (_equalityComparer.Equals(instance, default))
+            {
+                return JsonObject.Null;
+            }
+
+            var jsonObject = new JsonObject(_propertyConverters.Count);
+            foreach (var (propertyName, converter) in _propertyConverters)
+            {
+                var propertyValue = converter.Write(instance);
+                jsonObject.Add(propertyName, propertyValue);
+            }
+
+            return jsonObject;
+        }
+
         void IJsonConverter.Serialize(object value, TextWriter writer) => Serialize((TObject) value, writer);
     }
 }

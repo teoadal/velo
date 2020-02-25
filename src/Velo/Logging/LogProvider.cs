@@ -7,6 +7,7 @@ using System.Text;
 using Velo.Collections;
 using Velo.Logging.Enrichers;
 using Velo.Logging.Renderers;
+using Velo.Logging.Writers;
 using Velo.Serialization;
 using Velo.Utils;
 

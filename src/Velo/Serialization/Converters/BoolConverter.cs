@@ -35,6 +35,11 @@ namespace Velo.Serialization.Converters
             writer.Write(value ? JsonTokenizer.TokenTrueValue : JsonTokenizer.TokenFalseValue);
         }
 
+        public JsonData Write(bool value)
+        {
+            return value ? JsonValue.True : JsonValue.False;
+        }
+
         void IJsonConverter.Serialize(object value, TextWriter writer) => Serialize((bool) value, writer);
     }
 }

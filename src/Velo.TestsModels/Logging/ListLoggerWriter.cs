@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Velo.Logging;
+using Velo.Logging.Writers;
 
 namespace Velo.TestsModels.Logging
 {
