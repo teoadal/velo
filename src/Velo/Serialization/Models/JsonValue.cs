@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.IO;
 using Velo.Serialization.Tokenization;
 
 namespace Velo.Serialization.Models
@@ -52,6 +53,20 @@ namespace Velo.Serialization.Models
         public override int GetHashCode()
         {
             return Value != null ? Value.GetHashCode() : 0;
+        }
+
+        public override void Serialize(TextWriter writer)
+        {
+            if (Type == JsonDataType.String)
+            {
+                writer.Write('\"');
+                writer.Write(Value);
+                writer.Write('\"');
+            }
+            else
+            {
+                writer.Write(Value);
+            }
         }
     }
 }

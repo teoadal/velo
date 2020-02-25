@@ -95,7 +95,8 @@ namespace Velo.Serialization.Converters
             return new JsonArray(jsonElements);
         }
 
-        void IJsonConverter.Serialize(object value, TextWriter writer) =>
-            Serialize((List<TElement>) value, writer);
+        void IJsonConverter.Serialize(object value, TextWriter writer) => Serialize((List<TElement>) value, writer);
+
+        JsonData IJsonConverter.Write(object value) => Write((List<TElement>) value);
     }
 }

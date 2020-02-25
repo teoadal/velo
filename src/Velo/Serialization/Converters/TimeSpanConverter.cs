@@ -9,7 +9,7 @@ namespace Velo.Serialization.Converters
     internal sealed class TimeSpanConverter : IJsonConverter<TimeSpan>
     {
         public bool IsPrimitive => true;
-        
+
         private readonly CultureInfo _cultureInfo;
 
         public TimeSpanConverter(CultureInfo cultureInfo)
@@ -28,7 +28,7 @@ namespace Velo.Serialization.Converters
             var jsonValue = (JsonValue) jsonData;
             return TimeSpan.Parse(jsonValue.Value, _cultureInfo);
         }
-        
+
         public void Serialize(TimeSpan value, TextWriter writer)
         {
             writer.Write('"');
@@ -41,6 +41,8 @@ namespace Velo.Serialization.Converters
             return new JsonValue(value.ToString("g", _cultureInfo), JsonDataType.String);
         }
 
-        void IJsonConverter.Serialize(object value, TextWriter writer) => Serialize((TimeSpan) value, writer);   
+        void IJsonConverter.Serialize(object value, TextWriter writer) => Serialize((TimeSpan) value, writer);
+
+        JsonData IJsonConverter.Write(object value) => Write((TimeSpan) value);
     }
 }

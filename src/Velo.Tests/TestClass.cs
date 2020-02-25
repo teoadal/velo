@@ -2,12 +2,16 @@ using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using AutoFixture;
 using Xunit.Abstractions;
 
 namespace Velo
 {
     public abstract class TestClass : IDisposable
     {
+        protected Fixture Fixture => _fixture ??= new Fixture();
+
+        private Fixture _fixture;
         private readonly ITestOutputHelper _output;
         private Stopwatch _stopwatch;
 
@@ -16,7 +20,7 @@ namespace Velo
             _output = output;
             _stopwatch = Stopwatch.StartNew();
         }
-        
+
         protected static int FixCount(int count)
         {
             count = Math.Abs(count);
@@ -24,27 +28,27 @@ namespace Velo
 
             return count;
         }
-        
+
         protected StopwatchScope Measure()
         {
             _stopwatch = Stopwatch.StartNew();
             return new StopwatchScope(_stopwatch);
         }
-        
+
         protected async Task Measure(ValueTask task)
         {
             _stopwatch = Stopwatch.StartNew();
             await task;
             _stopwatch.Stop();
         }
-        
+
         protected async Task Measure(Func<Task> action)
         {
             _stopwatch = Stopwatch.StartNew();
             await action();
             _stopwatch.Stop();
         }
-        
+
         protected TResult Measure<TResult>(Func<TResult> action)
         {
             _stopwatch = Stopwatch.StartNew();
@@ -53,7 +57,7 @@ namespace Velo
 
             return result;
         }
-        
+
         protected void Measure(Action action)
         {
             _stopwatch = Stopwatch.StartNew();
@@ -71,7 +75,7 @@ namespace Velo
 
             return Task.WhenAll(tasks);
         }
-        
+
         protected static Task RunTasks(int count, Action action)
         {
             var tasks = new Task[count];
@@ -82,7 +86,7 @@ namespace Velo
 
             return Task.WhenAll(tasks);
         }
-        
+
         protected static Task RunTasks<T>(T[] array, Func<T, Task> action)
         {
             var tasks = new Task[array.Length];
@@ -104,7 +108,7 @@ namespace Velo
 
             return Task.WhenAll(tasks);
         }
-        
+
         protected void WriteLine(string text, [CallerMemberName] string from = null)
         {
             _output.WriteLine(string.IsNullOrWhiteSpace(from)
@@ -119,7 +123,7 @@ namespace Velo
                 ? $"Elapsed {_stopwatch.ElapsedMilliseconds} ms"
                 : "Elapsed < 1 ms");
         }
-        
+
         protected readonly struct StopwatchScope : IDisposable
         {
             private readonly Stopwatch _stopwatch;

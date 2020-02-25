@@ -33,5 +33,7 @@ namespace Velo.Serialization.Converters
         }
 
         void IJsonConverter.Serialize(object value, TextWriter writer) => Serialize((int) value, writer);
+
+        JsonData IJsonConverter.Write(object value) => Write((int) value);
     }
 }

@@ -7,7 +7,7 @@ using Velo.Utils;
 
 namespace Velo.Serialization.Models
 {
-    internal abstract class JsonData
+    public abstract class JsonData
     {
         [ThreadStatic] private static StringBuilder _buffer;
 
@@ -35,6 +35,8 @@ namespace Velo.Serialization.Models
         {
             Type = type;
         }
+
+        public abstract void Serialize(TextWriter writer);
 
         private static JsonData Parse(JsonReader reader)
         {

@@ -44,5 +44,7 @@ namespace Velo.Serialization.Converters
         }
 
         void IJsonConverter.Serialize(object value, TextWriter writer) => Serialize((TNullable?) value, writer);
+
+        JsonData IJsonConverter.Write(object value) => Write((TNullable?) value);
     }
 }

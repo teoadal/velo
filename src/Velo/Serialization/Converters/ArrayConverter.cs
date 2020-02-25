@@ -40,9 +40,9 @@ namespace Velo.Serialization.Converters
         public TElement[] Read(JsonData jsonData)
         {
             if (jsonData.Type == JsonDataType.Null) return null;
-            
+
             var arrayData = (JsonArray) jsonData;
-            
+
             var array = new TElement[arrayData.Length];
             for (var i = 0; i < array.Length; i++)
             {
@@ -87,5 +87,7 @@ namespace Velo.Serialization.Converters
         }
 
         void IJsonConverter.Serialize(object value, TextWriter writer) => Serialize((TElement[]) value, writer);
+
+        JsonData IJsonConverter.Write(object value) => Write((TElement[]) value);
     }
 }

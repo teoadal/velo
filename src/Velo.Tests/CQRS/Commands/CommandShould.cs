@@ -8,6 +8,7 @@ using Moq;
 using Velo.DependencyInjection;
 using Velo.Logging;
 using Velo.Logging.Writers;
+using Velo.Serialization.Models;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting;
 using Velo.TestsModels.Emitting.Boos.Create;
@@ -155,7 +156,9 @@ namespace Velo.CQRS.Commands
                 .AddEmitter()
                 .BuildProvider();
 
-            var expectedLifetime = new[] {measureLifetime, exceptionLifetime, preProcessorLifetime, processorLifetime, postProcessorLifetime}.DefineLifetime();
+            var expectedLifetime = new[]
+                    {measureLifetime, exceptionLifetime, preProcessorLifetime, processorLifetime, postProcessorLifetime}
+                .DefineLifetime();
             dependencyCollection.GetLifetime<CommandPipeline<Command>>().Should().Be(expectedLifetime);
 
             var emitter = dependencyProvider.GetRequiredService<Emitter>();
@@ -213,7 +216,9 @@ namespace Velo.CQRS.Commands
             await _emitter.Execute(command); // post processor must publish notification
 
             _logger.Verify(logger => logger
-                .Write(LogLevel.Debug, nameof(NotificationProcessor)));
+                .Write(It.Is<LogContext>(
+                    context => context.Level == LogLevel.Debug && context.Sender == typeof(NotificationProcessor)), 
+                    It.IsAny<JsonObject>()));
         }
 
         [Theory, AutoData]

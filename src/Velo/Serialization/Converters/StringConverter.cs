@@ -33,7 +33,7 @@ namespace Velo.Serialization.Converters
                 writer.Write('"');
             }
         }
-        
+
         public JsonData Write(string value)
         {
             return string.IsNullOrEmpty(value)
@@ -42,5 +42,7 @@ namespace Velo.Serialization.Converters
         }
 
         void IJsonConverter.Serialize(object value, TextWriter writer) => Serialize((string) value, writer);
+
+        JsonData IJsonConverter.Write(object value) => Write((string) value);
     }
 }

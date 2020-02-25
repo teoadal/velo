@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace Velo.Serialization.Models
@@ -40,6 +41,22 @@ namespace Velo.Serialization.Models
             return ((IEnumerable<JsonData>) _elements).GetEnumerator();
         }
 
+        public override void Serialize(TextWriter writer)
+        {
+            writer.Write('[');
+
+            var first = true;
+            foreach (var element in _elements)
+            {
+                if (first) first = false;
+                else writer.Write(',');
+                
+                element.Serialize(writer);
+            }
+            
+            writer.Write(']');
+        }
+        
         public ref JsonData this[int index] => ref _elements[index];
 
         IEnumerator IEnumerable.GetEnumerator() => _elements.GetEnumerator();

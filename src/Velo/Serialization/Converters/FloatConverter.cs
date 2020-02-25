@@ -8,7 +8,7 @@ namespace Velo.Serialization.Converters
     internal sealed class FloatConverter : IJsonConverter<float>
     {
         public bool IsPrimitive => true;
-        
+
         private readonly CultureInfo _cultureInfo;
 
         public FloatConverter(CultureInfo cultureInfo)
@@ -27,7 +27,7 @@ namespace Velo.Serialization.Converters
             var jsonValue = (JsonValue) jsonData;
             return float.Parse(jsonValue.Value, _cultureInfo);
         }
-        
+
         public void Serialize(float value, TextWriter writer)
         {
             writer.Write(value.ToString(_cultureInfo));
@@ -39,5 +39,7 @@ namespace Velo.Serialization.Converters
         }
 
         void IJsonConverter.Serialize(object value, TextWriter writer) => Serialize((float) value, writer);
+
+        JsonData IJsonConverter.Write(object value) => Write((float) value);
     }
 }

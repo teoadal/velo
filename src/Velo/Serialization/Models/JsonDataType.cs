@@ -1,6 +1,6 @@
 namespace Velo.Serialization.Models
 {
-    internal enum JsonDataType : byte
+    public enum JsonDataType : byte
     {
         None = 0,
         Array,
@@ -9,6 +9,7 @@ namespace Velo.Serialization.Models
         Number,
         Object,
         String,
-        True
+        True,
+        Verbose
     }
 }

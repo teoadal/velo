@@ -69,7 +69,7 @@ namespace Velo.Serialization.Converters
         public TObject Read(JsonData jsonData)
         {
             if (jsonData.Type == JsonDataType.Null) return default;
-            
+
             var instance = _activator();
 
             var objectData = (JsonObject) jsonData;
@@ -126,5 +126,7 @@ namespace Velo.Serialization.Converters
         }
 
         void IJsonConverter.Serialize(object value, TextWriter writer) => Serialize((TObject) value, writer);
+
+        JsonData IJsonConverter.Write(object value) => Write((TObject) value);
     }
 }

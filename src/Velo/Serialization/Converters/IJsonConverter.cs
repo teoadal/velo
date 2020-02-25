@@ -9,6 +9,8 @@ namespace Velo.Serialization.Converters
         bool IsPrimitive { get; }
 
         void Serialize(object value, TextWriter writer);
+        
+        JsonData Write(object value);
     }
 
     internal interface IJsonConverter<T> : IJsonConverter

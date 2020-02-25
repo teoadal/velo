@@ -9,7 +9,7 @@ namespace Velo.Serialization.Models
 {
     public class JsonObjectShould : TestClass
     {
-        private IConvertersCollection _converters;
+        private readonly IConvertersCollection _converters;
         
         public JsonObjectShould(ITestOutputHelper output) : base(output)
         {
@@ -22,7 +22,7 @@ namespace Velo.Serialization.Models
             var obj = new JsonObject();
             obj.Add(property, JsonValue.Number(value));
 
-            Assert.True(obj.Contains(property));
+            obj.Contains(property).Should().BeTrue();
         }
 
         [Theory, AutoData]
@@ -31,7 +31,7 @@ namespace Velo.Serialization.Models
             var obj = new JsonObject();
             obj.Add(property, JsonValue.Boolean(value));
 
-            Assert.Equal(JsonValue.Boolean(value), obj[property]);
+            obj[property].Should().Be(JsonValue.Boolean(value));
         }
 
         [Fact]
@@ -69,9 +69,10 @@ namespace Velo.Serialization.Models
             var obj = new JsonObject();
             obj.Add(property, JsonValue.Null);
 
-            Assert.True(obj.Remove(property));
-            Assert.False(obj.Remove(property));
-            Assert.False(obj.Contains(property));
+
+            obj.Remove(property).Should().BeTrue();
+            obj.Remove(property).Should().BeFalse();
+            obj.Contains(property).Should().BeFalse();
         }
         
         [Theory, AutoData]

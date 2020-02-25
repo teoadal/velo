@@ -9,6 +9,7 @@ using Velo.CQRS.Notifications;
 using Velo.DependencyInjection;
 using Velo.Logging;
 using Velo.Logging.Writers;
+using Velo.Serialization.Models;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting.Boos.Create;
 using Velo.TestsModels.Emitting.Boos.Get;
@@ -62,7 +63,9 @@ namespace Velo.CQRS
         {
             await _emitter.Publish(new Notification());
             _logger.Verify(logger => logger
-                .Write(LogLevel.Debug, nameof(NotificationProcessor)));
+                .Write(
+                    It.Is<LogContext>(context => context.Level == LogLevel.Debug && context.Sender == typeof(NotificationProcessor)), 
+                    It.IsAny<JsonObject>()));
         }
 
         [Fact]
@@ -116,8 +119,11 @@ namespace Velo.CQRS
         public async Task SendNotification()
         {
             await _emitter.Publish(new Notification());
+            
             _logger.Verify(logger => logger
-                .Write(LogLevel.Debug, nameof(NotificationProcessor)));
+                .Write(
+                    It.Is<LogContext>(context => context.Level == LogLevel.Debug && context.Sender == typeof(NotificationProcessor)), 
+                    It.IsAny<JsonObject>()));
         }
 
         [Theory, AutoData]

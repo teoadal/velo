@@ -134,6 +134,35 @@ var json = converter.Serialize(data);
 |   **Velo** | 44.28 ms | 0.327 ms | 0.306 ms |  **0.50** |  **19.26 MB** |
 
 
+## Logger (per 1000 log events)
+
+|         Method |       Mean |    Error |   StdDev | Ratio |  Allocated |
+|--------------- |-----------:|---------:|---------:|------:|-----------:|
+|   Serilog_EmptySink | 1,110.0 us | 21.86 us | 23.39 us |  1.00 |  851.56 KB |
+|      Nlog_EmptyTarget | 2,355.9 us | 44.31 us | 47.41 us |  2.12 | 1 911.15 KB |
+|      **Velo_EmptyWriter** |   902.4 us | 12.68 us | 11.86 us |  **0.82** |  **219.25 KB** |
+|                |            |          |          |       |            |
+| Serilog_StringWriter | 1,439.7 us | 14.88 us | 12.42 us |  1.00 |  976.25 KB |
+|    Nlog_StringWriter | 2,061.0 us | 26.41 us | 24.70 us |  1.43 | 1 648.44 KB |
+|    **Velo_StringWriter** | 1,225.1 us | 11.20 us |  9.93 us |  **0.85** |  **219.56 KB** |
+
+### Configure logger
+
+```cs
+var container = new DependencyCollection()
+    .AddLogger()
+    .AddDefaultLogEnrichers()         // log level, sender, timestamp
+    .AddLogEnricher<Enricher>()       // add your enricher 
+    .AddLogWriter<ConsoleLogWriter>() // included primitive log writer
+    .AddLogWriter<LogWriter>()        // add your writer
+```
+
+### Structured logging
+
+```ini
+[DBG] [LoggerShould] [2020-02-26T17:07:57] Test with args 105, "arg20ff82dc4-34e8-4109-8c8c-8f2225ebabed", {"Id":129,"Bool":true,"Double":61,"Float":198,"Int":11,"IntNullable":177,"String":"String64630110-c7c9-4ba2-94c0-4c28dd9cea20","Type":0,"Values":[36,17,212]}, "0:00:00.0000025" executed.
+```
+
 ## Dependency Injection
 
 ### Create container

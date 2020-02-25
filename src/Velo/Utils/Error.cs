@@ -17,9 +17,9 @@ namespace Velo.Utils
             return new TypeAccessException($"Detected circular dependency '{ReflectionUtils.GetName(contract)}'");
         }
 
-        public static InvalidCastException Cast(string message)
+        public static InvalidCastException Cast(string message, Exception innerException = null)
         {
-            return new InvalidCastException(message);
+            return new InvalidCastException(message, innerException);
         }
         
         public static KeyNotFoundException DefaultConstructorNotFound(Type type)

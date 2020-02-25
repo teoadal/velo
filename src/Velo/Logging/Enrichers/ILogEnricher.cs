@@ -1,10 +1,10 @@
 using System;
-using System.IO;
+using Velo.Serialization.Models;
 
 namespace Velo.Logging.Enrichers
 {
     public interface ILogEnricher
     {
-        void Enrich(TextWriter writer, LogLevel level, Type sender);
+        void Enrich(LogLevel level, Type sender, JsonObject message);
     }
 }

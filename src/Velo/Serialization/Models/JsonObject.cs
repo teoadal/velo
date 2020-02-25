@@ -1,8 +1,10 @@
 using System.Collections.Generic;
+using System.IO;
+using Velo.Extensions;
 
 namespace Velo.Serialization.Models
 {
-    internal sealed class JsonObject : JsonData
+    public sealed class JsonObject : JsonData
     {
         public static readonly JsonData Null = JsonValue.Null;
 
@@ -23,6 +25,11 @@ namespace Velo.Serialization.Models
             _properties.Add(string.Intern(property), value);
         }
 
+        public void Clear()
+        {
+            _properties.Clear();
+        }
+
         public bool Contains(string property)
         {
             return _properties.ContainsKey(property);
@@ -33,6 +40,26 @@ namespace Velo.Serialization.Models
         public bool Remove(string property)
         {
             return _properties.Remove(property);
+        }
+
+        public override void Serialize(TextWriter writer)
+        {
+            writer.Write('{');
+
+            var first = true;
+            foreach (var (propertyName, propertyValue) in _properties)
+            {
+                if (first) first = false;
+                else writer.Write(',');
+
+                writer.Write('\"');
+                writer.Write(propertyName);
+                writer.Write("\":");
+
+                propertyValue.Serialize(writer);
+            }
+
+            writer.Write('}');
         }
 
         public bool TryGet(string property, out JsonData value)

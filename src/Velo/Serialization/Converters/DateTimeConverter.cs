@@ -42,5 +42,7 @@ namespace Velo.Serialization.Converters
         }
 
         void IJsonConverter.Serialize(object value, TextWriter writer) => Serialize((DateTime) value, writer);
+
+        JsonData IJsonConverter.Write(object value) => Write((DateTime) value);
     }
 }

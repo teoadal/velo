@@ -19,10 +19,11 @@ namespace Velo.Benchmark.CQRS
     [CategoriesColumn, GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
     public class MediatorRequestBenchmark
     {
-        [Params(1, 10, 100, 1000)] public int Count;
+        [Params(1, 1000)] 
+        public int Count;
 
-        private MediatorBuilder.GetBooRequest[] _requests;
-        private MediatorBuilder.StructRequest[] _requestsStruct;
+        private GetBooRequest[] _requests;
+        private StructRequest[] _requestsStruct;
         private IMediator _mediator;
         private IMediator _mediatorWithBehaviour;
         private IMediator _mediatorWithFullPipeline;
@@ -41,8 +42,8 @@ namespace Velo.Benchmark.CQRS
             _queries = new Query[Count];
             _queriesStruct = new Ping[Count];
 
-            _requests = new MediatorBuilder.GetBooRequest[Count];
-            _requestsStruct = new MediatorBuilder.StructRequest[Count];
+            _requests = new GetBooRequest[Count];
+            _requestsStruct = new StructRequest[Count];
 
             for (var i = 0; i < Count; i++)
             {
@@ -51,25 +52,22 @@ namespace Velo.Benchmark.CQRS
                 _queries[i] = new Query(i);
                 _queriesStruct[i] = new Ping(i);
 
-                _requests[i] = new MediatorBuilder.GetBooRequest {Id = i};
-                _requestsStruct[i] = new MediatorBuilder.StructRequest(i.ToString());
+                _requests[i] = new GetBooRequest {Id = i};
+                _requestsStruct[i] = new StructRequest(i.ToString());
             }
 
             _mediator = MediatorBuilder.BuildMediatR(repository);
 
             _mediatorWithBehaviour = MediatorBuilder.BuildMediatR(repository, services =>
-                services.AddSingleton<MediatorBuilder.GetBooRequestBehaviour>());
+                services.AddSingleton<GetBooRequestBehaviour>());
 
             _mediatorWithFullPipeline = MediatorBuilder.BuildMediatR(repository, services =>
                 services
                     .AddSingleton(typeof(IPipelineBehavior<,>), typeof(RequestPreProcessorBehavior<,>))
                     .AddSingleton(typeof(IPipelineBehavior<,>), typeof(RequestPostProcessorBehavior<,>))
-                    .AddSingleton<IPipelineBehavior<MediatorBuilder.GetBooRequest, Boo>,
-                        MediatorBuilder.GetBooRequestBehaviour>()
-                    .AddSingleton<IRequestPreProcessor<MediatorBuilder.GetBooRequest>,
-                        MediatorBuilder.GetBooPreProcessor>()
-                    .AddSingleton<IRequestPostProcessor<MediatorBuilder.GetBooRequest, Boo>,
-                        MediatorBuilder.GetBooPostProcessor>());
+                    .AddSingleton<IPipelineBehavior<GetBooRequest, Boo>, GetBooRequestBehaviour>()
+                    .AddSingleton<IRequestPreProcessor<GetBooRequest>, GetBooPreProcessor>()
+                    .AddSingleton<IRequestPostProcessor<GetBooRequest, Boo>, GetBooPostProcessor>());
 
             _emitter = _emitterWithBehaviour = MediatorBuilder.BuildEmitter(repository);
 
