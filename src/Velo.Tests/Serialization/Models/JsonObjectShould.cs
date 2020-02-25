@@ -50,6 +50,18 @@ namespace Velo.Serialization.Models
             var result = converter.Read(jsonObject);
             result.Should().BeEquivalentTo(source);
         }
+
+        [Fact]
+        public void ReadNull()
+        {
+            BigObject source = null;
+            var converter = _converters.Get<BigObject>();
+
+            // ReSharper disable once ExpressionIsAlwaysNull
+            var jsonObject = converter.Write(source);
+            var result = converter.Read(jsonObject);
+            result.Should().BeNull();
+        }
         
         [Theory, AutoData]
         public void Remove(string property)
@@ -67,9 +79,20 @@ namespace Velo.Serialization.Models
         {
             var converter = _converters.Get<BigObject>();
 
-            var jsonArray = (JsonObject) converter.Write(source);
-            var result = converter.Read(jsonArray);
+            var jsonObject = converter.Write(source);
+            var result = converter.Read(jsonObject);
             result.Should().BeEquivalentTo(source);
+        }
+        
+        [Fact]
+        public void WriteNull()
+        {
+            BigObject source = null;
+            var converter = _converters.Get<BigObject>();
+
+            // ReSharper disable once ExpressionIsAlwaysNull
+            var jsonObject = converter.Write(source);
+            jsonObject.Type.Should().Be(JsonDataType.Null);
         }
     }
 }

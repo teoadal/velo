@@ -39,8 +39,10 @@ namespace Velo.Serialization.Converters
 
         public TElement[] Read(JsonData jsonData)
         {
+            if (jsonData.Type == JsonDataType.Null) return null;
+            
             var arrayData = (JsonArray) jsonData;
-
+            
             var array = new TElement[arrayData.Length];
             for (var i = 0; i < array.Length; i++)
             {

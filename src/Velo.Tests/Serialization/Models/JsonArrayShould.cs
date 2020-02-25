@@ -1,3 +1,4 @@
+using System;
 using System.Globalization;
 using System.Linq;
 using AutoFixture.Xunit2;
@@ -16,7 +17,7 @@ namespace Velo.Serialization.Models
         {
             _converters = new ConvertersCollection(CultureInfo.InvariantCulture);
         }
-        
+
         [Theory, AutoData]
         public void Contains(int[] values)
         {
@@ -56,7 +57,28 @@ namespace Velo.Serialization.Models
             var result = converter.Read(jsonArray);
             result.Should().BeEquivalentTo(source);
         }
-        
+
+        [Fact]
+        public void ReadEmptyArray()
+        {
+            var source = Array.Empty<int>();
+            var converter = _converters.Get<int[]>();
+
+            var jsonArray = (JsonArray) converter.Write(source);
+            var result = converter.Read(jsonArray);
+            result.Should().BeEquivalentTo(source);
+        }
+
+        [Fact]
+        public void ReadNull()
+        {
+            var converter = _converters.Get<int[]>();
+
+            var jsonArray = JsonValue.Null;
+            var result = converter.Read(jsonArray);
+            result.Should().BeNull();
+        }
+
         [Theory, AutoData]
         public void ReadObjects(BigObject[] source)
         {
@@ -67,7 +89,7 @@ namespace Velo.Serialization.Models
             // ReSharper disable once CoVariantArrayConversion
             result.Should().BeEquivalentTo(source);
         }
-        
+
         [Theory, AutoData]
         public void Write(int[] source)
         {
@@ -76,7 +98,18 @@ namespace Velo.Serialization.Models
             var jsonArray = (JsonArray) converter.Write(source);
             jsonArray.Should().Contain(source.Select(JsonValue.Number));
         }
-        
+
+        [Fact]
+        public void WriteNull()
+        {
+            int[] source = null;
+            var converter = _converters.Get<int[]>();
+
+            // ReSharper disable once ExpressionIsAlwaysNull
+            var jsonArray = converter.Write(source);
+            jsonArray.Type.Should().Be(JsonDataType.Null);
+        }
+
         [Theory, AutoData]
         public void WriteObjects(BigObject[] source)
         {

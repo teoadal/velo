@@ -68,6 +68,8 @@ namespace Velo.Serialization.Converters
 
         public TObject Read(JsonData jsonData)
         {
+            if (jsonData.Type == JsonDataType.Null) return default;
+            
             var instance = _activator();
 
             var objectData = (JsonObject) jsonData;
