@@ -70,8 +70,5 @@
       <Compile Update="Settings\SettingsResolver.cs">
         <DependentUpon>SettingsFactory.cs</DependentUpon>
       </Compile>
-      <Compile Update="Logging\Writers\ConsoleWriter.MessageWriter.cs">
-        <DependentUpon>ConsoleLogWriter.cs</DependentUpon>
-      </Compile>
     </ItemGroup>
 </Project>

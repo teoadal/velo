@@ -61,27 +61,27 @@ namespace Velo.Settings
 
         public bool TryGet<T>(string path, out T value)
         {
-            using (Lock.Enter(_cache))
+            if (_cache.TryGetValue(path, out var cached))
             {
-                if (_cache.TryGetValue(path, out var cached))
-                {
-                    value = (T) cached;
-                    return true;
-                }
-
-                if (!TryGetJsonData(path, out var jsonData))
-                {
-                    value = default;
-                    return false;
-                }
-
-                var converter = GetValidConverter<T>(jsonData);
-                value = converter.Read(jsonData);
-
-                _cache.Add(path, value);
-
+                value = (T) cached;
                 return true;
             }
+            
+            if (!TryGetJsonData(path, out var jsonData))
+            {
+                value = default;
+                return false;
+            }
+
+            var converter = GetValidConverter<T>(jsonData);
+            value = converter.Read(jsonData);
+            
+            using (Lock.Enter(_cache))
+            {
+                _cache[path] = value;
+            }
+            
+            return true;
         }
 
         public void Reload()

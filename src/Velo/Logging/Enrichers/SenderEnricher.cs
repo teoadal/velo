@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using Velo.Serialization.Models;
 using Velo.Utils;
 
@@ -9,24 +9,27 @@ namespace Velo.Logging.Enrichers
     {
         private const string Name = "_sender";
 
-        private readonly Func<Type, JsonVerbose> _builder;
-        private readonly ConcurrentDictionary<Type, JsonVerbose> _senders;
+        private readonly object _lock;
+        private readonly Dictionary<Type, JsonVerbose> _senders;
 
         public SenderEnricher()
         {
-            _builder = Build;
-            _senders = new ConcurrentDictionary<Type, JsonVerbose>();
+            _lock = new object();
+            _senders = new Dictionary<Type, JsonVerbose>();
         }
 
         public void Enrich(LogLevel level, Type sender, JsonObject message)
         {
-            var value = _senders.GetOrAdd(sender, _builder);
-            message.Add(Name, value);
-        }
+            if (!_senders.TryGetValue(sender, out var value))
+            {
+                value = new JsonVerbose(ReflectionUtils.GetName(sender));
+                using (Lock.Enter(_lock))
+                {
+                    _senders[sender] = value;
+                }
+            }
 
-        private static JsonVerbose Build(Type type)
-        {
-            return new JsonVerbose(ReflectionUtils.GetName(type));
+            message.Add(Name, value);
         }
     }
 }

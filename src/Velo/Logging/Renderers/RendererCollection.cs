@@ -1,7 +1,8 @@
 using System;
-using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
 using Velo.Collections;
+using Velo.Logging.Formatters;
 using Velo.Serialization;
 using Velo.Utils;
 
@@ -17,64 +18,63 @@ namespace Velo.Logging.Renderers
     internal sealed class RendererCollection : IRendererCollection
     {
         private readonly IConvertersCollection _converters;
-        private readonly Hashtable _renderers;
+        private readonly Dictionary<string, Renderer> _renderers;
         private readonly object _lock;
 
         public RendererCollection(IConvertersCollection converters = null)
         {
             _converters = converters ?? new ConvertersCollection(CultureInfo.InvariantCulture);
-            _renderers = new Hashtable();
+            _renderers = new Dictionary<string, Renderer>();
             _lock = new object();
         }
 
         public ArrayRenderer GetArrayRenderer(string template, object[] args)
         {
-            var exists = _renderers[template];
-            if (exists != null) return (ArrayRenderer) exists;
-
+            if (_renderers.TryGetValue(template, out var renderer)) return (ArrayRenderer) renderer;
+            
             var arguments = BuildArguments(template);
-
             var argumentTypes = new LocalList<Type>(args.Length);
+            
             foreach (var arg in args)
             {
                 argumentTypes.Add(arg.GetType());
             }
 
-            var arrayRenderer = new ArrayRenderer(arguments, argumentTypes, _converters);
-
-            using (Lock.Enter(_lock))
-            {
-                _renderers[template] = arrayRenderer;
-            }
-
-            return arrayRenderer;
-        }
-
-        public TRenderer GetRenderer<TRenderer>(string template) where TRenderer : Renderer
-        {
-            var exists = _renderers[template];
-            if (exists != null)
-            {
-                try
-                {
-                    return (TRenderer) exists;
-                }
-                catch (InvalidCastException e)
-                {
-                    throw Error.Cast($"Template '{template}' is used elsewhere with other types of arguments or with other arguments", e);
-                }
-            }
-
-            var arguments = BuildArguments(template);
-            var constructorParams = new object[] {arguments, _converters};
-            var renderer = (TRenderer) Activator.CreateInstance(typeof(TRenderer), constructorParams);
+            var messageRenderer = new DefaultStringFormatter(template);
+            renderer = new ArrayRenderer(arguments, messageRenderer, argumentTypes, _converters);
 
             using (Lock.Enter(_lock))
             {
                 _renderers[template] = renderer;
             }
 
-            return renderer;
+            return (ArrayRenderer) renderer;
+        }
+
+        public TRenderer GetRenderer<TRenderer>(string template) where TRenderer : Renderer
+        {
+            if (!_renderers.TryGetValue(template, out var renderer))
+            {
+                var arguments = BuildArguments(template);
+                var messageRenderer = new DefaultStringFormatter(template);
+                var constructorParams = new object[] {arguments, messageRenderer, _converters};
+                
+                renderer = (TRenderer) Activator.CreateInstance(typeof(TRenderer), constructorParams);
+
+                using (Lock.Enter(_lock))
+                {
+                    _renderers[template] = renderer;
+                }
+            }
+
+            try
+            {
+                return (TRenderer) renderer;
+            }
+            catch (InvalidCastException e)
+            {
+                throw Error.Cast($"Template '{template}' is used elsewhere with other types of arguments or with other arguments", e);
+            }
         }
 
         private static string[] BuildArguments(string template)

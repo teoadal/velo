@@ -13,14 +13,19 @@ namespace Velo.Logging
         {
             collection
                 .AddSingleton<IRendererCollection, RendererCollection>()
-                .AddScoped(ctx => ctx.GetServices<ILogWriter>().Length > 0
-                    ? (ILogProvider) ctx.Activate<LogProvider>()
-                    : new NullProvider())
+                .AddFactory(new LogProviderFactory())
                 .AddScoped(typeof(ILogger<>), typeof(Logger<>));
 
             return collection;
         }
 
+        public static DependencyCollection AddDefaultConsoleLogWriter(this DependencyCollection collection,
+            LogLevel level = LogLevel.Debug)
+        {
+            collection.AddInstance(new ConsoleLogWriter(level));
+            return collection;
+        }
+        
         public static DependencyCollection AddDefaultLogEnrichers(this DependencyCollection collection)
         {
             collection

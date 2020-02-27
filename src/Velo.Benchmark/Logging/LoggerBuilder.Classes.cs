@@ -134,12 +134,12 @@ namespace Velo.Benchmark.Logging
         public LogLevel Level => LogLevel.Debug;
 
         private readonly StringBuilder _stringBuilder;
-        private readonly ConsoleLogWriter _writer;
+        private readonly TextWriter _stringWriter;
 
         public StringLogWriter()
         {
             _stringBuilder = new StringBuilder(25000);
-            _writer = new ConsoleLogWriter(new StringWriter(_stringBuilder));
+            _stringWriter = new StringWriter(_stringBuilder);
         }
 
         public int Release()
@@ -152,7 +152,7 @@ namespace Velo.Benchmark.Logging
 
         public void Write(LogContext context, JsonObject message)
         {
-            _writer.Write(context, message);
+            context.WriteMessage(message, _stringWriter);
         }
     }
 }

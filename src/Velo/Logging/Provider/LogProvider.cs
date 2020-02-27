@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Velo.Logging.Enrichers;
+using Velo.Logging.Formatters;
 using Velo.Logging.Renderers;
 using Velo.Logging.Writers;
 using Velo.Serialization.Models;
@@ -21,9 +22,7 @@ namespace Velo.Logging.Provider
             _renderers = renderers;
             _writers = writers;
 
-            _minimalLevel = writers.Length == 0
-                ? LogLevel.Error
-                : writers.Min(w => w.Level);
+            _minimalLevel = writers.Min(w => w.Level);
         }
 
         public void Write(LogLevel level, Type sender, string template)
@@ -33,7 +32,8 @@ namespace Velo.Logging.Provider
             var message = Renderer.GetBuffer(_enrichers.Length);
 
             Enrich(level, sender, message);
-            WriteMessage(level, sender, template, message);
+
+            WriteMessage(level, sender, null, template, message);
             Renderer.ReturnBuffer(message);
         }
 
@@ -48,8 +48,7 @@ namespace Velo.Logging.Provider
             var renderer = _renderers.GetRenderer<Renderer<T1>>(template);
             renderer.Render(message, arg1);
 
-            WriteMessage(level, sender, template, message);
-            Renderer.ReturnBuffer(message);
+            WriteMessage(level, sender, renderer.Formatter, template, message);
         }
 
         public void Write<T1, T2>(LogLevel level, Type sender, string template, T1 arg1, T2 arg2)
@@ -63,8 +62,7 @@ namespace Velo.Logging.Provider
             var renderer = _renderers.GetRenderer<Renderer<T1, T2>>(template);
             renderer.Render(message, arg1, arg2);
 
-            WriteMessage(level, sender, template, message);
-            Renderer.ReturnBuffer(message);
+            WriteMessage(level, sender, renderer.Formatter, template, message);
         }
 
         public void Write<T1, T2, T3>(LogLevel level, Type sender, string template, T1 arg1, T2 arg2, T3 arg3)
@@ -78,8 +76,7 @@ namespace Velo.Logging.Provider
             var renderer = _renderers.GetRenderer<Renderer<T1, T2, T3>>(template);
             renderer.Render(message, arg1, arg2, arg3);
 
-            WriteMessage(level, sender, template, message);
-            Renderer.ReturnBuffer(message);
+            WriteMessage(level, sender, renderer.Formatter, template, message);
         }
 
         public void Write(LogLevel level, Type sender, string template, params object[] args)
@@ -93,8 +90,7 @@ namespace Velo.Logging.Provider
             var arrayRenderer = _renderers.GetArrayRenderer(template, args);
             arrayRenderer.Render(message, args);
 
-            WriteMessage(level, sender, template, message);
-            Renderer.ReturnBuffer(message);
+            WriteMessage(level, sender, arrayRenderer.Formatter, template, message);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -107,14 +103,18 @@ namespace Velo.Logging.Provider
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void WriteMessage(LogLevel level, Type sender, string template, JsonObject message)
+        private void WriteMessage(LogLevel level, Type sender, IFormatter formatter, string template,
+            JsonObject message)
         {
-            var context = new LogContext(level, sender, template);
+            var context = new LogContext(level, sender, formatter, template);
+
             foreach (var sink in _writers)
             {
                 if (sink.Level > level) continue;
                 sink.Write(context, message);
             }
+
+            Renderer.ReturnBuffer(message);
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using Velo.Logging.Formatters;
 using Velo.Serialization;
 using Velo.Serialization.Converters;
 using Velo.Serialization.Models;
@@ -7,14 +8,14 @@ namespace Velo.Logging.Renderers
 {
     internal abstract class Renderer
     {
-        protected readonly string[] Arguments;
-
+        public readonly IFormatter Formatter;
+        
         [ThreadStatic]
         private static JsonObject _buffer;
         
-        protected Renderer(string[] arguments)
+        protected Renderer(IFormatter formatter)
         {
-            Arguments = arguments;
+            Formatter = formatter;
         }
         
         public static JsonObject GetBuffer(int capacity)
@@ -39,7 +40,8 @@ namespace Velo.Logging.Renderers
         private readonly string _argument;
         private readonly IJsonConverter<T1> _converter;
 
-        public Renderer(string[] arguments, IConvertersCollection converters) : base(arguments)
+        public Renderer(string[] arguments, IFormatter formatter, IConvertersCollection converters) 
+            : base(formatter)
         {
             _argument = arguments[0];
             _converter = converters.Get<T1>();
@@ -58,8 +60,8 @@ namespace Velo.Logging.Renderers
         private readonly string _argument2;
         private readonly IJsonConverter<T2> _converter2;
 
-        public Renderer(string[] arguments, IConvertersCollection converters)
-            : base(arguments)
+        public Renderer(string[] arguments, IFormatter formatter, IConvertersCollection converters)
+            : base(formatter)
         {
             _argument1 = arguments[0];
             _converter1 = converters.Get<T1>();
@@ -83,8 +85,8 @@ namespace Velo.Logging.Renderers
         private readonly string _argument3;
         private readonly IJsonConverter<T3> _converter3;
         
-        public Renderer(string[] arguments, IConvertersCollection converters)
-            : base(arguments)
+        public Renderer(string[] arguments, IFormatter formatter, IConvertersCollection converters)
+            : base(formatter)
         {
             _argument1 = arguments[0];
             _converter1 = converters.Get<T1>();
