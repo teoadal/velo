@@ -5,7 +5,7 @@
 [![NuGet](https://img.shields.io/nuget/v/velo.svg)](https://www.nuget.org/packages/velo) 
 [![NuGet](https://img.shields.io/nuget/dt/velo.svg)](https://www.nuget.org/packages/velo)
 
-Performance oriented small library with simple implementations of popular patterns and workflows: CQRS, IoC, serialization/deserialization and mapping. *Under construction*.
+Performance oriented small library with simple implementations of popular patterns and workflows: CQRS, IoC, serialization/deserialization, logging and mapping. *Under construction*.
 
 ## Install from nuget
 
@@ -33,7 +33,7 @@ var dependencyProvider = new DependencyCollection()
 
 var emitter = dependencyProvider.GetRequiredService<Emitter>();
 
-// ask query (send requst)
+// ask query (send request)
 Boo boo = await emitter.Ask(new GetBoo { Id = id }); 
 
 // execute command
@@ -134,17 +134,7 @@ var json = converter.Serialize(data);
 |   **Velo** | 44.28 ms | 0.327 ms | 0.306 ms |  **0.50** |  **19.26 MB** |
 
 
-## Logger (per 1000 log events)
-
-|         Method |       Mean |    Error |   StdDev | Ratio |  Allocated |
-|--------------- |-----------:|---------:|---------:|------:|-----------:|
-|   Serilog_EmptySink | 1,110.0 us | 21.86 us | 23.39 us |  1.00 |  851.56 KB |
-|      Nlog_EmptyTarget | 2,355.9 us | 44.31 us | 47.41 us |  2.12 | 1 911.15 KB |
-|      **Velo_EmptyWriter** |   902.4 us | 12.68 us | 11.86 us |  **0.82** |  **219.25 KB** |
-|                |            |          |          |       |            |
-| Serilog_StringWriter | 1,439.7 us | 14.88 us | 12.42 us |  1.00 |  976.25 KB |
-|    Nlog_StringWriter | 2,061.0 us | 26.41 us | 24.70 us |  1.43 | 1 648.44 KB |
-|    **Velo_StringWriter** | 1,225.1 us | 11.20 us |  9.93 us |  **0.85** |  **219.56 KB** |
+## Logger 
 
 ### Configure logger
 
@@ -157,15 +147,34 @@ var container = new DependencyCollection()
     .AddLogWriter<LogWriter>()        // add your writer
 ```
 
+### Use logger
+
+```cs
+var logger = _dependencyProvider.GetRequiredService<ILogger<MyClass>>();
+logger.Debug("My code for handling {instance} executed at {elapsed}", instance, timer.Elapsed);
+```
+
 ### Structured logging
 
 ```ini
-[DBG] [LoggerShould] [2020-02-26T17:07:57] Test with args 105, "arg20ff82dc4-34e8-4109-8c8c-8f2225ebabed", {"Id":129,"Bool":true,"Double":61,"Float":198,"Int":11,"IntNullable":177,"String":"String64630110-c7c9-4ba2-94c0-4c28dd9cea20","Type":0,"Values":[36,17,212]}, "0:00:00.0000025" executed.
+[DBG] [MyClass] [2020-02-26T17:07:57] My code for handling { "Id": 129, "Bool": true, "Double": 61, "Float": 198, "Int": 11, "IntNullable": 177, "String": "String64630110-c7c9-4ba2-94c0-4c28dd9cea20", "Type": 0, "Values": [36,17,212] } executed at "0:00:00.0000025".
 ```
+
+### Logger benchmark (per 1000 log events)
+
+|         Method |       Mean |    Error |   StdDev | Ratio |  Allocated |
+|--------------- |-----------:|---------:|---------:|------:|-----------:|
+|   Serilog_EmptySink | 1,110.0 us | 21.86 us | 23.39 us |  1.00 |  851.56 KB |
+|      Nlog_EmptyTarget | 2,355.9 us | 44.31 us | 47.41 us |  2.12 | 1 911.15 KB |
+|      **Velo_EmptyWriter** |   902.4 us | 12.68 us | 11.86 us |  **0.82** |  **219.25 KB** |
+|                |            |          |          |       |            |
+| Serilog_StringWriter | 1,439.7 us | 14.88 us | 12.42 us |  1.00 |  976.25 KB |
+|    Nlog_StringWriter | 2,061.0 us | 26.41 us | 24.70 us |  1.43 | 1 648.44 KB |
+|    **Velo_StringWriter** | 1,225.1 us | 11.20 us |  9.93 us |  **0.85** |  **219.56 KB** |
 
 ## Dependency Injection
 
-### Create container
+### Create dependency provider
 
 ```cs
 var container = new DependencyCollection()
@@ -212,7 +221,7 @@ using (var scope = provider.CreateScope())
 
 ### Benchmarks
 
-#### Create container benchmark
+#### Create dependency container benchmark
 
 |       Method |       Mean |     Error |    StdDev |  Ratio | Allocated |
 |------------- |-----------:|----------:|----------:|-------:|----------:|
@@ -225,7 +234,7 @@ using (var scope = provider.CreateScope())
 |        Unity |  15.096 us | 0.2847 us | 0.2796 us |   6.44 |  22.41 KB |
 
 
-#### Resolve singleton dependency from container
+#### Resolve singleton service from container
 
 |       Method |        Mean |     Error |    StdDev | Ratio | Allocated |
 |------------- |------------:|----------:|----------:|------:|----------:|
