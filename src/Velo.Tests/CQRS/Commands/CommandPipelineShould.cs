@@ -3,12 +3,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
+using Velo.CQRS.Commands;
 using Velo.DependencyInjection;
 using Velo.TestsModels.Emitting.Boos.Create;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.CQRS.Commands
+namespace Velo.Tests.CQRS.Commands
 {
     public class CommandPipelineShould : TestClass
     {

@@ -1,10 +1,11 @@
 using System.Threading.Tasks;
 using Velo.DependencyInjection;
+using Velo.Settings;
 using Velo.TestsModels.Settings;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Settings
+namespace Velo.Tests.Settings
 {
     public sealed class SettingsResolveTests : TestClass
     {

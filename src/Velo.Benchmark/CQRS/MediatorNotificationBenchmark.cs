@@ -4,7 +4,6 @@ using BenchmarkDotNet.Jobs;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Velo.CQRS;
-using Velo.Extensions.DependencyInjection.CQRS;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting.Plus;
 

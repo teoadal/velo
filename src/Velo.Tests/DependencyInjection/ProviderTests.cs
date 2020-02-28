@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Velo.Logging;
+using Velo.DependencyInjection;
 using Velo.Mapping;
 using Velo.Serialization;
 using Velo.Settings;
@@ -15,7 +15,7 @@ using Velo.Utils;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.DependencyInjection
+namespace Velo.Tests.DependencyInjection
 {
     public class ProviderTests : TestClass
     {

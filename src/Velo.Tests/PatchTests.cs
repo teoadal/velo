@@ -8,7 +8,7 @@ using Velo.TestsModels.Foos;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo
+namespace Velo.Tests
 {
     public class PatchTests : TestClass
     {

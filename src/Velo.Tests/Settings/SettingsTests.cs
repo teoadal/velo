@@ -4,12 +4,13 @@ using System.IO;
 using System.Threading.Tasks;
 using AutoFixture.Xunit2;
 using Velo.DependencyInjection;
+using Velo.Settings;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Settings;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Settings
+namespace Velo.Tests.Settings
 {
     public class SettingsTests : TestClass
     {

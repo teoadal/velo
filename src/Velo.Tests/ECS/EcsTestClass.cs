@@ -1,10 +1,11 @@
 using System;
+using Velo.ECS;
 using Velo.ECS.Actors;
 using Velo.ECS.Assets;
 using Velo.TestsModels.ECS;
 using Xunit.Abstractions;
 
-namespace Velo.ECS
+namespace Velo.Tests.ECS
 {
     public abstract class EcsTestClass : TestClass
     {

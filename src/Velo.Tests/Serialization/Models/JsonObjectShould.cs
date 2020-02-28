@@ -1,11 +1,13 @@
 using System.Globalization;
 using AutoFixture.Xunit2;
 using FluentAssertions;
+using Velo.Serialization;
+using Velo.Serialization.Models;
 using Velo.TestsModels;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Serialization.Models
+namespace Velo.Tests.Serialization.Models
 {
     public class JsonObjectShould : TestClass
     {

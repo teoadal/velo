@@ -4,8 +4,8 @@ using AutoFixture.Xunit2;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using Velo.CQRS;
 using Velo.CQRS.Commands;
-using Velo.Extensions.DependencyInjection.CQRS;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting;
 using Velo.TestsModels.Emitting.PingPong;
@@ -15,7 +15,7 @@ using Xunit.Abstractions;
 using BoosCreate = Velo.TestsModels.Emitting.Boos.Create;
 using BoosGet = Velo.TestsModels.Emitting.Boos.Get;
 
-namespace Velo.CQRS
+namespace Velo.Tests.CQRS
 {
     public class ServiceCollectionShould : TestClass
     {

@@ -5,7 +5,7 @@ using System.Text;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Server
+namespace Velo.Tests.Server
 {
     public class FileRequestTests : TestClass, IClassFixture<ServerFixture>
     {

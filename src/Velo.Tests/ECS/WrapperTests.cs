@@ -4,7 +4,7 @@ using Velo.TestsModels.ECS;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.ECS
+namespace Velo.Tests.ECS
 {
     public class WrapperTests : EcsTestClass
     {

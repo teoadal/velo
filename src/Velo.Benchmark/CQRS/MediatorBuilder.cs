@@ -2,7 +2,6 @@ using System;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Velo.CQRS;
-using Velo.Extensions.DependencyInjection.CQRS;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting.PingPong;
 using Boos = Velo.TestsModels.Emitting.Boos;
@@ -52,7 +51,7 @@ namespace Velo.Benchmark.CQRS
             
             return serviceCollection
                 .BuildServiceProvider()
-                .GetService<Emitter>();
+                .GetService<IEmitter>();
         }
     }
 }

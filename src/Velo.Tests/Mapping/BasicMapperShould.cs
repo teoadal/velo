@@ -1,11 +1,12 @@
 using AutoFixture.Xunit2;
 using FluentAssertions;
+using Velo.Mapping;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Foos;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Mapping
+namespace Velo.Tests.Mapping
 {
     public class BasicMapperShould : TestClass
     {

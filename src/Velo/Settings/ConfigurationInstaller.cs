@@ -1,10 +1,11 @@
 using System;
-using Velo.DependencyInjection;
+using Velo.Settings;
 using Velo.Settings.Sources;
 
-namespace Velo.Settings
+// ReSharper disable once CheckNamespace
+namespace Velo.DependencyInjection
 {
-    public static class ConfigurationExtensions
+    public static class ConfigurationInstaller
     {
         public static DependencyCollection AddCommandLineConfiguration(this DependencyCollection collection,
             string[] commandLineArgs)

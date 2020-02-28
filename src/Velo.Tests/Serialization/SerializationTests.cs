@@ -4,12 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture.Xunit2;
 using Newtonsoft.Json;
+using Velo.Serialization;
 using Velo.TestsModels;
 using Velo.TestsModels.Boos;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Serialization
+namespace Velo.Tests.Serialization
 {
     public class SerializationTests : TestClass
     {

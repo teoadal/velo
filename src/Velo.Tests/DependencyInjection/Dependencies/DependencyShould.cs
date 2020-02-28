@@ -1,6 +1,7 @@
 using System;
 using FluentAssertions;
 using Velo.CQRS.Commands;
+using Velo.DependencyInjection;
 using Velo.DependencyInjection.Dependencies;
 using Velo.DependencyInjection.Resolvers;
 using Velo.TestsModels.Boos;
@@ -9,7 +10,7 @@ using Velo.TestsModels.Emitting;
 using Velo.TestsModels.Foos;
 using Xunit;
 
-namespace Velo.DependencyInjection
+namespace Velo.Tests.DependencyInjection.Dependencies
 {
     public class DependencyShould
     {

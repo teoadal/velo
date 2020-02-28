@@ -1,15 +1,16 @@
 using System;
 using System.Runtime.CompilerServices;
+using Velo.CQRS;
 using Velo.CQRS.Commands;
 using Velo.CQRS.Pipeline;
 using Velo.CQRS.Queries;
-using Velo.DependencyInjection;
 using Velo.DependencyInjection.Scan;
 using Velo.Utils;
 
-namespace Velo.CQRS
+// ReSharper disable once CheckNamespace
+namespace Velo.DependencyInjection
 {
-    public static class EmitterExtensions
+    public static class EmitterInstaller
     {
         public static DependencyCollection AddEmitter(this DependencyCollection collection)
         {
@@ -17,7 +18,7 @@ namespace Velo.CQRS
                 .AddFactory(new PipelineFactory(PipelineTypes.Command))
                 .AddFactory(new PipelineFactory(PipelineTypes.Notification))
                 .AddFactory(new PipelineFactory(PipelineTypes.Query))
-                .AddScoped<Emitter>();
+                .AddScoped<IEmitter>(ctx => new Emitter(ctx));
 
             return collection;
         }

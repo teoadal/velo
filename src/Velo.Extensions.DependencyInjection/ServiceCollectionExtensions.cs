@@ -1,10 +1,10 @@
 using System;
-using Microsoft.Extensions.DependencyInjection;
 using Velo.DependencyInjection;
 
-namespace Velo.Extensions.DependencyInjection
+// ReSharper disable once CheckNamespace
+namespace Microsoft.Extensions.DependencyInjection
 {
-    public static class DependencyProviderRegistrations
+    public static class ServiceCollectionExtensions
     {
         public static IServiceCollection AddDependencyProvider(this IServiceCollection services, 
             Action<DependencyCollection> dependencies)
@@ -15,5 +15,15 @@ namespace Velo.Extensions.DependencyInjection
             services.AddSingleton(dependencyCollection.BuildProvider());
             return services;
         }
+        
+        public static DependencyProvider BuildDependencyProvider(this IServiceCollection services)
+        {
+            var dependencies = new DependencyCollection();
+            
+            dependencies.AddServiceCollection(services);
+
+            return dependencies.BuildProvider();
+        }
+
     }
 }

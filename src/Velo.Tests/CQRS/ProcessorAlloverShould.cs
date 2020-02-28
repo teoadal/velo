@@ -3,7 +3,7 @@ using Velo.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.CQRS
+namespace Velo.Tests.CQRS
 {
     public class ProcessorAlloverShould : TestClass
     {

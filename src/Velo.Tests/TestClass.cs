@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using AutoFixture;
 using Xunit.Abstractions;
 
-namespace Velo
+namespace Velo.Tests
 {
     public abstract class TestClass : IDisposable
     {

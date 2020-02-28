@@ -3,12 +3,14 @@ using System.IO;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Moq;
+using Velo.Logging;
 using Velo.Logging.Formatters;
+using Velo.Logging.Writers;
 using Velo.Serialization.Models;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Logging
+namespace Velo.Tests.Logging
 {
     public class LogContextShould : TestClass
     {

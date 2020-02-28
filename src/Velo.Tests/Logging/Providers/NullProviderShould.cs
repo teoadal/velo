@@ -1,11 +1,12 @@
 using System;
 using AutoFixture.Xunit2;
+using Velo.Logging;
 using Velo.Logging.Provider;
 using Velo.TestsModels.Boos;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Logging.Providers
+namespace Velo.Tests.Logging.Providers
 {
     public class NullProviderShould : TestClass
     {

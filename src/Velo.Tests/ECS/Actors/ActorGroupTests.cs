@@ -1,6 +1,6 @@
 using Xunit.Abstractions;
 
-namespace Velo.ECS.Actors
+namespace Velo.Tests.ECS.Actors
 {
     public class ActorGroupTests : EcsTestClass
     {

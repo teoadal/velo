@@ -1,9 +1,10 @@
 using System;
-using Velo.DependencyInjection;
+using Velo.Pools;
 
-namespace Velo.Pools
+// ReSharper disable once CheckNamespace
+namespace Velo.DependencyInjection
 {
-    public static class PoolExtensions
+    public static class PoolInstaller
     {
         public static DependencyCollection AddPool<T>(this DependencyCollection collection, T[] buffer)
             where T : class

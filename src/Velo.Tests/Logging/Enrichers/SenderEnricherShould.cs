@@ -3,11 +3,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture.Xunit2;
 using FluentAssertions;
+using Velo.Logging;
+using Velo.Logging.Enrichers;
 using Velo.Serialization.Models;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Logging.Enrichers
+namespace Velo.Tests.Logging.Enrichers
 {
     public class SenderEnricherShould : TestClass
     {

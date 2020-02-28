@@ -9,7 +9,7 @@ using Velo.TestsModels.Infrastructure;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo
+namespace Velo.Tests
 {
     public class OrderingTests : TestClass
     {

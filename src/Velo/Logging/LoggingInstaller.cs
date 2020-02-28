@@ -1,13 +1,14 @@
-using Velo.DependencyInjection;
+using Velo.Logging;
 using Velo.Logging.Enrichers;
 using Velo.Logging.Provider;
 using Velo.Logging.Renderers;
 using Velo.Logging.Writers;
 using Velo.Utils;
 
-namespace Velo.Logging
+// ReSharper disable once CheckNamespace
+namespace Velo.DependencyInjection
 {
-    public static class LoggingExtensions
+    public static class LoggingInstaller
     {
         public static DependencyCollection AddLogging(this DependencyCollection collection)
         {

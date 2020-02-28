@@ -3,7 +3,7 @@ using System.IO;
 using Velo.Logging.Formatters;
 using Velo.Serialization.Models;
 
-namespace Velo.Logging
+namespace Velo.Logging.Writers
 {
     public readonly struct LogContext
     {

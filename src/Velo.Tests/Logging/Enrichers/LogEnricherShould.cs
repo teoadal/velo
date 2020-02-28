@@ -4,13 +4,15 @@ using AutoFixture.Xunit2;
 using FluentAssertions;
 using Moq;
 using Velo.DependencyInjection;
+using Velo.Logging;
+using Velo.Logging.Enrichers;
 using Velo.Logging.Writers;
 using Velo.Serialization;
 using Velo.Serialization.Models;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Logging.Enrichers
+namespace Velo.Tests.Logging.Enrichers
 {
     public class LogEnricherShould : TestClass
     {

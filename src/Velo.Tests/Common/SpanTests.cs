@@ -2,7 +2,7 @@ using System;
 using AutoFixture.Xunit2;
 using Xunit;
 
-namespace Velo.Common
+namespace Velo.Tests.Common
 {
     public class SpanTests
     {

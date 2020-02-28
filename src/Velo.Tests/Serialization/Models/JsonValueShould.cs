@@ -1,9 +1,10 @@
 using AutoFixture.Xunit2;
 using FluentAssertions;
+using Velo.Serialization.Models;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Serialization.Models
+namespace Velo.Tests.Serialization.Models
 {
     public sealed class JsonValueShould : TestClass
     {

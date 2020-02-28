@@ -1,9 +1,10 @@
+using Velo.ECS.Assets;
 using Velo.TestsModels.ECS;
 using Velo.TestsModels.ECS.Assets;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.ECS.Assets
+namespace Velo.Tests.ECS.Assets
 {
     public class AssetContextTests : EcsTestClass
     {

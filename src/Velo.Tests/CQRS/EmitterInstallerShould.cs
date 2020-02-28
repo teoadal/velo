@@ -6,13 +6,13 @@ using Velo.TestsModels.Boos;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.CQRS
+namespace Velo.Tests.CQRS
 {
-    public class EmitterExtensionsShould : TestClass
+    public class EmitterInstallerShould : TestClass
     {
         private readonly DependencyCollection _dependencies;
 
-        public EmitterExtensionsShould(ITestOutputHelper output) : base(output)
+        public EmitterInstallerShould(ITestOutputHelper output) : base(output)
         {
             _dependencies = new DependencyCollection();
         }

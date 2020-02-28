@@ -1,21 +1,13 @@
 using Microsoft.Extensions.DependencyInjection;
-using Velo.DependencyInjection;
 using Velo.DependencyInjection.Dependencies;
 using Velo.DependencyInjection.Resolvers;
 using Velo.Utils;
 
-namespace Velo.Extensions.DependencyInjection
+// ReSharper disable once CheckNamespace
+namespace Velo.DependencyInjection
 {
-    public static class DependencyProviderBuilder
+    public static class DependencyCollectionExtensions
     {
-        public static DependencyProvider BuildDependencyProvider(this IServiceCollection services)
-        {
-            var dependencies = new DependencyCollection();
-            AddServiceCollection(dependencies, services);
-
-            return dependencies.BuildProvider();
-        }
-
         public static DependencyCollection AddServiceCollection(this DependencyCollection dependencies, IServiceCollection services)
         {
             foreach (var descriptor in services)

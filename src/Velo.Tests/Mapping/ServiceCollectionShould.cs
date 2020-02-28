@@ -1,11 +1,11 @@
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using Velo.Extensions.DependencyInjection.Mapping;
+using Velo.Mapping;
 using Velo.TestsModels.Foos;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Mapping
+namespace Velo.Tests.Mapping
 {
     public class ServiceCollectionShould : TestClass
     {

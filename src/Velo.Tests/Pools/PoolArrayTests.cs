@@ -1,10 +1,11 @@
 using System;
 using System.Threading.Tasks;
 using AutoFixture.Xunit2;
+using Velo.Pools;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Pools
+namespace Velo.Tests.Pools
 {
     public class PoolArrayTests : TestClass
     {

@@ -1,3 +1,4 @@
+using Velo.DependencyInjection;
 using Velo.Serialization;
 using Velo.Settings;
 using Velo.TestsModels.Boos;
@@ -7,7 +8,7 @@ using Velo.TestsModels.Infrastructure;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.DependencyInjection
+namespace Velo.Tests.DependencyInjection.Scan
 {
     public class ScanTests : TestClass
     {

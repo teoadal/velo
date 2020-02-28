@@ -1,13 +1,14 @@
 using System;
 using System.Reflection;
 using FluentAssertions;
+using Velo.DependencyInjection;
 using Velo.Mapping;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Foos;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.DependencyInjection
+namespace Velo.Tests.DependencyInjection
 {
     public class DependencyProviderShould : TestClass
     {

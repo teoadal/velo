@@ -6,7 +6,6 @@ using NLog.Config;
 using NLog.Targets;
 using Serilog.Core;
 using Serilog.Events;
-using Velo.Logging;
 using Velo.Logging.Writers;
 using Velo.Serialization.Models;
 using LogLevel = Velo.Logging.LogLevel;

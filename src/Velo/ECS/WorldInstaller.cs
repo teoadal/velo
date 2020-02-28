@@ -1,12 +1,13 @@
-using Velo.DependencyInjection;
+using Velo.ECS;
 using Velo.ECS.Actors;
 using Velo.ECS.Assets;
 using Velo.ECS.Systems;
 using Velo.Utils;
 
-namespace Velo.ECS
+// ReSharper disable once CheckNamespace
+namespace Velo.DependencyInjection
 {
-    public static class WorldExtensions
+    public static class WorldInstaller
     {
         // ReSharper disable once InconsistentNaming
         public static DependencyCollection AddECS(this DependencyCollection collection)

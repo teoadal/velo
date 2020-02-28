@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Velo.DependencyInjection;
 using Velo.Mapping;
 using Velo.Serialization;
 using Velo.Settings;
@@ -10,7 +11,7 @@ using Velo.TestsModels.Infrastructure;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.DependencyInjection
+namespace Velo.Tests.DependencyInjection.Dependencies
 {
     public class TransientTests : TestClass
     {

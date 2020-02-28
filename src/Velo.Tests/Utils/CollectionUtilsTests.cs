@@ -2,10 +2,11 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Domain;
+using Velo.Utils;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Utils
+namespace Velo.Tests.Utils
 {
     public class CollectionUtilsTests : TestClass
     {

@@ -1,7 +1,8 @@
+using Velo.Collections;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Collections
+namespace Velo.Tests.Collections
 {
     public class OtherCollectionsTests : TestClass
     {

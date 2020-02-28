@@ -1,8 +1,9 @@
 using System.Collections.Generic;
+using Velo.ECS;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.ECS
+namespace Velo.Tests.ECS
 {
     public class SignTests : EcsTestClass
     {

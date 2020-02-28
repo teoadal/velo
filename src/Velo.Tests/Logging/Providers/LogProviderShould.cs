@@ -5,6 +5,7 @@ using AutoFixture.Xunit2;
 using FluentAssertions;
 using Moq;
 using Velo.DependencyInjection;
+using Velo.Logging;
 using Velo.Logging.Enrichers;
 using Velo.Logging.Provider;
 using Velo.Logging.Writers;
@@ -14,7 +15,7 @@ using Velo.TestsModels.Boos;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Logging.Providers
+namespace Velo.Tests.Logging.Providers
 {
     public class LogProviderShould : TestClass
     {

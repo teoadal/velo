@@ -3,6 +3,7 @@ using AutoFixture.Xunit2;
 using FluentAssertions;
 using Moq;
 using Velo.DependencyInjection;
+using Velo.Logging;
 using Velo.Logging.Enrichers;
 using Velo.Logging.Provider;
 using Velo.Logging.Writers;
@@ -10,13 +11,13 @@ using Velo.Serialization.Models;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Logging
+namespace Velo.Tests.Logging
 {
-    public sealed class LoggingExtensionsShould : TestClass
+    public sealed class LoggingInstallerShould : TestClass
     {
         private readonly DependencyCollection _dependencies;
 
-        public LoggingExtensionsShould(ITestOutputHelper output) : base(output)
+        public LoggingInstallerShould(ITestOutputHelper output) : base(output)
         {
             _dependencies = new DependencyCollection()
                 .AddLogWriter(new Mock<ILogWriter>().Object);
@@ -53,7 +54,7 @@ namespace Velo.Logging
             _dependencies
                 .AddLogging()
                 .BuildProvider()
-                .GetService<ILogger<LoggingExtensionsShould>>().Should().NotBeNull();
+                .GetService<ILogger<LoggingInstallerShould>>().Should().NotBeNull();
         }
 
         [Fact]

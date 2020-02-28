@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AutoFixture.Xunit2;
+using Velo.Collections;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Foos;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Collections
+namespace Velo.Tests.Collections
 {
     public class LocalVectorTests : TestClass
     {

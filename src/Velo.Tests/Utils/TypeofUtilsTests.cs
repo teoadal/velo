@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Foos;
+using Velo.Utils;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Utils
+namespace Velo.Tests.Utils
 {
     public class TypeofUtilsTests : TestClass
     {

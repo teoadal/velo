@@ -1,6 +1,6 @@
 using Xunit.Abstractions;
 
-namespace Velo.Logging.Writers
+namespace Velo.Tests.Logging.Writers
 {
     public class LogWriterShould : TestClass
     {

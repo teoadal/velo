@@ -1,6 +1,6 @@
 using Xunit.Abstractions;
 
-namespace Velo.ECS.Assets
+namespace Velo.Tests.ECS.Assets
 {
     public class AssetFilterTests : EcsTestClass
     {

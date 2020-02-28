@@ -1,7 +1,8 @@
 using System;
 using Velo.DependencyInjection;
+using Velo.Server;
 
-namespace Velo.Server
+namespace Velo.Tests.Server
 {
     public class ServerFixture : IDisposable
     {

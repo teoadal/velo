@@ -1,8 +1,9 @@
 using FluentAssertions;
+using Velo.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.DependencyInjection
+namespace Velo.Tests.DependencyInjection
 {
     public class DependencyExtensionsShould : TestClass
     {

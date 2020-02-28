@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using FluentAssertions;
+using Velo.DependencyInjection;
 using Velo.DependencyInjection.Dependencies;
 using Velo.DependencyInjection.Resolvers;
 using Velo.TestsModels.Boos;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.DependencyInjection
+namespace Velo.Tests.DependencyInjection.Dependencies
 {
     public class ScopedDependencyShould : TestClass
     {

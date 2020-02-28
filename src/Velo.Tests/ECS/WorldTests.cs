@@ -1,10 +1,11 @@
 using System.Threading.Tasks;
 using Velo.DependencyInjection;
+using Velo.ECS;
 using Velo.TestsModels.ECS;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.ECS
+namespace Velo.Tests.ECS
 {
     public class WorldTests : EcsTestClass
     {

@@ -8,10 +8,11 @@ using Velo.CQRS.Queries;
 using Velo.DependencyInjection.Dependencies;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting.Boos.Get;
+using Velo.Utils;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Utils
+namespace Velo.Tests.Utils
 {
     public class ReflectionUtilsTests : TestClass
     {

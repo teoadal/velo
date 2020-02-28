@@ -3,11 +3,13 @@ using System.Globalization;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Newtonsoft.Json;
+using Velo.Serialization;
+using Velo.Serialization.Models;
 using Velo.TestsModels;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Serialization.Models
+namespace Velo.Tests.Serialization.Models
 {
     public sealed class JsonDataShould : TestClass
     {

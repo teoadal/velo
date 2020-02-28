@@ -3,11 +3,12 @@ using AutoFixture.Xunit2;
 using FluentAssertions;
 using Newtonsoft.Json;
 using Velo.DependencyInjection;
+using Velo.Serialization;
 using Velo.TestsModels;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Serialization
+namespace Velo.Tests.Serialization
 {
     public class JConverterShould : TestClass
     {

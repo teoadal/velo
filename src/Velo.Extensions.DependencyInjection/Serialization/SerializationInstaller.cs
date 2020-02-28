@@ -1,10 +1,10 @@
 using System.Globalization;
-using Microsoft.Extensions.DependencyInjection;
 using Velo.Serialization;
 
-namespace Velo.Extensions.DependencyInjection.Serialization
+// ReSharper disable once CheckNamespace
+namespace Microsoft.Extensions.DependencyInjection
 {
-    public static class JsonRegistrations
+    public static class SerializationInstaller
     {
         public static IServiceCollection AddJsonConverter(this IServiceCollection services, CultureInfo culture = null)
         {

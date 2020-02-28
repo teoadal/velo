@@ -1,9 +1,9 @@
-using Microsoft.Extensions.DependencyInjection;
 using Velo.Mapping;
 
-namespace Velo.Extensions.DependencyInjection.Mapping
+// ReSharper disable once CheckNamespace
+namespace Microsoft.Extensions.DependencyInjection
 {
-    public static class MappingRegistrations
+    public static class MappingInstaller
     {
         public static IServiceCollection AddMapper(this IServiceCollection services)
         {

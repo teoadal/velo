@@ -1,11 +1,12 @@
 using System;
-using Velo.DependencyInjection;
+using Velo.Server;
 using Velo.Server.Handlers;
 using Velo.Utils;
 
-namespace Velo.Server
+// ReSharper disable once CheckNamespace
+namespace Velo.DependencyInjection
 {
-    public static class ServerExtensions
+    public static class ServerInstaller
     {
         public static DependencyCollection AddServer(this DependencyCollection collection)
         {

@@ -1,13 +1,14 @@
 using System;
-using Microsoft.Extensions.DependencyInjection;
 using Velo.CQRS;
 using Velo.CQRS.Pipeline;
 using Velo.DependencyInjection;
+using Velo.Extensions.DependencyInjection.CQRS;
 using Velo.Utils;
 
-namespace Velo.Extensions.DependencyInjection.CQRS
+// ReSharper disable once CheckNamespace
+namespace Microsoft.Extensions.DependencyInjection
 {
-    public static class EmitterRegistrations
+    public static class EmitterInstaller
     {
         public static IServiceCollection AddEmitter(this IServiceCollection services)
         {

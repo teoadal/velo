@@ -2,11 +2,12 @@ using System.IO;
 using System.Linq;
 using AutoFixture.Xunit2;
 using FluentAssertions;
+using Velo.Logging.Formatters;
 using Velo.Serialization.Models;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Logging.Formatters
+namespace Velo.Tests.Logging.Formatters
 {
     public class DefaultStringFormatterShould : TestClass
     {

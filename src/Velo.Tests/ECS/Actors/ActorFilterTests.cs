@@ -1,8 +1,9 @@
+using Velo.ECS.Actors;
 using Velo.TestsModels.ECS;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.ECS.Actors
+namespace Velo.Tests.ECS.Actors
 {
     public class ActorFilterTests : EcsTestClass
     {
