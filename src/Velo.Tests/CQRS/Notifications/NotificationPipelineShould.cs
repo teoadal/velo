@@ -16,14 +16,15 @@ namespace Velo.CQRS.Notifications
     {
         private readonly Emitter _emitter;
         private readonly DependencyProvider _provider;
+        private readonly Mock<INotificationProcessor<Notification>> _processor;
 
         public NotificationPipelineShould(ITestOutputHelper output) : base(output)
         {
-            var processor = new Mock<INotificationProcessor<Notification>>();
+            _processor = new Mock<INotificationProcessor<Notification>>();
 
             _provider = new DependencyCollection()
                 .AddEmitter()
-                .AddScoped(ctx => processor.Object)
+                .AddScoped(ctx => _processor.Object)
                 .AddNotificationProcessor<ParallelNotificationProcessor>()
                 .AddNotificationProcessor<ParallelNotificationProcessor>()
                 .AddNotificationProcessor<ParallelNotificationProcessor>()
@@ -56,6 +57,27 @@ namespace Velo.CQRS.Notifications
 
             await Assert.ThrowsAsync<NullReferenceException>(
                 () => pipeline.Publish(It.IsAny<Notification>(), CancellationToken.None));
+        }
+        
+        [Theory]
+        [InlineData(DependencyLifetime.Scoped)]
+        [InlineData(DependencyLifetime.Singleton)]
+        [InlineData(DependencyLifetime.Transient)]
+        public void ResolvedByLifetime(DependencyLifetime lifetime)
+        {
+            var provider = new DependencyCollection()
+                .AddEmitter()
+                .AddDependency(ctx => _processor.Object, lifetime)
+                .BuildProvider();
+            
+            var firstScope = provider.CreateScope();
+            var firstPipeline = firstScope.GetRequiredService<NotificationPipeline<Notification>>();
+
+            var secondScope = provider.CreateScope();
+            var secondPipeline = secondScope.GetRequiredService<NotificationPipeline<Notification>>();
+
+            if (lifetime == DependencyLifetime.Singleton) firstPipeline.Should().Be(secondPipeline);
+            else firstPipeline.Should().NotBe(secondPipeline);    
         }
     }
 }

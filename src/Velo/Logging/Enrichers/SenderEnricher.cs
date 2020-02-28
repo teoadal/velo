@@ -7,7 +7,7 @@ namespace Velo.Logging.Enrichers
 {
     internal sealed class SenderEnricher : ILogEnricher
     {
-        private const string Name = "_sender";
+        public const string Name = "_sender";
 
         private readonly object _lock;
         private readonly Dictionary<Type, JsonVerbose> _senders;

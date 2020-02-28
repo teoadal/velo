@@ -8,12 +8,12 @@ namespace Velo.Logging.Renderers
 {
     internal abstract class Renderer
     {
-        public readonly IFormatter Formatter;
+        public readonly ILogFormatter Formatter;
         
         [ThreadStatic]
         private static JsonObject _buffer;
         
-        protected Renderer(IFormatter formatter)
+        protected Renderer(ILogFormatter formatter)
         {
             Formatter = formatter;
         }
@@ -40,7 +40,7 @@ namespace Velo.Logging.Renderers
         private readonly string _argument;
         private readonly IJsonConverter<T1> _converter;
 
-        public Renderer(string[] arguments, IFormatter formatter, IConvertersCollection converters) 
+        public Renderer(string[] arguments, ILogFormatter formatter, IConvertersCollection converters) 
             : base(formatter)
         {
             _argument = arguments[0];
@@ -60,7 +60,7 @@ namespace Velo.Logging.Renderers
         private readonly string _argument2;
         private readonly IJsonConverter<T2> _converter2;
 
-        public Renderer(string[] arguments, IFormatter formatter, IConvertersCollection converters)
+        public Renderer(string[] arguments, ILogFormatter formatter, IConvertersCollection converters)
             : base(formatter)
         {
             _argument1 = arguments[0];
@@ -85,7 +85,7 @@ namespace Velo.Logging.Renderers
         private readonly string _argument3;
         private readonly IJsonConverter<T3> _converter3;
         
-        public Renderer(string[] arguments, IFormatter formatter, IConvertersCollection converters)
+        public Renderer(string[] arguments, ILogFormatter formatter, IConvertersCollection converters)
             : base(formatter)
         {
             _argument1 = arguments[0];

@@ -33,7 +33,7 @@ namespace Velo.Benchmark.CQRS
                 .GetRequiredService<IMediator>();
         }
 
-        public static Emitter BuildEmitter(IBooRepository repository,
+        public static IEmitter BuildEmitter(IBooRepository repository,
             Action<IServiceCollection> dependencyBuilder = null, int repeatDependencyBuilder = 1)
         {
             var serviceCollection = new ServiceCollection()

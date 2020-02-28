@@ -26,17 +26,17 @@ namespace Velo.CQRS.Queries
         where TQuery : IQuery<TResult>
     {
         private readonly Func<TQuery, TContext, TResult> _processor;
-        private readonly DependencyProvider _provider;
+        private readonly IDependencyScope _scope;
 
-        public ActionQueryProcessor(Func<TQuery, TContext, TResult> processor, DependencyProvider provider)
+        public ActionQueryProcessor(Func<TQuery, TContext, TResult> processor, IDependencyScope scope)
         {
             _processor = processor;
-            _provider = provider;
+            _scope = scope;
         }
 
         public Task<TResult> Process(TQuery query, CancellationToken cancellationToken)
         {
-            var context = _provider.GetRequiredService<TContext>();
+            var context = _scope.GetRequiredService<TContext>();
             var result = _processor(query, context);
             return Task.FromResult(result);
         }

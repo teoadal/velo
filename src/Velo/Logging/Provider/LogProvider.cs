@@ -6,6 +6,7 @@ using Velo.Logging.Formatters;
 using Velo.Logging.Renderers;
 using Velo.Logging.Writers;
 using Velo.Serialization.Models;
+using Velo.Utils;
 
 namespace Velo.Logging.Provider
 {
@@ -28,6 +29,7 @@ namespace Velo.Logging.Provider
         public void Write(LogLevel level, Type sender, string template)
         {
             if (level < _minimalLevel) return;
+            if (string.IsNullOrWhiteSpace(template)) throw Error.Null("Template is null");
 
             var message = Renderer.GetBuffer(_enrichers.Length);
 
@@ -103,7 +105,7 @@ namespace Velo.Logging.Provider
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void WriteMessage(LogLevel level, Type sender, IFormatter formatter, string template,
+        private void WriteMessage(LogLevel level, Type sender, ILogFormatter formatter, string template,
             JsonObject message)
         {
             var context = new LogContext(level, sender, formatter, template);

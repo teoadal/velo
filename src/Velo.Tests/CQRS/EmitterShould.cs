@@ -23,7 +23,7 @@ namespace Velo.CQRS
     public class EmitterShould : TestClass
     {
         private readonly DependencyProvider _dependencyProvider;
-        private readonly Emitter _emitter;
+        private readonly IEmitter _emitter;
         private readonly Mock<IBooRepository> _repository;
         private readonly Mock<ILogWriter> _logger;
 
@@ -38,7 +38,7 @@ namespace Velo.CQRS
 
             _dependencyProvider = new DependencyCollection()
                 .AddInstance(_repository.Object)
-                .AddCommandProcessor<Emitting.Boos.Create.Processor>()
+                .AddCommandProcessor<Emitting.Boos.Create.Processor>(DependencyLifetime.Scoped)
                 .AddLogging()
                 .AddLogWriter(_logger.Object)
                 .AddNotificationProcessor<NotificationProcessor>()
@@ -46,7 +46,7 @@ namespace Velo.CQRS
                 .AddEmitter()
                 .BuildProvider();
 
-            _emitter = _dependencyProvider.GetRequiredService<Emitter>();
+            _emitter = _dependencyProvider.GetRequiredService<IEmitter>();
         }
 
         [Theory, AutoData]
@@ -64,7 +64,8 @@ namespace Velo.CQRS
             await _emitter.Publish(new Notification());
             _logger.Verify(logger => logger
                 .Write(
-                    It.Is<LogContext>(context => context.Level == LogLevel.Debug && context.Sender == typeof(NotificationProcessor)), 
+                    It.Is<LogContext>(context =>
+                        context.Level == LogLevel.Debug && context.Sender == typeof(NotificationProcessor)),
                     It.IsAny<JsonObject>()));
         }
 
@@ -115,14 +116,15 @@ namespace Velo.CQRS
                 .AddElement(It.Is<Boo>(b => b.Id == command.Id && b.Int == command.Int)));
         }
 
-        [Fact]
-        public async Task SendNotification()
+        [Theory, AutoData]
+        public async Task SendNotification(Notification notification)
         {
-            await _emitter.Publish(new Notification());
+            notification.StopPropagation = false;
             
+            await _emitter.Send(notification);
+
             _logger.Verify(logger => logger
-                .Write(
-                    It.Is<LogContext>(context => context.Level == LogLevel.Debug && context.Sender == typeof(NotificationProcessor)), 
+                .Write(It.Is<LogContext>(context => context.Level == LogLevel.Debug && context.Sender == typeof(NotificationProcessor)), 
                     It.IsAny<JsonObject>()));
         }
 

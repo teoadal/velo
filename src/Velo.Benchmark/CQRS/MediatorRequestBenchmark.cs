@@ -30,9 +30,9 @@ namespace Velo.Benchmark.CQRS
 
         private Query[] _queries;
         private Ping[] _queriesStruct;
-        private Emitter _emitter;
-        private Emitter _emitterWithBehaviour;
-        private Emitter _emitterWithFullPipeline;
+        private IEmitter _emitter;
+        private IEmitter _emitterWithBehaviour;
+        private IEmitter _emitterWithFullPipeline;
 
         [GlobalSetup]
         public void Init()

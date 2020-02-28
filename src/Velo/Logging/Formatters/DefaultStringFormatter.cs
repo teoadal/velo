@@ -8,7 +8,7 @@ using Velo.Utils;
 
 namespace Velo.Logging.Formatters
 {
-    internal sealed class DefaultStringFormatter : IFormatter
+    internal sealed class DefaultStringFormatter : ILogFormatter
     {
         private readonly Part[] _parts;
 

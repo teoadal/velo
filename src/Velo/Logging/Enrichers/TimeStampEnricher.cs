@@ -6,7 +6,7 @@ namespace Velo.Logging.Enrichers
 {
     internal sealed class TimeStampEnricher : ILogEnricher
     {
-        private const string Name = "_timestamp";
+        public const string Name = "_timestamp";
 
         private DateTime _last;
         private JsonVerbose _lastVerbose;

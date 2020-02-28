@@ -11,7 +11,7 @@ namespace Velo.Extensions.DependencyInjection.CQRS
     {
         public static IServiceCollection AddEmitter(this IServiceCollection services)
         {
-            services.AddScoped(ctx => new Emitter(ctx));
+            services.AddScoped<IEmitter>(provider => new Emitter(provider));
             return services;
         }
 

@@ -14,6 +14,35 @@ namespace Velo.Logging
             _sender = typeof(TSource);
         }
 
+        #region Log
+
+        public void Log(LogLevel level, string template)
+        {
+            _provider.Write(level, _sender, template);
+        }
+
+        public void Log<T1>(LogLevel level, string template, T1 arg1)
+        {
+            _provider.Write(level, _sender, template, arg1);
+        }
+
+        public void Log<T1, T2>(LogLevel level, string template, T1 arg1, T2 arg2)
+        {
+            _provider.Write(level, _sender, template, arg1, arg2);
+        }
+
+        public void Log<T1, T2, T3>(LogLevel level, string template, T1 arg1, T2 arg2, T3 arg3)
+        {
+            _provider.Write(level, _sender, template, arg1, arg2, arg3);
+        }
+
+        public void Log(LogLevel level, string template, params object[] args)
+        {
+            _provider.Write(level, _sender, template, args);
+        }
+
+        #endregion
+        
         #region Trace
 
         public void Trace(string template)

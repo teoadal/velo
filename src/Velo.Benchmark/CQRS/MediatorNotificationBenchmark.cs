@@ -21,7 +21,7 @@ namespace Velo.Benchmark.CQRS
         private IMediator _mediator;
         private Notification[] _mediatorNotifications;
 
-        private Emitter _emitter;
+        private IEmitter _emitter;
         private PlusNotification[] _emitterNotifications;
 
         [GlobalSetup]

@@ -63,7 +63,7 @@ namespace Velo.CQRS.Commands
         {
             var emitter = new DependencyCollection()
                 .AddEmitter()
-                .AddCommandProcessor<Command>(cmd => { cmd.Id++; })
+                .CreateProcessor<Command>(cmd => { cmd.Id++; })
                 .BuildProvider()
                 .GetRequiredService<Emitter>();
 
@@ -79,8 +79,7 @@ namespace Velo.CQRS.Commands
             var emitter = new DependencyCollection()
                 .AddInstance(_repository.Object)
                 .AddEmitter()
-                .AddCommandProcessor<Command, IBooRepository>((cmd, repository) => repository
-                    .AddElement(new Boo {Id = cmd.Id}))
+                .CreateProcessor<Command, IBooRepository>((cmd, repository) => repository.AddElement(new Boo {Id = cmd.Id}))
                 .BuildProvider()
                 .GetRequiredService<Emitter>();
 

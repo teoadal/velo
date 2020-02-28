@@ -26,8 +26,8 @@ namespace Velo.DependencyInjection
                     .AddEmitter())
                 .BuildProvider();
 
-            provider.GetRequiredService<JConverter>();
-            provider.GetRequiredService<Emitter>();
+            provider.GetRequiredService<JConverter>().Should().NotBeNull();
+            provider.GetRequiredService<IEmitter>().Should().BeOfType<Emitter>();
         }
         
         [Fact]

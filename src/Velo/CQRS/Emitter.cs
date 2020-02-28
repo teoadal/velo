@@ -10,7 +10,7 @@ using Velo.Utils;
 
 namespace Velo.CQRS
 {
-    public sealed class Emitter : IDisposable
+    internal sealed class Emitter : IEmitter, IDisposable
     {
         private bool _disposed;
         private IServiceProvider _scope;

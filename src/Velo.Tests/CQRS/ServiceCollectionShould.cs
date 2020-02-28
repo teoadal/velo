@@ -38,7 +38,7 @@ namespace Velo.CQRS
         [Fact]
         public void RegisterEmitterAsScoped()
         {
-            var serviceDescriptor = _serviceCollection.First(s => s.ServiceType == typeof(Emitter));
+            var serviceDescriptor = _serviceCollection.First(s => s.ServiceType == typeof(IEmitter));
             serviceDescriptor.Lifetime.Should().Be(ServiceLifetime.Scoped);
         }
         
@@ -48,7 +48,7 @@ namespace Velo.CQRS
             var emitter = _serviceCollection
                 .AddCommandProcessor<BoosCreate.Processor>()
                 .BuildServiceProvider()
-                .GetRequiredService<Emitter>();
+                .GetRequiredService<IEmitter>();
 
             await emitter.Execute(new BoosCreate.Command {Id = booId});
 
@@ -63,7 +63,7 @@ namespace Velo.CQRS
                 .AddSingleton(typeof(ICommandBehaviour<>), typeof(MeasureBehaviour<>))
                 .AddCommandProcessor<BoosCreate.Processor>()
                 .BuildServiceProvider()
-                .GetRequiredService<Emitter>();
+                .GetRequiredService<IEmitter>();
 
             var command = new BoosCreate.Command {Id = booId};
             await emitter.Execute(command);
@@ -83,7 +83,7 @@ namespace Velo.CQRS
                 .AddCommandProcessor<BoosCreate.Processor>()
                 .AddCommandProcessor<BoosCreate.PostProcessor>(ServiceLifetime.Scoped)
                 .BuildServiceProvider()
-                .GetRequiredService<Emitter>();
+                .GetRequiredService<IEmitter>();
 
             var command = new BoosCreate.Command {Id = booId};
             await emitter.Execute(command);
@@ -101,7 +101,7 @@ namespace Velo.CQRS
         {
             var emitter = _serviceCollection
                 .BuildServiceProvider()
-                .GetService<Emitter>();
+                .GetService<IEmitter>();
 
             emitter.Should().NotBeNull();
         }
@@ -112,7 +112,7 @@ namespace Velo.CQRS
             var emitter = _serviceCollection
                 .AddNotificationProcessor<PlusNotificationProcessor>()
                 .BuildServiceProvider()
-                .GetRequiredService<Emitter>();
+                .GetRequiredService<IEmitter>();
 
             var notification = new PlusNotification();
             await emitter.Publish(notification);
@@ -130,7 +130,7 @@ namespace Velo.CQRS
 
             var emitter = _serviceCollection
                 .BuildServiceProvider()
-                .GetRequiredService<Emitter>();
+                .GetRequiredService<IEmitter>();
 
             for (var i = 0; i < 100; i++)
             {
@@ -147,7 +147,7 @@ namespace Velo.CQRS
             var emitter = _serviceCollection
                 .AddQueryProcessor<PingPongProcessor>()
                 .BuildServiceProvider()
-                .GetRequiredService<Emitter>();
+                .GetRequiredService<IEmitter>();
 
             var response = await emitter.Ask(new Ping(1));
             response.Message.Should().Be(2);
@@ -162,7 +162,7 @@ namespace Velo.CQRS
                 .AddQueryProcessor<BoosGet.Processor>()
                 .AddQueryProcessor<BoosGet.PostProcessor>()
                 .BuildServiceProvider()
-                .GetRequiredService<Emitter>();
+                .GetRequiredService<IEmitter>();
 
             var query = new BoosGet.Query(booId);
             var response = await emitter.Ask(query);

@@ -12,7 +12,7 @@ namespace Velo.Logging.Renderers
         private readonly string[] _arguments;
         private readonly IJsonConverter[] _converters;
 
-        public ArrayRenderer(string[] arguments, IFormatter formatter, LocalList<Type> argumentTypes, IConvertersCollection converters)
+        public ArrayRenderer(string[] arguments, ILogFormatter formatter, LocalList<Type> argumentTypes, IConvertersCollection converters)
             : base(formatter)
         {
             var argumentConverters = new IJsonConverter[argumentTypes.Length];

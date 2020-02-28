@@ -5,13 +5,13 @@ using Velo.Utils;
 
 namespace Velo.Logging.Writers
 {
-    internal sealed class ConsoleLogWriter : ILogWriter
+    internal sealed class DefaultConsoleLogWriter : ILogWriter
     {
         public LogLevel Level { get; }
 
         private readonly object _lock;
 
-        public ConsoleLogWriter(LogLevel level = LogLevel.Debug)
+        public DefaultConsoleLogWriter(LogLevel level = LogLevel.Debug)
         {
             Level = level;
 

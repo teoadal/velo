@@ -177,7 +177,7 @@ namespace Velo.CQRS.Queries
         {
             var emitter = new DependencyCollection()
                 .AddEmitter()
-                .AddQueryProcessor<Query, Boo>(q => new Boo {Id = q.Id})
+                .CreateProcessor<Query, Boo>(q => new Boo {Id = q.Id})
                 .BuildProvider()
                 .GetRequiredService<Emitter>();
 
@@ -193,7 +193,7 @@ namespace Velo.CQRS.Queries
             var emitter = new DependencyCollection()
                 .AddInstance(_repository.Object)
                 .AddEmitter()
-                .AddQueryProcessor<Query, IBooRepository, Boo>((query, repository) => repository.GetElement(query.Id))
+                .CreateProcessor<Query, IBooRepository, Boo>((query, repository) => repository.GetElement(query.Id))
                 .BuildProvider()
                 .GetRequiredService<Emitter>();
 

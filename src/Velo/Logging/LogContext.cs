@@ -11,9 +11,9 @@ namespace Velo.Logging
         public readonly Type Sender;
         public readonly string Template;
 
-        private readonly IFormatter _formatter;
+        private readonly ILogFormatter _formatter;
 
-        internal LogContext(LogLevel level, Type sender, IFormatter formatter, string template)
+        internal LogContext(LogLevel level, Type sender, ILogFormatter formatter, string template)
         {
             Level = level;
             Sender = sender;
@@ -21,6 +21,13 @@ namespace Velo.Logging
             Template = template;
         }
 
+        public string RenderMessage(JsonObject message)
+        {
+            using var stringWriter = new StringWriter();
+            WriteMessage(message, stringWriter);
+            return stringWriter.ToString();
+        }
+        
         public void WriteMessage(JsonObject message, TextWriter output)
         {
             if (_formatter == null)

@@ -3,7 +3,7 @@ using Velo.Serialization.Models;
 
 namespace Velo.Logging.Formatters
 {
-    internal interface IFormatter
+    public interface ILogFormatter
     {
         void Write(JsonObject message, TextWriter writer);
     }

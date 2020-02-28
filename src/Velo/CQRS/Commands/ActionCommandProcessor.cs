@@ -27,17 +27,17 @@ namespace Velo.CQRS.Commands
         where TCommand: ICommand
     {
         private readonly Action<TCommand, TContext> _processor;
-        private readonly DependencyProvider _provider;
+        private readonly IDependencyScope _scope;
 
-        public ActionCommandProcessor(Action<TCommand, TContext> processor, DependencyProvider provider)
+        public ActionCommandProcessor(Action<TCommand, TContext> processor, IDependencyScope scope)
         {
             _processor = processor;
-            _provider = provider;
+            _scope = scope;
         }
 
         public Task Process(TCommand command, CancellationToken cancellationToken)
         {
-            var context = _provider.GetRequiredService<TContext>();
+            var context = _scope.GetRequiredService<TContext>();
             
             _processor(command, context);
             

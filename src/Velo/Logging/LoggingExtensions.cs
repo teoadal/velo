@@ -22,16 +22,15 @@ namespace Velo.Logging
         public static DependencyCollection AddDefaultConsoleLogWriter(this DependencyCollection collection,
             LogLevel level = LogLevel.Debug)
         {
-            collection.AddInstance(new ConsoleLogWriter(level));
+            collection.AddInstance(new DefaultConsoleLogWriter(level));
             return collection;
         }
-        
+
         public static DependencyCollection AddDefaultLogEnrichers(this DependencyCollection collection)
         {
-            collection
-                .AddInstance<ILogEnricher>(new LevelEnricher())
-                .AddInstance<ILogEnricher>(new SenderEnricher())
-                .AddInstance<ILogEnricher>(new TimeStampEnricher());
+            AddLogEnricher<LogLevelEnricher>(collection);
+            AddLogEnricher<SenderEnricher>(collection);
+            AddLogEnricher<TimeStampEnricher>(collection);
 
             return collection;
         }
@@ -48,12 +47,13 @@ namespace Velo.Logging
             return collection;
         }
 
-        public static DependencyCollection AddLogEnricher(this DependencyCollection collection, ILogEnricher logEnricher)
+        public static DependencyCollection AddLogEnricher(this DependencyCollection collection,
+            ILogEnricher logEnricher)
         {
             collection.AddInstance(logEnricher);
             return collection;
         }
-        
+
         public static DependencyCollection AddLogWriter<TWriter>(this DependencyCollection collection,
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
             where TWriter : ILogWriter

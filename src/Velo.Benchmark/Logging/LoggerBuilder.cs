@@ -42,7 +42,7 @@ namespace Velo.Benchmark.Logging
                 .AddLogging()
                 .AddLogWriter(logWriter)
                 .AddLogEnricher<TimeStampEnricher>()
-                .AddLogEnricher<LevelEnricher>()
+                .AddLogEnricher<LogLevelEnricher>()
                 .BuildProvider()
                 .GetRequiredService<ILogger<LoggerBenchmark>>();
         }

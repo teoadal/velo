@@ -7,9 +7,9 @@ namespace Velo.TestsModels.Emitting.Boos.Create
 {
     public class PostProcessor : ICommandPostProcessor<Command>
     {
-        private readonly Emitter _emitter;
+        private readonly IEmitter _emitter;
 
-        public PostProcessor(Emitter emitter)
+        public PostProcessor(IEmitter emitter)
         {
             _emitter = emitter;
         }

@@ -1,5 +1,6 @@
 using System.Globalization;
 using Velo.DependencyInjection;
+using Velo.Serialization.Models;
 
 namespace Velo.Serialization
 {
@@ -15,6 +16,11 @@ namespace Velo.Serialization
                 .AddInstance(new JConverter(convertersCollection));
 
             return collection;
+        }
+
+        internal static T Read<T>(this ConvertersCollection converters, JsonData json)
+        {
+            return converters.Get<T>().Read(json);
         }
     }
 }

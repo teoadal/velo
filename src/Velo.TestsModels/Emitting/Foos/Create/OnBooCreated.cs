@@ -8,9 +8,9 @@ namespace Velo.TestsModels.Emitting.Foos.Create
 {
     public class OnBooCreated : INotificationProcessor<Notification>
     {
-        private readonly Emitter _emitter;
+        private readonly IEmitter _emitter;
 
-        public OnBooCreated(Emitter emitter)
+        public OnBooCreated(IEmitter emitter)
         {
             _emitter = emitter;
         }

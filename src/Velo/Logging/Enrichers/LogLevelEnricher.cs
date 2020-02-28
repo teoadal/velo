@@ -4,9 +4,9 @@ using Velo.Utils;
 
 namespace Velo.Logging.Enrichers
 {
-    internal sealed class LevelEnricher : ILogEnricher
+    internal sealed class LogLevelEnricher : ILogEnricher
     {
-        private const string Name = "_level";
+        public const string Name = "_level";
 
         private readonly JsonVerbose _errorVerbose;
         private readonly JsonVerbose _debugVerbose;
@@ -14,7 +14,7 @@ namespace Velo.Logging.Enrichers
         private readonly JsonVerbose _traceVerbose;
         private readonly JsonVerbose _warningVerbose;
 
-        public LevelEnricher()
+        public LogLevelEnricher()
         {
             _errorVerbose = new JsonVerbose("ERR");
             _debugVerbose = new JsonVerbose("DBG");
