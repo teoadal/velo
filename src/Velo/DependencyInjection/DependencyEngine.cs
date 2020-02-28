@@ -24,11 +24,7 @@ namespace Velo.DependencyInjection
         public DependencyEngine(int capacity)
         {
             _dependencies = new List<IDependency>(capacity);
-            _factories = new List<IDependencyFactory>(4)
-            {
-                new ArrayFactory()
-            };
-
+            _factories = new List<IDependencyFactory>(4) { new ArrayFactory()};
             _resolvedDependencies = new Dictionary<Type, IDependency>();
         }
 

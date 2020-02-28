@@ -15,7 +15,7 @@ Install Velo with the following command [from nuget](https://www.nuget.org/packa
 Install-Package Velo
 ```
 
-[For integration](https://github.com/teoadal/veloimplementations/wiki/Integration-with-IServiceCollection) with IServiceCollection, install Velo.Extensions.DependencyInjection [from nuget](https://www.nuget.org/packages/Velo.Extensions.DependencyInjection):
+[For integration](https://github.com/teoadal/velo/wiki/Integration-with-IServiceCollection) with IServiceCollection, install Velo.Extensions.DependencyInjection [from nuget](https://www.nuget.org/packages/Velo.Extensions.DependencyInjection):
 
 ```ini
 Install-Package Velo.Extensions.DependencyInjection
@@ -249,7 +249,7 @@ using (var scope = provider.CreateScope())
 
 ## LocalVector (small collection on stack)
 
-Ref struct for collect values on stack. This collection allows you to reduce memory consumption. Also, it allows you to work with several variables as a collection without extra costs. Read about LocalList [here](https://github.com/teoadal/veloimplementations/wiki/LocalList-(collection-on-stack)).
+Ref struct for collect values on stack. This collection allows you to reduce memory consumption. Also, it allows you to work with several variables as a collection without extra costs. Read about LocalList [here](https://github.com/teoadal/velo/wiki/LocalList-(collection-on-stack)).
 
 ### Usage
 
