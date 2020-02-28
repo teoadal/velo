@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Moq;
+using Velo.CQRS;
 using Velo.CQRS.Commands;
 using Velo.CQRS.Notifications;
 using Velo.DependencyInjection;
@@ -18,7 +19,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Emitting = Velo.TestsModels.Emitting;
 
-namespace Velo.CQRS
+namespace Velo.Tests.CQRS
 {
     public class EmitterShould : TestClass
     {
@@ -75,7 +76,7 @@ namespace Velo.CQRS
             var dependencies = new DependencyCollection()
                 .AddEmitter();
 
-            dependencies.GetLifetime<Emitter>().Should().Be(DependencyLifetime.Scoped);
+            dependencies.GetLifetime<IEmitter>().Should().Be(DependencyLifetime.Scoped);
         }
 
         [Theory, AutoData]
@@ -99,10 +100,10 @@ namespace Velo.CQRS
         public void Scoped()
         {
             var firstScope = _dependencyProvider.CreateScope();
-            var firstEmitter = firstScope.GetRequiredService<Emitter>();
+            var firstEmitter = firstScope.GetRequiredService<IEmitter>();
 
             var secondScope = _dependencyProvider.CreateScope();
-            var secondEmitter = secondScope.GetRequiredService<Emitter>();
+            var secondEmitter = secondScope.GetRequiredService<IEmitter>();
 
             firstEmitter.Should().NotBe(secondEmitter);
         }
@@ -143,7 +144,7 @@ namespace Velo.CQRS
                     .AddEmitterProcessors())
                 .BuildProvider();
 
-            var emitter = provider.GetRequiredService<Emitter>();
+            var emitter = provider.GetRequiredService<IEmitter>();
 
             await emitter.Execute(command);
 
@@ -165,7 +166,7 @@ namespace Velo.CQRS
         public async Task NotThrowIfNotDisposed()
         {
             using var scope = _dependencyProvider.CreateScope();
-            var emitter = scope.GetRequiredService<Emitter>();
+            var emitter = scope.GetRequiredService<IEmitter>();
             await emitter.Execute(new Command {Id = 1});
         }
 
@@ -173,7 +174,7 @@ namespace Velo.CQRS
         public async Task NotThrowIfNotificationProcessorNotRegistered()
         {
             using var scope = _dependencyProvider.CreateScope();
-            var emitter = scope.GetRequiredService<Emitter>();
+            var emitter = scope.GetRequiredService<IEmitter>();
 
             await emitter.Send(Mock.Of<INotification>());
             await emitter.Publish(Mock.Of<Notification>());
@@ -185,7 +186,7 @@ namespace Velo.CQRS
             var emitter = new DependencyCollection()
                 .AddEmitter()
                 .BuildProvider()
-                .GetRequiredService<Emitter>();
+                .GetRequiredService<IEmitter>();
 
             await Assert.ThrowsAsync<KeyNotFoundException>(() => emitter.Ask(Mock.Of<Query>()));
             await Assert.ThrowsAsync<KeyNotFoundException>(() => emitter.Execute(Mock.Of<Command>()));
@@ -196,7 +197,7 @@ namespace Velo.CQRS
         public async Task ThrowDisposedAfterCloseScope()
         {
             var scope = _dependencyProvider.CreateScope();
-            var emitter = scope.GetRequiredService<Emitter>();
+            var emitter = scope.GetRequiredService<IEmitter>();
             scope.Dispose();
 
             await Assert.ThrowsAsync<ObjectDisposedException>(() => emitter.Ask(Mock.Of<Query>()));

@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Moq;
+using Velo.CQRS;
+using Velo.CQRS.Queries;
 using Velo.DependencyInjection;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting.Boos.Get;
@@ -12,12 +14,12 @@ using Velo.TestsModels.Emitting.PingPong;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.CQRS.Queries
+namespace Velo.Tests.CQRS.Queries
 {
     public class QueryShould : TestClass
     {
         private readonly DependencyProvider _dependencyProvider;
-        private readonly Emitter _emitter;
+        private readonly IEmitter _emitter;
         private readonly Mock<IBooRepository> _repository;
 
         public QueryShould(ITestOutputHelper output) : base(output)
@@ -37,7 +39,7 @@ namespace Velo.CQRS.Queries
                 .AddEmitter()
                 .BuildProvider();
 
-            _emitter = _dependencyProvider.GetRequiredService<Emitter>();
+            _emitter = _dependencyProvider.GetRequiredService<IEmitter>();
         }
 
         [Theory, AutoData]
@@ -67,7 +69,7 @@ namespace Velo.CQRS.Queries
             var results = await RunTasks(queries, query =>
             {
                 using var scope = _dependencyProvider.CreateScope();
-                var scopeEmitter = scope.GetRequiredService<Emitter>();
+                var scopeEmitter = scope.GetRequiredService<IEmitter>();
                 return scopeEmitter.Ask(query);
             });
 
@@ -111,7 +113,7 @@ namespace Velo.CQRS.Queries
             var expectedLifetime = new[] {behaviourLifetime, preProcessorLifetime, processorLifetime, postProcessorLifetime}.DefineLifetime();
             dependencyCollection.GetLifetime<QueryPipeline<Query, Boo>>().Should().Be(expectedLifetime);
 
-            var emitter = dependencyProvider.GetRequiredService<Emitter>();
+            var emitter = dependencyProvider.GetRequiredService<IEmitter>();
 
             for (var i = 0; i < 10; i++)
             {
@@ -179,7 +181,7 @@ namespace Velo.CQRS.Queries
                 .AddEmitter()
                 .CreateProcessor<Query, Boo>(q => new Boo {Id = q.Id})
                 .BuildProvider()
-                .GetRequiredService<Emitter>();
+                .GetRequiredService<IEmitter>();
 
             var getBooQuery = new Query {Id = 1};
             var boo = await emitter.Ask(getBooQuery);
@@ -195,7 +197,7 @@ namespace Velo.CQRS.Queries
                 .AddEmitter()
                 .CreateProcessor<Query, IBooRepository, Boo>((query, repository) => repository.GetElement(query.Id))
                 .BuildProvider()
-                .GetRequiredService<Emitter>();
+                .GetRequiredService<IEmitter>();
 
             var getBooQuery = new Query {Id = 1};
             var boo = await emitter.Ask(getBooQuery);
@@ -215,7 +217,7 @@ namespace Velo.CQRS.Queries
                 .AddEmitter()
                 .AddQueryProcessor<Processor>()
                 .BuildProvider()
-                .GetRequiredService<Emitter>();
+                .GetRequiredService<IEmitter>();
 
             await Assert.ThrowsAsync<OperationCanceledException>(() => emitter.Ask(query, token));
         }

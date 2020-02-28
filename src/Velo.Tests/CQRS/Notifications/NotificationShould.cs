@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Moq;
+using Velo.CQRS;
+using Velo.CQRS.Notifications;
 using Velo.DependencyInjection;
 using Velo.TestsModels.Emitting.Boos.Create;
 using Velo.TestsModels.Emitting.Foos.Create;
@@ -12,13 +14,13 @@ using Xunit;
 using Xunit.Abstractions;
 using Processor = Velo.TestsModels.Emitting.Foos.Create.Processor;
 
-namespace Velo.CQRS.Notifications
+namespace Velo.Tests.CQRS.Notifications
 {
     public class NotificationShould : TestClass
     {
         private readonly DependencyProvider _dependencyProvider;
         private readonly Mock<IFooRepository> _fooRepository;
-        private readonly Emitter _emitter;
+        private readonly IEmitter _emitter;
 
         public NotificationShould(ITestOutputHelper output) : base(output)
         {
@@ -26,12 +28,12 @@ namespace Velo.CQRS.Notifications
 
             _dependencyProvider = new DependencyCollection()
                 .AddInstance(_fooRepository.Object)
-                .AddNotificationProcessor<OnBooCreated>()
+                .AddNotificationProcessor<OnBooCreated>(DependencyLifetime.Scoped)
                 .AddCommandProcessor<Processor>()
                 .AddEmitter()
                 .BuildProvider();
 
-            _emitter = _dependencyProvider.GetRequiredService<Emitter>();
+            _emitter = _dependencyProvider.GetRequiredService<IEmitter>();
         }
 
         [Theory, AutoData]
@@ -69,7 +71,7 @@ namespace Velo.CQRS.Notifications
                 notification.StopPropagation = false;
 
                 using var scope = _dependencyProvider.CreateScope();
-                var scopeEmitter = scope.GetRequiredService<Emitter>();
+                var scopeEmitter = scope.GetRequiredService<IEmitter>();
                 return scopeEmitter.Publish(notification);
             });
 
@@ -96,7 +98,7 @@ namespace Velo.CQRS.Notifications
             
             dependencyCollection.GetLifetime<NotificationPipeline<Notification>>().Should().Be(notificationProcessorLifetime);
 
-            var emitter = provider.GetRequiredService<Emitter>();
+            var emitter = provider.GetRequiredService<IEmitter>();
 
             foreach (var notification in notifications)
             {
@@ -132,7 +134,7 @@ namespace Velo.CQRS.Notifications
                 .AddEmitter()
                 .AddNotificationProcessor<OnBooCreated>()
                 .BuildProvider()
-                .GetRequiredService<Emitter>();
+                .GetRequiredService<IEmitter>();
 
             await Assert.ThrowsAsync<OperationCanceledException>(() => emitter.Publish(notification, token));
         }

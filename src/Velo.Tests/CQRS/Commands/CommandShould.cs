@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Moq;
+using Velo.CQRS;
+using Velo.CQRS.Commands;
 using Velo.DependencyInjection;
 using Velo.Logging;
 using Velo.Logging.Writers;
@@ -15,12 +17,12 @@ using Velo.TestsModels.Emitting.Boos.Create;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.CQRS.Commands
+namespace Velo.Tests.CQRS.Commands
 {
     public class CommandShould : TestClass
     {
         private readonly DependencyProvider _dependencyProvider;
-        private readonly Emitter _emitter;
+        private readonly IEmitter _emitter;
         private readonly Mock<IBooRepository> _repository;
         private readonly Mock<ILogWriter> _logger;
 
@@ -42,7 +44,7 @@ namespace Velo.CQRS.Commands
                 .AddEmitter()
                 .BuildProvider();
 
-            _emitter = _dependencyProvider.GetRequiredService<Emitter>();
+            _emitter = _dependencyProvider.GetRequiredService<IEmitter>();
         }
 
         [Fact]
@@ -65,7 +67,7 @@ namespace Velo.CQRS.Commands
                 .AddEmitter()
                 .CreateProcessor<Command>(cmd => { cmd.Id++; })
                 .BuildProvider()
-                .GetRequiredService<Emitter>();
+                .GetRequiredService<IEmitter>();
 
             var command = new Command();
             await emitter.Execute(command);
@@ -81,7 +83,7 @@ namespace Velo.CQRS.Commands
                 .AddEmitter()
                 .CreateProcessor<Command, IBooRepository>((cmd, repository) => repository.AddElement(new Boo {Id = cmd.Id}))
                 .BuildProvider()
-                .GetRequiredService<Emitter>();
+                .GetRequiredService<IEmitter>();
 
             var command = new Command();
             await emitter.Execute(command);
@@ -120,7 +122,7 @@ namespace Velo.CQRS.Commands
             await RunTasks(commands, command =>
             {
                 using var scope = _dependencyProvider.CreateScope();
-                var scopeEmitter = scope.GetRequiredService<Emitter>();
+                var scopeEmitter = scope.GetRequiredService<IEmitter>();
                 return scopeEmitter.Execute(command);
             });
 
@@ -160,7 +162,7 @@ namespace Velo.CQRS.Commands
                 .DefineLifetime();
             dependencyCollection.GetLifetime<CommandPipeline<Command>>().Should().Be(expectedLifetime);
 
-            var emitter = dependencyProvider.GetRequiredService<Emitter>();
+            var emitter = dependencyProvider.GetRequiredService<IEmitter>();
 
             for (var i = 0; i < 10; i++)
             {
@@ -232,7 +234,7 @@ namespace Velo.CQRS.Commands
                 .AddEmitter()
                 .AddCommandProcessor<Processor>()
                 .BuildProvider()
-                .GetRequiredService<Emitter>();
+                .GetRequiredService<IEmitter>();
 
             await Assert.ThrowsAsync<OperationCanceledException>(() => emitter.Execute(command, token));
         }

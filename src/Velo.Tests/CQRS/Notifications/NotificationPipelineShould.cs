@@ -4,17 +4,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
+using Velo.CQRS;
+using Velo.CQRS.Notifications;
 using Velo.DependencyInjection;
 using Velo.TestsModels.Emitting.Boos.Create;
 using Velo.TestsModels.Emitting.Parallel;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.CQRS.Notifications
+namespace Velo.Tests.CQRS.Notifications
 {
     public class NotificationPipelineShould : TestClass
     {
-        private readonly Emitter _emitter;
+        private readonly IEmitter _emitter;
         private readonly DependencyProvider _provider;
         private readonly Mock<INotificationProcessor<Notification>> _processor;
 
@@ -32,7 +34,7 @@ namespace Velo.CQRS.Notifications
                 .AddNotificationProcessor<ParallelNotificationProcessor>()
                 .BuildProvider();
 
-            _emitter = _provider.GetRequiredService<Emitter>();
+            _emitter = _provider.GetRequiredService<IEmitter>();
         }
 
         [Fact]

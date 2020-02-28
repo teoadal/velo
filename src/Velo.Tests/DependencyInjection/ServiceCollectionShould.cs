@@ -1,15 +1,12 @@
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Velo.CQRS;
-using Velo.Extensions.DependencyInjection;
-using Velo.Extensions.DependencyInjection.CQRS;
-using Velo.Extensions.DependencyInjection.Serialization;
-using Velo.Logging;
+using Velo.DependencyInjection;
 using Velo.Serialization;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.DependencyInjection
+namespace Velo.Tests.DependencyInjection
 {
     public class ServiceCollectionShould : TestClass
     {
@@ -40,7 +37,7 @@ namespace Velo.DependencyInjection
                 .BuildServiceProvider();
 
             var dependencyProvider = serviceProvider.GetRequiredService<DependencyProvider>();
-            dependencyProvider.GetRequiredService<Emitter>();
+            dependencyProvider.GetRequiredService<IEmitter>();
         }
         
         [Fact]
