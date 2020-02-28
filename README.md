@@ -1,6 +1,6 @@
 # Velo
 
-![.NET Core](https://github.com/teoadal/velo/workflows/.NET%20Core/badge.svg?branch=master) 
+[![.NET Core](https://github.com/teoadal/velo/workflows/.NET%20Core/badge.svg?branch=master)](https://github.com/teoadal/velo/actions)
 [![codecov](https://codecov.io/gh/teoadal/velo/branch/master/graph/badge.svg)](https://codecov.io/gh/teoadal/velo) 
 [![NuGet](https://img.shields.io/nuget/v/velo.svg)](https://www.nuget.org/packages/velo) 
 [![NuGet](https://img.shields.io/nuget/dt/velo.svg)](https://www.nuget.org/packages/velo)
