@@ -24,14 +24,12 @@ namespace Velo.Benchmark.CQRS
         private GetBooRequest[] _requests;
         private StructRequest[] _requestsStruct;
         private IMediator _mediator;
-        private IMediator _mediatorWithBehaviour;
-        private IMediator _mediatorWithFullPipeline;
+        private IMediator _mediatorPipeline;
 
         private Query[] _queries;
         private Ping[] _queriesStruct;
         private IEmitter _emitter;
-        private IEmitter _emitterWithBehaviour;
-        private IEmitter _emitterWithFullPipeline;
+        private IEmitter _emitterPipeline;
 
         [GlobalSetup]
         public void Init()
@@ -57,10 +55,7 @@ namespace Velo.Benchmark.CQRS
 
             _mediator = MediatorBuilder.BuildMediatR(repository);
 
-            _mediatorWithBehaviour = MediatorBuilder.BuildMediatR(repository, services =>
-                services.AddSingleton<GetBooRequestBehaviour>());
-
-            _mediatorWithFullPipeline = MediatorBuilder.BuildMediatR(repository, services =>
+            _mediatorPipeline = MediatorBuilder.BuildMediatR(repository, services =>
                 services
                     .AddSingleton(typeof(IPipelineBehavior<,>), typeof(RequestPreProcessorBehavior<,>))
                     .AddSingleton(typeof(IPipelineBehavior<,>), typeof(RequestPostProcessorBehavior<,>))
@@ -68,44 +63,13 @@ namespace Velo.Benchmark.CQRS
                     .AddSingleton<IRequestPreProcessor<GetBooRequest>, GetBooPreProcessor>()
                     .AddSingleton<IRequestPostProcessor<GetBooRequest, Boo>, GetBooPostProcessor>());
 
-            _emitter = _emitterWithBehaviour = MediatorBuilder.BuildEmitter(repository);
-
-            _emitterWithBehaviour = MediatorBuilder.BuildEmitter(repository, services =>
-                services.AddQueryBehaviour<Behaviour>());
-
-            _emitterWithFullPipeline = MediatorBuilder.BuildEmitter(repository, services =>
+            _emitter = MediatorBuilder.BuildEmitter(repository);
+            
+            _emitterPipeline = MediatorBuilder.BuildEmitter(repository, services =>
                 services
                     .AddQueryBehaviour<Behaviour>()
                     .AddQueryProcessor<PreProcessor>()
                     .AddQueryProcessor<PostProcessor>());
-        }
-
-        [BenchmarkCategory("Behaviour")]
-        [Benchmark(Baseline = true)]
-        public async Task<long> Behaviour_MediatR()
-        {
-            var sum = 0L;
-            foreach (var request in _requests)
-            {
-                var boo = await _mediatorWithBehaviour.Send(request);
-                sum += boo.Int;
-            }
-        
-            return sum;
-        }
-        
-        [BenchmarkCategory("Behaviour")]
-        [Benchmark]
-        public async Task<long> Behaviour_Emitter()
-        {
-            var sum = 0L;
-            foreach (var query in _queries)
-            {
-                var boo = await _emitterWithBehaviour.Ask(query);
-                sum += boo.Int;
-            }
-        
-            return sum;
         }
 
         [BenchmarkCategory("Pipeline")]
@@ -115,7 +79,7 @@ namespace Velo.Benchmark.CQRS
             var sum = 0L;
             foreach (var request in _requests)
             {
-                var boo = await _mediatorWithFullPipeline.Send(request);
+                var boo = await _mediatorPipeline.Send(request);
                 sum += boo.Int;
             }
 
@@ -129,7 +93,7 @@ namespace Velo.Benchmark.CQRS
             var sum = 0L;
             foreach (var query in _queries)
             {
-                var boo = await _emitterWithFullPipeline.Ask(query);
+                var boo = await _emitterPipeline.Ask(query);
                 sum += boo.Int;
             }
 

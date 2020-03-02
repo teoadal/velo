@@ -43,17 +43,17 @@ namespace Velo.CQRS.Pipeline
         private static readonly Func<Type, Type> NotificationPipelineTypeBuilder = t => Notification.MakeGenericType(t);
         // ReSharper restore ConvertClosureToMethodGroup
 
-        public static Type GetForCommand(Type commandType)
+        public static Type GetCommandPipelineType(Type commandType)
         {
             return ResolvedTypes.GetOrAdd(commandType, CommandPipelineTypeBuilder);
         }
 
-        public static Type GetForQuery(Type queryType)
+        public static Type GetQueryPipelineType(Type queryType)
         {
             return ResolvedTypes.GetOrAdd(queryType, QueryPipelineTypeBuilder);
         }
 
-        public static Type GetForNotification(Type notificationType)
+        public static Type GetNotificationPipelineType(Type notificationType)
         {
             return ResolvedTypes.GetOrAdd(notificationType, NotificationPipelineTypeBuilder);
         }

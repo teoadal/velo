@@ -107,7 +107,10 @@ namespace Velo.Tests.Logging
             _dependencies.GetLifetime<ILogWriter>().Should().Be(DependencyLifetime.Singleton);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [InlineData(DependencyLifetime.Scoped)]
+        [InlineData(DependencyLifetime.Singleton)]
+        [InlineData(DependencyLifetime.Transient)]
         public void AddLogWriterWithLifetime(DependencyLifetime lifetime)
         {
             _dependencies.AddLogWriter<TestWriter>(lifetime);

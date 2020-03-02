@@ -76,7 +76,12 @@ namespace Velo.Tests.Logging.Providers
                 .Write(It.IsAny<LogContext>(), It.IsAny<JsonObject>()), Times.Never);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [InlineAutoData(LogLevel.Trace)]
+        [InlineAutoData(LogLevel.Debug)]
+        [InlineAutoData(LogLevel.Info)]
+        [InlineAutoData(LogLevel.Warning)]
+        [InlineAutoData(LogLevel.Error)]
         public void UseEnricher(LogLevel level, string message)
         {
             var enricher = new Mock<ILogEnricher>();
@@ -92,7 +97,12 @@ namespace Velo.Tests.Logging.Providers
             enricher.Verify(e => e.Enrich(level, _sender, It.IsNotNull<JsonObject>()));
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [InlineAutoData(LogLevel.Trace)]
+        [InlineAutoData(LogLevel.Debug)]
+        [InlineAutoData(LogLevel.Info)]
+        [InlineAutoData(LogLevel.Warning)]
+        [InlineAutoData(LogLevel.Error)]
         public void UseEnrichers(LogLevel level, string message)
         {
             var enrichers = Enumerable.Range(0, 10).Select(_ => new Mock<ILogEnricher>()).ToArray();
@@ -115,7 +125,12 @@ namespace Velo.Tests.Logging.Providers
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [InlineAutoData(LogLevel.Trace)]
+        [InlineAutoData(LogLevel.Debug)]
+        [InlineAutoData(LogLevel.Info)]
+        [InlineAutoData(LogLevel.Warning)]
+        [InlineAutoData(LogLevel.Error)]
         public void WriteLogContext(LogLevel level, string message)
         {
             _logger.Log(level, message);
@@ -143,7 +158,12 @@ namespace Velo.Tests.Logging.Providers
                 .Write(It.IsAny<LogContext>(), It.IsNotNull<JsonObject>()));
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [InlineAutoData(LogLevel.Trace)]
+        [InlineAutoData(LogLevel.Debug)]
+        [InlineAutoData(LogLevel.Info)]
+        [InlineAutoData(LogLevel.Warning)]
+        [InlineAutoData(LogLevel.Error)]
         public void WriteWriters(LogLevel level, string message)
         {
             var writers = Enumerable.Range(0, 10).Select(_ => new Mock<ILogWriter>()).ToArray();

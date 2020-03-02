@@ -7,7 +7,7 @@ namespace Velo.CQRS.Queries
     internal sealed class QueryPipeline<TQuery, TResult> : IQueryPipeline<TResult>
         where TQuery : IQuery<TResult>
     {
-        private QueryBehaviours<TQuery, TResult> _behaviours;
+        private IQueryBehaviours<TQuery, TResult> _behaviours;
         private IQueryPreProcessor<TQuery, TResult>[] _preProcessors;
         private IQueryProcessor<TQuery, TResult> _processor;
         private IQueryPostProcessor<TQuery, TResult>[] _postProcessors;
@@ -18,12 +18,23 @@ namespace Velo.CQRS.Queries
             IQueryProcessor<TQuery, TResult> processor,
             IQueryPostProcessor<TQuery, TResult>[] postProcessors)
         {
-            _behaviours = new QueryBehaviours<TQuery, TResult>(this, behaviours);
+            _behaviours = behaviours.Length > 0
+                ? new QueryBehaviours<TQuery, TResult>(this, behaviours)
+                : NullQueryBehaviours<TQuery, TResult>.Instance;
+
             _preProcessors = preProcessors;
             _processor = processor;
             _postProcessors = postProcessors;
         }
 
+        public QueryPipeline(IQueryProcessor<TQuery, TResult> processor)
+        {
+            _behaviours = NullQueryBehaviours<TQuery, TResult>.Instance;
+            _preProcessors = Array.Empty<IQueryPreProcessor<TQuery, TResult>>();
+            _processor = processor;
+            _postProcessors = Array.Empty<IQueryPostProcessor<TQuery, TResult>>();
+        }
+        
         public Task<TResult> GetResponse(TQuery query, CancellationToken cancellationToken)
         {
             return _behaviours.HasBehaviours
@@ -65,7 +76,7 @@ namespace Velo.CQRS.Queries
             _postProcessors = null;
         }
     }
-
+    
     internal interface IQueryPipeline<TResult> : IDisposable
     {
         Task<TResult> GetResponse(IQuery<TResult> query, CancellationToken cancellationToken);

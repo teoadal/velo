@@ -10,16 +10,16 @@ namespace Velo.CQRS.Pipeline
 {
     internal sealed class PipelineFactory : IDependencyFactory
     {
-        private readonly Type _pipelineType;
+        private readonly Type _pipelineGenericType;
 
-        public PipelineFactory(Type pipelineType)
+        public PipelineFactory(Type pipelineGenericType)
         {
-            _pipelineType = pipelineType;
+            _pipelineGenericType = pipelineGenericType;
         }
 
         public bool Applicable(Type contract)
         {
-            return ReflectionUtils.IsGenericTypeImplementation(contract, _pipelineType);
+            return ReflectionUtils.IsGenericTypeImplementation(contract, _pipelineGenericType);
         }
 
         public IDependency BuildDependency(Type contract, IDependencyEngine engine)

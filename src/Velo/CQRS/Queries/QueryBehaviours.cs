@@ -1,24 +1,30 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Velo.Utils;
 
 namespace Velo.CQRS.Queries
 {
-    internal sealed class QueryBehaviours<TQuery, TResult> : IDisposable
+    internal interface IQueryBehaviours<in TQuery, TResult> : IDisposable
         where TQuery : IQuery<TResult>
     {
-        public readonly bool HasBehaviours;
+        bool HasBehaviours { get; }
 
-        [ThreadStatic] 
-        private static Closure _closure;
+        Task<TResult> GetResponse(TQuery query, CancellationToken cancellationToken);
+    }
+
+    internal sealed class QueryBehaviours<TQuery, TResult> : IQueryBehaviours<TQuery, TResult>
+        where TQuery : IQuery<TResult>
+    {
+        public bool HasBehaviours => true;
+
+        [ThreadStatic] private static Closure _closure;
 
         private IQueryBehaviour<TQuery, TResult>[] _behaviours;
         private QueryPipeline<TQuery, TResult> _pipeline;
 
         public QueryBehaviours(QueryPipeline<TQuery, TResult> pipeline, IQueryBehaviour<TQuery, TResult>[] behaviours)
         {
-            HasBehaviours = behaviours.Length > 0;
-
             _behaviours = behaviours;
             _pipeline = pipeline;
         }
@@ -94,6 +100,27 @@ namespace Velo.CQRS.Queries
         {
             _behaviours = null;
             _pipeline = null;
+        }
+    }
+
+    internal sealed class NullQueryBehaviours<TQuery, TResult> : IQueryBehaviours<TQuery, TResult>
+        where TQuery : IQuery<TResult>
+    {
+        public static readonly IQueryBehaviours<TQuery, TResult> Instance = new NullQueryBehaviours<TQuery, TResult>();
+
+        public bool HasBehaviours => false;
+
+        private NullQueryBehaviours()
+        {
+        }
+
+        public Task<TResult> GetResponse(TQuery query, CancellationToken cancellationToken)
+        {
+            throw Error.InvalidOperation("No behaviours for execute");
+        }
+
+        public void Dispose()
+        {
         }
     }
 }

@@ -20,6 +20,9 @@ namespace Velo.Utils
             return elementType;
         }
 
+        /// <summary>
+        /// Get first declared not static constructor
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ConstructorInfo GetConstructor(Type type)
         {

@@ -1,21 +1,28 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Velo.Utils;
 
 namespace Velo.CQRS.Commands
 {
-    internal sealed class CommandBehaviours<TCommand> : IDisposable
+    internal interface ICommandBehaviours<in TCommand> : IDisposable
         where TCommand : ICommand
     {
-        public readonly bool HasBehaviours;
+        bool HasBehaviours { get; }
+        
+        Task Execute(TCommand command, CancellationToken cancellationToken);
+    }
+
+    internal sealed class CommandBehaviours<TCommand> : ICommandBehaviours<TCommand>
+        where TCommand : ICommand
+    {
+        public bool HasBehaviours => true;
 
         private ICommandBehaviour<TCommand>[] _behaviours;
         private CommandPipeline<TCommand> _pipeline;
 
         public CommandBehaviours(CommandPipeline<TCommand> pipeline, ICommandBehaviour<TCommand>[] behaviours)
         {
-            HasBehaviours = behaviours.Length > 0;
-
             _behaviours = behaviours;
             _pipeline = pipeline;
         }
@@ -65,6 +72,27 @@ namespace Velo.CQRS.Commands
         {
             _behaviours = null;
             _pipeline = null;
+        }
+    }
+
+    internal sealed class NullCommandBehaviours<TCommand> : ICommandBehaviours<TCommand>
+        where TCommand : ICommand
+    {
+        public static ICommandBehaviours<TCommand> Instance = new NullCommandBehaviours<TCommand>();
+
+        public bool HasBehaviours => false;
+        
+        private NullCommandBehaviours()
+        {
+        }
+
+        public Task Execute(TCommand command, CancellationToken cancellationToken)
+        {
+            throw Error.InvalidOperation("No behaviours for execute");
+        }
+
+        public void Dispose()
+        {
         }
     }
 }

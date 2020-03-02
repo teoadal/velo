@@ -7,7 +7,7 @@ namespace Velo.CQRS.Commands
     internal sealed class CommandPipeline<TCommand> : ICommandPipeline
         where TCommand : ICommand
     {
-        private CommandBehaviours<TCommand> _behaviours;
+        private ICommandBehaviours<TCommand> _behaviours;
         private ICommandPreProcessor<TCommand>[] _preProcessors;
         private ICommandProcessor<TCommand> _processor;
         private ICommandPostProcessor<TCommand>[] _postProcessors;
@@ -18,12 +18,24 @@ namespace Velo.CQRS.Commands
             ICommandProcessor<TCommand> processor,
             ICommandPostProcessor<TCommand>[] postProcessors)
         {
-            _behaviours = new CommandBehaviours<TCommand>(this, behaviours);
+            _behaviours = behaviours.Length > 0
+                ? new CommandBehaviours<TCommand>(this, behaviours)
+                : NullCommandBehaviours<TCommand>.Instance;
+
             _preProcessors = preProcessors;
             _processor = processor;
             _postProcessors = postProcessors;
         }
 
+        public CommandPipeline(ICommandProcessor<TCommand> processor)
+        {
+            _behaviours = NullCommandBehaviours<TCommand>.Instance;
+
+            _preProcessors = Array.Empty<ICommandPreProcessor<TCommand>>();
+            _processor = processor;
+            _postProcessors = Array.Empty<ICommandPostProcessor<TCommand>>();
+        }
+        
         public Task Execute(TCommand command, CancellationToken cancellationToken)
         {
             return _behaviours.HasBehaviours

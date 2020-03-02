@@ -24,7 +24,7 @@ namespace Velo.CQRS
         {
             EnsureNotDisposed();
 
-            var handlerType = PipelineTypes.GetForQuery(query.GetType());
+            var handlerType = PipelineTypes.GetQueryPipelineType(query.GetType());
             var handler = (IQueryPipeline<TResult>) _scope.GetService(handlerType);
 
             return handler.GetResponse(query, cancellationToken);
@@ -62,7 +62,7 @@ namespace Velo.CQRS
         {
             EnsureNotDisposed();
 
-            var executorType = PipelineTypes.GetForCommand(command.GetType());
+            var executorType = PipelineTypes.GetCommandPipelineType(command.GetType());
             var executor = (ICommandPipeline) _scope.GetService(executorType);
 
             return executor.Send(command, cancellationToken);
@@ -70,9 +70,9 @@ namespace Velo.CQRS
 
         public Task Send(INotification notification, CancellationToken cancellationToken = default)
         {
-            if (_disposed) throw Error.Disposed(nameof(Emitter));
+            EnsureNotDisposed();
 
-            var publisherType = PipelineTypes.GetForNotification(notification.GetType());
+            var publisherType = PipelineTypes.GetNotificationPipelineType(notification.GetType());
             var publisher = (INotificationPipeline) _scope.GetService(publisherType);
 
             return publisher?.Publish(notification, cancellationToken) ?? TaskUtils.CompletedTask;

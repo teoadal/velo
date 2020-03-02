@@ -16,14 +16,19 @@ namespace Velo.Tests.Logging
     {
         private readonly Mock<ILogFormatter> _formatter;
         private readonly Type _sender;
-        
+
         public LogContextShould(ITestOutputHelper output) : base(output)
         {
             _formatter = new Mock<ILogFormatter>();
             _sender = typeof(LogContextShould);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [InlineAutoData(LogLevel.Trace)]
+        [InlineAutoData(LogLevel.Debug)]
+        [InlineAutoData(LogLevel.Info)]
+        [InlineAutoData(LogLevel.Warning)]
+        [InlineAutoData(LogLevel.Error)]
         public void HasValidData(LogLevel logLevel, string template)
         {
             var context = new LogContext(logLevel, _sender, _formatter.Object, template);
@@ -38,18 +43,18 @@ namespace Velo.Tests.Logging
         {
             var context = new LogContext(LogLevel.Debug, _sender, null, template);
             var message = new JsonObject();
-            
+
             context.RenderMessage(message).Should().BeEquivalentTo(template);
         }
-        
+
         [Fact]
         public void UseFormatter()
         {
             var context = new LogContext(LogLevel.Debug, _sender, _formatter.Object, "Template");
             var message = new JsonObject();
-            
+
             context.RenderMessage(message);
-            
+
             _formatter.Verify(formatter => formatter
                 .Write(message, It.IsNotNull<TextWriter>()));
         }

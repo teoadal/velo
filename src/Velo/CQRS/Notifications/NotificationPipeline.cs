@@ -16,6 +16,11 @@ namespace Velo.CQRS.Notifications
             _processors = processors;
         }
 
+        public NotificationPipeline(INotificationProcessor<TNotification> processor)
+        {
+            _processors = new[] {processor};
+        }
+        
         public Task Publish(TNotification notification, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();

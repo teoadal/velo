@@ -1,209 +1,169 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Threading;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Moq;
 using Velo.CQRS;
 using Velo.CQRS.Commands;
 using Velo.CQRS.Notifications;
+using Velo.CQRS.Queries;
 using Velo.DependencyInjection;
-using Velo.Logging;
-using Velo.Logging.Writers;
-using Velo.Serialization.Models;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting.Boos.Create;
 using Velo.TestsModels.Emitting.Boos.Get;
-using Velo.TestsModels.Foos;
 using Xunit;
 using Xunit.Abstractions;
-using Emitting = Velo.TestsModels.Emitting;
 
 namespace Velo.Tests.CQRS
 {
     public class EmitterShould : TestClass
     {
-        private readonly DependencyProvider _dependencyProvider;
+        private readonly CancellationToken _ct;
         private readonly IEmitter _emitter;
-        private readonly Mock<IBooRepository> _repository;
-        private readonly Mock<ILogWriter> _logger;
+        private Func<Type, object> _serviceResolver;
 
         public EmitterShould(ITestOutputHelper output) : base(output)
         {
-            _logger = new Mock<ILogWriter>();
-            _repository = new Mock<IBooRepository>();
+            _ct = CancellationToken.None;
 
-            _repository
-                .Setup(repository => repository.GetElement(It.IsAny<int>()))
-                .Returns<int>(id => new Boo {Id = id});
+            var scope = new Mock<IServiceProvider>();
+            scope
+                .Setup(s => s.GetService(It.IsNotNull<Type>()))
+                .Returns<Type>(type => _serviceResolver(type));
 
-            _dependencyProvider = new DependencyCollection()
-                .AddInstance(_repository.Object)
-                .AddCommandProcessor<Emitting.Boos.Create.Processor>(DependencyLifetime.Scoped)
-                .AddLogging()
-                .AddLogWriter(_logger.Object)
-                .AddNotificationProcessor<NotificationProcessor>()
-                .AddQueryProcessor<Emitting.Boos.Get.Processor>()
-                .AddEmitter()
-                .BuildProvider();
-
-            _emitter = _dependencyProvider.GetRequiredService<IEmitter>();
+            _emitter = new Emitter(scope.Object);
         }
 
         [Theory, AutoData]
-        public async Task ExecuteCommand(Command command)
+        public void AskedQuery(Query query)
         {
-            await _emitter.Execute(command);
+            var pipeline = new Mock<IQueryPipeline<Boo>>();
 
-            _repository.Verify(repository => repository
-                .AddElement(It.Is<Boo>(b => b.Id == command.Id && b.Int == command.Int)));
-        }
+            _serviceResolver = _ => pipeline.Object;
 
-        [Fact]
-        public async Task PublishNotification()
-        {
-            await _emitter.Publish(new Notification());
-            _logger.Verify(logger => logger
-                .Write(
-                    It.Is<LogContext>(context =>
-                        context.Level == LogLevel.Debug && context.Sender == typeof(NotificationProcessor)),
-                    It.IsAny<JsonObject>()));
-        }
+            _emitter.Awaiting(e => e.Ask(query, _ct))
+                .Should().NotThrow();
 
-        [Fact]
-        public void RegisteredAsScoped()
-        {
-            var dependencies = new DependencyCollection()
-                .AddEmitter();
-
-            dependencies.GetLifetime<IEmitter>().Should().Be(DependencyLifetime.Scoped);
+            pipeline.Verify(p => p.GetResponse(query, _ct));
         }
 
         [Theory, AutoData]
-        public async Task ReturnAskResult(int booId)
+        public void AskedConcreteQuery(Query query)
         {
-            var query = new Query(booId);
-            var askResult = await _emitter.Ask(query);
+            var processor = new Mock<IQueryProcessor<Query, Boo>>();
 
-            askResult.Id.Should().Be(booId);
+            _serviceResolver = _ => new QueryPipeline<Query, Boo>(processor.Object);
+
+            _emitter.Awaiting(e => e.Ask<Query, Boo>(query, _ct))
+                .Should().NotThrow();
+
+            processor.Verify(p => p.Process(query, _ct));
         }
 
         [Theory, AutoData]
-        public async Task ReturnConcreteAskResult(int booId)
+        public void ExecuteCommand(Command command)
         {
-            var query = new Query(booId);
-            var concreteAskResult = await _emitter.Ask<Query, Boo>(query);
-            concreteAskResult.Id.Should().Be(booId);
+            var processor = new Mock<ICommandProcessor<Command>>();
+
+            _serviceResolver = _ => new CommandPipeline<Command>(processor.Object);
+
+            _emitter.Awaiting(e => e.Execute(command, _ct))
+                .Should().NotThrow();
+
+            processor.Verify(p => p.Process(command, _ct));
         }
 
         [Fact]
-        public void Scoped()
+        public void NotThrowIfNotificationProcessorNotFound()
         {
-            var firstScope = _dependencyProvider.CreateScope();
-            var firstEmitter = firstScope.GetRequiredService<IEmitter>();
+            var notification = new Notification();
 
-            var secondScope = _dependencyProvider.CreateScope();
-            var secondEmitter = secondScope.GetRequiredService<IEmitter>();
+            _serviceResolver = _ => null;
 
-            firstEmitter.Should().NotBe(secondEmitter);
+            _emitter.Awaiting(e => e.Publish(notification, _ct))
+                .Should().NotThrow();
+        }
+
+        [Fact]
+        public void PublishNotification()
+        {
+            var notification = new Notification();
+            var processor = new Mock<INotificationProcessor<Notification>>();
+
+            _serviceResolver = _ => new NotificationPipeline<Notification>(processor.Object);
+
+            _emitter.Awaiting(e => e.Publish(notification, _ct))
+                .Should().NotThrow();
+
+            processor.Verify(p => p.Process(notification, _ct));
         }
 
         [Theory, AutoData]
-        public async Task SendCommand(Command command)
+        public void SendCommand(Command command)
         {
-            await _emitter.Send(command);
+            var processor = new Mock<ICommandProcessor<Command>>();
 
-            _repository.Verify(repository => repository
-                .AddElement(It.Is<Boo>(b => b.Id == command.Id && b.Int == command.Int)));
+            _serviceResolver = _ => new CommandPipeline<Command>(processor.Object);
+
+            _emitter.Awaiting(e => e.Send(command, _ct))
+                .Should().NotThrow();
+
+            processor.Verify(p => p.Process(command, _ct));
+        }
+
+        [Fact]
+        public void SendNotification()
+        {
+            var notification = new Notification();
+            var processor = new Mock<INotificationProcessor<Notification>>();
+
+            _serviceResolver = _ => new NotificationPipeline<Notification>(processor.Object);
+
+            _emitter.Awaiting(e => e.Send(notification, _ct))
+                .Should().NotThrow();
+
+            processor.Verify(p => p.Process(notification, _ct));
         }
 
         [Theory, AutoData]
-        public async Task SendNotification(Notification notification)
-        {
-            notification.StopPropagation = false;
-            
-            await _emitter.Send(notification);
-
-            _logger.Verify(logger => logger
-                .Write(It.Is<LogContext>(context => context.Level == LogLevel.Debug && context.Sender == typeof(NotificationProcessor)), 
-                    It.IsAny<JsonObject>()));
-        }
-
-        [Theory, AutoData]
-        public async Task UseScannedProcessors(Command command, Boo boo)
-        {
-            var fooRepository = new Mock<IFooRepository>(); // need for notification pipeline
-
-            var provider = new DependencyCollection()
-                .AddInstance(_repository.Object)
-                .AddInstance(fooRepository.Object)
-                .AddEmitter()
-                .AddLogging()
-                .Scan(scanner => scanner
-                    .AssemblyOf<Emitting.Boos.Create.Processor>()
-                    .AddEmitterProcessors())
-                .BuildProvider();
-
-            var emitter = provider.GetRequiredService<IEmitter>();
-
-            await emitter.Execute(command);
-
-            _repository.Verify(repository => repository
-                .AddElement(It.Is<Boo>(b => b.Id == command.Id && b.Int == command.Int)));
-
-            fooRepository.Verify(repository => repository
-                .AddElement(It.IsAny<Foo>()));
-
-            _repository
-                .Setup(repository => repository.GetElement(It.IsAny<int>()))
-                .Returns(boo);
-
-            var result = await emitter.Ask(new Query(boo.Id));
-            result.Should().Be(boo);
-        }
-
-        [Fact]
-        public async Task NotThrowIfNotDisposed()
-        {
-            using var scope = _dependencyProvider.CreateScope();
-            var emitter = scope.GetRequiredService<IEmitter>();
-            await emitter.Execute(new Command {Id = 1});
-        }
-
-        [Fact]
-        public async Task NotThrowIfNotificationProcessorNotRegistered()
-        {
-            using var scope = _dependencyProvider.CreateScope();
-            var emitter = scope.GetRequiredService<IEmitter>();
-
-            await emitter.Send(Mock.Of<INotification>());
-            await emitter.Publish(Mock.Of<Notification>());
-        }
-
-        [Fact]
-        public async Task ThrowIfProcessorNotRegistered()
+        public void ThrowIfCommandProcessorNotRegistered(Command command)
         {
             var emitter = new DependencyCollection()
                 .AddEmitter()
                 .BuildProvider()
                 .GetRequiredService<IEmitter>();
 
-            await Assert.ThrowsAsync<KeyNotFoundException>(() => emitter.Ask(Mock.Of<Query>()));
-            await Assert.ThrowsAsync<KeyNotFoundException>(() => emitter.Execute(Mock.Of<Command>()));
-            await Assert.ThrowsAsync<KeyNotFoundException>(() => emitter.Send(Mock.Of<ICommand>()));
+            emitter.Awaiting(e => e.Execute(command, _ct))
+                .Should().Throw<KeyNotFoundException>();
+
+            emitter.Awaiting(e => e.Send(command, _ct))
+                .Should().Throw<KeyNotFoundException>();
+        }
+
+        [Theory, AutoData]
+        public void ThrowIfQueryProcessorNotRegistered(Query query)
+        {
+            var emitter = new DependencyCollection()
+                .AddEmitter()
+                .BuildProvider()
+                .GetRequiredService<IEmitter>();
+
+            emitter.Awaiting(e => e.Ask(query, _ct))
+                .Should().Throw<KeyNotFoundException>();
+
+            emitter.Awaiting(e => e.Ask<Query, Boo>(query, _ct))
+                .Should().Throw<KeyNotFoundException>();
         }
 
         [Fact]
-        public async Task ThrowDisposedAfterCloseScope()
+        public void ThrowIfDisposed()
         {
-            var scope = _dependencyProvider.CreateScope();
-            var emitter = scope.GetRequiredService<IEmitter>();
-            scope.Dispose();
+            ((Emitter) _emitter).Dispose();
 
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => emitter.Ask(Mock.Of<Query>()));
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => emitter.Execute(Mock.Of<Command>()));
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => emitter.Send(Mock.Of<ICommand>()));
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => emitter.Send(Mock.Of<INotification>()));
+            _emitter
+                .Awaiting(e => e.Ask(It.IsAny<Query>(), _ct))
+                .Should().Throw<ObjectDisposedException>();
         }
     }
 }
