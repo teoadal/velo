@@ -1,34 +1,24 @@
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using Velo.Serialization.Models;
 using Velo.Utils;
 
 namespace Velo.Logging.Enrichers
 {
-    internal sealed class SenderEnricher : ILogEnricher
+    internal sealed class SenderEnricher : ConcurrentDictionary<Type, JsonVerbose>, ILogEnricher
     {
         public const string Name = "_sender";
-
-        private readonly object _lock;
-        private readonly Dictionary<Type, JsonVerbose> _senders;
-
+        
+        private readonly Func<Type, JsonVerbose> _builder;
+        
         public SenderEnricher()
         {
-            _lock = new object();
-            _senders = new Dictionary<Type, JsonVerbose>();
+            _builder = sender => new JsonVerbose(ReflectionUtils.GetName(sender));
         }
 
         public void Enrich(LogLevel level, Type sender, JsonObject message)
         {
-            if (!_senders.TryGetValue(sender, out var value))
-            {
-                value = new JsonVerbose(ReflectionUtils.GetName(sender));
-                using (Lock.Enter(_lock))
-                {
-                    _senders[sender] = value;
-                }
-            }
-
+            var value = GetOrAdd(sender, _builder);
             message.Add(Name, value);
         }
     }

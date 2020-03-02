@@ -6,8 +6,6 @@ namespace Velo.Serialization.Models
 {
     public sealed class JsonObject : JsonData
     {
-        public static readonly JsonData Null = JsonValue.Null;
-
         private readonly Dictionary<string, JsonData> _properties;
 
         public JsonObject() : base(JsonDataType.Object)

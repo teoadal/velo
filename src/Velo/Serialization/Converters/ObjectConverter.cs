@@ -112,7 +112,7 @@ namespace Velo.Serialization.Converters
         {
             if (_equalityComparer.Equals(instance, default))
             {
-                return JsonObject.Null;
+                return JsonValue.Null;
             }
 
             var jsonObject = new JsonObject(_propertyConverters.Count);
@@ -125,8 +125,10 @@ namespace Velo.Serialization.Converters
             return jsonObject;
         }
 
-        void IJsonConverter.Serialize(object value, TextWriter writer) => Serialize((TObject) value, writer);
+        object IJsonConverter.ReadObject(JsonData data) => Read(data);
 
-        JsonData IJsonConverter.Write(object value) => Write((TObject) value);
+        void IJsonConverter.SerializeObject(object value, TextWriter writer) => Serialize((TObject) value, writer);
+
+        JsonData IJsonConverter.WriteObject(object value) => Write((TObject) value);
     }
 }

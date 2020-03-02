@@ -27,10 +27,17 @@ namespace Velo.Logging.Renderers
 
         public void Render(JsonObject message, object[] arguments)
         {
-            for (var i = 0; i < _arguments.Length; i++)
+            try
             {
-                var value = _converters[i].Write(arguments[i]);
-                message.Add(_arguments[i], value);
+                for (var i = 0; i < _arguments.Length; i++)
+                {
+                    var value = _converters[i].WriteObject(arguments[i]);
+                    message.Add(_arguments[i], value);
+                }
+            }
+            catch (InvalidCastException e)
+            {
+                throw new InvalidTemplateException(e);
             }
         }
     }

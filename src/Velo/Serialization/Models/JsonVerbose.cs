@@ -2,7 +2,7 @@ using System.IO;
 
 namespace Velo.Serialization.Models
 {
-    internal sealed class JsonVerbose : JsonData
+    public sealed class JsonVerbose : JsonData
     {
         public readonly string Value;
 

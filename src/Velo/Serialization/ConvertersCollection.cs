@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
@@ -14,34 +15,27 @@ namespace Velo.Serialization
         IJsonConverter<T> Get<T>();
     }
 
-    internal sealed class ConvertersCollection : IConvertersCollection
+    internal sealed class ConvertersCollection : ConcurrentDictionary<Type, IJsonConverter>, IConvertersCollection
     {
-        private readonly Dictionary<Type, IJsonConverter> _converters;
+        private readonly Func<Type, IJsonConverter> _builder;
         private readonly Type _listGenericType;
-        private readonly object _lock;
 
         public ConvertersCollection(CultureInfo culture)
+            : base(BuildDefaultConverters(culture))
         {
-            _converters = BuildDefaultConverters(culture);
+            _builder = Build;
             _listGenericType = typeof(List<>);
-            _lock = new object();
         }
 
         public IJsonConverter Get(Type type)
         {
-            if (_converters.TryGetValue(type, out var exists)) return exists;
-
-            var converter = Build(type);
-
-            using (Lock.Enter(_lock))
-            {
-                _converters[type] = converter;
-            }
-
-            return converter;
+            return GetOrAdd(type, _builder);
         }
 
-        public IJsonConverter<T> Get<T>() => (IJsonConverter<T>) Get(Typeof<T>.Raw);
+        public IJsonConverter<T> Get<T>()
+        {
+            return (IJsonConverter<T>) GetOrAdd(Typeof<T>.Raw, _builder);
+        }
 
         private IJsonConverter Build(Type type)
         {

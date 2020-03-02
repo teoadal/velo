@@ -8,7 +8,7 @@ namespace Velo.Serialization.Converters
     internal sealed class GuidConverter : IJsonConverter<Guid>
     {
         public bool IsPrimitive => true;
-        
+
         public Guid Deserialize(ref JsonTokenizer tokenizer)
         {
             var token = tokenizer.Current;
@@ -20,7 +20,7 @@ namespace Velo.Serialization.Converters
             var jsonValue = (JsonValue) jsonData;
             return Guid.Parse(jsonValue.Value);
         }
-        
+
         public void Serialize(Guid value, TextWriter writer)
         {
             writer.Write('"');
@@ -33,8 +33,10 @@ namespace Velo.Serialization.Converters
             return new JsonValue(value.ToString(), JsonDataType.String);
         }
 
-        void IJsonConverter.Serialize(object value, TextWriter writer) => Serialize((Guid) value, writer);
+        object IJsonConverter.ReadObject(JsonData data) => Read(data);
 
-        JsonData IJsonConverter.Write(object value) => Write((Guid) value);
+        void IJsonConverter.SerializeObject(object value, TextWriter writer) => Serialize((Guid) value, writer);
+
+        JsonData IJsonConverter.WriteObject(object value) => Write((Guid) value);
     }
 }

@@ -7,6 +7,8 @@ namespace Velo.Serialization.Converters
 {
     internal sealed class FloatConverter : IJsonConverter<float>
     {
+        public const string Pattern = "0.0##########";
+        
         public bool IsPrimitive => true;
 
         private readonly CultureInfo _cultureInfo;
@@ -30,16 +32,18 @@ namespace Velo.Serialization.Converters
 
         public void Serialize(float value, TextWriter writer)
         {
-            writer.Write(value.ToString(_cultureInfo));
+            writer.Write(value.ToString(Pattern, _cultureInfo));
         }
 
         public JsonData Write(float value)
         {
-            return new JsonValue(value.ToString(_cultureInfo), JsonDataType.Number);
+            return new JsonValue(value.ToString(Pattern, _cultureInfo), JsonDataType.Number);
         }
 
-        void IJsonConverter.Serialize(object value, TextWriter writer) => Serialize((float) value, writer);
+        object IJsonConverter.ReadObject(JsonData data) => Read(data);
 
-        JsonData IJsonConverter.Write(object value) => Write((float) value);
+        void IJsonConverter.SerializeObject(object value, TextWriter writer) => Serialize((float) value, writer);
+
+        JsonData IJsonConverter.WriteObject(object value) => Write((float) value);
     }
 }

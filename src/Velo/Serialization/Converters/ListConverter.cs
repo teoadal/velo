@@ -47,6 +47,8 @@ namespace Velo.Serialization.Converters
 
         public List<TElement> Read(JsonData jsonData)
         {
+            if (jsonData.Type == JsonDataType.Null) return null;
+
             var listData = (JsonArray) jsonData;
 
             var list = new List<TElement>(listData.Length);
@@ -95,8 +97,11 @@ namespace Velo.Serialization.Converters
             return new JsonArray(jsonElements);
         }
 
-        void IJsonConverter.Serialize(object value, TextWriter writer) => Serialize((List<TElement>) value, writer);
+        object IJsonConverter.ReadObject(JsonData data) => Read(data);
 
-        JsonData IJsonConverter.Write(object value) => Write((List<TElement>) value);
+        void IJsonConverter.SerializeObject(object value, TextWriter writer) =>
+            Serialize((List<TElement>) value, writer);
+
+        JsonData IJsonConverter.WriteObject(object value) => Write((List<TElement>) value);
     }
 }

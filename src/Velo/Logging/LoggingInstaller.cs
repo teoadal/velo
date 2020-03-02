@@ -13,7 +13,7 @@ namespace Velo.DependencyInjection
         public static DependencyCollection AddLogging(this DependencyCollection collection)
         {
             collection
-                .AddSingleton<IRendererCollection, RendererCollection>()
+                .AddSingleton<IRendererCollection, RenderersCollection>()
                 .AddFactory(new LogProviderFactory())
                 .AddScoped(typeof(ILogger<>), typeof(Logger<>));
 

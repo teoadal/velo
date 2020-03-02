@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using Velo.Collections;
 using Velo.Logging.Formatters;
@@ -15,66 +14,41 @@ namespace Velo.Logging.Renderers
         TRenderer GetRenderer<TRenderer>(string template) where TRenderer : Renderer;
     }
 
-    internal sealed class RendererCollection : IRendererCollection
+    internal sealed class RenderersCollection : DangerousVector<string, Renderer>, IRendererCollection
     {
+        private readonly Func<string, object[], Renderer> _arrayRendererBuilder;
         private readonly IConvertersCollection _converters;
-        private readonly Dictionary<string, Renderer> _renderers;
-        private readonly object _lock;
+        private readonly Func<string, Type, Renderer> _rendererBuilder;
 
-        public RendererCollection(IConvertersCollection converters = null)
+        public RenderersCollection(IConvertersCollection converters = null)
         {
+            _arrayRendererBuilder = BuildArrayRenderer;
             _converters = converters ?? new ConvertersCollection(CultureInfo.InvariantCulture);
-            _renderers = new Dictionary<string, Renderer>();
-            _lock = new object();
+            _rendererBuilder = BuildRenderer;
         }
 
         public ArrayRenderer GetArrayRenderer(string template, object[] args)
         {
-            if (_renderers.TryGetValue(template, out var renderer)) return (ArrayRenderer) renderer;
-            
+            return (ArrayRenderer) GetOrAdd(template, _arrayRendererBuilder, args);
+        }
+
+        public TRenderer GetRenderer<TRenderer>(string template) where TRenderer : Renderer
+        {
+            return (TRenderer) GetOrAdd(template, _rendererBuilder, Typeof<TRenderer>.Raw);
+        }
+
+        private Renderer BuildArrayRenderer(string template, object[] args)
+        {
             var arguments = BuildArguments(template);
             var argumentTypes = new LocalList<Type>(args.Length);
-            
+
             foreach (var arg in args)
             {
                 argumentTypes.Add(arg.GetType());
             }
 
             var messageRenderer = new DefaultStringFormatter(template);
-            renderer = new ArrayRenderer(arguments, messageRenderer, argumentTypes, _converters);
-
-            using (Lock.Enter(_lock))
-            {
-                _renderers[template] = renderer;
-            }
-
-            return (ArrayRenderer) renderer;
-        }
-
-        public TRenderer GetRenderer<TRenderer>(string template) where TRenderer : Renderer
-        {
-            if (!_renderers.TryGetValue(template, out var renderer))
-            {
-                var arguments = BuildArguments(template);
-                var messageRenderer = new DefaultStringFormatter(template);
-                var constructorParams = new object[] {arguments, messageRenderer, _converters};
-                
-                renderer = (TRenderer) Activator.CreateInstance(typeof(TRenderer), constructorParams);
-
-                using (Lock.Enter(_lock))
-                {
-                    _renderers[template] = renderer;
-                }
-            }
-
-            try
-            {
-                return (TRenderer) renderer;
-            }
-            catch (InvalidCastException e)
-            {
-                throw Error.Cast($"Template '{template}' is used elsewhere with other types of arguments or with other arguments", e);
-            }
+            return new ArrayRenderer(arguments, messageRenderer, argumentTypes, _converters);
         }
 
         private static string[] BuildArguments(string template)
@@ -107,6 +81,15 @@ namespace Velo.Logging.Renderers
             }
 
             return arguments.ToArray();
+        }
+
+        private Renderer BuildRenderer(string template, Type rendererType)
+        {
+            var arguments = BuildArguments(template);
+            var messageRenderer = new DefaultStringFormatter(template);
+            var constructorParams = new object[] {arguments, messageRenderer, _converters};
+
+            return (Renderer) Activator.CreateInstance(rendererType, constructorParams);
         }
     }
 }

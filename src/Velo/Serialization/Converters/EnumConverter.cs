@@ -41,8 +41,10 @@ namespace Velo.Serialization.Converters
             return new JsonValue(index.ToString(), JsonDataType.Number);
         }
 
-        void IJsonConverter.Serialize(object value, TextWriter writer) => Serialize((TEnum) value, writer);
+        object IJsonConverter.ReadObject(JsonData data) => Read(data);
 
-        JsonData IJsonConverter.Write(object value) => Write((TEnum) value);
+        void IJsonConverter.SerializeObject(object value, TextWriter writer) => Serialize((TEnum) value, writer);
+
+        JsonData IJsonConverter.WriteObject(object value) => Write((TEnum) value);
     }
 }

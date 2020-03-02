@@ -139,7 +139,7 @@ namespace Velo.Serialization.Tokenization
             do
             {
                 var ch = _reader.Current;
-                if (!char.IsDigit(ch) && ch != '.') break;
+                if (!char.IsDigit(ch) && ch != '.' && ch != '-') break;
 
                 buffer.Add(ch);
             } while (_reader.MoveNext());

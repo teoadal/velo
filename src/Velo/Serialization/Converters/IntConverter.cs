@@ -7,7 +7,7 @@ namespace Velo.Serialization.Converters
     internal sealed class IntConverter : IJsonConverter<int>
     {
         public bool IsPrimitive => true;
-        
+
         public int Deserialize(ref JsonTokenizer tokenizer)
         {
             var token = tokenizer.Current;
@@ -19,7 +19,7 @@ namespace Velo.Serialization.Converters
             var jsonValue = (JsonValue) jsonData;
             return int.Parse(jsonValue.Value);
         }
-        
+
         public void Serialize(int value, TextWriter writer)
         {
             writer.Write(value);
@@ -27,13 +27,15 @@ namespace Velo.Serialization.Converters
 
         public JsonData Write(int value)
         {
-            return value == 0 
-                ? JsonValue.Zero 
+            return value == 0
+                ? JsonValue.Zero
                 : new JsonValue(value.ToString(), JsonDataType.Number);
         }
 
-        void IJsonConverter.Serialize(object value, TextWriter writer) => Serialize((int) value, writer);
+        object IJsonConverter.ReadObject(JsonData data) => Read(data);
 
-        JsonData IJsonConverter.Write(object value) => Write((int) value);
+        void IJsonConverter.SerializeObject(object value, TextWriter writer) => Serialize((int) value, writer);
+
+        JsonData IJsonConverter.WriteObject(object value) => Write((int) value);
     }
 }

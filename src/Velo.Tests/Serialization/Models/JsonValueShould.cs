@@ -19,7 +19,7 @@ namespace Velo.Tests.Serialization.Models
             JsonValue.Boolean(true).Should().Be(JsonValue.True);
 
             JsonValue.Number(0).Should().Be(JsonValue.Zero);
-            JsonValue.Number(25f).Should().Be(JsonValue.Number(25));
+            JsonValue.Number(25f).Should().Be(JsonValue.Number(25f));
 
             JsonValue.String(string.Empty).Should().Be(JsonValue.StringEmpty);
             JsonValue.String("abc").Should().Be(JsonValue.String("abc"));

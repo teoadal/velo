@@ -86,8 +86,10 @@ namespace Velo.Serialization.Converters
             return new JsonArray(jsonElements);
         }
 
-        void IJsonConverter.Serialize(object value, TextWriter writer) => Serialize((TElement[]) value, writer);
+        object IJsonConverter.ReadObject(JsonData data) => Read(data);
+        
+        void IJsonConverter.SerializeObject(object value, TextWriter writer) => Serialize((TElement[]) value, writer);
 
-        JsonData IJsonConverter.Write(object value) => Write((TElement[]) value);
+        JsonData IJsonConverter.WriteObject(object value) => Write((TElement[]) value);
     }
 }

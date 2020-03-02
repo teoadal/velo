@@ -67,7 +67,7 @@ namespace Velo.Serialization
             var type = source.GetType();
             var converter = _converters.Get(type);
             
-            converter.Serialize(source, writer);
+            converter.SerializeObject(source, writer);
         }
         
         private TOut Deserialize<TOut>(JsonReader reader)

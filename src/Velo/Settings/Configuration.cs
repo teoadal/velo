@@ -1,21 +1,21 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using Velo.Collections;
 using Velo.Extensions;
 using Velo.Serialization;
-using Velo.Serialization.Converters;
 using Velo.Serialization.Models;
 using Velo.Settings.Sources;
 using Velo.Utils;
 
 namespace Velo.Settings
 {
-    internal sealed class Configuration : IConfiguration
+    internal sealed class Configuration : DangerousVector<string, object>, IConfiguration
     {
         public IConfigurationSource[] Sources => _sources;
 
-        private readonly Dictionary<string, object> _cache;
         private readonly IConvertersCollection _converters;
+        private readonly Func<string, Type, object> _sectionBuilder;
         private readonly IConfigurationSource[] _sources;
 
         private JsonObject _configuration;
@@ -24,8 +24,8 @@ namespace Velo.Settings
         {
             if (sources == null) sources = Array.Empty<IConfigurationSource>();
 
-            _cache = new Dictionary<string, object>();
             _converters = converters ?? new ConvertersCollection(CultureInfo.InvariantCulture);
+            _sectionBuilder = BuildSection;
             _sources = sources;
 
             Reload();
@@ -61,27 +61,8 @@ namespace Velo.Settings
 
         public bool TryGet<T>(string path, out T value)
         {
-            if (_cache.TryGetValue(path, out var cached))
-            {
-                value = (T) cached;
-                return true;
-            }
-            
-            if (!TryGetJsonData(path, out var jsonData))
-            {
-                value = default;
-                return false;
-            }
-
-            var converter = GetValidConverter<T>(jsonData);
-            value = converter.Read(jsonData);
-            
-            using (Lock.Enter(_cache))
-            {
-                _cache[path] = value;
-            }
-            
-            return true;
+            value = (T) GetOrAdd(path, _sectionBuilder, Typeof<T>.Raw);
+            return value != null;
         }
 
         public void Reload()
@@ -97,11 +78,9 @@ namespace Velo.Settings
                 }
             }
 
-            using (Lock.Enter(_cache))
-            {
-                _cache.Clear();
-                _configuration = root;
-            }
+            ClearSafe();
+            
+            _configuration = root;
         }
 
         private static void CopyValues(JsonObject from, JsonObject to)
@@ -119,20 +98,22 @@ namespace Velo.Settings
             }
         }
 
-        private IJsonConverter<T> GetValidConverter<T>(JsonData data)
+        private object BuildSection(string path, Type sectionType)
         {
-            var jsonDataType = data.Type;
+            if (!TryGetJsonData(path, out var jsonData)) return null;
+
+            var jsonDataType = jsonData.Type;
             var primitiveData = jsonDataType != JsonDataType.Object && jsonDataType != JsonDataType.Array;
             
-            var converter = _converters.Get<T>();
+            var converter = _converters.Get(sectionType);
             if (converter.IsPrimitive && !primitiveData || !converter.IsPrimitive && primitiveData)
             {
-                throw CastException(jsonDataType, ReflectionUtils.GetName<T>());
+                throw CastException(jsonDataType, ReflectionUtils.GetName(sectionType));
             }
-
-            return converter;
+            
+            return converter.ReadObject(jsonData);
         }
-
+        
         private bool TryGetJsonData(string path, out JsonData data)
         {
             var properties = path.Split('.');

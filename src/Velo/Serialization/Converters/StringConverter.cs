@@ -17,7 +17,7 @@ namespace Velo.Serialization.Converters
         public string Read(JsonData jsonData)
         {
             var jsonValue = (JsonValue) jsonData;
-            return jsonValue.Value;
+            return jsonValue.Type == JsonDataType.Null ? null : jsonValue.Value;
         }
 
         public void Serialize(string value, TextWriter writer)
@@ -36,13 +36,17 @@ namespace Velo.Serialization.Converters
 
         public JsonData Write(string value)
         {
+            if (value == null) return JsonValue.Null;
+            
             return string.IsNullOrEmpty(value)
                 ? JsonValue.StringEmpty
                 : new JsonValue(value, JsonDataType.String);
         }
 
-        void IJsonConverter.Serialize(object value, TextWriter writer) => Serialize((string) value, writer);
+        object IJsonConverter.ReadObject(JsonData data) => Read(data);
 
-        JsonData IJsonConverter.Write(object value) => Write((string) value);
+        void IJsonConverter.SerializeObject(object value, TextWriter writer) => Serialize((string) value, writer);
+
+        JsonData IJsonConverter.WriteObject(object value) => Write((string) value);
     }
 }

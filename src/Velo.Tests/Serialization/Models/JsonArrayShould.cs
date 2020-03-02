@@ -1,11 +1,12 @@
-using System;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using AutoFixture.Xunit2;
 using FluentAssertions;
+using Newtonsoft.Json;
 using Velo.Serialization;
+using Velo.Serialization.Converters;
 using Velo.Serialization.Models;
-using Velo.TestsModels;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -13,112 +14,120 @@ namespace Velo.Tests.Serialization.Models
 {
     public sealed class JsonArrayShould : TestClass
     {
-        private readonly IConvertersCollection _converters;
+        private readonly int[] _array;
+        private readonly IJsonConverter<int> _elementConverter;
+        private readonly JsonArray _jsonArray;
 
         public JsonArrayShould(ITestOutputHelper output) : base(output)
         {
-            _converters = new ConvertersCollection(CultureInfo.InvariantCulture);
+            _array = System.Linq.Enumerable.Range(0, 10).ToArray();
+
+            var converters = new ConvertersCollection(CultureInfo.InvariantCulture);
+            _elementConverter = converters.Get<int>();
+
+            _jsonArray = new JsonArray(_array.Select(_elementConverter.Write));
+        }
+
+        [Fact]
+        public void Enumerable()
+        {
+            var counter = 0;
+            foreach (var element in _jsonArray)
+            {
+                var expected = JsonValue.Number(_array[counter]);
+                element.Should().Be(expected);
+                counter++;
+            }
+
+            counter.Should().Be(_array.Length);
+        }
+
+        [Fact]
+        public void Empty()
+        {
+            JsonArray.Empty.Length.Should().Be(0);
+        }
+        
+        [Fact]
+        public void Contain()
+        {
+            foreach (var number in _array)
+            {
+                var value = JsonValue.Number(number);
+                _jsonArray.Contains(value).Should().BeTrue();
+            }
         }
 
         [Theory, AutoData]
-        public void Contains(int[] values)
+        public void CreatedByArray(int[] source)
         {
-            var array = new JsonArray(values.Select(JsonValue.Number));
-            for (var i = 0; i < values.Length; i++)
+            var jsonArray = new JsonArray(source.Select(_elementConverter.Write).ToArray());
+
+            for (var i = 0; i < source.Length; i++)
             {
-                var value = JsonValue.Number(values[i]);
-                array.Should().Contain(value);
-                array.Contains(value).Should().BeTrue();
-                array[i].Should().Be(value);
+                var expected = JsonValue.Number(source[i]);
+                jsonArray[i].Should().Be(expected);
             }
+        }
+
+        [Theory, AutoData]
+        public void CreatedByEnumerable(int[] source)
+        {
+            var jsonArray = new JsonArray(source.Select(_elementConverter.Write));
+
+            for (var i = 0; i < source.Length; i++)
+            {
+                var expected = JsonValue.Number(source[i]);
+                jsonArray[i].Should().Be(expected);
+            }
+        }
+
+        [Fact]
+        public void HasValidLength()
+        {
+            _jsonArray.Length.Should().Be(_array.Length);
         }
 
         [Fact]
         public void HasValidType()
         {
+            _jsonArray.Type.Should().Be(JsonDataType.Array);
             JsonArray.Empty.Type.Should().Be(JsonDataType.Array);
         }
 
         [Fact]
-        public void NotContains()
+        public void HasIndexerAccess()
         {
-            var value = new JsonValue(2.ToString(), JsonDataType.Number);
-            var notContainValue = new JsonValue(3.ToString(), JsonDataType.Number);
-            var array = new JsonArray(new JsonData[] {value});
-
-            array.Contains(notContainValue).Should().BeFalse();
-            array.Should().NotContain(notContainValue);
-        }
-
-        [Theory, AutoData]
-        public void Read(int[] source)
-        {
-            var converter = _converters.Get<int[]>();
-
-            var jsonArray = (JsonArray) converter.Write(source);
-            var result = converter.Read(jsonArray);
-            result.Should().BeEquivalentTo(source);
+            for (var i = 0; i < _array.Length; i++)
+            {
+                var value = JsonValue.Number(_array[i]);
+                _jsonArray[i].Should().Be(value);
+            }
         }
 
         [Fact]
-        public void ReadEmptyArray()
+        public void NotContain()
         {
-            var source = Array.Empty<int>();
-            var converter = _converters.Get<int[]>();
-
-            var jsonArray = (JsonArray) converter.Write(source);
-            var result = converter.Read(jsonArray);
-            result.Should().BeEquivalentTo(source);
+            var notContainValue = JsonValue.Number(int.MinValue);
+            _jsonArray.Contains(notContainValue).Should().BeFalse();
         }
 
         [Fact]
-        public void ReadNull()
+        public void Serialize()
         {
-            var converter = _converters.Get<int[]>();
+            var stringWriter = new StringWriter();
+            _jsonArray.Serialize(stringWriter);
 
-            var jsonArray = JsonValue.Null;
-            var result = converter.Read(jsonArray);
-            result.Should().BeNull();
-        }
+            var result = stringWriter.ToString();
 
-        [Theory, AutoData]
-        public void ReadObjects(BigObject[] source)
-        {
-            var converter = _converters.Get<BigObject[]>();
-
-            var jsonArray = (JsonArray) converter.Write(source);
-            var result = converter.Read(jsonArray);
-            // ReSharper disable once CoVariantArrayConversion
-            result.Should().BeEquivalentTo(source);
-        }
-
-        [Theory, AutoData]
-        public void Write(int[] source)
-        {
-            var converter = _converters.Get<int[]>();
-
-            var jsonArray = (JsonArray) converter.Write(source);
-            jsonArray.Should().Contain(source.Select(JsonValue.Number));
+            result.Should().Be(JsonConvert.SerializeObject(_array));
         }
 
         [Fact]
-        public void WriteNull()
+        public void UsedViaLinq()
         {
-            int[] source = null;
-            var converter = _converters.Get<int[]>();
-
-            // ReSharper disable once ExpressionIsAlwaysNull
-            var jsonArray = converter.Write(source);
-            jsonArray.Type.Should().Be(JsonDataType.Null);
-        }
-
-        [Theory, AutoData]
-        public void WriteObjects(BigObject[] source)
-        {
-            var converter = _converters.Get<BigObject>();
-
-            var jsonArray = (JsonArray) _converters.Get<BigObject[]>().Write(source);
-            jsonArray.Should().BeEquivalentTo(source.Select(s => converter.Write(s)));
+            _jsonArray.Should().Contain(JsonValue.Number(_array[0]));
+            _jsonArray.Should().NotContain(JsonValue.Number(int.MinValue));
         }
     }
 }

@@ -3,10 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Velo.Serialization.Models
 {
-    internal sealed class JsonArray : JsonData, IEnumerable<JsonData>
+    public sealed class JsonArray : JsonData, IEnumerable<JsonData>
     {
         public static readonly JsonArray Empty = new JsonArray(Array.Empty<JsonData>());
 
@@ -28,6 +29,7 @@ namespace Velo.Serialization.Models
 
         public bool Contains(JsonData data)
         {
+            // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var element in _elements)
             {
                 if (element.Equals(data)) return true;
@@ -36,10 +38,7 @@ namespace Velo.Serialization.Models
             return false;
         }
 
-        public IEnumerator<JsonData> GetEnumerator()
-        {
-            return ((IEnumerable<JsonData>) _elements).GetEnumerator();
-        }
+        public Enumerator GetEnumerator() => new Enumerator(_elements);
 
         public override void Serialize(TextWriter writer)
         {
@@ -58,6 +57,36 @@ namespace Velo.Serialization.Models
         }
         
         public ref JsonData this[int index] => ref _elements[index];
+
+        public ref struct Enumerator
+        {
+            public JsonData Current
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => _array[_position];
+            }
+
+            // ReSharper disable once FieldCanBeMadeReadOnly.Local
+            private JsonData[] _array;
+            private int _position;
+
+            public Enumerator(JsonData[] array)
+            {
+                _array = array;
+                _position = -1;
+            }
+
+            public bool MoveNext()
+            {
+                _position++;
+                return _position < _array.Length;
+            }
+        }
+        
+        IEnumerator<JsonData> IEnumerable<JsonData>.GetEnumerator()
+        {
+            return ((IEnumerable<JsonData>) _elements).GetEnumerator();
+        }
 
         IEnumerator IEnumerable.GetEnumerator() => _elements.GetEnumerator();
     }

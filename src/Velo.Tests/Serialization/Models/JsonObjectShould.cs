@@ -40,7 +40,6 @@ namespace Velo.Tests.Serialization.Models
         public void HasValidType()
         {
             new JsonObject().Type.Should().Be(JsonDataType.Object);
-            JsonObject.Null.Type.Should().Be(JsonDataType.Null);
         }
 
         [Theory, AutoData]
