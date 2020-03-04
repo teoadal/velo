@@ -192,13 +192,34 @@ namespace Velo.Tests.CQRS.Commands
             _postProcessor.Verify(processor => processor.PostProcess(_command, _ct));
         }
 
+        [Fact]
+        public void ThrowIfDisposed()
+        {
+            _fullPipeline.Dispose();
 
+            _fullPipeline
+                .Awaiting(pipeline => pipeline.Execute(_command, _ct))
+                .Should().Throw<NullReferenceException>();
+        }
+
+        [Fact]
+        public void ThrowIfDisposedWithoutBehaviour()
+        {
+            var pipeline = new CommandPipeline<Command>(_processor.Object);
+
+            pipeline.Dispose();
+            
+            pipeline
+                .Awaiting(p => p.Execute(_command, _ct))
+                .Should().Throw<NullReferenceException>();
+        }
+        
         private Mock<ICommandBehaviour<Command>> BuildBehaviour()
         {
             var behaviour = new Mock<ICommandBehaviour<Command>>();
             behaviour
                 .Setup(b => b.Execute(_command, It.IsNotNull<Func<Task>>(), _ct))
-                .Returns<Command, Func<Task>, CancellationToken>((c, next, ct) => next());
+                .Returns<Command, Func<Task>, CancellationToken>((command, next, ct) => next());
 
             return behaviour;
         }

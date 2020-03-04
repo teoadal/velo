@@ -78,7 +78,7 @@ namespace Velo.CQRS.Commands
     internal sealed class NullCommandBehaviours<TCommand> : ICommandBehaviours<TCommand>
         where TCommand : ICommand
     {
-        public static ICommandBehaviours<TCommand> Instance = new NullCommandBehaviours<TCommand>();
+        public static readonly ICommandBehaviours<TCommand> Instance = new NullCommandBehaviours<TCommand>();
 
         public bool HasBehaviours => false;
         

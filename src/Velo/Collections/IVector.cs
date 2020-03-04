@@ -7,7 +7,7 @@ namespace Velo.Collections
     internal interface IVector<TKey, TValue>
     {
         void ClearSafe();
-        
+
         TValue GetOrAdd(TKey key, Func<TKey, TValue> factory);
 
         TValue GetOrAdd<TArg>(TKey key, Func<TKey, TArg, TValue> factory, TArg arg);
@@ -26,7 +26,7 @@ namespace Velo.Collections
         {
             _lock = new object();
         }
-        
+
         public void ClearSafe()
         {
             var lockTaken = false;
@@ -36,7 +36,7 @@ namespace Velo.Collections
 
             if (lockTaken) Monitor.Exit(_lock);
         }
-        
+
         public TValue GetOrAdd(TKey key, Func<TKey, TValue> factory)
         {
             if (TryGetValue(key, out var exists)) return exists;

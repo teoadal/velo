@@ -30,7 +30,6 @@ namespace Velo.CQRS.Commands
         public CommandPipeline(ICommandProcessor<TCommand> processor)
         {
             _behaviours = NullCommandBehaviours<TCommand>.Instance;
-
             _preProcessors = Array.Empty<ICommandPreProcessor<TCommand>>();
             _processor = processor;
             _postProcessors = Array.Empty<ICommandPostProcessor<TCommand>>();

@@ -4,11 +4,14 @@ using FluentAssertions;
 using Moq;
 using Velo.CQRS;
 using Velo.CQRS.Commands;
+using Velo.CQRS.Queries;
 using Velo.DependencyInjection;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting.Boos.Create;
+using Velo.TestsModels.Emitting.Boos.Get;
 using Xunit;
 using Xunit.Abstractions;
+using Processor = Velo.TestsModels.Emitting.Boos.Create.Processor;
 
 namespace Velo.Tests.CQRS
 {
@@ -57,9 +60,9 @@ namespace Velo.Tests.CQRS
         [Theory, MemberData(nameof(Lifetimes))]
         public void AddQueryBehaviour(DependencyLifetime lifetime)
         {
-            _dependencies.AddQueryBehaviour<TestsModels.Emitting.Boos.Get.Behaviour>(lifetime);
+            _dependencies.AddQueryBehaviour<Behaviour>(lifetime);
 
-            var behaviourType = typeof(TestsModels.Emitting.Boos.Get.Behaviour);
+            var behaviourType = typeof(Behaviour);
 
             _dependencies.Contains(behaviourType).Should().BeTrue();
             _dependencies.GetLifetime(behaviourType).Should().Be(lifetime);
@@ -90,6 +93,22 @@ namespace Velo.Tests.CQRS
             var processor = new Mock<Action<Command, IBooRepository>>();
             _dependencies.CreateProcessor(processor.Object);
             _dependencies.Contains<ActionCommandProcessor<Command>>();
+        }
+        
+        [Fact]
+        public void CreateQueryProcessor()
+        {
+            var processor = new Mock<Func<Query, Boo>>();
+            _dependencies.CreateProcessor(processor.Object);
+            _dependencies.Contains<ActionQueryProcessor<Query, Boo>>();
+        }
+        
+        [Fact]
+        public void CreateQueryProcessorWithContext()
+        {
+            var processor = new Mock<Func<Query, IBooRepository, Boo>>();
+            _dependencies.CreateProcessor(processor.Object);
+            _dependencies.Contains<ActionQueryProcessor<Query, IBooRepository, Boo>>();
         }
         
         [Fact]

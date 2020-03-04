@@ -9,6 +9,7 @@ namespace Velo.CQRS.Notifications
         where TNotification : INotification
     {
         private static readonly bool HasParallelAttribute = Attribute.IsDefined(typeof(TNotification), typeof(ParallelAttribute));
+
         private INotificationProcessor<TNotification>[] _processors;
 
         public NotificationPipeline(INotificationProcessor<TNotification>[] processors)
@@ -20,7 +21,7 @@ namespace Velo.CQRS.Notifications
         {
             _processors = new[] {processor};
         }
-        
+
         public Task Publish(TNotification notification, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();

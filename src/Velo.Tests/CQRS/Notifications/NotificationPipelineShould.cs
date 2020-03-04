@@ -4,9 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
-using Velo.CQRS;
 using Velo.CQRS.Notifications;
-using Velo.DependencyInjection;
 using Velo.TestsModels.Emitting.Boos.Create;
 using Velo.TestsModels.Emitting.Parallel;
 using Xunit;
@@ -16,70 +14,112 @@ namespace Velo.Tests.CQRS.Notifications
 {
     public class NotificationPipelineShould : TestClass
     {
-        private readonly IEmitter _emitter;
-        private readonly DependencyProvider _provider;
+        private readonly CancellationToken _ct;
+        private readonly Notification _notification;
+
         private readonly Mock<INotificationProcessor<Notification>> _processor;
+        private readonly NotificationPipeline<Notification> _pipeline;
 
         public NotificationPipelineShould(ITestOutputHelper output) : base(output)
         {
-            _processor = new Mock<INotificationProcessor<Notification>>();
+            _ct = CancellationToken.None;
+            _notification = new Notification();
 
-            _provider = new DependencyCollection()
-                .AddEmitter()
-                .AddScoped(ctx => _processor.Object)
-                .AddNotificationProcessor<ParallelNotificationProcessor>()
-                .AddNotificationProcessor<ParallelNotificationProcessor>()
-                .AddNotificationProcessor<ParallelNotificationProcessor>()
-                .AddNotificationProcessor<ParallelNotificationProcessor>()
-                .AddNotificationProcessor<ParallelNotificationProcessor>()
-                .BuildProvider();
+            _processor = BuildProcessor(_notification);
 
-            _emitter = _provider.GetRequiredService<IEmitter>();
+            _pipeline = new NotificationPipeline<Notification>(_processor.Object);
         }
 
         [Fact]
-        public async Task ExecutedParallel()
+        public void ProcessNotification()
         {
-            var processorsCount = _provider.GetRequiredService<ParallelNotificationProcessor[]>().Length;
-            
-            var notification = new ParallelNotification();
-            await _emitter.Publish(notification);
+            _pipeline
+                .Awaiting(pipeline => pipeline.Publish(_notification, _ct))
+                .Should().NotThrow();
 
-            notification.ExecutedOn.Distinct().Count().Should().Be(processorsCount);
+            _processor.Verify(processor => processor.Process(_notification, _ct));
         }
-        
+
         [Fact]
-        public async Task DisposedAfterCloseScope()
+        public void ProcessNotificationWithMultipleProcessors()
         {
-            NotificationPipeline<Notification> pipeline;
-            using (var scope = _provider.CreateScope())
+            var processors = Enumerable
+                .Range(0, 5)
+                .Select(_ => BuildProcessor(_notification))
+                .ToArray();
+
+            new NotificationPipeline<Notification>(processors.Select(p => p.Object).ToArray())
+                .Awaiting(pipeline => pipeline.Publish(_notification, _ct))
+                .Should().NotThrow();
+
+            foreach (var processor in processors)
             {
-                pipeline = scope.GetRequiredService<NotificationPipeline<Notification>>();
+                processor.Verify(p => p.Process(_notification, _ct));
             }
-
-            await Assert.ThrowsAsync<NullReferenceException>(
-                () => pipeline.Publish(It.IsAny<Notification>(), CancellationToken.None));
         }
-        
-        [Theory]
-        [InlineData(DependencyLifetime.Scoped)]
-        [InlineData(DependencyLifetime.Singleton)]
-        [InlineData(DependencyLifetime.Transient)]
-        public void ResolvedByLifetime(DependencyLifetime lifetime)
+
+        [Fact]
+        public void ExecutedParallel()
         {
-            var provider = new DependencyCollection()
-                .AddEmitter()
-                .AddDependency(ctx => _processor.Object, lifetime)
-                .BuildProvider();
-            
-            var firstScope = provider.CreateScope();
-            var firstPipeline = firstScope.GetRequiredService<NotificationPipeline<Notification>>();
+            var parallelNotification = new ParallelNotification();
+            var processors = Enumerable
+                .Range(0, 5)
+                .Select(_ => BuildProcessor(parallelNotification))
+                .ToArray();
 
-            var secondScope = provider.CreateScope();
-            var secondPipeline = secondScope.GetRequiredService<NotificationPipeline<Notification>>();
+            new NotificationPipeline<ParallelNotification>(processors.Select(p => p.Object).ToArray())
+                .Awaiting(pipeline => pipeline.Publish(parallelNotification, _ct))
+                .Should().NotThrow();
 
-            if (lifetime == DependencyLifetime.Singleton) firstPipeline.Should().Be(secondPipeline);
-            else firstPipeline.Should().NotBe(secondPipeline);    
+            foreach (var processor in processors)
+            {
+                processor.Verify(p => p.Process(parallelNotification, _ct));
+            }
+        }
+
+        [Fact]
+        public void Send()
+        {
+            var pipeline = (INotificationPipeline) _pipeline;
+
+            pipeline
+                .Awaiting(p => p.Publish(_notification, _ct))
+                .Should().NotThrow();
+
+            _processor.Verify(processor => processor.Process(_notification, _ct));
+        }
+
+        [Fact]
+        public void StopPropagation()
+        {
+            _notification.StopPropagation = true;
+
+            _pipeline
+                .Awaiting(pipeline => pipeline.Publish(_notification, _ct))
+                .Should().NotThrow();
+
+            _processor.Verify(processor => processor.Process(_notification, _ct), Times.Never);
+        }
+
+        [Fact]
+        public void ThrowIfDisposed()
+        {
+            _pipeline.Dispose();
+
+            _pipeline
+                .Awaiting(pipeline => pipeline.Publish(_notification, _ct))
+                .Should().Throw<NullReferenceException>();
+        }
+
+        private Mock<INotificationProcessor<T>> BuildProcessor<T>(T notification) where T : INotification
+        {
+            var processor = new Mock<INotificationProcessor<T>>();
+
+            processor
+                .Setup(p => p.Process(notification, _ct))
+                .Returns(Task.CompletedTask);
+
+            return processor;
         }
     }
 }

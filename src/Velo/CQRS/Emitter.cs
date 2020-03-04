@@ -92,8 +92,6 @@ namespace Velo.CQRS
 
         public void Dispose()
         {
-            if (_disposed) return;
-
             _scope = null;
             _disposed = true;
         }
