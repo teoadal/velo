@@ -60,9 +60,14 @@ namespace Velo.DependencyInjection
             return this;
         }
 
+        public DependencyCollection AddInstance(Type[] contracts, object instance)
+        {
+            return AddDependency(new InstanceDependency(contracts, instance));
+        }
+        
         public DependencyCollection AddInstance(Type contract, object instance)
         {
-            return AddDependency(new InstanceDependency(new[] {contract}, instance));
+            return AddInstance(new[] {contract}, instance);
         }
         
         public DependencyCollection AddInstance<TContract>(TContract instance)

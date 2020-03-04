@@ -10,11 +10,10 @@ namespace Velo.DependencyInjection.Resolvers
             switch (lifetime)
             {
                 case DependencyLifetime.Scoped:
+                case DependencyLifetime.Transient:
                     return new CompiledResolver(implementation, engine);
                 case DependencyLifetime.Singleton:
                     return new ActivatorResolver(implementation);
-                case DependencyLifetime.Transient:
-                    return new CompiledResolver(implementation, engine);
                 default:
                     throw Error.InvalidDependencyLifetime();
             }

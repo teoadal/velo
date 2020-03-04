@@ -27,10 +27,11 @@ namespace Velo.DependencyInjection
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
         {
             var behaviourTypes = PipelineTypes.CommandBehaviourTypes;
-            if (!AddDependencies(collection, typeof(TBehaviour), behaviourTypes, lifetime))
+            var implementation = typeof(TBehaviour);
+            
+            if (!AddDependencies(collection, implementation, behaviourTypes, lifetime))
             {
-                throw Error.InvalidOperation(
-                    $"'{ReflectionUtils.GetName<TBehaviour>()}' not implemented command behaviour interface");
+                throw NotImplementedCommand(implementation, "behaviour");
             }
 
             return collection;
@@ -39,37 +40,66 @@ namespace Velo.DependencyInjection
         public static DependencyCollection AddCommandProcessor<TProcessor>(this DependencyCollection collection,
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
         {
+            var implementation = typeof(TProcessor);
             var processorTypes = PipelineTypes.CommandProcessorTypes;
-            if (!AddDependencies(collection, typeof(TProcessor), processorTypes, lifetime))
+            
+            if (!AddDependencies(collection, implementation, processorTypes, lifetime))
             {
-                throw Error.InvalidOperation(
-                    $"'{ReflectionUtils.GetName<TProcessor>()}' not implemented any of command processors interface");
+                throw NotImplementedCommand(implementation, "processor");
             }
 
             return collection;
         }
 
+        public static DependencyCollection AddCommandProcessor(this DependencyCollection collection, object processor)
+        {
+            var implementation = processor.GetType();
+            var processorTypes = PipelineTypes.CommandProcessorTypes;
+
+            if (!AddInstance(collection, processor, processorTypes))
+            {
+                throw NotImplementedCommand(implementation, "processor");
+            }
+            
+            return collection;
+        }
+        
         public static DependencyCollection AddNotificationProcessor<TProcessor>(this DependencyCollection collection,
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
         {
+            var implementation = typeof(TProcessor);
             var processorTypes = PipelineTypes.NotificationProcessorTypes;
-            if (!AddDependencies(collection, typeof(TProcessor), processorTypes, lifetime))
+            
+            if (!AddDependencies(collection, implementation, processorTypes, lifetime))
             {
-                throw Error.InvalidOperation(
-                    $"'{ReflectionUtils.GetName<TProcessor>()}' not implemented notification processor interface");
+                throw NotImplementedNotification(implementation);
             }
 
             return collection;
         }
 
+        public static DependencyCollection AddNotificationProcessor(this DependencyCollection collection, object processor)
+        {
+            var implementation = processor.GetType();
+            var processorTypes = PipelineTypes.NotificationProcessorTypes;
+
+            if (!AddInstance(collection, processor, processorTypes))
+            {
+                throw NotImplementedNotification(implementation);
+            }
+            
+            return collection;
+        }
+        
         public static DependencyCollection AddQueryBehaviour<TBehaviour>(this DependencyCollection collection,
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
         {
             var behaviourTypes = PipelineTypes.QueryBehaviourTypes;
-            if (!AddDependencies(collection, typeof(TBehaviour), behaviourTypes, lifetime))
+            var implementation = typeof(TBehaviour);
+            
+            if (!AddDependencies(collection, implementation, behaviourTypes, lifetime))
             {
-                throw Error.InvalidOperation(
-                    $"'{ReflectionUtils.GetName<TBehaviour>()}' not implemented query behaviour interface");
+                throw NotImplementedQuery(implementation, "behaviour");
             }
 
             return collection;
@@ -78,16 +108,30 @@ namespace Velo.DependencyInjection
         public static DependencyCollection AddQueryProcessor<TProcessor>(this DependencyCollection collection,
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
         {
+            var implementation = typeof(TProcessor);
             var processorTypes = PipelineTypes.QueryProcessorTypes;
-            if (!AddDependencies(collection, typeof(TProcessor), processorTypes, lifetime))
+            
+            if (!AddDependencies(collection, implementation, processorTypes, lifetime))
             {
-                throw Error.InvalidOperation(
-                    $"'{ReflectionUtils.GetName<TProcessor>()}' not implemented any of query processors interface");
+                throw NotImplementedQuery(implementation, "processor");
             }
 
             return collection;
         }
 
+        public static DependencyCollection AddQueryProcessor(this DependencyCollection collection, object processor)
+        {
+            var implementation = processor.GetType();
+            var processorTypes = PipelineTypes.QueryProcessorTypes;
+
+            if (!AddInstance(collection, processor, processorTypes))
+            {
+                throw NotImplementedQuery(implementation, "processor");
+            }
+            
+            return collection;
+        }
+        
         public static DependencyScanner AddEmitterProcessors(this DependencyScanner scanner,
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
         {
@@ -143,6 +187,42 @@ namespace Velo.DependencyInjection
             contracts.Add(implementation);
             collection.AddDependency(contracts.ToArray(), implementation, lifetime);
             return true;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool AddInstance(
+            DependencyCollection collection,
+            object instance,
+            Type[] genericInterfaces)
+        {
+            var type = instance.GetType();
+            var contracts = ReflectionUtils.GetGenericInterfaceImplementations(type, genericInterfaces);
+
+            if (contracts.Length == 0)
+            {
+                return false;
+            }
+            
+            collection.AddInstance(contracts.ToArray(), instance);
+            return true;
+        }
+        
+        private static InvalidOperationException NotImplementedCommand(Type type, string pipelinePart)
+        {
+            var typeName = ReflectionUtils.GetName(type);
+            return Error.InvalidOperation($"'{typeName}' not implemented any of command {pipelinePart} interface");
+        }
+        
+        private static InvalidOperationException NotImplementedNotification(Type type)
+        {
+            var typeName = ReflectionUtils.GetName(type);
+            return Error.InvalidOperation($"'{typeName}' not implemented notification processor interface");
+        }
+        
+        private static InvalidOperationException NotImplementedQuery(Type type, string pipelinePart)
+        {
+            var typeName = ReflectionUtils.GetName(type);
+            return Error.InvalidOperation($"'{typeName}' not implemented any of query {pipelinePart} interface");
         }
     }
 }

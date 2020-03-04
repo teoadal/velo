@@ -4,11 +4,13 @@ using FluentAssertions;
 using Moq;
 using Velo.CQRS;
 using Velo.CQRS.Commands;
+using Velo.CQRS.Notifications;
 using Velo.CQRS.Queries;
 using Velo.DependencyInjection;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting.Boos.Create;
 using Velo.TestsModels.Emitting.Boos.Get;
+using Velo.TestsModels.Emitting.Parallel;
 using Xunit;
 using Xunit.Abstractions;
 using Processor = Velo.TestsModels.Emitting.Boos.Create.Processor;
@@ -46,6 +48,25 @@ namespace Velo.Tests.CQRS
             _dependencies.GetLifetime(processorType).Should().Be(lifetime);
         }
 
+        [Fact]
+        public void AddCommandProcessorWithManyInterfaces()
+        {
+            var processor = new Mock<IDisposable>()
+                .As<ICommandProcessor<TestsModels.Emitting.Foos.Create.Command>>()
+                .As<ICommandPreProcessor<TestsModels.Emitting.Boos.Update.Command>>()
+                .As<ICommandProcessor<TestsModels.Emitting.Boos.Update.Command>>()
+                .As<ICommandPostProcessor<TestsModels.Emitting.Boos.Update.Command>>()
+                .As<ICommandProcessor<Command>>();
+
+            _dependencies.AddCommandProcessor(processor.Object);
+
+            _dependencies.Contains(typeof(ICommandProcessor<TestsModels.Emitting.Foos.Create.Command>));
+            _dependencies.Contains(typeof(ICommandPreProcessor<TestsModels.Emitting.Boos.Update.Command>));
+            _dependencies.Contains(typeof(ICommandProcessor<TestsModels.Emitting.Boos.Update.Command>));
+            _dependencies.Contains(typeof(ICommandPostProcessor<TestsModels.Emitting.Boos.Update.Command>));
+            _dependencies.Contains(typeof(ICommandProcessor<Command>));
+        }
+
         [Theory, MemberData(nameof(Lifetimes))]
         public void AddNotificationProcessor(DependencyLifetime lifetime)
         {
@@ -55,6 +76,19 @@ namespace Velo.Tests.CQRS
 
             _dependencies.Contains(processorType).Should().BeTrue();
             _dependencies.GetLifetime(processorType).Should().Be(lifetime);
+        }
+
+        [Fact]
+        public void AddNotificationProcessorWithManyInterfaces()
+        {
+            var processor = new Mock<IDisposable>()
+                .As<INotificationProcessor<ParallelNotification>>()
+                .As<INotificationProcessor<Notification>>();
+
+            _dependencies.AddNotificationProcessor(processor.Object);
+
+            _dependencies.Contains<INotificationProcessor<ParallelNotification>>();
+            _dependencies.Contains<INotificationProcessor<Notification>>();
         }
 
         [Theory, MemberData(nameof(Lifetimes))]
@@ -80,13 +114,28 @@ namespace Velo.Tests.CQRS
         }
 
         [Fact]
+        public void AddQueryProcessorWithManyInterfaces()
+        {
+            var processor = new Mock<IDisposable>()
+                .As<IQueryPreProcessor<Query, Boo>>()
+                .As<IQueryProcessor<Query, Boo>>()
+                .As<IQueryPostProcessor<Query, Boo>>();
+
+            _dependencies.AddQueryProcessor(processor.Object);
+
+            _dependencies.Contains<IQueryPreProcessor<Query, Boo>>();
+            _dependencies.Contains<IQueryProcessor<Query, Boo>>();
+            _dependencies.Contains<IQueryPostProcessor<Query, Boo>>();
+        }
+
+        [Fact]
         public void CreateCommandProcessor()
         {
             var processor = new Mock<Action<Command>>();
             _dependencies.CreateProcessor(processor.Object);
             _dependencies.Contains<ActionCommandProcessor<Command>>();
         }
-        
+
         [Fact]
         public void CreateCommandProcessorWithContext()
         {
@@ -94,7 +143,7 @@ namespace Velo.Tests.CQRS
             _dependencies.CreateProcessor(processor.Object);
             _dependencies.Contains<ActionCommandProcessor<Command>>();
         }
-        
+
         [Fact]
         public void CreateQueryProcessor()
         {
@@ -102,7 +151,7 @@ namespace Velo.Tests.CQRS
             _dependencies.CreateProcessor(processor.Object);
             _dependencies.Contains<ActionQueryProcessor<Query, Boo>>();
         }
-        
+
         [Fact]
         public void CreateQueryProcessorWithContext()
         {
@@ -110,7 +159,7 @@ namespace Velo.Tests.CQRS
             _dependencies.CreateProcessor(processor.Object);
             _dependencies.Contains<ActionQueryProcessor<Query, IBooRepository, Boo>>();
         }
-        
+
         [Fact]
         public void RegisterEmitterAsScoped()
         {
@@ -118,7 +167,7 @@ namespace Velo.Tests.CQRS
 
             _dependencies.GetLifetime<IEmitter>().Should().Be(DependencyLifetime.Scoped);
         }
-        
+
         [Fact]
         public void ThrowIfAddNotCommandBehaviour()
         {
@@ -153,9 +202,9 @@ namespace Velo.Tests.CQRS
         {
             get
             {
-                yield return new object[] { DependencyLifetime.Scoped };
-                yield return new object[] { DependencyLifetime.Singleton };
-                yield return new object[] { DependencyLifetime.Transient };
+                yield return new object[] {DependencyLifetime.Scoped};
+                yield return new object[] {DependencyLifetime.Singleton};
+                yield return new object[] {DependencyLifetime.Transient};
             }
         }
     }

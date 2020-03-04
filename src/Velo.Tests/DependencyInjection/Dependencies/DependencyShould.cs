@@ -1,109 +1,125 @@
 using System;
 using FluentAssertions;
+using Moq;
 using Velo.CQRS.Commands;
 using Velo.DependencyInjection;
 using Velo.DependencyInjection.Dependencies;
 using Velo.DependencyInjection.Resolvers;
 using Velo.TestsModels.Boos;
-using Velo.TestsModels.Domain;
 using Velo.TestsModels.Emitting;
-using Velo.TestsModels.Foos;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Velo.Tests.DependencyInjection.Dependencies
 {
-    public class DependencyShould
+    public class DependencyShould : DITestClass
     {
-        private static readonly Type[] ClassContracts = {typeof(Boo), typeof(Foo)};
-        
-        [Fact]
-        public void BeApplicableByClass()
-        {
-            var dependency = new InstanceDependency(ClassContracts, new object());
+        private readonly Type _contract;
+        private readonly Mock<Dependency> _dependency;
+        private readonly Type _implementation;
 
-            foreach (var contract in ClassContracts)
-            {
-                dependency.Applicable(contract).Should().BeTrue();
-            }
-        }
-        
-        [Fact]
-        public void BeApplicableByInterface()
+        public DependencyShould(ITestOutputHelper output) : base(output)
         {
-            var contracts = new[] {
-                typeof(MeasureBehaviour), 
-                typeof(ICommandBehaviour<IMeasureCommand>)};
-            
-            var dependency = new InstanceDependency(contracts, new object());
+            _contract = typeof(IBooRepository);
+            _implementation = typeof(BooRepository);
 
-            foreach (var contract in contracts)
-            {
-                dependency.Applicable(contract).Should().BeTrue();
-            }
+            _dependency = BuildDependency(new[] {_contract, _implementation});
         }
-        
+
         [Fact]
-        public void BeApplicableByContravariantInterface()
+        public void Applicable()
+        {
+            _dependency.Object.Applicable(_implementation).Should().BeTrue();
+        }
+
+        [Fact]
+        public void ApplicableByContravariantInterface()
         {
             var contracts = new[] {typeof(ICommandBehaviour<IMeasureCommand>)};
-            var dependency = new InstanceDependency(contracts, new object());
+            var dependency = BuildDependency(contracts);
 
             var contravariantInterface = typeof(ICommandBehaviour<TestsModels.Emitting.Boos.Create.Command>);
 
-            dependency.Applicable(contravariantInterface).Should().BeTrue();
+            dependency.Object.Applicable(contravariantInterface).Should().BeTrue();
         }
-        
+
+        [Fact]
+        public void ApplicableByInterface()
+        {
+            var dependency = _dependency.Object;
+
+            dependency.Applicable(_contract).Should().BeTrue();
+            foreach (var implementedInterface in _contract.GetInterfaces())
+            {
+                dependency.Applicable(implementedInterface).Should().BeTrue();
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(Lifetimes))]
+        public void Build(DependencyLifetime lifetime)
+        {
+            var resolver = MockResolver(_implementation, (_, scope) => null).Object;
+
+            var dependency = Dependency.Build(lifetime, new[] {_contract}, resolver);
+
+            switch (lifetime)
+            {
+                case DependencyLifetime.Scoped:
+                    dependency.Should().BeOfType<ScopedDependency>();
+                    break;
+                case DependencyLifetime.Singleton:
+                    dependency.Should().BeOfType<SingletonDependency>();
+                    break;
+                case DependencyLifetime.Transient:
+                    dependency.Should().BeOfType<TransientDependency>();
+                    break;
+            }
+        }
+
         [Fact]
         public void HasValidContracts()
         {
-            var dependency = new InstanceDependency(ClassContracts, new object());
-            dependency.Contracts.Should().Contain(ClassContracts);
+            _dependency.Object.Contracts.Should().Contain(_contract);
         }
-        
-        [Fact]
-        public void HasValidLifetime()
-        {
-            var lifetimes = (DependencyLifetime[]) Enum.GetValues(typeof(DependencyLifetime));
-            foreach (var lifetime in lifetimes)
-            {
-                var dependency = Dependency.Build(lifetime, Array.Empty<Type>(), new ActivatorResolver(typeof(Boo)));
-                dependency.Lifetime.Should().Be(lifetime);
-            }
-        }
-        
-        [Fact]
-        public void Resolve()
-        {
-            var instance = new object();
-            var dependency = new InstanceDependency(ClassContracts, instance);
 
-            dependency.GetInstance(null, null).Should().Be(instance);
-        }
-        
-        [Fact]
-        public void NotBeApplicableByClass()
+        [Theory]
+        [MemberData(nameof(Lifetimes))]
+        public void HasValidLifetime(DependencyLifetime lifetime)
         {
-            var dependency = new InstanceDependency(ClassContracts, new object());
-            dependency.Applicable(typeof(object)).Should().BeFalse();
+            var dependency = BuildDependency(It.IsNotNull<Type[]>(), lifetime);
+            dependency.Object.Lifetime.Should().Be(lifetime);
         }
-        
+
         [Fact]
-        public void NotBeApplicableByInterface()
+        public void NotApplicable()
         {
-            var contracts = new[] {typeof(IRepository)};
-            var dependency = new InstanceDependency(contracts, new object());
-            dependency.Applicable(typeof(IRepository<Boo>)).Should().BeFalse();
+            var notApplicable = typeof(DependencyShould);
+            _dependency.Object.Applicable(notApplicable).Should().BeFalse();
         }
-        
+
         [Fact]
-        public void NotBeApplicableByContravariantInterface()
+        public void NotApplicableByContravariantInterface()
         {
             var contracts = new[] {typeof(ICommandBehaviour<IMeasureCommand>)};
-            var dependency = new InstanceDependency(contracts, new object());
+            var dependency = BuildDependency(contracts);
 
-            var contravariantInterface = typeof(ICommandBehaviour<ICommand>);
+            var notContravariantInterface = typeof(ICommandBehaviour<ICommand>);
 
-            dependency.Applicable(contravariantInterface).Should().BeFalse();
+            dependency.Object.Applicable(notContravariantInterface).Should().BeFalse();
+        }
+
+        [Fact]
+        public void NotApplicableByInterface()
+        {
+            var notApplicable = typeof(IDependency);
+            _dependency.Object.Applicable(notApplicable).Should().BeFalse();
+        }
+
+        private static Mock<Dependency> BuildDependency(Type[] contracts,
+            DependencyLifetime lifetime = DependencyLifetime.Scoped)
+        {
+            return new Mock<Dependency>(contracts, It.IsAny<DependencyResolver>(), lifetime);
         }
     }
 }

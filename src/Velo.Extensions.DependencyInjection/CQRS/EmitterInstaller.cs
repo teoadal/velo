@@ -43,7 +43,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             return services;
         }
-        
+
         public static IServiceCollection AddQueryBehaviour<TBehaviour>(this IServiceCollection services,
             ServiceLifetime lifetime = ServiceLifetime.Singleton)
         {
@@ -133,7 +133,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     lifetime));
             }
         }
-        
+
         private static void TryAddQueryPipeline(IServiceCollection services, Type contract, ServiceLifetime lifetime)
         {
             var queryType = contract.GenericTypeArguments[0];

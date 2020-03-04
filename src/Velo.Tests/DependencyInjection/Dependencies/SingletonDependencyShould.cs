@@ -9,15 +9,15 @@ using Xunit.Abstractions;
 
 namespace Velo.Tests.DependencyInjection.Dependencies
 {
-    public class TransientDependencyShould : DITestClass
+    public class SingletonDependencyShould : DITestClass
     {
         private readonly Type _contract;
-        private readonly TransientDependency _dependency;
+        private readonly SingletonDependency _dependency;
         private readonly IDependencyScope _scope;
 
         private Mock<IBooRepository> _instance;
-
-        public TransientDependencyShould(ITestOutputHelper output) : base(output)
+        
+        public SingletonDependencyShould(ITestOutputHelper output) : base(output)
         {
             _contract = typeof(IBooRepository);
 
@@ -27,7 +27,7 @@ namespace Velo.Tests.DependencyInjection.Dependencies
                 return _instance.Object;
             });
 
-            _dependency = new TransientDependency(new[] {_contract}, resolver.Object);
+            _dependency = new SingletonDependency(new[] {_contract}, resolver.Object);
 
             _scope = MockScope().Object;
         }
@@ -38,24 +38,23 @@ namespace Velo.Tests.DependencyInjection.Dependencies
             var instance = _dependency.GetInstance(_contract, _scope);
             instance.Should().Be(_instance.Object);
         }
-
+        
         [Fact]
-        public void GetManyInstances()
+        public void GetSingleInstance()
         {
             var first = _dependency.GetInstance(_contract, _scope);
             var second = _dependency.GetInstance(_contract, _scope);
 
-            first.Should().NotBe(second);
+            first.Should().Be(second);
         }
-
+        
         [Fact]
-        public void NotDisposeInstance()
+        public void DisposeInstance()
         {
             _dependency.GetInstance(_contract, _scope);
-
+            
             _dependency.Dispose();
-
-            _instance.As<IDisposable>().Verify(i => i.Dispose(), Times.Never);
+            _instance.As<IDisposable>().Verify(i => i.Dispose());
         }
     }
 }

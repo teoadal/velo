@@ -12,7 +12,7 @@ namespace Velo.DependencyInjection.Dependencies
     {
         private readonly Dictionary<IDependencyScope, object> _instances;
 
-        public ScopedDependency(Type[] contracts, DependencyResolver resolver) 
+        public ScopedDependency(Type[] contracts, DependencyResolver resolver)
             : base(contracts, resolver, DependencyLifetime.Scoped)
         {
             _instances = new Dictionary<IDependencyScope, object>();
@@ -53,6 +53,8 @@ namespace Velo.DependencyInjection.Dependencies
                     disposable.Dispose();
                 }
             }
+
+            _instances.Clear();
         }
     }
 }

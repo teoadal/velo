@@ -14,7 +14,7 @@ namespace Velo.Extensions.DependencyInjection.CQRS
         {
             return GetMethod(nameof(CommandActivator), commandType);
         }
-        
+
         public static Func<IServiceProvider, object> GetNotificationPipelineActivator(Type notificationType)
         {
             return GetMethod(nameof(NotificationsActivator), notificationType);
@@ -35,7 +35,7 @@ namespace Velo.Extensions.DependencyInjection.CQRS
 
             return new CommandPipeline<TCommand>(behaviours, preProcessors, processor, postProcessors);
         }
-        
+
         private static object NotificationsActivator<TNotification>(IServiceProvider provider)
             where TNotification : INotification
         {
