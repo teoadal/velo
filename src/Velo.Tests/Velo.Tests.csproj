@@ -33,8 +33,4 @@
             <DependentUpon>appsettings.json</DependentUpon>
         </None>
     </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="CQRS\Pipelines" />
-    </ItemGroup>
 </Project>

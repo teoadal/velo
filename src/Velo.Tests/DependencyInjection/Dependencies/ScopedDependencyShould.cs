@@ -47,7 +47,7 @@ namespace Velo.Tests.DependencyInjection.Dependencies
         [Fact]
         public void DisposeAllInstancesAfterDispose()
         {
-            var scopes = Enumerable.Range(0, 5).Select(_ => MockScope());
+            var scopes = BuildMany(5, MockScope);
             var instances = new List<Mock<IBooRepository>>();
 
             foreach (var scope in scopes)

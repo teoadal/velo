@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using AutoFixture;
@@ -29,6 +30,11 @@ namespace Velo.Tests
             return count;
         }
 
+        protected T[] BuildMany<T>(int count, Func<T> builder)
+        {
+            return Enumerable.Range(0, 5).Select(_ => builder()).ToArray();
+        }
+        
         protected StopwatchScope Measure()
         {
             _stopwatch = Stopwatch.StartNew();
