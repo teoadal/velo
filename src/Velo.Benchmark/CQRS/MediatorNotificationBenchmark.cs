@@ -17,6 +17,9 @@ namespace Velo.Benchmark.CQRS
         [Params(1, 1000)] 
         public int Count;
 
+        [Params(1, 5)] 
+        public int ProcessorsCount;
+        
         private IMediator _mediator;
         private Notification[] _mediatorNotifications;
 
@@ -38,10 +41,10 @@ namespace Velo.Benchmark.CQRS
             var repository = new BooRepository(null, null);
 
             _mediator = MediatorBuilder.BuildMediatR(repository, services => services
-                .AddSingleton<INotificationHandler<Notification>, NotificationHandler>(), 5);
+                .AddSingleton<INotificationHandler<Notification>, NotificationHandler>(), ProcessorsCount);
             
             _emitter = MediatorBuilder.BuildEmitter(repository, services => services
-                .AddNotificationProcessor<PlusNotificationProcessor>(), 5);
+                .AddNotificationProcessor<PlusNotificationProcessor>(), ProcessorsCount);
         }
 
         [Benchmark(Baseline = true)]

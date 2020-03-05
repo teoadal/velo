@@ -1,42 +1,42 @@
 using System.Threading.Tasks;
 using FluentAssertions;
-using Velo.CQRS.Commands;
-using Velo.CQRS.Notifications;
-using Velo.CQRS.Pipeline;
-using Velo.CQRS.Queries;
+using Velo.CQRS;
+using Velo.CQRS.Commands.Pipeline;
+using Velo.CQRS.Notifications.Pipeline;
+using Velo.CQRS.Queries.Pipeline;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting.Boos.Create;
 using Velo.TestsModels.Emitting.Boos.Get;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Tests.CQRS.Pipelines
+namespace Velo.Tests.CQRS
 {
-    public class PipelineTypesShould : TestClass
+    public class TypesShould : TestClass
     {
-        public PipelineTypesShould(ITestOutputHelper output) : base(output)
+        public TypesShould(ITestOutputHelper output) : base(output)
         {
         }
 
         [Fact]
         public void GetCommandPipelineType()
         {
-            var pipelineType = PipelineTypes.GetCommandPipelineType(typeof(Command));
-            pipelineType.Should().Be<CommandPipeline<Command>>();
+            var pipelineType = Types.GetCommandPipelineType(typeof(Command));
+            pipelineType.Should().Be<ICommandPipeline<Command>>();
         }
 
         [Fact]
         public void GetNotificationPipelineType()
         {
-            var pipelineType = PipelineTypes.GetNotificationPipelineType(typeof(Notification));
-            pipelineType.Should().Be<NotificationPipeline<Notification>>();
+            var pipelineType = Types.GetNotificationPipelineType(typeof(Notification));
+            pipelineType.Should().Be<INotificationPipeline<Notification>>();
         }
 
         [Fact]
         public void GetQueryPipelineType()
         {
-            var pipelineType = PipelineTypes.GetQueryPipelineType(typeof(Query));
-            pipelineType.Should().Be<QueryPipeline<Query, Boo>>();
+            var pipelineType = Types.GetQueryPipelineType(typeof(Query));
+            pipelineType.Should().Be<IQueryPipeline<Query, Boo>>();
         }
 
         [Fact]

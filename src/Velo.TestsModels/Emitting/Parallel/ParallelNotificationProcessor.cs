@@ -8,7 +8,7 @@ namespace Velo.TestsModels.Emitting.Parallel
     {
         public Task Process(ParallelNotification notification, CancellationToken cancellationToken)
         {
-            return Task.Run(() => notification.ExecutedOn.Add(Task.CurrentId), cancellationToken);
+            return Task.Run(() => notification.ExecutedOn.Add(Task.CurrentId.Value), cancellationToken);
         }
     }
 }

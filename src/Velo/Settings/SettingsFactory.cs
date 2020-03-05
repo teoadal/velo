@@ -9,12 +9,11 @@ namespace Velo.Settings
 {
     internal sealed class SettingsFactory : IDependencyFactory
     {
-        private readonly Type _attributeType = typeof(SettingsAttribute);
         private readonly Type _resolverType = typeof(SettingsResolver<>);
         
         public bool Applicable(Type contract)
         {
-            return Attribute.IsDefined(contract, _attributeType);
+            return SettingsAttribute.IsDefined(contract);
         }
 
         public IDependency BuildDependency(Type contract, IDependencyEngine engine)

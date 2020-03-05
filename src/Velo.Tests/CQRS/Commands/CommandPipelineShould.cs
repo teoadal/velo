@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
 using Velo.CQRS.Commands;
+using Velo.CQRS.Commands.Pipeline;
 using Velo.TestsModels.Emitting.Boos.Create;
 using Xunit;
 using Xunit.Abstractions;

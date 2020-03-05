@@ -21,6 +21,12 @@ namespace Velo.Utils
         {
             return new InvalidCastException(message, innerException);
         }
+
+        public static KeyNotFoundException DependencyNotRegistered(Type contract)
+        {
+            var name = ReflectionUtils.GetName(contract);
+            return new KeyNotFoundException($"Dependency with contract '{name}' is not registered");
+        }
         
         public static KeyNotFoundException DefaultConstructorNotFound(Type type)
         {

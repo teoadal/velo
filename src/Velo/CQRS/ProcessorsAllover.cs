@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using Velo.CQRS.Pipeline;
 using Velo.DependencyInjection;
 using Velo.DependencyInjection.Factories;
 using Velo.DependencyInjection.Scan;
@@ -17,11 +16,11 @@ namespace Velo.CQRS
         {
             _lifetime = lifetime;
 
-            _processorTypes = PipelineTypes.CommandProcessorTypes
-                .Concat(PipelineTypes.CommandBehaviourTypes)
-                .Concat(PipelineTypes.NotificationProcessorTypes)
-                .Concat(PipelineTypes.QueryProcessorTypes)
-                .Concat(PipelineTypes.QueryBehaviourTypes)
+            _processorTypes = Types.CommandProcessorTypes
+                .Concat(Types.CommandBehaviourTypes)
+                .Concat(Types.NotificationProcessorTypes)
+                .Concat(Types.QueryProcessorTypes)
+                .Concat(Types.QueryBehaviourTypes)
                 .ToArray();
         }
 

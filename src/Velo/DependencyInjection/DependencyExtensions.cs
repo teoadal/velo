@@ -36,6 +36,19 @@ namespace Velo.DependencyInjection
             return DefineLifetime(lifetimes);
         }
 
+        public static DependencyLifetime DefineLifetime(this IDependency[] dependencies)
+        {
+            var lifetimes = new LocalList<DependencyLifetime>();
+
+            foreach (var dependency in dependencies)
+            {
+                if (dependency == null) continue;
+                lifetimes.Add(dependency.Lifetime);
+            }
+
+            return DefineLifetime(lifetimes);
+        }
+
         public static DependencyLifetime DefineLifetime(this DependencyLifetime[] lifetimes)
         {
             return DefineLifetime(new LocalList<DependencyLifetime>(lifetimes));

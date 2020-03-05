@@ -189,6 +189,14 @@ namespace Velo.Collections
             }
         }
 
+        public void AddRange(T[] array)
+        {
+            foreach (var element in array)
+            {
+                Add(element);
+            }
+        }
+        
         public readonly bool Any(Predicate<T> predicate)
         {
             for (var i = 0; i < _length; i++)
@@ -395,6 +403,8 @@ namespace Velo.Collections
 
         public readonly T[] ToArray()
         {
+            if (_length == 0) return Array.Empty<T>();
+            
             var result = new T[_length];
             for (var i = 0; i < result.Length; i++)
             {

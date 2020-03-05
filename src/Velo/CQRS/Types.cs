@@ -1,15 +1,19 @@
 using System;
 using System.Collections.Concurrent;
 using Velo.CQRS.Commands;
+using Velo.CQRS.Commands.Pipeline;
 using Velo.CQRS.Notifications;
+using Velo.CQRS.Notifications.Pipeline;
 using Velo.CQRS.Queries;
+using Velo.CQRS.Queries.Pipeline;
 using Velo.Utils;
 
-namespace Velo.CQRS.Pipeline
+namespace Velo.CQRS
 {
-    internal static class PipelineTypes
+    // ReSharper disable once InconsistentNaming
+    internal static class Types
     {
-        public static readonly Type Command = typeof(CommandPipeline<>);
+        public static readonly Type CommandPipeline = typeof(ICommandPipeline<>);
 
         public static readonly Type[] CommandProcessorTypes =
         {
@@ -20,10 +24,10 @@ namespace Velo.CQRS.Pipeline
 
         public static readonly Type[] CommandBehaviourTypes = {typeof(ICommandBehaviour<>)};
 
-        public static readonly Type Notification = typeof(NotificationPipeline<>);
+        public static readonly Type NotificationPipeline = typeof(INotificationPipeline<>);
         public static readonly Type[] NotificationProcessorTypes = {typeof(INotificationProcessor<>)};
 
-        public static readonly Type Query = typeof(QueryPipeline<,>);
+        public static readonly Type QueryPipeline = typeof(IQueryPipeline<,>);
 
         public static readonly Type[] QueryProcessorTypes =
         {
@@ -33,14 +37,14 @@ namespace Velo.CQRS.Pipeline
         };
 
         public static readonly Type[] QueryBehaviourTypes = {typeof(IQueryBehaviour<,>)};
-        private static readonly Type QueryType = typeof(IQuery<>);
+        private static readonly Type Query = typeof(IQuery<>);
 
         private static readonly ConcurrentDictionary<Type, Type> ResolvedTypes = new ConcurrentDictionary<Type, Type>();
 
         // ReSharper disable ConvertClosureToMethodGroup
-        private static readonly Func<Type, Type> CommandPipelineTypeBuilder = t => Command.MakeGenericType(t);
+        private static readonly Func<Type, Type> CommandPipelineTypeBuilder = t => CommandPipeline.MakeGenericType(t);
         private static readonly Func<Type, Type> QueryPipelineTypeBuilder = t => BuildQueryPipelineType(t);
-        private static readonly Func<Type, Type> NotificationPipelineTypeBuilder = t => Notification.MakeGenericType(t);
+        private static readonly Func<Type, Type> NotificationPipelineTypeBuilder = t => NotificationPipeline.MakeGenericType(t);
         // ReSharper restore ConvertClosureToMethodGroup
 
         public static Type GetCommandPipelineType(Type commandType)
@@ -60,8 +64,8 @@ namespace Velo.CQRS.Pipeline
 
         private static Type BuildQueryPipelineType(Type queryType)
         {
-            var resultType = ReflectionUtils.GetGenericInterfaceParameters(queryType, QueryType)[0];
-            return Query.MakeGenericType(queryType, resultType);
+            var resultType = ReflectionUtils.GetGenericInterfaceParameters(queryType, Query)[0];
+            return QueryPipeline.MakeGenericType(queryType, resultType);
         }
     }
 }

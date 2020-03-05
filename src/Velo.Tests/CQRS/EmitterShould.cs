@@ -6,8 +6,11 @@ using FluentAssertions;
 using Moq;
 using Velo.CQRS;
 using Velo.CQRS.Commands;
+using Velo.CQRS.Commands.Pipeline;
 using Velo.CQRS.Notifications;
+using Velo.CQRS.Notifications.Pipeline;
 using Velo.CQRS.Queries;
+using Velo.CQRS.Queries.Pipeline;
 using Velo.DependencyInjection;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting.Boos.Create;
@@ -53,7 +56,7 @@ namespace Velo.Tests.CQRS
         {
             var processor = new Mock<IQueryProcessor<Query, Boo>>();
 
-            _serviceResolver = _ => new QueryPipeline<Query, Boo>(processor.Object);
+            _serviceResolver = _ => new QuerySimplePipeline<Query, Boo>(processor.Object);
 
             _emitter.Awaiting(e => e.Ask<Query, Boo>(query, _ct))
                 .Should().NotThrow();
@@ -91,7 +94,7 @@ namespace Velo.Tests.CQRS
             var notification = new Notification();
             var processor = new Mock<INotificationProcessor<Notification>>();
 
-            _serviceResolver = _ => new NotificationPipeline<Notification>(processor.Object);
+            _serviceResolver = _ => new NotificationSimplePipeline<Notification>(processor.Object);
 
             _emitter.Awaiting(e => e.Publish(notification, _ct))
                 .Should().NotThrow();
@@ -118,7 +121,7 @@ namespace Velo.Tests.CQRS
             var notification = new Notification();
             var processor = new Mock<INotificationProcessor<Notification>>();
 
-            _serviceResolver = _ => new NotificationPipeline<Notification>(processor.Object);
+            _serviceResolver = _ => new NotificationSimplePipeline<Notification>(processor.Object);
 
             _emitter.Awaiting(e => e.Send(notification, _ct))
                 .Should().NotThrow();

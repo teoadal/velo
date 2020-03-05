@@ -1,6 +1,5 @@
 using System;
 using Velo.CQRS;
-using Velo.CQRS.Pipeline;
 using Velo.DependencyInjection;
 using Velo.Extensions.DependencyInjection.CQRS;
 using Velo.Utils;
@@ -20,7 +19,7 @@ namespace Microsoft.Extensions.DependencyInjection
             ServiceLifetime lifetime = ServiceLifetime.Singleton)
         {
             var implementation = typeof(TBehaviour);
-            var processorInterfaces = PipelineTypes.CommandBehaviourTypes;
+            var processorInterfaces = Types.CommandBehaviourTypes;
 
             var descriptor = BuildProcessorDescriptor(implementation, processorInterfaces, lifetime);
             services.Add(descriptor);
@@ -34,7 +33,7 @@ namespace Microsoft.Extensions.DependencyInjection
             ServiceLifetime lifetime = ServiceLifetime.Singleton)
         {
             var implementation = typeof(TProcessor);
-            var processorInterfaces = PipelineTypes.CommandProcessorTypes;
+            var processorInterfaces = Types.CommandProcessorTypes;
 
             var descriptor = BuildProcessorDescriptor(implementation, processorInterfaces, lifetime);
             services.Add(descriptor);
@@ -48,7 +47,7 @@ namespace Microsoft.Extensions.DependencyInjection
             ServiceLifetime lifetime = ServiceLifetime.Singleton)
         {
             var implementation = typeof(TBehaviour);
-            var processorInterfaces = PipelineTypes.QueryBehaviourTypes;
+            var processorInterfaces = Types.QueryBehaviourTypes;
 
             var descriptor = BuildProcessorDescriptor(implementation, processorInterfaces, lifetime);
             services.Add(descriptor);
@@ -62,7 +61,7 @@ namespace Microsoft.Extensions.DependencyInjection
             ServiceLifetime lifetime = ServiceLifetime.Singleton)
         {
             var implementation = typeof(TProcessor);
-            var processorInterfaces = PipelineTypes.QueryProcessorTypes;
+            var processorInterfaces = Types.QueryProcessorTypes;
 
             var descriptor = BuildProcessorDescriptor(implementation, processorInterfaces, lifetime);
             services.Add(descriptor);
@@ -76,13 +75,13 @@ namespace Microsoft.Extensions.DependencyInjection
             ServiceLifetime lifetime = ServiceLifetime.Singleton)
         {
             var implementation = typeof(TProcessor);
-            var processorInterfaces = PipelineTypes.NotificationProcessorTypes;
+            var processorInterfaces = Types.NotificationProcessorTypes;
 
             var descriptor = BuildProcessorDescriptor(implementation, processorInterfaces, lifetime);
             services.Add(descriptor);
 
             var notificationType = descriptor.ServiceType.GenericTypeArguments[0];
-            var pipelineType = PipelineTypes.Notification.MakeGenericType(notificationType);
+            var pipelineType = Types.NotificationPipeline.MakeGenericType(notificationType);
 
             if (NeedCreatePipeline(services, pipelineType, lifetime))
             {
@@ -123,7 +122,7 @@ namespace Microsoft.Extensions.DependencyInjection
         private static void TryAddCommandPipeline(IServiceCollection services, Type contract, ServiceLifetime lifetime)
         {
             var commandType = contract.GenericTypeArguments[0];
-            var pipelineType = PipelineTypes.Command.MakeGenericType(commandType);
+            var pipelineType = Types.CommandPipeline.MakeGenericType(commandType);
 
             if (NeedCreatePipeline(services, pipelineType, lifetime))
             {
@@ -138,7 +137,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             var queryType = contract.GenericTypeArguments[0];
             var resultType = contract.GenericTypeArguments[1];
-            var pipelineType = PipelineTypes.Query.MakeGenericType(queryType, resultType);
+            var pipelineType = Types.QueryPipeline.MakeGenericType(queryType, resultType);
 
             if (NeedCreatePipeline(services, pipelineType, lifetime))
             {

@@ -3,9 +3,11 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Velo.CQRS.Commands;
+using Velo.CQRS.Commands.Pipeline;
 using Velo.CQRS.Notifications;
-using Velo.CQRS.Pipeline;
+using Velo.CQRS.Notifications.Pipeline;
 using Velo.CQRS.Queries;
+using Velo.CQRS.Queries.Pipeline;
 using Velo.Utils;
 
 namespace Velo.CQRS
@@ -24,7 +26,7 @@ namespace Velo.CQRS
         {
             EnsureNotDisposed();
 
-            var handlerType = PipelineTypes.GetQueryPipelineType(query.GetType());
+            var handlerType = Types.GetQueryPipelineType(query.GetType());
             var handler = (IQueryPipeline<TResult>) _scope.GetService(handlerType);
 
             return handler.GetResponse(query, cancellationToken);
@@ -35,7 +37,7 @@ namespace Velo.CQRS
         {
             EnsureNotDisposed();
 
-            var handler = GetService<QueryPipeline<TQuery, TResult>>();
+            var handler = GetService<IQueryPipeline<TQuery, TResult>>();
             return handler.GetResponse(query, cancellationToken);
         }
 
@@ -44,7 +46,7 @@ namespace Velo.CQRS
         {
             EnsureNotDisposed();
 
-            var executor = GetService<CommandPipeline<TCommand>>();
+            var executor = GetService<ICommandPipeline<TCommand>>();
             return executor.Execute(command, cancellationToken);
         }
 
@@ -54,7 +56,7 @@ namespace Velo.CQRS
         {
             EnsureNotDisposed();
 
-            var publisher = GetService<NotificationPipeline<TNotification>>();
+            var publisher = GetService<INotificationPipeline<TNotification>>();
             return publisher?.Publish(notification, cancellationToken) ?? TaskUtils.CompletedTask;
         }
 
@@ -62,7 +64,7 @@ namespace Velo.CQRS
         {
             EnsureNotDisposed();
 
-            var executorType = PipelineTypes.GetCommandPipelineType(command.GetType());
+            var executorType = Types.GetCommandPipelineType(command.GetType());
             var executor = (ICommandPipeline) _scope.GetService(executorType);
 
             return executor.Send(command, cancellationToken);
@@ -72,7 +74,7 @@ namespace Velo.CQRS
         {
             EnsureNotDisposed();
 
-            var publisherType = PipelineTypes.GetNotificationPipelineType(notification.GetType());
+            var publisherType = Types.GetNotificationPipelineType(notification.GetType());
             var publisher = (INotificationPipeline) _scope.GetService(publisherType);
 
             return publisher?.Publish(notification, cancellationToken) ?? TaskUtils.CompletedTask;

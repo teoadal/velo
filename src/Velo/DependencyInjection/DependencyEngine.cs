@@ -9,7 +9,9 @@ namespace Velo.DependencyInjection
 {
     public interface IDependencyEngine : IDisposable
     {
-        LocalList<IDependency> GetApplicable(Type contract);
+        bool Contains(Type type);
+        
+        IDependency[] GetApplicable(Type contract);
 
         IDependency GetDependency(Type contract, bool required = false);
     }
@@ -53,7 +55,7 @@ namespace Velo.DependencyInjection
             return false;
         }
 
-        public LocalList<IDependency> GetApplicable(Type contract)
+        public IDependency[] GetApplicable(Type contract)
         {
             var localList = new LocalList<IDependency>();
 
@@ -74,7 +76,7 @@ namespace Velo.DependencyInjection
                 localList.Add(dependency);
             }
 
-            return localList;
+            return localList.ToArray();
         }
 
         public IDependency GetDependency(Type contract, bool required = false)

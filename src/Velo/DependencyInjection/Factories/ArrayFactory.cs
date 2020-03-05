@@ -35,7 +35,7 @@ namespace Velo.DependencyInjection.Factories
             }
 
             var resolverType = ResolverType.MakeGenericType(elementType);
-            var resolverParameters = new object[] {dependencies.ToArray()};
+            var resolverParameters = new object[] {dependencies};
             var resolver = (DependencyResolver) Activator.CreateInstance(resolverType, resolverParameters);
 
             var lifetime = dependencies.DefineLifetime();

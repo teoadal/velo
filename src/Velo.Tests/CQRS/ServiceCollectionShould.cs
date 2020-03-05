@@ -8,6 +8,7 @@ using Velo.CQRS;
 using Velo.CQRS.Commands;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting;
+using Velo.TestsModels.Emitting.Parallel;
 using Velo.TestsModels.Emitting.PingPong;
 using Velo.TestsModels.Emitting.Plus;
 using Xunit;
@@ -75,7 +76,7 @@ namespace Velo.Tests.CQRS
         }
 
         [Theory, AutoData]
-        public async Task ResolveFullCommandPipeline(int booId)
+        public async Task ResolveCommandFullPipeline(int booId)
         {
             var emitter = _serviceCollection
                 .AddCommandBehaviour<MeasureBehaviour<BoosCreate.Command>>()
@@ -106,8 +107,26 @@ namespace Velo.Tests.CQRS
             emitter.Should().NotBeNull();
         }
 
+        [Theory, AutoData]
+        public async Task ResolveNotificationParallelPipeline(uint count)
+        {
+            for (var i = 0; i < count; i++)
+            {
+                _serviceCollection.AddNotificationProcessor<ParallelNotificationProcessor>();
+            }
+
+            var emitter = _serviceCollection
+                .BuildServiceProvider()
+                .GetRequiredService<IEmitter>();
+
+            var notification = new ParallelNotification();
+            await emitter.Publish(notification);
+
+            notification.ExecutedOn.Distinct().Should().HaveCount((int) count);
+        }
+        
         [Fact]
-        public async Task ResolveNotificationPipeline()
+        public async Task ResolveNotificationSimplePipeline()
         {
             var emitter = _serviceCollection
                 .AddNotificationProcessor<PlusNotificationProcessor>()
@@ -121,7 +140,7 @@ namespace Velo.Tests.CQRS
         }
 
         [Theory, AutoData]
-        public async Task ResolveNotificationPipelineWithManyProcessors(uint count)
+        public async Task ResolveNotificationSequencePipeline(uint count)
         {
             for (var i = 0; i < count; i++)
             {
@@ -142,7 +161,7 @@ namespace Velo.Tests.CQRS
         }
 
         [Fact]
-        public async Task ResolveQueryPipeline()
+        public async Task ResolveQuerySimplePipeline()
         {
             var emitter = _serviceCollection
                 .AddQueryProcessor<PingPongProcessor>()
@@ -154,7 +173,26 @@ namespace Velo.Tests.CQRS
         }
 
         [Theory, AutoData]
-        public async Task ResolveFullQueryPipeline(int booId)
+        public async Task ResolveQuerySequencePipeline(int booId)
+        {
+            var emitter = _serviceCollection
+                .AddQueryProcessor<BoosGet.PreProcessor>()
+                .AddQueryProcessor<BoosGet.Processor>()
+                .AddQueryProcessor<BoosGet.PostProcessor>()
+                .BuildServiceProvider()
+                .GetRequiredService<IEmitter>();
+
+            var query = new BoosGet.Query(booId);
+            var response = await emitter.Ask(query);
+            
+            query.PreProcessed.Should().BeTrue();
+            query.PostProcessed.Should().BeTrue();
+
+            response.Id.Should().Be(booId);
+        }
+        
+        [Theory, AutoData]
+        public async Task ResolveQueryFullPipeline(int booId)
         {
             var emitter = _serviceCollection
                 .AddQueryBehaviour<BoosGet.Behaviour>()

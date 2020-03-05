@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Velo.Utils;
 
-namespace Velo.CQRS.Commands
+namespace Velo.CQRS.Commands.Pipeline
 {
     internal interface ICommandBehaviours<in TCommand> : IDisposable
         where TCommand : ICommand

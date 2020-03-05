@@ -3,8 +3,13 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Velo.CQRS.Commands;
+using Velo.CQRS.Commands.Pipeline;
 using Velo.CQRS.Notifications;
+using Velo.CQRS.Notifications.Pipeline;
 using Velo.CQRS.Queries;
+using Velo.CQRS.Queries.Pipeline;
+using Velo.Threading;
+using Velo.Utils;
 
 namespace Velo.Extensions.DependencyInjection.CQRS
 {
@@ -43,7 +48,14 @@ namespace Velo.Extensions.DependencyInjection.CQRS
                 .GetServices<INotificationProcessor<TNotification>>()
                 .ToArray();
 
-            return new NotificationPipeline<TNotification>(processors);
+            return processors.Length switch
+            {
+                0 => throw Error.DependencyNotRegistered(typeof(INotificationProcessor<TNotification>)),
+                1 => new NotificationSimplePipeline<TNotification>(processors[0]),
+                _ => (ParallelAttribute.IsDefined(typeof(TNotification))
+                    ? (INotificationPipeline<TNotification>) new NotificationParallelPipeline<TNotification>(processors)
+                    : new NotificationSequentialPipeline<TNotification>(processors))
+            };
         }
 
         private static object QueryActivator<TQuery, TResult>(IServiceProvider provider)
@@ -54,7 +66,17 @@ namespace Velo.Extensions.DependencyInjection.CQRS
             var processor = provider.GetRequiredService<IQueryProcessor<TQuery, TResult>>();
             var postProcessors = provider.GetServices<IQueryPostProcessor<TQuery, TResult>>().ToArray();
 
-            return new QueryPipeline<TQuery, TResult>(behaviours, preProcessors, processor, postProcessors);
+            if (behaviours.Length > 0)
+            {
+                return new QueryFullPipeline<TQuery, TResult>(behaviours, preProcessors, processor, postProcessors);
+            }
+            
+            if (preProcessors.Length > 0 || postProcessors.Length > 0)
+            {
+                return new QuerySequentialPipeline<TQuery, TResult>(preProcessors, processor, postProcessors);
+            }
+            
+            return new QuerySimplePipeline<TQuery, TResult>(processor);
         }
 
         private static Func<IServiceProvider, object> GetMethod(string name, params Type[] genericParameters)

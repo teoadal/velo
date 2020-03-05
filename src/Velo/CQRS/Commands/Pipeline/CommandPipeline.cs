@@ -2,9 +2,9 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Velo.CQRS.Commands
+namespace Velo.CQRS.Commands.Pipeline
 {
-    internal sealed class CommandPipeline<TCommand> : ICommandPipeline
+    internal sealed class CommandPipeline<TCommand> : ICommandPipeline<TCommand>
         where TCommand : ICommand
     {
         private ICommandBehaviours<TCommand> _behaviours;
@@ -34,7 +34,7 @@ namespace Velo.CQRS.Commands
             _processor = processor;
             _postProcessors = Array.Empty<ICommandPostProcessor<TCommand>>();
         }
-        
+
         public Task Execute(TCommand command, CancellationToken cancellationToken)
         {
             return _behaviours.HasBehaviours
@@ -73,10 +73,5 @@ namespace Velo.CQRS.Commands
             _processor = null;
             _postProcessors = null;
         }
-    }
-
-    internal interface ICommandPipeline : IDisposable
-    {
-        Task Send(ICommand command, CancellationToken cancellationToken);
     }
 }

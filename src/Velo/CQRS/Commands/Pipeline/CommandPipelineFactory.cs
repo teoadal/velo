@@ -6,25 +6,28 @@ using Velo.DependencyInjection.Factories;
 using Velo.DependencyInjection.Resolvers;
 using Velo.Utils;
 
-namespace Velo.CQRS.Pipeline
+namespace Velo.CQRS.Commands.Pipeline
 {
-    internal sealed class PipelineFactory : IDependencyFactory
+    public class CommandPipelineFactory : IDependencyFactory
     {
-        private readonly Type _pipelineGenericType;
+        private readonly Type _contract;
+        private readonly Type _fullPipelineImplementation;
 
-        public PipelineFactory(Type pipelineGenericType)
+        public CommandPipelineFactory()
         {
-            _pipelineGenericType = pipelineGenericType;
+            _contract = typeof(ICommandPipeline<>);
+            _fullPipelineImplementation = typeof(CommandPipeline<>);
         }
 
         public bool Applicable(Type contract)
         {
-            return ReflectionUtils.IsGenericTypeImplementation(contract, _pipelineGenericType);
+            return ReflectionUtils.IsGenericTypeImplementation(contract, _contract);
         }
 
         public IDependency BuildDependency(Type contract, IDependencyEngine engine)
         {
-            var constructor = ReflectionUtils.GetConstructor(contract);
+            var implementation = _fullPipelineImplementation.MakeGenericType(contract.GenericTypeArguments);
+            var constructor = ReflectionUtils.GetConstructor(implementation);
             var parameters = constructor.GetParameters();
 
             var dependencies = new LocalList<IDependency>();
@@ -34,9 +37,10 @@ namespace Velo.CQRS.Pipeline
                 var dependency = engine.GetDependency(parameter.ParameterType, required);
                 dependencies.Add(dependency);
             }
-
+            
             var lifetime = dependencies.DefineLifetime();
-            var resolver = DependencyResolver.Build(lifetime, contract, engine);
+            var resolver = DependencyResolver.Build(lifetime, implementation, engine);
+
             return Dependency.Build(lifetime, new[] {contract}, resolver);
         }
     }
