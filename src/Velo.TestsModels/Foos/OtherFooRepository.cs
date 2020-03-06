@@ -8,13 +8,13 @@ namespace Velo.TestsModels.Foos
     [Order(2)]
     public class OtherFooRepository : IFooRepository
     {
-        public IConfiguration Configuration { get; }
+        public ISettings Settings { get; }
 
         public ISession Session { get; }
 
-        public OtherFooRepository(IConfiguration configuration, ISession session)
+        public OtherFooRepository(ISettings settings, ISession session)
         {
-            Configuration = configuration;
+            Settings = settings;
             Session = session;
         }
 

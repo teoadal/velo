@@ -2,7 +2,7 @@ using Velo.Serialization.Models;
 
 namespace Velo.Settings.Sources
 {
-    internal interface IConfigurationSource
+    internal interface ISettingsSource
     {
         bool TryGet(out JsonObject data);
     }

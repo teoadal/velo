@@ -1,6 +1,9 @@
+using System;
 using Velo.DependencyInjection;
 using Velo.Serialization;
 using Velo.Settings;
+using Velo.Settings.Provider;
+using Velo.Settings.Sources;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Domain;
 using Velo.TestsModels.Foos;
@@ -17,7 +20,7 @@ namespace Velo.Tests.DependencyInjection.Scan
         public ScanTests(ITestOutputHelper output) : base(output)
         {
             _dependencies = new DependencyCollection()
-                .AddSingleton<IConfiguration>(ctx => new Configuration())
+                .AddSingleton<ISettings>(ctx => new SettingsProvider(Array.Empty<ISettingsSource>()))
                 .AddSingleton<JConverter>()
                 .AddSingleton<ISession, Session>();
         }

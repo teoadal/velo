@@ -7,6 +7,7 @@ using Velo.DependencyInjection;
 using Velo.Mapping;
 using Velo.Serialization;
 using Velo.Settings;
+using Velo.Settings.Provider;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Domain;
 using Velo.TestsModels.Foos;
@@ -25,7 +26,7 @@ namespace Velo.Tests.DependencyInjection
         {
             _dependencies = new DependencyCollection()
                 .AddSingleton<JConverter>()
-                .AddSingleton<IConfiguration>(ctx => new Configuration())
+                .AddSingleton<ISettings>(ctx => new NullProvider())
                 .AddSingleton<ISession, Session>();
         }
 
@@ -65,7 +66,7 @@ namespace Velo.Tests.DependencyInjection
         {
             var provider = _dependencies
                 .AddSingleton<IMapper<Boo>, CompiledMapper<Boo>>()
-                .AddSingleton<IBooRepository>(ctx => new BooRepository(ctx.GetService<IConfiguration>(), ctx.GetService<ISession>()))
+                .AddSingleton<IBooRepository>(ctx => new BooRepository(ctx.GetService<ISettings>(), ctx.GetService<ISession>()))
                 .AddSingleton<BooService>()
                 .BuildProvider();
 
@@ -85,7 +86,7 @@ namespace Velo.Tests.DependencyInjection
                 .AddSingleton<JConverter>()
                 .AddSingleton<IMapper<Boo>, CompiledMapper<Boo>>()
                 .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
-                .AddSingleton<IConfiguration>(ctx => new Configuration())
+                .AddSingleton<ISettings>(ctx => new NullProvider())
                 .AddTransient<ISession, Session>()
                 .AddSingleton<IFooService, FooService>()
                 .AddSingleton<IFooRepository, FooRepository>()
@@ -217,7 +218,7 @@ namespace Velo.Tests.DependencyInjection
                     Assert.Same(controller.Logger, otherController.Logger);
                     Assert.Same(controller.BooService, otherController.BooService);
                     Assert.Same(controller.FooService, otherController.FooService);
-                    Assert.Same(controller.FooService.Configuration, otherController.FooService.Configuration);
+                    Assert.Same(controller.FooService.Settings, otherController.FooService.Settings);
                     Assert.Same(controller.FooService.Mapper, otherController.FooService.Mapper);
                     Assert.Same(controller.FooService.Repository, otherController.FooService.Repository);
                 }

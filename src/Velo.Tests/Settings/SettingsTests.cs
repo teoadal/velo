@@ -16,30 +16,31 @@ namespace Velo.Tests.Settings
     {
         private const string LogLevelNode = "Logging.LogLevel";
 
-        private readonly IConfiguration _configuration;
+        private readonly ISettings _settings;
 
         public SettingsTests(ITestOutputHelper output) : base(output)
         {
             var provider = new DependencyCollection()
-                .AddJsonConfiguration("appsettings.json", true)
+                .AddSettings()
+                .AddJsonSettings("appsettings.json", true)
                 .BuildProvider();
 
-            _configuration = provider.GetRequiredService<IConfiguration>();
+            _settings = provider.GetRequiredService<ISettings>();
         }
 
         [Fact]
         public void Contains()
         {
-            Assert.True(_configuration.Contains(LogLevelNode));
-            Assert.True(_configuration.Contains(LogLevelNode.Split('.')[0]));
-            Assert.False(_configuration.Contains("abc"));
-            Assert.False(_configuration.Contains("Logging.Abc"));
+            Assert.True(_settings.Contains(LogLevelNode));
+            Assert.True(_settings.Contains(LogLevelNode.Split('.')[0]));
+            Assert.False(_settings.Contains("abc"));
+            Assert.False(_settings.Contains("Logging.Abc"));
         }
 
         [Fact]
         public void GetObject()
         {
-            var logSettings = _configuration.Get<LogLevelSettings>(LogLevelNode);
+            var logSettings = _settings.Get<LogLevelSettings>(LogLevelNode);
 
             Assert.Equal("Information", logSettings.Default);
             Assert.Equal("Information", logSettings.Microsoft);
@@ -51,7 +52,7 @@ namespace Velo.Tests.Settings
         {
             await RunTasks(10, () =>
             {
-                var logSettings = _configuration.Get<LogLevelSettings>(LogLevelNode);
+                var logSettings = _settings.Get<LogLevelSettings>(LogLevelNode);
                 Assert.Equal("Information", logSettings.Default);
                 Assert.Equal("Information", logSettings.Microsoft);
                 Assert.Equal("Information", logSettings.System);
@@ -61,21 +62,22 @@ namespace Velo.Tests.Settings
         [Fact]
         public void GetObject_Try()
         {
-            Assert.True(_configuration.TryGet<LogLevelSettings>(LogLevelNode, out var logSettings));
+            Assert.True(_settings.TryGet<LogLevelSettings>(LogLevelNode, out var logSettings));
 
             Assert.Equal("Information", logSettings.Default);
             Assert.Equal("Information", logSettings.Microsoft);
             Assert.Equal("Information", logSettings.System);
-            
-            Assert.False(_configuration.TryGet<LogLevelSettings>("Logging.Abc", out _));
+
+            Assert.False(_settings.TryGet<LogLevelSettings>("Logging.Abc", out _));
         }
-        
+
         [Fact]
         public void Override_CommandLineArgs()
         {
             var provider = new DependencyCollection()
-                .AddJsonConfiguration("appsettings.json", true)
-                .AddCommandLineConfiguration(new[]
+                .AddSettings()
+                .AddJsonSettings("appsettings.json", true)
+                .AddCommandLineSettings(new[]
                 {
                     $"{LogLevelNode}.Default=\"One\"",
                     $"{LogLevelNode}.System=\"Two\"",
@@ -83,7 +85,7 @@ namespace Velo.Tests.Settings
                 })
                 .BuildProvider();
 
-            var configuration = provider.GetRequiredService<IConfiguration>();
+            var configuration = provider.GetRequiredService<ISettings>();
 
             Assert.Equal("One", configuration.Get<string>($"{LogLevelNode}.Default"));
             Assert.Equal("Two", configuration.Get<string>($"{LogLevelNode}.System"));
@@ -94,11 +96,12 @@ namespace Velo.Tests.Settings
         public void Override_JsonFileSettings()
         {
             var provider = new DependencyCollection()
-                .AddJsonConfiguration("appsettings.json", true)
-                .AddJsonConfiguration("appsettings.develop.json", true)
+                .AddSettings()
+                .AddJsonSettings("appsettings.json", true)
+                .AddJsonSettings("appsettings.develop.json", true)
                 .BuildProvider();
 
-            var configuration = provider.GetRequiredService<IConfiguration>();
+            var configuration = provider.GetRequiredService<ISettings>();
 
             Assert.Equal("Debug", configuration.Get($"{LogLevelNode}.Default"));
             Assert.Equal("Debug", configuration.Get<string>($"{LogLevelNode}.Default"));
@@ -112,13 +115,13 @@ namespace Velo.Tests.Settings
         [Fact]
         public void Read_JsonFileSettings()
         {
-            Assert.Equal("Information", _configuration.Get($"{LogLevelNode}.Default"));
-            Assert.Equal("Information", _configuration.Get<string>($"{LogLevelNode}.Default"));
+            Assert.Equal("Information", _settings.Get($"{LogLevelNode}.Default"));
+            Assert.Equal("Information", _settings.Get<string>($"{LogLevelNode}.Default"));
 
-            Assert.Equal("Information", _configuration.Get<string>($"{LogLevelNode}.System"));
-            Assert.Equal("Information", _configuration.Get<string>($"{LogLevelNode}.Microsoft"));
+            Assert.Equal("Information", _settings.Get<string>($"{LogLevelNode}.System"));
+            Assert.Equal("Information", _settings.Get<string>($"{LogLevelNode}.Microsoft"));
 
-            Assert.Equal(1, _configuration.Get<int>("Logging.IntValue"));
+            Assert.Equal(1, _settings.Get<int>("Logging.IntValue"));
         }
 
         [Theory, AutoData]
@@ -126,45 +129,47 @@ namespace Velo.Tests.Settings
         {
             var provider = new DependencyCollection()
                 .AddInstance(new Boo {String = fileNamePart})
-                .AddJsonConfiguration(ctx =>
+                .AddSettings()
+                .AddJsonSettings(ctx =>
                 {
                     var boo = ctx.GetRequiredService<Boo>();
                     return $"appsettings.{boo.String}.json";
                 })
                 .BuildProvider();
 
-            var configuration = provider.GetRequiredService<IConfiguration>();
+            var configuration = provider.GetRequiredService<ISettings>();
             Assert.NotNull(configuration);
         }
 
         [Fact]
         public void Throw_CastPrimitiveToObject()
         {
-            Assert.Throws<InvalidCastException>(() => _configuration.Get<int>(LogLevelNode));
+            Assert.Throws<InvalidCastException>(() => _settings.Get<int>(LogLevelNode));
         }
 
         [Fact]
         public void Throw_CastObjectToPrimitive()
         {
             Assert.Throws<InvalidCastException>(() =>
-                _configuration.Get<LogLevelSettings>($"{LogLevelNode}.Microsoft"));
+                _settings.Get<LogLevelSettings>($"{LogLevelNode}.Microsoft"));
         }
 
         [Fact]
         public void Throw_PathNotFound()
         {
             Assert.Throws<KeyNotFoundException>(() =>
-                _configuration.Get<LogLevelSettings>($"abc.def"));
+                _settings.Get<LogLevelSettings>($"abc.def"));
         }
 
         [Fact]
         public void Throw_RequiredFileNotFound()
         {
             var provider = new DependencyCollection()
-                .AddJsonConfiguration("abc.json", true)
+                .AddSettings()
+                .AddJsonSettings("abc.json", true)
                 .BuildProvider();
 
-            Assert.Throws<FileNotFoundException>(() => provider.GetRequiredService<IConfiguration>());
+            Assert.Throws<FileNotFoundException>(() => provider.GetRequiredService<ISettings>());
         }
     }
 }

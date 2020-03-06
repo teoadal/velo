@@ -5,6 +5,7 @@ using Velo.DependencyInjection;
 using Velo.Mapping;
 using Velo.Serialization;
 using Velo.Settings;
+using Velo.Settings.Provider;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Domain;
 using Velo.TestsModels.Foos;
@@ -21,7 +22,7 @@ namespace Velo.Tests.DependencyInjection.Dependencies
         public ScopeTests(ITestOutputHelper output) : base(output)
         {
             _dependencies = new DependencyCollection()
-                .AddSingleton<IConfiguration>(ctx => new Configuration())
+                .AddSingleton<ISettings>(ctx => new NullProvider())
                 .AddSingleton<JConverter>();
         }
 
@@ -131,7 +132,7 @@ namespace Velo.Tests.DependencyInjection.Dependencies
                 .AddScoped<IFooRepository, FooRepository>()
                 .AddScoped(typeof(IMapper<>), typeof(CompiledMapper<>))
                 .AddScoped(ctx => new FooService(
-                    ctx.GetService<IConfiguration>(),
+                    ctx.GetService<ISettings>(),
                     ctx.GetService<IMapper<Foo>>(),
                     ctx.GetService<IFooRepository>()))
                 .BuildProvider();

@@ -8,7 +8,7 @@ namespace Velo.TestsModels.Boos
 {
     public class BooRepository : IBooRepository, IDisposable
     {
-        public IConfiguration Configuration { get; }
+        public ISettings Settings { get; }
 
         public ISession Session { get; }
 
@@ -16,9 +16,9 @@ namespace Velo.TestsModels.Boos
         
         private Dictionary<int, Boo> _storage;
         
-        public BooRepository(IConfiguration configuration, ISession session)
+        public BooRepository(ISettings settings, ISession session)
         {
-            Configuration = configuration;
+            Settings = settings;
             Session = session;
             
             _storage = new Dictionary<int, Boo>();

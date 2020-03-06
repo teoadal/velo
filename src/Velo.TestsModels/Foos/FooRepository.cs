@@ -9,15 +9,15 @@ namespace Velo.TestsModels.Foos
     [Order(1)]
     public class FooRepository : IFooRepository
     {
-        public IConfiguration Configuration { get; }
+        public ISettings Settings { get; }
 
         public ISession Session { get; }
 
         private List<Foo> _foos;
         
-        public FooRepository(IConfiguration configuration, ISession session)
+        public FooRepository(ISettings settings, ISession session)
         {
-            Configuration = configuration;
+            Settings = settings;
             Session = session;
             
             _foos = new List<Foo>();

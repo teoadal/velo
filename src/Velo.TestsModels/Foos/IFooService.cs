@@ -8,7 +8,7 @@ namespace Velo.TestsModels.Foos
     {
         Guid Id { get; }
         
-        IConfiguration Configuration { get; }
+        ISettings Settings { get; }
 
         bool Disposed { get; }
         

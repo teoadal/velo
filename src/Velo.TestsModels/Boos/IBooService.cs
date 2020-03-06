@@ -6,7 +6,7 @@ namespace Velo.TestsModels.Boos
 {
     public interface IBooService : IDisposable
     {
-        IConfiguration Configuration { get; }
+        ISettings Settings { get; }
 
         IMapper<Boo> Mapper { get; }
 

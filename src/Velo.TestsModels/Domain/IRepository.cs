@@ -6,7 +6,7 @@ namespace Velo.TestsModels.Domain
 {
     public interface IRepository
     {
-        IConfiguration Configuration { get; }
+        ISettings Settings { get; }
 
         ISession Session { get; }
     }

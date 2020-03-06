@@ -2,13 +2,13 @@ using Velo.Serialization.Models;
 
 namespace Velo.Settings.Sources
 {
-    internal sealed class CommandLineSource : IConfigurationSource
+    internal sealed class CommandLineSource : ISettingsSource
     {
         private readonly JsonObject _configuration;
 
         public CommandLineSource(string[] args)
         {
-            if (args == null) return;
+            if (args == null || args.Length == 0) return;
 
             _configuration = new JsonObject();
             for (var i = 0; i < args.Length; i++)
@@ -36,7 +36,7 @@ namespace Velo.Settings.Sources
                 var jsonValue = VisitValue(value);
 
                 var dotIndex = key.IndexOf('.');
-                if (dotIndex == -1) _configuration.Add(value, jsonValue);
+                if (dotIndex == -1) _configuration.Add(key, jsonValue);
                 else SetValueByPath(_configuration, key, jsonValue);
             }
         }
@@ -44,7 +44,7 @@ namespace Velo.Settings.Sources
         public bool TryGet(out JsonObject data)
         {
             data = _configuration;
-            return true;
+            return _configuration != null;
         }
 
         private static void SetValueByPath(JsonObject node, string path, JsonData value)

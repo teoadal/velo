@@ -1,6 +1,6 @@
 namespace Velo.Settings
 {
-    public interface IConfiguration
+    public interface ISettings
     {
         bool Contains(string path);
         

@@ -5,7 +5,7 @@ using Velo.Utils;
 
 namespace Velo.Settings.Sources
 {
-    internal sealed class JsonFileSource : IConfigurationSource
+    internal sealed class JsonFileSource : ISettingsSource
     {
         private readonly string _path;
         private readonly bool _required;

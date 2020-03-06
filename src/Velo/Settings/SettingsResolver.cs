@@ -5,19 +5,22 @@ using Velo.Utils;
 
 namespace Velo.Settings
 {
-    internal sealed class SettingsResolver<TSettings> : DependencyResolver
+    internal sealed partial class SettingsFactory
     {
-        private readonly string _path;
-
-        public SettingsResolver(string path): base(Typeof<TSettings>.Raw)
+        private sealed class SettingsResolver<TSettings> : DependencyResolver
         {
-            _path = path;
-        }
+            private readonly string _path;
 
-        protected override object ResolveInstance(Type contract, IDependencyScope scope)
-        {
-            var configuration = scope.GetRequiredService<IConfiguration>();
-            return configuration.Get<TSettings>(_path);
+            public SettingsResolver(string path) : base(Typeof<TSettings>.Raw)
+            {
+                _path = path;
+            }
+
+            protected override object ResolveInstance(Type contract, IDependencyScope scope)
+            {
+                var configuration = scope.GetRequiredService<ISettings>();
+                return configuration.Get<TSettings>(_path);
+            }
         }
     }
 }

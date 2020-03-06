@@ -8,22 +8,20 @@ using Velo.Serialization.Models;
 using Velo.Settings.Sources;
 using Velo.Utils;
 
-namespace Velo.Settings
+namespace Velo.Settings.Provider
 {
-    internal sealed class Configuration : DangerousVector<string, object>, IConfiguration
+    internal sealed class SettingsProvider : DangerousVector<string, object>, ISettings
     {
-        public IConfigurationSource[] Sources => _sources;
+        public ISettingsSource[] Sources => _sources;
 
         private readonly IConvertersCollection _converters;
         private readonly Func<string, Type, object> _sectionBuilder;
-        private readonly IConfigurationSource[] _sources;
+        private readonly ISettingsSource[] _sources;
 
         private JsonObject _configuration;
 
-        public Configuration(IConvertersCollection converters = null, IConfigurationSource[] sources = null)
+        public SettingsProvider(ISettingsSource[] sources, IConvertersCollection converters = null)
         {
-            if (sources == null) sources = Array.Empty<IConfigurationSource>();
-
             _converters = converters ?? new ConvertersCollection(CultureInfo.InvariantCulture);
             _sectionBuilder = BuildSection;
             _sources = sources;
@@ -67,8 +65,6 @@ namespace Velo.Settings
 
         public void Reload()
         {
-            if (_sources == null) return;
-
             var root = new JsonObject();
             foreach (var source in _sources)
             {
@@ -79,7 +75,7 @@ namespace Velo.Settings
             }
 
             ClearSafe();
-            
+
             _configuration = root;
         }
 
@@ -104,16 +100,16 @@ namespace Velo.Settings
 
             var jsonDataType = jsonData.Type;
             var primitiveData = jsonDataType != JsonDataType.Object && jsonDataType != JsonDataType.Array;
-            
+
             var converter = _converters.Get(sectionType);
             if (converter.IsPrimitive && !primitiveData || !converter.IsPrimitive && primitiveData)
             {
                 throw CastException(jsonDataType, ReflectionUtils.GetName(sectionType));
             }
-            
+
             return converter.ReadObject(jsonData);
         }
-        
+
         private bool TryGetJsonData(string path, out JsonData data)
         {
             var properties = path.Split('.');

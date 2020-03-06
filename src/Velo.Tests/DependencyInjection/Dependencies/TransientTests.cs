@@ -5,6 +5,7 @@ using Velo.DependencyInjection;
 using Velo.Mapping;
 using Velo.Serialization;
 using Velo.Settings;
+using Velo.Settings.Provider;
 using Velo.TestsModels.Domain;
 using Velo.TestsModels.Foos;
 using Velo.TestsModels.Infrastructure;
@@ -20,7 +21,7 @@ namespace Velo.Tests.DependencyInjection.Dependencies
         public TransientTests(ITestOutputHelper output) : base(output)
         {
             _dependencies = new DependencyCollection()
-                .AddSingleton<IConfiguration>(_ => new Configuration())
+                .AddSingleton<ISettings>(_ => new NullProvider())
                 .AddSingleton<JConverter>();
         }
 
@@ -81,7 +82,7 @@ namespace Velo.Tests.DependencyInjection.Dependencies
                 .AddTransient<IFooRepository, FooRepository>()
                 .AddTransient(typeof(IMapper<>), typeof(CompiledMapper<>))
                 .AddTransient(ctx => new FooService(
-                    ctx.GetService<IConfiguration>(),
+                    ctx.GetService<ISettings>(),
                     ctx.GetService<IMapper<Foo>>(),
                     ctx.GetService<IFooRepository>()))
                 .BuildProvider();

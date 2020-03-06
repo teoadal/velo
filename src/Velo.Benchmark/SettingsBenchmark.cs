@@ -5,7 +5,7 @@ using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Jobs;
 using Microsoft.Extensions.Configuration;
 using Velo.Serialization;
-using Velo.Settings;
+using Velo.Settings.Provider;
 using Velo.Settings.Sources;
 using Velo.TestsModels.Settings;
 
@@ -21,7 +21,7 @@ namespace Velo.Benchmark
 
         private IConfigurationRoot _coreConfiguration;
         private IConfigurationSection _coreConfigurationSection;
-        private Configuration _veloConfiguration;
+        private SettingsProvider _veloConfiguration;
         private string[] _commandLineArgs;
 
         [GlobalSetup]
@@ -147,15 +147,15 @@ namespace Velo.Benchmark
                 .Build();
         }
 
-        private Configuration BuildVeloConfiguration()
+        private SettingsProvider BuildVeloConfiguration()
         {
             var converters = new ConvertersCollection(CultureInfo.InvariantCulture);
-            return new Configuration(converters, new Settings.Sources.IConfigurationSource[]
+            return new SettingsProvider(new ISettingsSource[]
             {
                 new JsonFileSource("appsettings.json", true),
                 new JsonFileSource("appsettings.develop.json", true),
                 new CommandLineSource(_commandLineArgs),
-            });
+            }, converters);
         }
     }
 }

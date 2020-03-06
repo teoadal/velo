@@ -8,7 +8,7 @@ namespace Velo.TestsModels.Foos
     {
         public Guid Id { get; }
         
-        public IConfiguration Configuration { get; }
+        public ISettings Settings { get; }
 
         public bool Disposed { get; private set; }
         
@@ -18,10 +18,10 @@ namespace Velo.TestsModels.Foos
 
         public IFooRepository Repository { get; }
 
-        public FooService(IConfiguration configuration, IMapper<Foo> mapper, IFooRepository repository)
+        public FooService(ISettings settings, IMapper<Foo> mapper, IFooRepository repository)
         {
             Id = Guid.NewGuid();
-            Configuration = configuration;
+            Settings = settings;
             Mapper = mapper;
             Name = Guid.NewGuid().ToString("N");
             Repository = repository;

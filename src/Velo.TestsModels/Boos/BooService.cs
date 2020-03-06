@@ -6,7 +6,7 @@ namespace Velo.TestsModels.Boos
 {
     public class BooService : IBooService
     {
-        public IConfiguration Configuration { get; }
+        public ISettings Settings { get; }
 
         public bool Disposed { get; private set; }
         
@@ -16,9 +16,9 @@ namespace Velo.TestsModels.Boos
 
         public IBooRepository Repository { get; }
 
-        public BooService(IConfiguration configuration, IMapper<Boo> mapper, IBooRepository repository)
+        public BooService(ISettings settings, IMapper<Boo> mapper, IBooRepository repository)
         {
-            Configuration = configuration;
+            Settings = settings;
             Mapper = mapper;
             Name = Guid.NewGuid().ToString("N");
             Repository = repository;

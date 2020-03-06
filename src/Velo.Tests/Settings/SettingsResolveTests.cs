@@ -11,16 +11,17 @@ namespace Velo.Tests.Settings
     {
         private const string LogLevelNode = "Logging.LogLevel";
 
-        private readonly IConfiguration _configuration;
+        private readonly ISettings _settings;
         private readonly DependencyProvider _provider;
 
         public SettingsResolveTests(ITestOutputHelper output) : base(output)
         {
             _provider = new DependencyCollection()
-                .AddJsonConfiguration("appsettings.json", true)
+                .AddSettings()
+                .AddJsonSettings("appsettings.json", true)
                 .BuildProvider();
 
-            _configuration = _provider.GetRequiredService<IConfiguration>();
+            _settings = _provider.GetRequiredService<ISettings>();
         }
 
         [Fact]
@@ -28,7 +29,7 @@ namespace Velo.Tests.Settings
         {
             var settings = _provider.GetRequiredService<LogLevelSettings>();
             Assert.NotNull(settings);
-            Assert.Same(settings, _configuration.Get<LogLevelSettings>(LogLevelNode));
+            Assert.Same(settings, _settings.Get<LogLevelSettings>(LogLevelNode));
         }
 
         [Fact]
@@ -38,7 +39,7 @@ namespace Velo.Tests.Settings
             {
                 var settings = _provider.GetRequiredService<LogLevelSettings>();
                 Assert.NotNull(settings);
-                Assert.Same(settings, _configuration.Get<LogLevelSettings>(LogLevelNode));
+                Assert.Same(settings, _settings.Get<LogLevelSettings>(LogLevelNode));
             });
         }
     }
