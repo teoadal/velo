@@ -123,6 +123,7 @@ namespace Velo.Tests.Mapping
             Assert.Throws<NullReferenceException>(() => _mapper.Map(null));
         }
 
+        // ReSharper disable once ClassNeverInstantiated.Local
         private sealed class ClassWithoutDefaultConstructor
         {
             // ReSharper disable UnusedParameter.Local

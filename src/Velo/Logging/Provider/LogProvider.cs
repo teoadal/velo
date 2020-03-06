@@ -13,11 +13,11 @@ namespace Velo.Logging.Provider
     internal sealed class LogProvider : ILogProvider
     {
         private readonly ILogEnricher[] _enrichers;
-        private readonly IRendererCollection _renderers;
+        private readonly IRenderersCollection _renderers;
         private readonly LogLevel _minimalLevel;
         private readonly ILogWriter[] _writers;
 
-        public LogProvider(ILogEnricher[] enrichers, IRendererCollection renderers, ILogWriter[] writers)
+        public LogProvider(ILogEnricher[] enrichers, IRenderersCollection renderers, ILogWriter[] writers)
         {
             _enrichers = enrichers;
             _renderers = renderers;

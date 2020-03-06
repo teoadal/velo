@@ -50,27 +50,27 @@ namespace Velo.Benchmark.CQRS
         [Benchmark(Baseline = true)]
         public async Task<long> MediatR()
         {
-            var sum = 0L;
+            var stub = 0L;
             foreach (var notification in _mediatorNotifications)
             {
                 await _mediator.Publish(notification);
-                sum += notification.Counter;
+                stub += notification.Counter;
             }
         
-            return sum;
+            return stub;
         }
 
         [Benchmark]
         public async Task<long> Emitter()
         {
-            var sum = 0L;
+            var stub = 0L;
             foreach (var notification in _emitterNotifications)
             {
                 await _emitter.Publish(notification);
-                sum += notification.Counter;
+                stub += notification.Counter;
             }
 
-            return sum;
+            return stub;
         }
     }
 }

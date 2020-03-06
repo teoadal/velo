@@ -12,6 +12,13 @@ namespace Velo.Utils
     {
         private static readonly Type DisposableInterfaceType = typeof(IDisposable);
 
+        public static TDelegate BuildStaticMethodDelegate<TDelegate>(MethodInfo methodInfo)
+            where TDelegate: Delegate
+        {
+            var methodDelegate = methodInfo.CreateDelegate(typeof(TDelegate), null);
+            return (TDelegate) methodDelegate;
+        }
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Type GetArrayElementType(Type arrayType)
         {

@@ -3,14 +3,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Velo.CQRS;
 using Velo.DependencyInjection;
 using Velo.Serialization;
+using Velo.TestsModels.Boos;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Tests.DependencyInjection
+namespace Velo.Tests.Extensions.DependencyInjection
 {
-    public class ServiceCollectionShould : TestClass
+    public class ServiceCollectionExtensionsShould : TestClass
     {
-        public ServiceCollectionShould(ITestOutputHelper output) : base(output)
+        public ServiceCollectionExtensionsShould(ITestOutputHelper output) : base(output)
         {
         }
 
@@ -58,6 +59,33 @@ namespace Velo.Tests.DependencyInjection
 
             provider.GetRequiredService<JConverter>();
             provider.GetRequiredService<IConvertersCollection>();
+        }
+
+        [Fact]
+        public void RemoveDescriptor()
+        {
+            var services = new ServiceCollection()
+                .AddSingleton<JConverter>();
+
+            services
+                .RemoveLessLifetimeService(typeof(JConverter), ServiceLifetime.Scoped)
+                .Should().BeTrue();
+        }
+        
+        [Fact]
+        public void NotRemoveDescriptor()
+        {
+            var services = new ServiceCollection()
+                .AddSingleton<JConverter>()
+                .AddTransient<IBooRepository, BooRepository>();
+
+            services
+                .RemoveLessLifetimeService(typeof(JConverter), ServiceLifetime.Singleton)
+                .Should().BeFalse();
+            
+            services
+                .RemoveLessLifetimeService(typeof(IBooRepository), ServiceLifetime.Singleton)
+                .Should().BeFalse();
         }
     }
 }

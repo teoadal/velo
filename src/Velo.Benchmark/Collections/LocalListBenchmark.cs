@@ -81,13 +81,13 @@ namespace Velo.Benchmark.Collections
         {
             var list = new List<Boo>(_items);
 
-            var counter = 0;
+            var stub = 0;
             foreach (var boo in list)
             {
-                counter += boo.Id;
+                stub += boo.Id;
             }
 
-            return counter;
+            return stub;
         }
 
         [BenchmarkCategory("Iteration")]
@@ -96,13 +96,13 @@ namespace Velo.Benchmark.Collections
         {
             var localList = new LocalList<Boo>(_items);
 
-            var counter = 0;
+            var stub = 0;
             foreach (var boo in localList)
             {
-                counter += boo.Id;
+                stub += boo.Id;
             }
 
-            return counter;
+            return stub;
         }
 
         [BenchmarkCategory("Iteration")]
@@ -111,13 +111,13 @@ namespace Velo.Benchmark.Collections
         {
             var span = new Span<Boo>(_items.ToArray());
         
-            var counter = 0;
+            var stub = 0;
             foreach (var boo in span)
             {
-                counter += boo.Id;
+                stub += boo.Id;
             }
         
-            return counter;
+            return stub;
         }
         
         [BenchmarkCategory("GroupBy")]
@@ -126,16 +126,16 @@ namespace Velo.Benchmark.Collections
         {
             var list = new List<Boo>(_items);
         
-            var counter = 0;
+            var stub = 0;
             foreach (var group in list.GroupBy(b => b.Id % 2 == 0))
             {
                 foreach (var boo in group)
                 {
-                    counter += boo.Id;
+                    stub += boo.Id;
                 }
             }
         
-            return counter;
+            return stub;
         }
         
         [BenchmarkCategory("GroupBy")]
@@ -144,16 +144,16 @@ namespace Velo.Benchmark.Collections
         {
             var localList = new LocalList<Boo>(_items);
         
-            var counter = 0;
+            var stub = 0;
             foreach (var group in localList.GroupBy(b => b.Id % 2 == 0))
             {
                 foreach (var boo in group)
                 {
-                    counter += boo.Id;
+                    stub += boo.Id;
                 }
             }
         
-            return counter;
+            return stub;
         }
         
         [BenchmarkCategory("Join")]
@@ -221,14 +221,14 @@ namespace Velo.Benchmark.Collections
         {
             var list = new List<Boo>(_items);
         
-            var counter = 0;
+            var stub = 0;
             foreach (var item in _items)
             {
                 list.Remove(item);
-                counter += list.Count;
+                stub += list.Count;
             }
         
-            return counter;
+            return stub;
         }
         
         [BenchmarkCategory("Remove")]
@@ -237,14 +237,14 @@ namespace Velo.Benchmark.Collections
         {
             var localList = new LocalList<Boo>(_items);
         
-            var counter = 0;
+            var stub = 0;
             foreach (var item in _items)
             {
                 localList.Remove(item);
-                counter += localList.Length;
+                stub += localList.Length;
             }
         
-            return counter;
+            return stub;
         }
         
         
@@ -254,13 +254,13 @@ namespace Velo.Benchmark.Collections
         {
             var list = new List<Boo>(_items);
         
-            var counter = 0;
+            var stub = 0;
             foreach (var number in list.Select(b => b.Id))
             {
-                counter += number;
+                stub += number;
             }
         
-            return counter;
+            return stub;
         }
         
         [BenchmarkCategory("Select")]
@@ -269,13 +269,13 @@ namespace Velo.Benchmark.Collections
         {
             var localList = new LocalList<Boo>(_items);
         
-            var counter = 0;
+            var stub = 0;
             foreach (var number in localList.Select(b => b.Id))
             {
-                counter += number;
+                stub += number;
             }
         
-            return counter;
+            return stub;
         }
         
         [BenchmarkCategory("ToArray")]
@@ -308,13 +308,13 @@ namespace Velo.Benchmark.Collections
         {
             var list = new List<Boo>(_items);
         
-            var counter = 0;
+            var stub = 0;
             foreach (var boo in list.Where(b => b.Id > 1))
             {
-                counter += boo.Id;
+                stub += boo.Id;
             }
         
-            return counter;
+            return stub;
         }
         
         [BenchmarkCategory("Where")]
@@ -323,13 +323,13 @@ namespace Velo.Benchmark.Collections
         {
             var list = new List<Boo>(_items);
         
-            var counter = 0;
+            var stub = 0;
             foreach (var boo in list.FindAll(b => b.Id > 1))
             {
-                counter += boo.Id;
+                stub += boo.Id;
             }
         
-            return counter;
+            return stub;
         }
         
         [BenchmarkCategory("Where")]
@@ -338,13 +338,13 @@ namespace Velo.Benchmark.Collections
         {
             var localList = new LocalList<Boo>(_items);
         
-            var counter = 0;
+            var stub = 0;
             foreach (var boo in localList.Where(b => b.Id > 1))
             {
-                counter += boo.Id;
+                stub += boo.Id;
             }
         
-            return counter;
+            return stub;
         }
         
         [BenchmarkCategory("Where_ToArray")]

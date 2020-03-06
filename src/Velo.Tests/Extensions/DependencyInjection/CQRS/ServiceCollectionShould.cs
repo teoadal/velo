@@ -16,7 +16,7 @@ using Xunit.Abstractions;
 using BoosCreate = Velo.TestsModels.Emitting.Boos.Create;
 using BoosGet = Velo.TestsModels.Emitting.Boos.Get;
 
-namespace Velo.Tests.CQRS
+namespace Velo.Tests.Extensions.DependencyInjection.CQRS
 {
     public class ServiceCollectionShould : TestClass
     {

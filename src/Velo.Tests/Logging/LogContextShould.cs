@@ -12,7 +12,7 @@ using Xunit.Abstractions;
 
 namespace Velo.Tests.Logging
 {
-    public class LogContextShould : TestClass
+    public class LogContextShould : LoggingTests
     {
         private readonly Mock<ILogFormatter> _formatter;
         private readonly Type _sender;
@@ -24,11 +24,7 @@ namespace Velo.Tests.Logging
         }
 
         [Theory]
-        [InlineAutoData(LogLevel.Trace)]
-        [InlineAutoData(LogLevel.Debug)]
-        [InlineAutoData(LogLevel.Info)]
-        [InlineAutoData(LogLevel.Warning)]
-        [InlineAutoData(LogLevel.Error)]
+        [MemberAutoData(nameof(Levels))]
         public void HasValidData(LogLevel logLevel, string template)
         {
             var context = new LogContext(logLevel, _sender, _formatter.Object, template);

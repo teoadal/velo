@@ -7,14 +7,14 @@ using Velo.Utils;
 
 namespace Velo.Logging.Renderers
 {
-    internal interface IRendererCollection
+    internal interface IRenderersCollection
     {
         ArrayRenderer GetArrayRenderer(string template, object[] args);
 
         TRenderer GetRenderer<TRenderer>(string template) where TRenderer : Renderer;
     }
 
-    internal sealed class RenderersCollection : DangerousVector<string, Renderer>, IRendererCollection
+    internal sealed class RenderersCollection : DangerousVector<string, Renderer>, IRenderersCollection
     {
         private readonly Func<string, object[], Renderer> _arrayRendererBuilder;
         private readonly IConvertersCollection _converters;

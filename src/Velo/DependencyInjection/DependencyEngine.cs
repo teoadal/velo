@@ -10,7 +10,7 @@ namespace Velo.DependencyInjection
     public interface IDependencyEngine : IDisposable
     {
         bool Contains(Type type);
-        
+
         IDependency[] GetApplicable(Type contract);
 
         IDependency GetDependency(Type contract, bool required = false);
@@ -26,7 +26,7 @@ namespace Velo.DependencyInjection
         public DependencyEngine(int capacity)
         {
             _dependencies = new List<IDependency>(capacity);
-            _factories = new List<IDependencyFactory>(4) { new ArrayFactory()};
+            _factories = new List<IDependencyFactory>(4) {new ArrayFactory()};
             _resolvedDependencies = new Dictionary<Type, IDependency>();
         }
 
@@ -110,6 +110,29 @@ namespace Velo.DependencyInjection
             }
 
             return null;
+        }
+
+        public bool Remove(Type contract)
+        {
+            _resolvedDependencies.Remove(contract);
+
+            foreach (var dependency in _dependencies)
+            {
+                if (!dependency.Applicable(contract)) continue;
+
+                _dependencies.Remove(dependency);
+                return true;
+            }
+
+            foreach (var factory in _factories)
+            {
+                if (!factory.Applicable(contract)) continue;
+
+                _factories.Remove(factory);
+                return true;
+            }
+
+            return false;
         }
 
         public void Dispose()

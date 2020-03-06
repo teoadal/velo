@@ -13,6 +13,7 @@ using Velo.TestsModels.Emitting.Boos.Get;
 using Velo.TestsModels.Emitting.Parallel;
 using Xunit;
 using Xunit.Abstractions;
+using Behaviour = Velo.TestsModels.Emitting.Boos.Get.Behaviour;
 using Processor = Velo.TestsModels.Emitting.Boos.Create.Processor;
 
 namespace Velo.Tests.CQRS

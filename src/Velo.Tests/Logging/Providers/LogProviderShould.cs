@@ -17,7 +17,7 @@ using Xunit.Abstractions;
 
 namespace Velo.Tests.Logging.Providers
 {
-    public class LogProviderShould : TestClass
+    public class LogProviderShould : LoggingTests
     {
         private readonly ConvertersCollection _converters;
         private readonly DependencyCollection _dependencies;
@@ -77,11 +77,7 @@ namespace Velo.Tests.Logging.Providers
         }
 
         [Theory]
-        [InlineAutoData(LogLevel.Trace)]
-        [InlineAutoData(LogLevel.Debug)]
-        [InlineAutoData(LogLevel.Info)]
-        [InlineAutoData(LogLevel.Warning)]
-        [InlineAutoData(LogLevel.Error)]
+        [MemberAutoData(nameof(Levels))]
         public void UseEnricher(LogLevel level, string message)
         {
             var enricher = new Mock<ILogEnricher>();
@@ -98,11 +94,7 @@ namespace Velo.Tests.Logging.Providers
         }
 
         [Theory]
-        [InlineAutoData(LogLevel.Trace)]
-        [InlineAutoData(LogLevel.Debug)]
-        [InlineAutoData(LogLevel.Info)]
-        [InlineAutoData(LogLevel.Warning)]
-        [InlineAutoData(LogLevel.Error)]
+        [MemberAutoData(nameof(Levels))]
         public void UseEnrichers(LogLevel level, string message)
         {
             var enrichers = Enumerable.Range(0, 10).Select(_ => new Mock<ILogEnricher>()).ToArray();
@@ -126,11 +118,7 @@ namespace Velo.Tests.Logging.Providers
         }
 
         [Theory]
-        [InlineAutoData(LogLevel.Trace)]
-        [InlineAutoData(LogLevel.Debug)]
-        [InlineAutoData(LogLevel.Info)]
-        [InlineAutoData(LogLevel.Warning)]
-        [InlineAutoData(LogLevel.Error)]
+        [MemberAutoData(nameof(Levels))]
         public void WriteLogContext(LogLevel level, string message)
         {
             _logger.Log(level, message);
@@ -159,11 +147,7 @@ namespace Velo.Tests.Logging.Providers
         }
 
         [Theory]
-        [InlineAutoData(LogLevel.Trace)]
-        [InlineAutoData(LogLevel.Debug)]
-        [InlineAutoData(LogLevel.Info)]
-        [InlineAutoData(LogLevel.Warning)]
-        [InlineAutoData(LogLevel.Error)]
+        [MemberAutoData(nameof(Levels))]
         public void WriteWriters(LogLevel level, string message)
         {
             var writers = Enumerable.Range(0, 10).Select(_ => new Mock<ILogWriter>()).ToArray();

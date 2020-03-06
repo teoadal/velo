@@ -76,98 +76,98 @@ namespace Velo.Benchmark.CQRS
         [Benchmark(Baseline = true)]
         public async Task<long> FullPipeline_MediatR()
         {
-            var sum = 0L;
+            var stub = 0L;
             foreach (var request in _requests)
             {
                 var boo = await _mediatorPipeline.Send(request);
-                sum += boo.Int;
+                stub += boo.Int;
             }
 
-            return sum;
+            return stub;
         }
 
         [BenchmarkCategory("Pipeline")]
         [Benchmark]
         public async Task<long> FullPipeline_Emitter()
         {
-            var sum = 0L;
+            var stub = 0L;
             foreach (var query in _queries)
             {
                 var boo = await _emitterPipeline.Ask(query);
-                sum += boo.Int;
+                stub += boo.Int;
             }
 
-            return sum;
+            return stub;
         }
 
         [BenchmarkCategory("Request")]
         [Benchmark(Baseline = true)]
         public async Task<long> Request_MediatR()
         {
-            var sum = 0L;
+            var stub = 0L;
             foreach (var request in _requests)
             {
                 var boo = await _mediator.Send(request);
-                sum += boo.Int;
+                stub += boo.Int;
             }
 
-            return sum;
+            return stub;
         }
 
         [BenchmarkCategory("Request")]
         [Benchmark]
         public async Task<long> Request_Emitter()
         {
-            var sum = 0L;
+            var stub = 0L;
             foreach (var query in _queries)
             {
                 var boo = await _emitter.Ask(query);
-                sum += boo.Int;
+                stub += boo.Int;
             }
 
-            return sum;
+            return stub;
         }
 
         [BenchmarkCategory("Request")]
         [Benchmark]
         public async Task<long> Request_EmitterConcrete()
         {
-            var sum = 0L;
+            var stub = 0L;
             foreach (var query in _queries)
             {
                 var boo = await _emitter.Ask<Query, Boo>(query);
-                sum += boo.Int;
+                stub += boo.Int;
             }
         
-            return sum;
+            return stub;
         }
         
         [BenchmarkCategory("Struct")]
         [Benchmark(Baseline = true)]
         public async Task<long> StructRequest_MediatR()
         {
-            var sum = 0L;
+            var stub = 0L;
             foreach (var structRequest in _requestsStruct)
             {
                 var response = await _mediator.Send(structRequest);
-                sum += response.Message.Length;
+                stub += response.Message.Length;
             }
         
-            return sum;
+            return stub;
         }
         
         [BenchmarkCategory("Struct")]
         [Benchmark]
         public async Task<long> StructRequest_Emitter()
         {
-            var sum = 0L;
+            var stub = 0L;
             foreach (var ping in _queriesStruct)
             {
                 var pong = await _emitter.Ask<Ping, Pong>(ping);
-                sum += pong.Message;
+                stub += pong.Message;
             }
         
-            return sum;
+            return stub;
         }
     }
 }

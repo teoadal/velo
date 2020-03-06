@@ -14,7 +14,7 @@ using Xunit.Abstractions;
 
 namespace Velo.Tests.Logging
 {
-    public class LoggerShould : TestClass
+    public class LoggerShould : LoggingTests
     {
         private const string Template0 = "Test without args executed";
         private const string Template1 = "Test with arg {arg1} executed";
@@ -50,11 +50,7 @@ namespace Velo.Tests.Logging
         }
 
         [Theory]
-        [InlineAutoData(LogLevel.Trace)]
-        [InlineAutoData(LogLevel.Debug)]
-        [InlineAutoData(LogLevel.Info)]
-        [InlineAutoData(LogLevel.Warning)]
-        [InlineAutoData(LogLevel.Error)]
+        [MemberAutoData(nameof(Levels))]
         public void Log(LogLevel level, DateTime arg1, float arg2, Boo arg3, Guid? arg4)
         {
             _logger.Log(level, Template0);

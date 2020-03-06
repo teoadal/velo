@@ -11,7 +11,7 @@ using Xunit.Abstractions;
 
 namespace Velo.Tests.Logging.Enrichers
 {
-    public class LogLevelEnricherShould : TestClass
+    public class LogLevelEnricherShould : LoggingTests
     {
         private readonly LogLevelEnricher _enricher;
         private readonly JsonObject _message;
@@ -23,11 +23,7 @@ namespace Velo.Tests.Logging.Enrichers
         }
 
         [Theory]
-        [InlineAutoData(LogLevel.Trace)]
-        [InlineAutoData(LogLevel.Debug)]
-        [InlineAutoData(LogLevel.Info)]
-        [InlineAutoData(LogLevel.Warning)]
-        [InlineAutoData(LogLevel.Error)]
+        [MemberAutoData(nameof(Levels))]
         public void AddLogLevel(LogLevel level, Type sender)
         {
             _enricher.Enrich(level, sender, _message);

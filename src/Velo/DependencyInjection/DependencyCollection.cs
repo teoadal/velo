@@ -213,6 +213,11 @@ namespace Velo.DependencyInjection
             return this;
         }
 
+        public bool Remove(Type contract)
+        {
+            return _engine.Remove(contract);
+        }
+        
         private static void CheckIsGenericTypeDefinition(Type type)
         {
             if (type != null && !type.IsGenericTypeDefinition)

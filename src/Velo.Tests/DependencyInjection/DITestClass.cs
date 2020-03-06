@@ -38,18 +38,11 @@ namespace Velo.Tests.DependencyInjection
             return resolver;
         }
 
-        public static IEnumerable<object[]> Lifetimes
+        public static IEnumerable<object[]> Lifetimes => new[]
         {
-            // ReSharper disable once UnusedMember.Global
-            get
-            {
-                return new[]
-                {
-                    new object[] {DependencyLifetime.Scoped},
-                    new object[] {DependencyLifetime.Singleton},
-                    new object[] {DependencyLifetime.Transient}
-                };
-            }
-        }
+            new object[] {DependencyLifetime.Scoped},
+            new object[] {DependencyLifetime.Singleton},
+            new object[] {DependencyLifetime.Transient}
+        };
     }
 }
