@@ -42,7 +42,7 @@ namespace Velo.Tests.CQRS.Queries
         }
 
         [Fact]
-        public async Task GetResponseBuInterface()
+        public async Task GetResponseByInterface()
         {
             var pipeline = (IQueryPipeline<Boo>) _pipeline;
             var response = await pipeline.GetResponse(_query, _ct);

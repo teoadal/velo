@@ -73,8 +73,11 @@
       <Compile Update="Settings\SettingsResolver.cs">
         <DependentUpon>SettingsFactory.cs</DependentUpon>
       </Compile>
-      <Compile Update="CQRS\Queries\Pipeline\QueryFullPipeline.QueryBehaviours.cs">
+      <Compile Update="CQRS\Queries\Pipeline\QueryFullPipeline.BehaviourContext.cs">
         <DependentUpon>QueryFullPipeline.cs</DependentUpon>
+      </Compile>
+      <Compile Update="CQRS\Commands\Pipeline\CommandBehaviours.cs">
+        <DependentUpon>CommandFullPipeline.cs</DependentUpon>
       </Compile>
     </ItemGroup>
 </Project>

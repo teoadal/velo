@@ -69,7 +69,7 @@ namespace Velo.Tests.CQRS
         {
             var processor = new Mock<ICommandProcessor<Command>>();
 
-            _serviceResolver = _ => new CommandPipeline<Command>(processor.Object);
+            _serviceResolver = _ => new CommandSimplePipeline<Command>(processor.Object);
 
             _emitter.Awaiting(e => e.Execute(command, _ct))
                 .Should().NotThrow();
@@ -107,7 +107,7 @@ namespace Velo.Tests.CQRS
         {
             var processor = new Mock<ICommandProcessor<Command>>();
 
-            _serviceResolver = _ => new CommandPipeline<Command>(processor.Object);
+            _serviceResolver = _ => new CommandSimplePipeline<Command>(processor.Object);
 
             _emitter.Awaiting(e => e.Send(command, _ct))
                 .Should().NotThrow();

@@ -31,7 +31,17 @@ namespace Velo.Extensions.DependencyInjection.CQRS.Commands
             var processor = provider.GetRequiredService<ICommandProcessor<TCommand>>();
             var postProcessors = provider.GetArray<ICommandPostProcessor<TCommand>>();
 
-            return new CommandPipeline<TCommand>(behaviours, preProcessors, processor, postProcessors);
+            if (behaviours.Length > 0)
+            {
+                return new CommandFullPipeline<TCommand>(behaviours, preProcessors, processor, postProcessors);
+            }
+
+            if (preProcessors.Length > 0 || postProcessors.Length > 0)
+            {
+                return new CommandSequentialPipeline<TCommand>(preProcessors, processor, postProcessors);
+            }
+
+            return new CommandSimplePipeline<TCommand>(processor);
         }
     }
 }

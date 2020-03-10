@@ -6,6 +6,7 @@ using Velo.CQRS.Notifications;
 using Velo.CQRS.Notifications.Pipeline;
 using Velo.DependencyInjection;
 using Velo.DependencyInjection.Dependencies;
+using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting.Boos.Create;
 using Velo.TestsModels.Emitting.Parallel;
 using Xunit;
@@ -36,6 +37,12 @@ namespace Velo.Tests.CQRS.Notifications
             _processorsLifetime = DependencyLifetime.Scoped;
         }
 
+        [Fact]
+        public void Applicable()
+        {
+            _factory.Applicable(_pipelineType).Should().BeTrue();
+        }
+        
         [Fact]
         public void CreateDependency()
         {
@@ -97,6 +104,12 @@ namespace Velo.Tests.CQRS.Notifications
                     .GetApplicable(typeof(INotificationProcessor<Notification>)));
         }
 
+        [Fact]
+        public void NotApplicable()
+        {
+            _factory.Applicable(typeof(Boo)).Should().BeFalse();
+        }
+        
         private IDependency[] ProcessorsDependencyBuilder(Type processorType)
         {
             var processorDependencies = Enumerable.Range(0, _processorsCount).Select(_ =>

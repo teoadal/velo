@@ -1,98 +1,70 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Velo.Utils;
 
 namespace Velo.CQRS.Commands.Pipeline
 {
-    internal interface ICommandBehaviours<in TCommand> : IDisposable
-        where TCommand : ICommand
+    internal sealed partial class CommandFullPipeline<TCommand>
     {
-        bool HasBehaviours { get; }
-        
-        Task Execute(TCommand command, CancellationToken cancellationToken);
-    }
-
-    internal sealed class CommandBehaviours<TCommand> : ICommandBehaviours<TCommand>
-        where TCommand : ICommand
-    {
-        public bool HasBehaviours => true;
-
-        private ICommandBehaviour<TCommand>[] _behaviours;
-        private CommandPipeline<TCommand> _pipeline;
-
-        public CommandBehaviours(CommandPipeline<TCommand> pipeline, ICommandBehaviour<TCommand>[] behaviours)
+        private sealed class BehaviourContext
         {
-            _behaviours = behaviours;
-            _pipeline = pipeline;
-        }
+            private ICommandBehaviour<TCommand>[] _behaviours;
+            private CommandFullPipeline<TCommand> _pipeline;
 
-        public Task Execute(TCommand command, CancellationToken cancellationToken)
-        {
-            var closure = new Closure(this, command, cancellationToken);
-            return closure.Execute();
-        }
-
-        private sealed class Closure
-        {
-            private readonly CommandBehaviours<TCommand> _context;
-            private readonly TCommand _command;
-            private readonly CancellationToken _cancellationToken;
-            private readonly Func<Task> _next;
-
-            private int _position;
-
-            public Closure(CommandBehaviours<TCommand> context, TCommand command, CancellationToken cancellationToken)
+            public BehaviourContext(CommandFullPipeline<TCommand> pipeline, ICommandBehaviour<TCommand>[] behaviours)
             {
-                _context = context;
-                _command = command;
-                _cancellationToken = cancellationToken;
-
-                _next = Execute;
-
-                _position = 0;
+                _behaviours = behaviours;
+                _pipeline = pipeline;
             }
 
-            public Task Execute()
+            public Task Execute(TCommand command, CancellationToken cancellationToken)
             {
-                var behaviours = _context._behaviours;
+                var closure = new Closure(this, command, cancellationToken);
+                return closure.Execute();
+            }
 
-                // ReSharper disable once InvertIf
-                if ((uint) _position < (uint) behaviours.Length)
+            private sealed class Closure
+            {
+                private readonly BehaviourContext _context;
+                private readonly TCommand _command;
+                private readonly CancellationToken _cancellationToken;
+                private readonly Func<Task> _next;
+
+                private int _position;
+
+                public Closure(BehaviourContext context, TCommand command, CancellationToken cancellationToken)
                 {
-                    var behaviour = behaviours[_position++];
-                    return behaviour.Execute(_command, _next, _cancellationToken);
+                    _context = context;
+                    _command = command;
+                    _cancellationToken = cancellationToken;
+
+                    _next = Execute;
+
+                    _position = 0;
                 }
 
-                return _context._pipeline.RunProcessors(_command, _cancellationToken);
+                public Task Execute()
+                {
+                    var behaviours = _context._behaviours;
+
+                    // ReSharper disable once InvertIf
+                    if ((uint) _position < (uint) behaviours.Length)
+                    {
+                        var behaviour = behaviours[_position++];
+                        return behaviour.Execute(_command, _next, _cancellationToken);
+                    }
+
+                    return _context._pipeline.RunProcessors(_command, _cancellationToken);
+                }
+            }
+
+            public void Dispose()
+            {
+                _behaviours = null;
+                _pipeline = null;
             }
         }
-
-        public void Dispose()
-        {
-            _behaviours = null;
-            _pipeline = null;
-        }
-    }
-
-    internal sealed class NullCommandBehaviours<TCommand> : ICommandBehaviours<TCommand>
-        where TCommand : ICommand
-    {
-        public static readonly ICommandBehaviours<TCommand> Instance = new NullCommandBehaviours<TCommand>();
-
-        public bool HasBehaviours => false;
         
-        private NullCommandBehaviours()
-        {
-        }
-
-        public Task Execute(TCommand command, CancellationToken cancellationToken)
-        {
-            throw Error.InvalidOperation("No behaviours for execute");
-        }
-
-        public void Dispose()
-        {
-        }
     }
+    
 }

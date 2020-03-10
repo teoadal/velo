@@ -52,7 +52,11 @@ namespace Velo.DependencyInjection
             {
                 var required = !parameter.HasDefaultValue;
                 var dependency = engine.GetDependency(parameter.ParameterType, required);
-                dependencies.Add(dependency.Lifetime);
+
+                if (dependency != null)
+                {
+                    dependencies.Add(dependency.Lifetime);
+                }
             }
 
             return dependencies.DefineLifetime();
