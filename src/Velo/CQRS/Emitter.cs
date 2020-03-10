@@ -10,6 +10,8 @@ using Velo.CQRS.Queries;
 using Velo.CQRS.Queries.Pipeline;
 using Velo.Utils;
 
+#nullable enable
+
 namespace Velo.CQRS
 {
     internal sealed class Emitter : IEmitter, IDisposable
@@ -33,30 +35,30 @@ namespace Velo.CQRS
         }
 
         public Task<TResult> Ask<TQuery, TResult>(TQuery query, CancellationToken cancellationToken = default)
-            where TQuery : IQuery<TResult>
+            where TQuery : notnull, IQuery<TResult>
         {
             EnsureNotDisposed();
 
-            var handler = GetService<IQueryPipeline<TQuery, TResult>>();
+            var handler = GetRequiredService<IQueryPipeline<TQuery, TResult>>();
             return handler.GetResponse(query, cancellationToken);
         }
 
         public Task Execute<TCommand>(TCommand command, CancellationToken cancellationToken = default)
-            where TCommand : ICommand
+            where TCommand : notnull, ICommand
         {
             EnsureNotDisposed();
 
-            var executor = GetService<ICommandPipeline<TCommand>>();
+            var executor = GetRequiredService<ICommandPipeline<TCommand>>();
             return executor.Execute(command, cancellationToken);
         }
 
-        public Task Publish<TNotification>(TNotification notification,
-            CancellationToken cancellationToken = default)
-            where TNotification : INotification
+        public Task Publish<TNotification>(TNotification notification, CancellationToken cancellationToken = default)
+            where TNotification : notnull, INotification
         {
             EnsureNotDisposed();
 
-            var publisher = GetService<INotificationPipeline<TNotification>>();
+            var publisherType = Typeof<INotificationPipeline<TNotification>>.Raw;
+            var publisher = (INotificationPipeline<TNotification>) _scope.GetService(publisherType);
             return publisher?.Publish(notification, cancellationToken) ?? TaskUtils.CompletedTask;
         }
 
@@ -77,13 +79,18 @@ namespace Velo.CQRS
             var publisherType = Types.GetNotificationPipelineType(notification.GetType());
             var publisher = (INotificationPipeline) _scope.GetService(publisherType);
 
-            return publisher?.Publish(notification, cancellationToken) ?? TaskUtils.CompletedTask;
+            return publisher.Publish(notification, cancellationToken) ?? TaskUtils.CompletedTask;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private T GetService<T>()
+        private T GetRequiredService<T>() where T : class
         {
-            return (T) _scope.GetService(Typeof<T>.Raw);
+            var dependencyType = Typeof<T>.Raw;
+            var result = (T) _scope.GetService(dependencyType);
+
+            if (result == null) throw Error.DependencyNotRegistered(dependencyType);
+
+            return result;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -94,8 +101,10 @@ namespace Velo.CQRS
 
         public void Dispose()
         {
-            _scope = null;
+            _scope = null!;
             _disposed = true;
         }
     }
 }
+
+#nullable restore

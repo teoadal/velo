@@ -2,14 +2,16 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
+#nullable enable
+
 namespace Velo.CQRS.Queries.Pipeline
 {
     internal sealed partial class QueryFullPipeline<TQuery, TResult>
     {
-        private sealed class BehaviourContext: IDisposable
+        private sealed class BehaviourContext : IDisposable
         {
             [ThreadStatic] 
-            private static Closure _closure;
+            private static Closure? _closure;
 
             private IQueryBehaviour<TQuery, TResult>[] _behaviours;
             private QueryFullPipeline<TQuery, TResult> _pipeline;
@@ -17,6 +19,7 @@ namespace Velo.CQRS.Queries.Pipeline
             public BehaviourContext(QueryFullPipeline<TQuery, TResult> pipeline,
                 IQueryBehaviour<TQuery, TResult>[] behaviours)
             {
+                _closure = null;
                 _behaviours = behaviours;
                 _pipeline = pipeline;
             }
@@ -54,7 +57,6 @@ namespace Velo.CQRS.Queries.Pipeline
                     CancellationToken = cancellationToken;
 
                     _next = GetResponse;
-
                     _position = 0;
                 }
 
@@ -80,20 +82,21 @@ namespace Velo.CQRS.Queries.Pipeline
 
                 private void Clear()
                 {
-                    Context = null;
+                    Context = null!;
                     CancellationToken = default;
-                    Query = default;
+                    Query = default!;
 
                     _position = 0;
-                    _closure = this;
                 }
             }
 
             public void Dispose()
             {
-                _behaviours = null;
-                _pipeline = null;
+                _behaviours = null!;
+                _pipeline = null!;
             }
         }
     }
 }
+
+#nullable restore

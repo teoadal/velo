@@ -1,5 +1,4 @@
 using System;
-using Velo.Collections;
 using Velo.DependencyInjection;
 using Velo.DependencyInjection.Dependencies;
 using Velo.DependencyInjection.Factories;
@@ -27,18 +26,7 @@ namespace Velo.CQRS.Commands.Pipeline
         public IDependency BuildDependency(Type contract, IDependencyEngine engine)
         {
             var implementation = _fullPipelineImplementation.MakeGenericType(contract.GenericTypeArguments);
-            var constructor = ReflectionUtils.GetConstructor(implementation);
-            var parameters = constructor.GetParameters();
-
-            var dependencies = new LocalList<IDependency>();
-            foreach (var parameter in parameters)
-            {
-                var required = !parameter.HasDefaultValue;
-                var dependency = engine.GetDependency(parameter.ParameterType, required);
-                dependencies.Add(dependency);
-            }
-            
-            var lifetime = dependencies.DefineLifetime();
+            var lifetime = engine.DefineLifetime(implementation);
             var resolver = DependencyResolver.Build(lifetime, implementation, engine);
 
             return Dependency.Build(lifetime, new[] {contract}, resolver);

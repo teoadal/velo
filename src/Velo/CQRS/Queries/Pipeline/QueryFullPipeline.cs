@@ -1,10 +1,12 @@
 using System.Threading;
 using System.Threading.Tasks;
 
+#nullable enable
+
 namespace Velo.CQRS.Queries.Pipeline
 {
     internal sealed partial class QueryFullPipeline<TQuery, TResult> : IQueryPipeline<TQuery, TResult>
-        where TQuery : IQuery<TResult>
+        where TQuery : notnull, IQuery<TResult>
     {
         private BehaviourContext _behaviours;
         private IQueryPreProcessor<TQuery, TResult>[] _preProcessors;
@@ -57,10 +59,12 @@ namespace Velo.CQRS.Queries.Pipeline
         {
             _behaviours.Dispose();
 
-            _behaviours = null;
-            _preProcessors = null;
-            _processor = null;
-            _postProcessors = null;
+            _behaviours = null!;
+            _preProcessors = null!;
+            _processor = null!;
+            _postProcessors = null!;
         }
     }
 }
+
+#nullable enable

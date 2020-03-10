@@ -17,7 +17,7 @@ namespace Velo.DependencyInjection
             return collection;
         }
 
-        public static DependencyCollection AddEnvironmentVariables(this DependencyCollection collection)
+        public static DependencyCollection AddEnvironmentSettings(this DependencyCollection collection)
         {
             collection.AddInstance<ISettingsSource>(new EnvironmentSource());
             return collection;

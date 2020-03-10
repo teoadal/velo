@@ -1,6 +1,12 @@
+using System.Globalization;
 using System.IO;
+using System.Text;
+using AutoFixture.Xunit2;
 using FluentAssertions;
+using Newtonsoft.Json;
+using Velo.Serialization;
 using Velo.Settings.Sources;
+using Velo.TestsModels;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -10,6 +16,33 @@ namespace Velo.Tests.Settings.Sources
     {
         public JsonFileSourceShould(ITestOutputHelper output) : base(output)
         {
+        }
+
+        [Fact]
+        public void ReturnValues()
+        {
+            var fileSource = new JsonFileSource("appsettings.json", true);
+            fileSource.TryGet(out _).Should().BeTrue();
+        }
+
+        [Theory, AutoData]
+        public void ReturnValidValues(BigObject values)
+        {
+            var fileName = $"{nameof(ReturnValidValues)}.json";
+            CreateFile(fileName, values);
+
+            try
+            {
+                var fileSource = new JsonFileSource(fileName, true);
+                fileSource.TryGet(out var jsonObject);
+
+                var converter = new ConvertersCollection(CultureInfo.InvariantCulture).Get<BigObject>();
+                converter.Read(jsonObject).Should().BeEquivalentTo(values);
+            }
+            catch
+            {
+                File.Delete(fileName);
+            }
         }
 
         [Fact]
@@ -30,6 +63,12 @@ namespace Velo.Tests.Settings.Sources
             fileSource
                 .Invoking(source => source.TryGet(out _))
                 .Should().Throw<FileNotFoundException>();
+        }
+
+        private static void CreateFile(string fileName, BigObject data)
+        {
+            var content = JsonConvert.SerializeObject(data);
+            File.WriteAllText(fileName, content, Encoding.UTF8);
         }
     }
 }

@@ -15,6 +15,16 @@ namespace Velo.Tests.Settings.Sources
         }
 
         [Fact]
+        public void EvaluateNestedValues()
+        {
+            var source = new CommandLineSource(new[] {"boo.foo.value=true"});
+            source.TryGet(out var jsonObject);
+
+            var data = ((JsonObject) ((JsonObject) jsonObject["boo"])["foo"])["value"];
+            ((JsonValue) data).Value.Should().Be("true");
+        } 
+        
+        [Fact]
         public void NotReturnValuesIfEmptyArgs()
         {
             var source = new CommandLineSource(Array.Empty<string>());

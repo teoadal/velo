@@ -1,5 +1,7 @@
+using System;
 using Velo.Collections;
 using Velo.DependencyInjection.Dependencies;
+using Velo.Utils;
 
 namespace Velo.DependencyInjection
 {
@@ -27,15 +29,6 @@ namespace Velo.DependencyInjection
                 : DependencyLifetime.Transient;
         }
 
-        public static DependencyLifetime DefineLifetime(this LocalList<IDependency> dependencies)
-        {
-            var lifetimes = dependencies
-                .Where(dependency => dependency != null)
-                .Select(dependency => dependency.Lifetime);
-
-            return DefineLifetime(lifetimes);
-        }
-
         public static DependencyLifetime DefineLifetime(this IDependency[] dependencies)
         {
             var lifetimes = new LocalList<DependencyLifetime>();
@@ -49,9 +42,20 @@ namespace Velo.DependencyInjection
             return DefineLifetime(lifetimes);
         }
 
-        public static DependencyLifetime DefineLifetime(this DependencyLifetime[] lifetimes)
+        public static DependencyLifetime DefineLifetime(this IDependencyEngine engine, Type implementation)
         {
-            return DefineLifetime(new LocalList<DependencyLifetime>(lifetimes));
+            var constructor = ReflectionUtils.GetConstructor(implementation);
+            var parameters = constructor.GetParameters();
+
+            var dependencies = new LocalList<DependencyLifetime>();
+            foreach (var parameter in parameters)
+            {
+                var required = !parameter.HasDefaultValue;
+                var dependency = engine.GetDependency(parameter.ParameterType, required);
+                dependencies.Add(dependency.Lifetime);
+            }
+
+            return dependencies.DefineLifetime();
         }
     }
 }

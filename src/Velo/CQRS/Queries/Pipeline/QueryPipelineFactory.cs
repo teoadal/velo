@@ -1,5 +1,4 @@
 using System;
-using Velo.Collections;
 using Velo.DependencyInjection;
 using Velo.DependencyInjection.Dependencies;
 using Velo.DependencyInjection.Factories;
@@ -48,26 +47,10 @@ namespace Velo.CQRS.Queries.Pipeline
             else pipelineType = _simplePipeline;
 
             var implementation = pipelineType.MakeGenericType(genericArgs);
-            var lifetime = DefineLifetime(implementation, engine);
+            var lifetime = engine.DefineLifetime(implementation);
             var resolver = DependencyResolver.Build(lifetime, implementation, engine);
 
             return Dependency.Build(lifetime, new[] {contract}, resolver);
-        }
-
-        private static DependencyLifetime DefineLifetime(Type implementation, IDependencyEngine engine)
-        {
-            var constructor = ReflectionUtils.GetConstructor(implementation);
-            var parameters = constructor.GetParameters();
-
-            var dependencies = new LocalList<IDependency>();
-            foreach (var parameter in parameters)
-            {
-                var required = !parameter.HasDefaultValue;
-                var dependency = engine.GetDependency(parameter.ParameterType, required);
-                dependencies.Add(dependency);
-            }
-
-            return dependencies.DefineLifetime();
         }
 
         private bool ExistsBehaviour(Type[] contractGenericArgs, IDependencyEngine engine)
