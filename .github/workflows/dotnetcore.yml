@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, windows-latest ]
+        os: [ macos-latest, ubuntu-latest, windows-latest ]
 
     steps:
     - uses: actions/checkout@v2
@@ -24,6 +24,7 @@ jobs:
         cd ./src/Velo.Tests/
         dotnet test -c Release --no-build /p:CollectCoverage=true /p:CoverletOutput=TestResults/ /p:CoverletOutputFormat=opencover /p:Exclude="[*]Velo.TestsModels.*"
     - name: Publish coverage report
+      if: startsWith(matrix.os, 'ubuntu')
       uses: codecov/codecov-action@v1
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
