@@ -24,7 +24,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddDefaultConsoleLogWriter(this IServiceCollection services,
             LogLevel level = LogLevel.Debug)
         {
-            services.AddSingleton<ILogWriter>(new DefaultConsoleLogWriter(level));
+            services.AddSingleton<ILogWriter>(new DefaultConsoleWriter(level));
             return services;
         }
 

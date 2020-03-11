@@ -13,7 +13,7 @@ namespace Velo.Logging.Writers
 
         private readonly ILogFormatter _formatter;
 
-        internal LogContext(LogLevel level, Type sender, ILogFormatter formatter, string template)
+        internal LogContext(LogLevel level, Type sender, string template, ILogFormatter formatter = null)
         {
             Level = level;
             Sender = sender;

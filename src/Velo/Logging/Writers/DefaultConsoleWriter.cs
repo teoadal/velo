@@ -5,25 +5,32 @@ using Velo.Utils;
 
 namespace Velo.Logging.Writers
 {
-    internal sealed class DefaultConsoleLogWriter : ILogWriter
+    internal sealed class DefaultConsoleWriter : ILogWriter, IDisposable
     {
         public LogLevel Level { get; }
 
         private readonly object _lock;
+        private readonly TextWriter _errorOutput;
+        private readonly TextWriter _output;
 
-        public DefaultConsoleLogWriter(LogLevel level = LogLevel.Debug)
+        public DefaultConsoleWriter(LogLevel level = LogLevel.Debug)
         {
             Level = level;
 
             _lock = new object();
+
+            _errorOutput = Console.Error;
+            _output = Console.Out;
         }
 
         public void Write(LogContext context, JsonObject message)
         {
+            var output = context.Level == LogLevel.Error
+                ? _errorOutput
+                : _output;
+            
             using (Lock.Enter(_lock))
             {
-                var output = GetOutput(context.Level);
-
                 Console.ForegroundColor = GetColor(context.Level);
 
                 context.WriteMessage(message, output);
@@ -52,11 +59,10 @@ namespace Velo.Logging.Writers
             }
         }
 
-        private static TextWriter GetOutput(LogLevel level)
+        public void Dispose()
         {
-            return level == LogLevel.Error
-                ? Console.Error
-                : Console.Out;
+            _errorOutput.Dispose();
+            _output.Dispose();
         }
     }
 }

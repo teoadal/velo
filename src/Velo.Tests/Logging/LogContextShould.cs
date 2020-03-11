@@ -27,7 +27,7 @@ namespace Velo.Tests.Logging
         [MemberAutoData(nameof(Levels))]
         public void HasValidData(LogLevel logLevel, string template)
         {
-            var context = new LogContext(logLevel, _sender, _formatter.Object, template);
+            var context = new LogContext(logLevel, _sender, template, _formatter.Object);
 
             context.Level.Should().Be(logLevel);
             context.Sender.Should().Be(_sender);
@@ -37,7 +37,7 @@ namespace Velo.Tests.Logging
         [Theory, AutoData]
         public void NotUseFormatterIfNotExists(string template)
         {
-            var context = new LogContext(LogLevel.Debug, _sender, null, template);
+            var context = new LogContext(LogLevel.Debug, _sender, template);
             var message = new JsonObject();
 
             context.RenderMessage(message).Should().BeEquivalentTo(template);
@@ -46,7 +46,7 @@ namespace Velo.Tests.Logging
         [Fact]
         public void UseFormatter()
         {
-            var context = new LogContext(LogLevel.Debug, _sender, _formatter.Object, "Template");
+            var context = new LogContext(LogLevel.Debug, _sender, "Template", _formatter.Object);
             var message = new JsonObject();
 
             context.RenderMessage(message);

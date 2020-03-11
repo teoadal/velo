@@ -34,11 +34,11 @@ namespace Velo.Tests.Extensions.DependencyInjection.Logging
         [Fact]
         public void AddWriter()
         {
-            _services.AddLogWriter<DefaultConsoleLogWriter>();
+            _services.AddLogWriter<DefaultConsoleWriter>();
 
             _services.Should().Contain(descriptor =>
                 descriptor.ServiceType == typeof(ILogWriter) &&
-                descriptor.ImplementationType == typeof(DefaultConsoleLogWriter));
+                descriptor.ImplementationType == typeof(DefaultConsoleWriter));
         }
 
         [Fact]

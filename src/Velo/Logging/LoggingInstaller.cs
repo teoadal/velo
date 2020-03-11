@@ -1,3 +1,4 @@
+using System;
 using Velo.Logging;
 using Velo.Logging.Enrichers;
 using Velo.Logging.Provider;
@@ -23,7 +24,19 @@ namespace Velo.DependencyInjection
         public static DependencyCollection AddDefaultConsoleLogWriter(this DependencyCollection collection,
             LogLevel level = LogLevel.Debug)
         {
-            collection.AddInstance(new DefaultConsoleLogWriter(level));
+            collection.AddInstance(new DefaultConsoleWriter(level));
+            return collection;
+        }
+
+        public static DependencyCollection AddDefaultFileLogWriter(this DependencyCollection collection,
+            string filePath = null, LogLevel level = LogLevel.Debug)
+        {
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                filePath = $"{AppDomain.CurrentDomain.FriendlyName}.log";
+            }
+
+            collection.AddInstance(new DefaultFileWriter(filePath, level));
             return collection;
         }
 

@@ -108,7 +108,7 @@ namespace Velo.Logging.Provider
         private void WriteMessage(LogLevel level, Type sender, ILogFormatter formatter, string template,
             JsonObject message)
         {
-            var context = new LogContext(level, sender, formatter, template);
+            var context = new LogContext(level, sender, template, formatter);
 
             foreach (var sink in _writers)
             {

@@ -28,7 +28,15 @@ namespace Velo.Tests.Logging
         {
             _dependencies.AddDefaultConsoleLogWriter();
 
-            _dependencies.Contains<DefaultConsoleLogWriter>().Should().BeTrue();
+            _dependencies.Contains<DefaultConsoleWriter>().Should().BeTrue();
+        }
+        
+        [Fact]
+        public void AddDefaultFileWriter()
+        {
+            _dependencies.AddDefaultFileLogWriter();
+
+            _dependencies.Contains<DefaultFileWriter>().Should().BeTrue();
         }
         
         [Fact]
