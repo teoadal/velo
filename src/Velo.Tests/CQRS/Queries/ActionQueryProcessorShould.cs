@@ -39,18 +39,18 @@ namespace Velo.Tests.CQRS.Queries
         [Theory, AutoData]
         public void ExecutedWithContext(Query query)
         {
-            var repository = new Mock<IBooRepository>();
+            var repository = Mock.Of<IBooRepository>();
             var processor = new Mock<Func<Query, IBooRepository, Boo>>();
 
             var emitter = _dependencyCollection
-                .AddInstance(repository.Object)
+                .AddInstance(repository)
                 .CreateProcessor(processor.Object)
                 .BuildProvider()
                 .GetRequiredService<IEmitter>();
 
             emitter.Awaiting(e => e.Ask(query)).Should().NotThrow();
 
-            processor.Verify(p => p.Invoke(query, repository.Object));
+            processor.Verify(p => p.Invoke(query, repository));
         }
     }
 }

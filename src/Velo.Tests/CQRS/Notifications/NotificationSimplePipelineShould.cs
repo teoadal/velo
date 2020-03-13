@@ -23,7 +23,7 @@ namespace Velo.Tests.CQRS.Notifications
             _ct = CancellationToken.None;
             _notification = new Notification();
 
-            _processor = BuildProcessor(_notification, _ct);
+            _processor = MockNotificationProcessor(_notification, _ct);
 
             _pipeline = new NotificationSimplePipeline<Notification>(_processor.Object);
         }

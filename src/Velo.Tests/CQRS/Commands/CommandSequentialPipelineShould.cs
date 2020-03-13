@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
 using Velo.CQRS.Commands;
@@ -29,12 +28,7 @@ namespace Velo.Tests.CQRS.Commands
             _command = new Command();
 
             _preProcessor = MockCommandPreProcessor(_command, _ct);
-
-            _processor = new Mock<ICommandProcessor<Command>>();
-            _processor
-                .Setup(processor => processor.Process(_command, _ct))
-                .Returns(Task.CompletedTask);
-
+            _processor = MockCommandProcessor(_command, _ct);
             _postProcessor = MockCommandPostProcessor(_command, _ct);
 
             _pipeline = new CommandSequentialPipeline<Command>(
@@ -92,7 +86,7 @@ namespace Velo.Tests.CQRS.Commands
         [Fact]
         public void UseManyPreProcessor()
         {
-            var preProcessors = Many(5, () => MockCommandPreProcessor(_command, _ct));
+            var preProcessors = Many(() => MockCommandPreProcessor(_command, _ct));
             var pipeline = new CommandSequentialPipeline<Command>(
                 preProcessors.Select(mock => mock.Object).ToArray(),
                 _processor.Object,
@@ -111,7 +105,7 @@ namespace Velo.Tests.CQRS.Commands
         [Fact]
         public void UseManyPostProcessor()
         {
-            var postProcessors = Many(5, () => MockCommandPostProcessor(_command, _ct));
+            var postProcessors = Many(() => MockCommandPostProcessor(_command, _ct));
             var pipeline = new CommandSequentialPipeline<Command>(
                 new[] {_preProcessor.Object},
                 _processor.Object,

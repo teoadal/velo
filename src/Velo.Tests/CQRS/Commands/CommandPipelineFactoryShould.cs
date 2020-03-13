@@ -27,11 +27,10 @@ namespace Velo.Tests.CQRS.Commands
         public CommandPipelineFactoryShould(ITestOutputHelper output) : base(output)
         {
             _factory = new CommandPipelineFactory();
+            
             _pipelineType = typeof(ICommandPipeline<Command>);
-
             _behaviourType = typeof(ICommandBehaviour<Command>);
             _preProcessorType = typeof(ICommandPreProcessor<Command>);
-
             _postProcessorType = typeof(ICommandPostProcessor<Command>);
 
             _processorDependency = new Mock<IDependency>();
@@ -39,11 +38,7 @@ namespace Velo.Tests.CQRS.Commands
                 .SetupGet(dependency => dependency.Lifetime)
                 .Returns(() => _processorLifetime);
 
-            var processorType = typeof(ICommandProcessor<Command>);
-            _engine = new Mock<IDependencyEngine>();
-            _engine
-                .Setup(engine => engine.GetDependency(processorType, true))
-                .Returns(_processorDependency.Object);
+            _engine = MockDependencyEngine(typeof(ICommandProcessor<Command>), _processorDependency.Object);
         }
 
         [Fact]

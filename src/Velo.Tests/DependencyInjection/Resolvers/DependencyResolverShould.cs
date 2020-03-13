@@ -31,8 +31,7 @@ namespace Velo.Tests.DependencyInjection.Resolvers
         [MemberData(nameof(Lifetimes))]
         public void Build(DependencyLifetime lifetime)
         {
-            var engine = new Mock<IDependencyEngine>().Object;
-
+            var engine = Mock.Of<IDependencyEngine>();
             var resolver = DependencyResolver.Build(lifetime, typeof(BooRepository), engine);
 
             switch (lifetime)

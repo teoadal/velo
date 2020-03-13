@@ -1,6 +1,5 @@
 using System;
 using System.Globalization;
-using System.Linq;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Moq;
@@ -83,7 +82,7 @@ namespace Velo.Tests.Logging.Providers
             var enricher = new Mock<ILogEnricher>();
             
             var logger = _dependencies
-                .AddLogWriter(new Mock<ILogWriter>().Object)
+                .AddLogWriter(Mock.Of<ILogWriter>())
                 .AddLogEnricher(enricher.Object)
                 .BuildProvider()
                 .GetRequiredService<ILogger<LogProviderShould>>();
@@ -97,7 +96,7 @@ namespace Velo.Tests.Logging.Providers
         [MemberAutoData(nameof(Levels))]
         public void UseEnrichers(LogLevel level, string message)
         {
-            var enrichers = Enumerable.Range(0, 10).Select(_ => new Mock<ILogEnricher>()).ToArray();
+            var enrichers = Many(() => new Mock<ILogEnricher>());
             
             foreach (var enricher in enrichers)
             {
@@ -105,7 +104,7 @@ namespace Velo.Tests.Logging.Providers
             }
 
             _dependencies
-                .AddLogWriter(new Mock<ILogWriter>().Object)
+                .AddLogWriter(Mock.Of<ILogWriter>())
                 .BuildProvider()
                 .GetRequiredService<ILogger<LogProviderShould>>()
                 .Log(level, message);
@@ -150,7 +149,7 @@ namespace Velo.Tests.Logging.Providers
         [MemberAutoData(nameof(Levels))]
         public void WriteWriters(LogLevel level, string message)
         {
-            var writers = Enumerable.Range(0, 10).Select(_ => new Mock<ILogWriter>()).ToArray();
+            var writers = Many(() => new Mock<ILogWriter>());
             
             foreach (var writer in writers)
             {

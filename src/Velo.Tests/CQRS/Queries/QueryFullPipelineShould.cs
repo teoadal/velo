@@ -104,7 +104,7 @@ namespace Velo.Tests.CQRS.Queries
         [Fact]
         public void UseManyBehaviour()
         {
-            var behaviours = Many(5, MockBehaviour);
+            var behaviours = Many(MockBehaviour);
             var pipeline = new QueryFullPipeline<Query, Boo>(
                 behaviours.Select(mock => mock.Object).ToArray(),
                 new[] {_preProcessor.Object},
@@ -126,7 +126,7 @@ namespace Velo.Tests.CQRS.Queries
         [Fact]
         public void UseManyPreProcessor()
         {
-            var preProcessors = Many(5, () => MockQueryPreProcessor<Query, Boo>(_query, _ct));
+            var preProcessors = Many(() => MockQueryPreProcessor<Query, Boo>(_query, _ct));
             var pipeline = new QueryFullPipeline<Query, Boo>(
                 new[] {_behaviour.Object},
                 preProcessors.Select(mock => mock.Object).ToArray(),
@@ -146,7 +146,7 @@ namespace Velo.Tests.CQRS.Queries
         [Fact]
         public void UseManyPostProcessor()
         {
-            var postProcessors = Many(5, () => MockQueryPostProcessor(_query, _result, _ct));
+            var postProcessors = Many(() => MockQueryPostProcessor(_query, _result, _ct));
             var pipeline = new QueryFullPipeline<Query, Boo>(
                 new[] {_behaviour.Object},
                 new[] {_preProcessor.Object},

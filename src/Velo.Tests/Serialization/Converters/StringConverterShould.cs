@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using FluentAssertions;
@@ -15,15 +14,15 @@ namespace Velo.Tests.Serialization.Converters
     public class StringConverterShould : TestClass
     {
         private readonly IJsonConverter<string> _converter;
-        
+
         public StringConverterShould(ITestOutputHelper output) : base(output)
         {
             _converter = new ConvertersCollection(CultureInfo.InvariantCulture).Get<string>();
         }
-        
+
         [Fact]
         public void BePrimitive() => _converter.IsPrimitive.Should().BeTrue();
-        
+
         [Theory]
         [MemberData(nameof(Values))]
         public void Deserialize(string value)
@@ -47,7 +46,7 @@ namespace Velo.Tests.Serialization.Converters
             var str = JsonValue.String(value);
             _converter.ReadObject(str).Should().Be(value);
         }
-        
+
         [Theory]
         [MemberData(nameof(Values))]
         public void Serialize(string value)
@@ -69,7 +68,7 @@ namespace Velo.Tests.Serialization.Converters
             var result = stringWriter.ToString();
             result.Should().Be(JsonConvert.SerializeObject(value));
         }
-        
+
         [Theory]
         [MemberData(nameof(Values))]
         public void Write(string value)
@@ -85,16 +84,12 @@ namespace Velo.Tests.Serialization.Converters
             var jsonValue = (JsonValue) _converter.WriteObject(value);
             jsonValue.Serialize().Should().Be(JsonConvert.SerializeObject(value));
         }
-        
-        public static IEnumerable<object[]> Values
+
+        public static TheoryData<string> Values => new TheoryData<string>
         {
-            // ReSharper disable once UnusedMember.Global
-            get
-            {
-                yield return new object[] {string.Empty};
-                yield return new object[] {null};
-                yield return new object[] {Guid.NewGuid().ToString("N")};
-            }
-        }
+            string.Empty,
+            null,
+            Guid.NewGuid().ToString("N")
+        };
     }
 }

@@ -89,7 +89,7 @@ namespace Velo.Tests.CQRS.Queries
         [Fact]
         public void UseManyPreProcessor()
         {
-            var preProcessors = Many(5, () => MockQueryPreProcessor<Query, Boo>(_query, _ct));
+            var preProcessors = Many(() => MockQueryPreProcessor<Query, Boo>(_query, _ct));
             var pipeline = new QuerySequentialPipeline<Query, Boo>(
                 preProcessors.Select(mock => mock.Object).ToArray(),
                 _processor.Object,
@@ -108,7 +108,7 @@ namespace Velo.Tests.CQRS.Queries
         [Fact]
         public void UseManyPostProcessor()
         {
-            var postProcessors = Many(5, () => MockQueryPostProcessor(_query, _result, _ct));
+            var postProcessors = Many(() => MockQueryPostProcessor(_query, _result, _ct));
             var pipeline = new QuerySequentialPipeline<Query, Boo>(
                 new[] {_preProcessor.Object},
                 _processor.Object,

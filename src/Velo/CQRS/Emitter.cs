@@ -79,7 +79,7 @@ namespace Velo.CQRS
             var publisherType = Types.GetNotificationPipelineType(notification.GetType());
             var publisher = (INotificationPipeline) _scope.GetService(publisherType);
 
-            return publisher.Publish(notification, cancellationToken) ?? TaskUtils.CompletedTask;
+            return publisher?.Publish(notification, cancellationToken) ?? TaskUtils.CompletedTask;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

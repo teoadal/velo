@@ -112,15 +112,9 @@ namespace Velo.Tests.CQRS.Notifications
         
         private IDependency[] ProcessorsDependencyBuilder(Type processorType)
         {
-            var processorDependencies = Enumerable.Range(0, _processorsCount).Select(_ =>
-            {
-                var dependency = new Mock<IDependency>();
-                dependency.SetupGet(d => d.Contracts).Returns(new[] {processorType});
-                dependency.SetupGet(d => d.Lifetime).Returns(_processorsLifetime);
-                return dependency.Object;
-            });
-
-            return processorDependencies.ToArray();
+            return Many(_processorsCount, () => MockDependency(_processorsLifetime, processorType))
+                .Select(d => d.Object)
+                .ToArray();
         }
     }
 }

@@ -78,7 +78,7 @@ namespace Velo.Serialization.Converters
 
             var jsonElements = new JsonData[array.Length];
 
-            for (var i = 0; i < array.Length; i++)
+            for (var i = array.Length - 1; i >= 0; i--)
             {
                 jsonElements[i] = _elementConverter.Write(array[i]);
             }

@@ -81,7 +81,7 @@ namespace Velo.Tests.Extensions.DependencyInjection.CQRS
         private static INotificationProcessor<TNotification> BuildProcessor<TNotification>() 
             where TNotification : INotification
         {
-            return new Mock<INotificationProcessor<TNotification>>().Object;
+            return Mock.Of<INotificationProcessor<TNotification>>();
         }
     }
 }

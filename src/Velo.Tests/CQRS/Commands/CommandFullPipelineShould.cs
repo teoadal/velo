@@ -103,7 +103,7 @@ namespace Velo.Tests.CQRS.Commands
         [Fact]
         public void UseManyBehaviour()
         {
-            var behaviours = Many(5, MockBehaviour);
+            var behaviours = Many(MockBehaviour);
             var pipeline = new CommandFullPipeline<Command>(
                 behaviours.Select(mock => mock.Object).ToArray(),
                 new[] {_preProcessor.Object},
@@ -125,7 +125,7 @@ namespace Velo.Tests.CQRS.Commands
         [Fact]
         public void UseManyPreProcessor()
         {
-            var preProcessors = Many(5, () => MockCommandPreProcessor(_command, _ct));
+            var preProcessors = Many(() => MockCommandPreProcessor(_command, _ct));
             
             var pipeline = new CommandFullPipeline<Command>(
                 new[] {_behaviour.Object},
@@ -146,7 +146,7 @@ namespace Velo.Tests.CQRS.Commands
         [Fact]
         public void UseManyPostProcessor()
         {
-            var postProcessors = Many(5, () => MockCommandPostProcessor(_command, _ct));
+            var postProcessors = Many(() => MockCommandPostProcessor(_command, _ct));
             
             var pipeline = new CommandFullPipeline<Command>(
                 new[] {_behaviour.Object},

@@ -30,14 +30,12 @@ namespace Velo.Tests.Settings.Provider
 
         public SettingsProviderShould(ITestOutputHelper output) : base(output)
         {
-            var fixture = new Fixture();
-            
             _converters = new ConvertersCollection(CultureInfo.InvariantCulture);
             
             _property = "property";
             _propertyValue = JsonValue.True;
             _nestedProperty = "nested";
-            _nestedValue = (JsonObject) _converters.Get<BigObject>().Write(fixture.Create<BigObject>());
+            _nestedValue = (JsonObject) _converters.Get<BigObject>().Write(Fixture.Create<BigObject>());
             _out = new JsonObject
             {
                 [_property] = _propertyValue,

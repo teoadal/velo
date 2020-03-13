@@ -38,12 +38,8 @@ namespace Velo.Tests.CQRS.Queries
             _processorDependency
                 .SetupGet(dependency => dependency.Lifetime)
                 .Returns(() => _processorLifetime);
-
-            var processorType = typeof(IQueryProcessor<Query, Boo>);
-            _engine = new Mock<IDependencyEngine>();
-            _engine
-                .Setup(engine => engine.GetDependency(processorType, true))
-                .Returns(_processorDependency.Object);
+            
+            _engine = MockDependencyEngine(typeof(IQueryProcessor<Query, Boo>), _processorDependency.Object);
         }
 
         [Fact]

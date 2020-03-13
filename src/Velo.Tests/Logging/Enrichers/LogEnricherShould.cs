@@ -46,7 +46,8 @@ namespace Velo.Tests.Logging.Enrichers
         [Theory, AutoData]
         public void EnrichMessage(string template, string property, int value)
         {
-            _logEnricher.Setup(enricher => enricher
+            _logEnricher
+                .Setup(enricher => enricher
                     .Enrich(LogLevel.Debug, _sender, It.IsNotNull<JsonObject>()))
                 .Callback<LogLevel, Type, JsonObject>((level, sender, message) => message[property] = JsonValue.Number(value));
 

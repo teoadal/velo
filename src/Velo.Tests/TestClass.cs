@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using AutoFixture;
@@ -30,9 +29,26 @@ namespace Velo.Tests
             return count;
         }
 
-        protected T[] Many<T>(int count, Func<T> action)
+        protected static T[] Many<T>(Func<T> action)
         {
-            return Enumerable.Range(0, 5).Select(_ => action()).ToArray();
+            var result = new T[5];
+            for (var i = 0; i < 5; i++)
+            {
+                result[i] = action();
+            }
+
+            return result;
+        }
+        
+        protected static T[] Many<T>(int count, Func<T> action)
+        {
+            var result = new T[count];
+            for (var i = 0; i < count; i++)
+            {
+                result[i] = action();
+            }
+
+            return result;
         }
         
         protected StopwatchScope Measure()

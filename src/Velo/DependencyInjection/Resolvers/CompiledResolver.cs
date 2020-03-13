@@ -33,7 +33,7 @@ namespace Velo.DependencyInjection.Resolvers
 
             var argument = Expression.Parameter(typeof(IDependencyScope), "scope");
             var parameters = new Expression[constructorParameters.Length];
-            for (var i = 0; i < constructorParameters.Length; i++)
+            for (var i = constructorParameters.Length - 1; i >= 0; i--)
             {
                 var parameter = constructorParameters[i];
                 var parameterType = parameter.ParameterType;

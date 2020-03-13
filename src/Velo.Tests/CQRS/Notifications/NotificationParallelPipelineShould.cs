@@ -24,7 +24,7 @@ namespace Velo.Tests.CQRS.Notifications
             _ct = CancellationToken.None;
             _notification = new ParallelNotification();
 
-            _processors = Many(5, () => BuildProcessor(_notification, _ct));
+            _processors = Many(() => MockNotificationProcessor(_notification, _ct));
 
             _pipeline = new NotificationSequentialPipeline<ParallelNotification>(_processors
                 .Select(mock => mock.Object)

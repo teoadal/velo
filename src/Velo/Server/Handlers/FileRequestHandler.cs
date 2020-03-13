@@ -13,9 +13,10 @@ namespace Velo.Server.Handlers
 
         public FileRequestHandler(string path)
         {
+            var currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
             _root = string.IsNullOrWhiteSpace(path)
-                ? Environment.CurrentDirectory
-                : Path.Combine(Environment.CurrentDirectory, path);
+                ? currentDirectory
+                : Path.Combine(currentDirectory, path);
         }
 
         public bool Applicable(HttpVerb verb, Uri address)
@@ -25,7 +26,8 @@ namespace Velo.Server.Handlers
 
         public Task Handle(HttpListenerContext context, CancellationToken cancellationToken)
         {
-            var filePath = Path.Combine(_root, context.Request.Url.LocalPath.Substring(1));
+            var localPath = context.Request.Url.LocalPath;
+            var filePath = Path.Combine(_root, localPath[0] == '/' ? localPath.Substring(1) : localPath);
 
             if (File.Exists(filePath))
             {

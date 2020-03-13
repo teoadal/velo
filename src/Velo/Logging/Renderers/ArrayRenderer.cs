@@ -16,7 +16,7 @@ namespace Velo.Logging.Renderers
             : base(formatter)
         {
             var argumentConverters = new IJsonConverter[argumentTypes.Length];
-            for (var i = 0; i < argumentTypes.Length; i++)
+            for (var i = 0; i < argumentConverters.Length; i++)
             {
                 argumentConverters[i] = converters.Get(argumentTypes[i]);
             }
@@ -29,7 +29,7 @@ namespace Velo.Logging.Renderers
         {
             try
             {
-                for (var i = 0; i < _arguments.Length; i++)
+                for (var i = _arguments.Length - 1; i >= 0; i--)
                 {
                     var value = _converters[i].WriteObject(arguments[i]);
                     message.Add(_arguments[i], value);

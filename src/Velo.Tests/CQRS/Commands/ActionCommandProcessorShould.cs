@@ -39,18 +39,18 @@ namespace Velo.Tests.CQRS.Commands
         [Theory, AutoData]
         public void ExecutedWithContext(Command command)
         {
-            var repository = new Mock<IBooRepository>();
+            var repository = Mock.Of<IBooRepository>();
             var processor = new Mock<Action<Command, IBooRepository>>();
 
             var emitter = _dependencyCollection
-                .AddInstance(repository.Object)
+                .AddInstance(repository)
                 .CreateProcessor(processor.Object)
                 .BuildProvider()
                 .GetRequiredService<IEmitter>();
 
             emitter.Awaiting(e => e.Execute(command)).Should().NotThrow();
 
-            processor.Verify(p => p.Invoke(command, repository.Object));
+            processor.Verify(p => p.Invoke(command, repository));
         }
     }
 }

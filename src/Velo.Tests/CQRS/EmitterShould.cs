@@ -84,7 +84,12 @@ namespace Velo.Tests.CQRS
 
             _serviceResolver = _ => null;
 
-            _emitter.Awaiting(e => e.Publish(notification, _ct))
+            _emitter
+                .Awaiting(e => e.Publish(notification, _ct))
+                .Should().NotThrow();
+            
+            _emitter
+                .Awaiting(e => e.Send(notification, _ct))
                 .Should().NotThrow();
         }
 

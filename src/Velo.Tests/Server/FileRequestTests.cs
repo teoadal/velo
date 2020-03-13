@@ -20,23 +20,22 @@ namespace Velo.Tests.Server
         public void GetFile()
         {
             var fileName = $"{nameof(GetFile)}.txt";
-            var filePath = Path.Combine(Environment.CurrentDirectory, fileName);
 
             const string expectedFileData = "TEST";
-            CreateFile(filePath, expectedFileData);
+            CreateFile(fileName, expectedFileData);
 
             var response = Measure(() => CreateRequest(fileName));
             Assert.Equal(expectedFileData, response);
 
-            File.Delete(filePath);
+            File.Delete(fileName);
         }
         
         [Fact]
         public void GetFile_FromDirectory()
         {
             var fileName = $"{nameof(GetFile_FromDirectory)}.txt";
-            Directory.CreateDirectory(Path.Combine(Environment.CurrentDirectory, "web"));
-            var filePath = Path.Combine(Environment.CurrentDirectory, "web", fileName);
+            var directory = Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "web")).FullName;
+            var filePath = Path.Combine(directory, fileName);
 
             const string expectedFileData = "TEST";
             CreateFile(filePath, expectedFileData);

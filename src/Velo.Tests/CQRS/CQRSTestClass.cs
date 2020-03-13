@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Moq;
@@ -5,6 +6,7 @@ using Velo.CQRS.Commands;
 using Velo.CQRS.Notifications;
 using Velo.CQRS.Queries;
 using Velo.DependencyInjection;
+using Velo.DependencyInjection.Dependencies;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -17,7 +19,8 @@ namespace Velo.Tests.CQRS
         {
         }
 
-        protected Mock<ICommandProcessor<TCommand>> MockCommandProcessor<TCommand>(TCommand command, CancellationToken ct)
+        protected Mock<ICommandProcessor<TCommand>> MockCommandProcessor<TCommand>(TCommand command,
+            CancellationToken ct)
             where TCommand : notnull, ICommand
         {
             var processor = new Mock<ICommandProcessor<TCommand>>();
@@ -26,7 +29,7 @@ namespace Velo.Tests.CQRS
 
             return processor;
         }
-        
+
         protected Mock<ICommandPreProcessor<TCommand>> MockCommandPreProcessor<TCommand>(TCommand command,
             CancellationToken ct)
             where TCommand : notnull, ICommand
@@ -40,7 +43,8 @@ namespace Velo.Tests.CQRS
             return preProcessor;
         }
 
-        protected Mock<ICommandPostProcessor<TCommand>> MockCommandPostProcessor<TCommand>(TCommand command, CancellationToken ct)
+        protected Mock<ICommandPostProcessor<TCommand>> MockCommandPostProcessor<TCommand>(TCommand command,
+            CancellationToken ct)
             where TCommand : notnull, ICommand
         {
             var postProcessor = new Mock<ICommandPostProcessor<TCommand>>();
@@ -51,8 +55,36 @@ namespace Velo.Tests.CQRS
             return postProcessor;
         }
 
-        protected Mock<INotificationProcessor<TNotification>> BuildProcessor<TNotification>(TNotification notification, CancellationToken ct)
-            where TNotification: notnull, INotification
+        protected Mock<IDependency> MockDependency(DependencyLifetime lifetime, Type contract = null)
+        {
+            var dependency = new Mock<IDependency>();
+            dependency
+                .SetupGet(d => d.Lifetime)
+                .Returns(lifetime);
+
+            if (contract != null)
+            {
+                dependency
+                    .SetupGet(d => d.Contracts)
+                    .Returns(new[] {contract});
+            }
+
+            return dependency;
+        }
+
+        protected Mock<IDependencyEngine> MockDependencyEngine(Type contract, IDependency result, bool required = true)
+        {
+            var engine = new Mock<IDependencyEngine>();
+            engine
+                .Setup(e => e.GetDependency(contract, required))
+                .Returns(result);
+
+            return engine;
+        }
+
+        protected Mock<INotificationProcessor<TNotification>> MockNotificationProcessor<TNotification>(
+            TNotification notification, CancellationToken ct)
+            where TNotification : notnull, INotification
         {
             var processor = new Mock<INotificationProcessor<TNotification>>();
             processor
@@ -61,9 +93,10 @@ namespace Velo.Tests.CQRS
 
             return processor;
         }
-        
-        protected Mock<IQueryProcessor<TQuery, TResult>> MockQueryProcessor<TQuery, TResult>(TQuery query, TResult result, CancellationToken ct)
-            where TQuery: notnull, IQuery<TResult>
+
+        protected Mock<IQueryProcessor<TQuery, TResult>> MockQueryProcessor<TQuery, TResult>(TQuery query,
+            TResult result, CancellationToken ct)
+            where TQuery : notnull, IQuery<TResult>
         {
             var processor = new Mock<IQueryProcessor<TQuery, TResult>>();
             processor
@@ -72,9 +105,10 @@ namespace Velo.Tests.CQRS
 
             return processor;
         }
-        
-        protected Mock<IQueryPreProcessor<TQuery, TResult>> MockQueryPreProcessor<TQuery, TResult>(TQuery query, CancellationToken ct)
-            where TQuery: notnull, IQuery<TResult>
+
+        protected Mock<IQueryPreProcessor<TQuery, TResult>> MockQueryPreProcessor<TQuery, TResult>(TQuery query,
+            CancellationToken ct)
+            where TQuery : notnull, IQuery<TResult>
         {
             var preProcessor = new Mock<IQueryPreProcessor<TQuery, TResult>>();
 
@@ -85,8 +119,9 @@ namespace Velo.Tests.CQRS
             return preProcessor;
         }
 
-        protected Mock<IQueryPostProcessor<TQuery, TResult>> MockQueryPostProcessor<TQuery, TResult>(TQuery query, TResult result, CancellationToken ct)
-            where TQuery: notnull, IQuery<TResult>
+        protected Mock<IQueryPostProcessor<TQuery, TResult>> MockQueryPostProcessor<TQuery, TResult>(TQuery query,
+            TResult result, CancellationToken ct)
+            where TQuery : notnull, IQuery<TResult>
         {
             var postProcessor = new Mock<IQueryPostProcessor<TQuery, TResult>>();
             postProcessor
@@ -95,7 +130,7 @@ namespace Velo.Tests.CQRS
 
             return postProcessor;
         }
-        
+
         public static TheoryData<DependencyLifetime> Lifetimes => new TheoryData<DependencyLifetime>
         {
             DependencyLifetime.Scoped,

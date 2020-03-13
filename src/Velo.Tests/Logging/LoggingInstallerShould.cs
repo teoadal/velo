@@ -20,7 +20,7 @@ namespace Velo.Tests.Logging
         public LoggingInstallerShould(ITestOutputHelper output) : base(output)
         {
             _dependencies = new DependencyCollection()
-                .AddLogWriter(new Mock<ILogWriter>().Object);
+                .AddLogWriter(Mock.Of<ILogWriter>());
         }
 
         [Fact]
@@ -80,7 +80,7 @@ namespace Velo.Tests.Logging
         [Fact]
         public void AddLogEnricherInstance()
         {
-            _dependencies.AddLogEnricher(new Mock<ILogEnricher>().Object);
+            _dependencies.AddLogEnricher(Mock.Of<ILogEnricher>());
 
             _dependencies.Contains(typeof(ILogEnricher)).Should().BeTrue();
             _dependencies.GetLifetime<ILogEnricher>().Should().Be(DependencyLifetime.Singleton);
@@ -109,7 +109,7 @@ namespace Velo.Tests.Logging
         [Fact]
         public void AddLogWriterInstance()
         {
-            _dependencies.AddLogWriter(new Mock<ILogWriter>().Object);
+            _dependencies.AddLogWriter(Mock.Of<ILogWriter>());
 
             _dependencies.Contains(typeof(ILogWriter)).Should().BeTrue();
             _dependencies.GetLifetime<ILogWriter>().Should().Be(DependencyLifetime.Singleton);

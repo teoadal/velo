@@ -57,7 +57,7 @@ namespace Velo.DependencyInjection
 
             lock (_lock)
             {
-                for (var i = 0; i < parameters.Length; i++)
+                for (var i = parameters.Length - 1; i >= 0; i--)
                 {
                     var parameter = parameters[i];
                     var parameterType = parameter.ParameterType;

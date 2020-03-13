@@ -11,13 +11,13 @@ namespace Velo.Tests.Settings
 {
     public class SettingsFactoryShould : TestClass
     {
-        private readonly Mock<IDependencyEngine> _engine;
+        private readonly IDependencyEngine _engine;
         private readonly SettingsFactory _factory;
         private readonly Type _settingsType;
 
         public SettingsFactoryShould(ITestOutputHelper output) : base(output)
         {
-            _engine = new Mock<IDependencyEngine>();
+            _engine = Mock.Of<IDependencyEngine>();
             _factory = new SettingsFactory();
             _settingsType = typeof(LogLevelSettings);
         }
@@ -32,14 +32,14 @@ namespace Velo.Tests.Settings
         [Fact]
         public void BuildDependency()
         {
-            var dependency = _factory.BuildDependency(_settingsType, _engine.Object);
+            var dependency = _factory.BuildDependency(_settingsType, _engine);
             dependency.Should().NotBeNull();
         }
 
         [Fact]
         public void BuildValidDependency()
         {
-            var dependency = _factory.BuildDependency(_settingsType, _engine.Object);
+            var dependency = _factory.BuildDependency(_settingsType, _engine);
 
             dependency.Contracts.Should().Contain(_settingsType);
             dependency.Lifetime.Should().Be(DependencyLifetime.Transient);

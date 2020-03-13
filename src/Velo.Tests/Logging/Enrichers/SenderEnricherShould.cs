@@ -52,7 +52,7 @@ namespace Velo.Tests.Logging.Enrichers
         [Theory, AutoData]
         public void AddMultiThreading(LogLevel level)
         {
-            var messages = Many(5, () => new JsonObject());
+            var messages = Many(() => new JsonObject());
 
             Parallel.ForEach(messages, message => _enricher.Enrich(level, _sender, message));
 
@@ -65,7 +65,7 @@ namespace Velo.Tests.Logging.Enrichers
         [Theory, AutoData]
         public void HaveOneVerboseInstance(LogLevel level)
         {
-            var messages = Many(5, () => new JsonObject());
+            var messages = Many(() => new JsonObject());
 
             JsonVerbose instance = null;
             foreach (var message in messages)

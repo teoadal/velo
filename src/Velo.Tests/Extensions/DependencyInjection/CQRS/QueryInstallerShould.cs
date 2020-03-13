@@ -122,22 +122,22 @@ namespace Velo.Tests.Extensions.DependencyInjection.CQRS
 
         private static IQueryBehaviour<Query, Boo> BuildBehaviour()
         {
-            return new Mock<IQueryBehaviour<Query, Boo>>().Object;
+            return Mock.Of<IQueryBehaviour<Query, Boo>>();
         }
 
         private static IQueryProcessor<Query, Boo> BuildProcessor()
         {
-            return new Mock<IQueryProcessor<Query, Boo>>().Object;
+            return Mock.Of<IQueryProcessor<Query, Boo>>();
         }
 
         private static IQueryPostProcessor<Query, Boo> BuildPostProcessor()
         {
-            return new Mock<IQueryPostProcessor<Query, Boo>>().Object;
+            return Mock.Of<IQueryPostProcessor<Query, Boo>>();
         }
 
         private static IQueryPreProcessor<Query, Boo> BuildPreProcessor()
         {
-            return new Mock<IQueryPreProcessor<Query, Boo>>().Object;
+            return Mock.Of<IQueryPreProcessor<Query, Boo>>();
         }
     }
 }

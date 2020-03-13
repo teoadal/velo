@@ -30,7 +30,7 @@ namespace Velo.Tests.DependencyInjection.Resolvers
 
             var engine = new Mock<IDependencyEngine>();
             engine
-                .Setup(e => e.GetDependency(It.IsNotNull<Type>(), It.IsAny<bool>()))
+                .Setup(e => e.GetDependency(_contract, true))
                 .Returns<Type, bool>(DependencyBuilder);
 
             _resolver = new CompiledResolver(_implementation, engine.Object);
