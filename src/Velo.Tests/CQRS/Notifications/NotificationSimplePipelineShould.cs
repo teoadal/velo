@@ -1,6 +1,5 @@
 using System;
 using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
 using Velo.CQRS.Notifications;
@@ -24,10 +23,7 @@ namespace Velo.Tests.CQRS.Notifications
             _ct = CancellationToken.None;
             _notification = new Notification();
 
-            _processor = new Mock<INotificationProcessor<Notification>>();
-            _processor
-                .Setup(processor => processor.Process(_notification, _ct))
-                .Returns(Task.CompletedTask);
+            _processor = BuildProcessor(_notification, _ct);
 
             _pipeline = new NotificationSimplePipeline<Notification>(_processor.Object);
         }

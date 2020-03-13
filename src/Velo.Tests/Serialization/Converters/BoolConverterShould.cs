@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using FluentAssertions;
@@ -85,14 +84,6 @@ namespace Velo.Tests.Serialization.Converters
             jsonValue.Serialize().Should().Be(JsonConvert.SerializeObject(value));
         }
 
-        public static IEnumerable<object[]> Values
-        {
-            // ReSharper disable once UnusedMember.Global
-            get
-            {
-                yield return new object[] {true};
-                yield return new object[] {false};
-            }
-        }
+        public static TheoryData<bool> Values => new TheoryData<bool> {true, false};
     }
 }

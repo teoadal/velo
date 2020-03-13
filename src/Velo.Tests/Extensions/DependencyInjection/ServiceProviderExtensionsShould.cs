@@ -17,7 +17,7 @@ namespace Velo.Tests.Extensions.DependencyInjection
         [Fact]
         public void GetArray()
         {
-            var mocks = BuildMany(5, () => new Mock<IBooRepository>().Object);
+            var mocks = Many(5, () => new Mock<IBooRepository>().Object);
 
             var services = new ServiceCollection();
 

@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
 using Velo.CQRS.Notifications;
@@ -25,7 +24,7 @@ namespace Velo.Tests.CQRS.Notifications
             _ct = CancellationToken.None;
             _notification = new ParallelNotification();
 
-            _processors = BuildMany(5, BuildProcessor);
+            _processors = Many(5, () => BuildProcessor(_notification, _ct));
 
             _pipeline = new NotificationSequentialPipeline<ParallelNotification>(_processors
                 .Select(mock => mock.Object)
@@ -68,16 +67,6 @@ namespace Velo.Tests.CQRS.Notifications
             _pipeline
                 .Awaiting(pipeline => pipeline.Publish(_notification, _ct))
                 .Should().Throw<NullReferenceException>();
-        }
-
-        private Mock<INotificationProcessor<ParallelNotification>> BuildProcessor()
-        {
-            var processor = new Mock<INotificationProcessor<ParallelNotification>>();
-            processor
-                .Setup(p => p.Process(_notification, _ct))
-                .Returns(Task.CompletedTask);
-
-            return processor;
         }
     }
 }

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -155,15 +154,19 @@ namespace Velo.Tests.Serialization.Converters
             jsonData.Length.Should().Be(array.Length);
         }
 
-        public static IEnumerable<object[]> Values
+        public static TheoryData<Boo[]> Values 
         {
             // ReSharper disable once UnusedMember.Global
             get
             {
                 var fixture = new Fixture();
-                yield return new object[] {Array.Empty<Boo>()};
-                yield return new object[] {fixture.CreateMany<Boo>(1).ToArray()};
-                yield return new object[] {fixture.CreateMany<Boo>(5).ToArray()};
+
+                return new TheoryData<Boo[]>
+                {
+                    Array.Empty<Boo>(),
+                    fixture.CreateMany<Boo>(1).ToArray(),
+                    fixture.CreateMany<Boo>(5).ToArray()
+                };
             }
         }
     }

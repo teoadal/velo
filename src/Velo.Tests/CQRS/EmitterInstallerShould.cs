@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using FluentAssertions;
 using Moq;
 using Velo.CQRS;
@@ -199,14 +198,11 @@ namespace Velo.Tests.CQRS
             Assert.Throws<InvalidOperationException>(() => _dependencies.AddQueryProcessor<Boo>());
         }
 
-        public static IEnumerable<object[]> Lifetimes
+        public static TheoryData<DependencyLifetime> Lifetimes => new TheoryData<DependencyLifetime>
         {
-            get
-            {
-                yield return new object[] {DependencyLifetime.Scoped};
-                yield return new object[] {DependencyLifetime.Singleton};
-                yield return new object[] {DependencyLifetime.Transient};
-            }
-        }
+            DependencyLifetime.Scoped,
+            DependencyLifetime.Singleton,
+            DependencyLifetime.Transient
+        };
     }
 }

@@ -30,9 +30,9 @@ namespace Velo.Tests
             return count;
         }
 
-        protected T[] BuildMany<T>(int count, Func<T> builder)
+        protected T[] Many<T>(int count, Func<T> action)
         {
-            return Enumerable.Range(0, 5).Select(_ => builder()).ToArray();
+            return Enumerable.Range(0, 5).Select(_ => action()).ToArray();
         }
         
         protected StopwatchScope Measure()

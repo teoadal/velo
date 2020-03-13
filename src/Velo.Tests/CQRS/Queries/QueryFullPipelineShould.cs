@@ -32,16 +32,10 @@ namespace Velo.Tests.CQRS.Queries
             _query = new Query();
             _result = new Boo();
 
-            _behaviour = BuildBehaviour();
-
-            _preProcessor = BuildPreProcessor();
-
-            _processor = new Mock<IQueryProcessor<Query, Boo>>();
-            _processor
-                .Setup(processor => processor.Process(_query, _ct))
-                .Returns(Task.FromResult(_result));
-
-            _postProcessor = BuildPostProcessor();
+            _behaviour = MockBehaviour();
+            _preProcessor = MockQueryPreProcessor<Query, Boo>(_query, _ct);
+            _processor = MockQueryProcessor(_query, _result, _ct);
+            _postProcessor = MockQueryPostProcessor(_query, _result, _ct);
 
             _pipeline = new QueryFullPipeline<Query, Boo>(
                 new[] {_behaviour.Object},
@@ -110,7 +104,7 @@ namespace Velo.Tests.CQRS.Queries
         [Fact]
         public void UseManyBehaviour()
         {
-            var behaviours = BuildMany(5, BuildBehaviour);
+            var behaviours = Many(5, MockBehaviour);
             var pipeline = new QueryFullPipeline<Query, Boo>(
                 behaviours.Select(mock => mock.Object).ToArray(),
                 new[] {_preProcessor.Object},
@@ -132,7 +126,7 @@ namespace Velo.Tests.CQRS.Queries
         [Fact]
         public void UseManyPreProcessor()
         {
-            var preProcessors = BuildMany(5, BuildPreProcessor);
+            var preProcessors = Many(5, () => MockQueryPreProcessor<Query, Boo>(_query, _ct));
             var pipeline = new QueryFullPipeline<Query, Boo>(
                 new[] {_behaviour.Object},
                 preProcessors.Select(mock => mock.Object).ToArray(),
@@ -152,7 +146,7 @@ namespace Velo.Tests.CQRS.Queries
         [Fact]
         public void UseManyPostProcessor()
         {
-            var postProcessors = BuildMany(5, BuildPostProcessor);
+            var postProcessors = Many(5, () => MockQueryPostProcessor(_query, _result, _ct));
             var pipeline = new QueryFullPipeline<Query, Boo>(
                 new[] {_behaviour.Object},
                 new[] {_preProcessor.Object},
@@ -180,7 +174,7 @@ namespace Velo.Tests.CQRS.Queries
         }
 
 
-        private Mock<IQueryBehaviour<Query, Boo>> BuildBehaviour()
+        private Mock<IQueryBehaviour<Query, Boo>> MockBehaviour()
         {
             var behaviour = new Mock<IQueryBehaviour<Query, Boo>>();
 
@@ -190,27 +184,6 @@ namespace Velo.Tests.CQRS.Queries
                 .Returns<Query, Func<Task<Boo>>, CancellationToken>((query, next, ct) => next());
 
             return behaviour;
-        }
-
-        private Mock<IQueryPreProcessor<Query, Boo>> BuildPreProcessor()
-        {
-            var preProcessor = new Mock<IQueryPreProcessor<Query, Boo>>();
-
-            preProcessor
-                .Setup(processor => processor.PreProcess(_query, _ct))
-                .Returns(Task.CompletedTask);
-
-            return preProcessor;
-        }
-
-        private Mock<IQueryPostProcessor<Query, Boo>> BuildPostProcessor()
-        {
-            var postProcessor = new Mock<IQueryPostProcessor<Query, Boo>>();
-            postProcessor
-                .Setup(processor => processor.PostProcess(_query, _result, _ct))
-                .Returns(Task.CompletedTask);
-
-            return postProcessor;
         }
     }
 }

@@ -91,7 +91,7 @@ namespace Velo.Tests.Logging.Enrichers
         [Theory, AutoData]
         public void HaveOneVerboseInstance(LogLevel level, Type sender)
         {
-            var messages = BuildMany(5, () => new JsonObject());
+            var messages = Many(5, () => new JsonObject());
 
             JsonVerbose instance = null;
             foreach (var message in messages)

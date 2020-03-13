@@ -28,14 +28,14 @@ namespace Velo.Tests.CQRS.Commands
             _ct = CancellationToken.None;
             _command = new Command();
 
-            _preProcessor = BuildPreProcessor();
+            _preProcessor = MockCommandPreProcessor(_command, _ct);
 
             _processor = new Mock<ICommandProcessor<Command>>();
             _processor
                 .Setup(processor => processor.Process(_command, _ct))
                 .Returns(Task.CompletedTask);
 
-            _postProcessor = BuildPostProcessor();
+            _postProcessor = MockCommandPostProcessor(_command, _ct);
 
             _pipeline = new CommandSequentialPipeline<Command>(
                 new[] {_preProcessor.Object},
@@ -92,7 +92,7 @@ namespace Velo.Tests.CQRS.Commands
         [Fact]
         public void UseManyPreProcessor()
         {
-            var preProcessors = BuildMany(5, BuildPreProcessor);
+            var preProcessors = Many(5, () => MockCommandPreProcessor(_command, _ct));
             var pipeline = new CommandSequentialPipeline<Command>(
                 preProcessors.Select(mock => mock.Object).ToArray(),
                 _processor.Object,
@@ -111,7 +111,7 @@ namespace Velo.Tests.CQRS.Commands
         [Fact]
         public void UseManyPostProcessor()
         {
-            var postProcessors = BuildMany(5, BuildPostProcessor);
+            var postProcessors = Many(5, () => MockCommandPostProcessor(_command, _ct));
             var pipeline = new CommandSequentialPipeline<Command>(
                 new[] {_preProcessor.Object},
                 _processor.Object,
@@ -135,27 +135,6 @@ namespace Velo.Tests.CQRS.Commands
             _pipeline
                 .Awaiting(pipeline => pipeline.Execute(_command, _ct))
                 .Should().Throw<NullReferenceException>();
-        }
-
-        private Mock<ICommandPreProcessor<Command>> BuildPreProcessor()
-        {
-            var preProcessor = new Mock<ICommandPreProcessor<Command>>();
-
-            preProcessor
-                .Setup(processor => processor.PreProcess(_command, _ct))
-                .Returns(Task.CompletedTask);
-
-            return preProcessor;
-        }
-
-        private Mock<ICommandPostProcessor<Command>> BuildPostProcessor()
-        {
-            var postProcessor = new Mock<ICommandPostProcessor<Command>>();
-            postProcessor
-                .Setup(processor => processor.PostProcess(_command, _ct))
-                .Returns(Task.CompletedTask);
-
-            return postProcessor;
         }
     }
 }

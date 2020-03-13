@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using FluentAssertions;
@@ -22,7 +21,7 @@ namespace Velo.Tests.Serialization.Converters
 
         [Fact]
         public void BePrimitive() => _converter.IsPrimitive.Should().BeTrue();
-        
+
         [Theory]
         [MemberData(nameof(Values))]
         public void Deserialize(float value)
@@ -46,7 +45,7 @@ namespace Velo.Tests.Serialization.Converters
             var number = JsonValue.Number(value);
             _converter.ReadObject(number).Should().Be(value);
         }
-        
+
         [Theory]
         [MemberData(nameof(Values))]
         public void Serialize(float value)
@@ -68,7 +67,7 @@ namespace Velo.Tests.Serialization.Converters
             var result = stringWriter.ToString();
             result.Should().Be(JsonConvert.SerializeObject(value));
         }
-        
+
         [Theory]
         [MemberData(nameof(Values))]
         public void Write(float value)
@@ -84,28 +83,24 @@ namespace Velo.Tests.Serialization.Converters
             var jsonValue = (JsonValue) _converter.WriteObject(value);
             jsonValue.Serialize().Should().Be(JsonConvert.SerializeObject(value));
         }
-        
-        public static IEnumerable<object[]> Values
+
+        public static TheoryData<float> Values => new TheoryData<float>
         {
-            // ReSharper disable once UnusedMember.Global
-            get
-            {
-                yield return new object[] {0f};
-                yield return new object[] {-1.0f};
-                yield return new object[] {1.0f};
-                yield return new object[] {-1.1f};
-                yield return new object[] {1.1f};
-                yield return new object[] {-1.12f};
-                yield return new object[] {1.12f};
-                yield return new object[] {1.123456f};
-                yield return new object[] {-1.123456f};
-                yield return new object[] {0.123456f};
-                yield return new object[] {-0.123456f};
-                yield return new object[] {50f};
-                yield return new object[] {-50f};
-                yield return new object[] {50.1234f};
-                yield return new object[] {-50.1234f};
-            }
-        }
+            0f,
+            -1.0f,
+            1.0f,
+            -1.1f,
+            1.1f,
+            -1.12f,
+            1.12f,
+            1.123456f,
+            -1.123456f,
+            0.123456f,
+            -0.123456f,
+            50f,
+            -50f,
+            50.1234f,
+            -50.1234f
+        };
     }
 }

@@ -27,10 +27,7 @@ namespace Velo.Tests.CQRS.Queries
             _query = new Query();
             _result = new Boo();
             
-            _processor = new Mock<IQueryProcessor<Query, Boo>>();
-            _processor.Setup(processor => processor.Process(_query, _ct))
-                .Returns(Task.FromResult(_result));
-                
+            _processor = MockQueryProcessor(_query, _result, _ct);
             _pipeline = new QuerySimplePipeline<Query, Boo>(_processor.Object);
         }
 

@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using Velo.Logging;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace Velo.Tests.Logging
@@ -10,13 +10,13 @@ namespace Velo.Tests.Logging
         {
         }
 
-        public static IEnumerable<object[]> Levels => new[]
+        public static TheoryData<LogLevel> Levels => new TheoryData<LogLevel>()
         {
-            new object[] {LogLevel.Trace},
-            new object[] {LogLevel.Debug},
-            new object[] {LogLevel.Info},
-            new object[] {LogLevel.Warning},
-            new object[] {LogLevel.Error},
+            LogLevel.Trace,
+            LogLevel.Debug,
+            LogLevel.Info,
+            LogLevel.Warning,
+            LogLevel.Error
         };
     }
 }

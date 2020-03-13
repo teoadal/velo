@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using AutoFixture;
@@ -75,10 +74,10 @@ namespace Velo.Tests.Serialization.Converters
         [MemberData(nameof(Values))]
         public void Write(Boo value)
         {
-            var jsonValue = value == null 
-                ? JsonValue.Null 
+            var jsonValue = value == null
+                ? JsonValue.Null
                 : _converter.Write(value);
-            
+
             jsonValue.Serialize().Should().Be(JsonConvert.SerializeObject(value));
         }
 
@@ -86,29 +85,30 @@ namespace Velo.Tests.Serialization.Converters
         [MemberData(nameof(Values))]
         public void WriteObject(Boo value)
         {
-            var jsonValue = value == null 
-                ? JsonValue.Null 
+            var jsonValue = value == null
+                ? JsonValue.Null
                 : _converter.WriteObject(value);
-            
+
             jsonValue.Serialize().Should().Be(JsonConvert.SerializeObject(value));
         }
 
-        public static IEnumerable<object[]> Values
+        public static TheoryData<Boo> Values
         {
             // ReSharper disable once UnusedMember.Global
             get
             {
                 var fixture = new Fixture();
-                yield return new object[] {fixture.Create<Boo>()};
-                yield return new object[] {fixture.Build<Boo>().OmitAutoProperties().Create()};
-                yield return new object[]
+
+                return new TheoryData<Boo>
                 {
+                    fixture.Create<Boo>(),
+                    fixture.Build<Boo>().OmitAutoProperties().Create(),
                     fixture.Build<Boo>()
                         .Without(b => b.String)
                         .Without(b => b.Values)
-                        .Create()
+                        .Create(),
+                    null
                 };
-                yield return new object[] {null};
             }
         }
     }

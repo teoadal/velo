@@ -1,9 +1,9 @@
 using System;
-using System.Collections.Generic;
 using Moq;
 using Moq.Protected;
 using Velo.DependencyInjection;
 using Velo.DependencyInjection.Resolvers;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace Velo.Tests.DependencyInjection
@@ -38,11 +38,11 @@ namespace Velo.Tests.DependencyInjection
             return resolver;
         }
 
-        public static IEnumerable<object[]> Lifetimes => new[]
+        public static TheoryData<DependencyLifetime> Lifetimes => new TheoryData<DependencyLifetime>
         {
-            new object[] {DependencyLifetime.Scoped},
-            new object[] {DependencyLifetime.Singleton},
-            new object[] {DependencyLifetime.Transient}
+            DependencyLifetime.Scoped,
+            DependencyLifetime.Singleton,
+            DependencyLifetime.Transient
         };
     }
 }

@@ -1,6 +1,5 @@
 using System;
 using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
 using Velo.CQRS.Commands;
@@ -24,10 +23,7 @@ namespace Velo.Tests.CQRS.Commands
             _ct = CancellationToken.None;
             _command = new Command();
 
-            _processor = new Mock<ICommandProcessor<Command>>();
-            _processor.Setup(processor => processor.Process(_command, _ct))
-                .Returns(Task.CompletedTask);
-
+            _processor = MockCommandProcessor(_command, _ct);
             _pipeline = new CommandSimplePipeline<Command>(_processor.Object);
         }
 

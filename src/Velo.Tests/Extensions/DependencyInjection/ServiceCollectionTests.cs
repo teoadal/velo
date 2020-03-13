@@ -1,5 +1,5 @@
-using System.Collections.Generic;
-using Microsoft.Extensions.DependencyInjection;
+using Velo.DependencyInjection;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace Velo.Tests.Extensions.DependencyInjection
@@ -10,11 +10,11 @@ namespace Velo.Tests.Extensions.DependencyInjection
         {
         }
 
-        public static IEnumerable<object[]> Lifetimes => new[]
+        public static TheoryData<DependencyLifetime> Lifetimes => new TheoryData<DependencyLifetime>
         {
-            new object[] {ServiceLifetime.Scoped},
-            new object[] {ServiceLifetime.Singleton},
-            new object[] {ServiceLifetime.Transient},
+            DependencyLifetime.Scoped,
+            DependencyLifetime.Singleton,
+            DependencyLifetime.Transient
         };
     }
 }

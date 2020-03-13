@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using FluentAssertions;
@@ -86,20 +85,16 @@ namespace Velo.Tests.Serialization.Converters
             jsonValue.Serialize().Should().Be(JsonConvert.SerializeObject(value));
         }
 
-        public static IEnumerable<object[]> Values
+        public static TheoryData<DateTime> Values => new TheoryData<DateTime>()
         {
-            // ReSharper disable once UnusedMember.Global
-            get
-            {
-                yield return new object[] {DateTime.MaxValue};
-                yield return new object[] {DateTime.MinValue};
-                yield return new object[] {DateTime.Now};
-                yield return new object[] {DateTime.UtcNow};
-                yield return new object[] {DateTime.Now.Date};
-                yield return new object[] {new DateTime(1, 2, 3, 4, 5, 6, DateTimeKind.Local)};
-                yield return new object[] {new DateTime(1, 2, 3, 4, 5, 6, DateTimeKind.Unspecified)};
-                yield return new object[] {new DateTime()};
-            }
-        }
+            DateTime.MaxValue,
+            DateTime.MinValue,
+            DateTime.Now,
+            DateTime.UtcNow,
+            DateTime.Now.Date,
+            new DateTime(1, 2, 3, 4, 5, 6, DateTimeKind.Local),
+            new DateTime(1, 2, 3, 4, 5, 6, DateTimeKind.Unspecified),
+            new DateTime()
+        };
     }
 }

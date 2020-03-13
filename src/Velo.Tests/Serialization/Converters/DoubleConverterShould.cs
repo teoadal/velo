@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using FluentAssertions;
@@ -85,27 +84,23 @@ namespace Velo.Tests.Serialization.Converters
             jsonValue.Serialize().Should().Be(JsonConvert.SerializeObject(value));
         }
 
-        public static IEnumerable<object[]> Values
+        public static TheoryData<double> Values => new TheoryData<double>
         {
-            // ReSharper disable once UnusedMember.Global
-            get
-            {
-                yield return new object[] {0d};
-                yield return new object[] {-1.0d};
-                yield return new object[] {1.0d};
-                yield return new object[] {-1.1d};
-                yield return new object[] {1.1d};
-                yield return new object[] {-1.12d};
-                yield return new object[] {1.12d};
-                yield return new object[] {1.1234567890d};
-                yield return new object[] {-1.1234567890d};
-                yield return new object[] {0.1234567890d};
-                yield return new object[] {-0.1234567890d};
-                yield return new object[] {50d};
-                yield return new object[] {-50d};
-                yield return new object[] {50.12356789d};
-                yield return new object[] {-50.123456789d};
-            }
-        }
+            0d,
+            -1.0d,
+            1.0d,
+            -1.1d,
+            1.1d,
+            -1.12d,
+            1.12d,
+            1.1234567890d,
+            -1.1234567890d,
+            0.1234567890d,
+            -0.1234567890d,
+            50d,
+            -50d,
+            50.12356789d,
+            -50.123456789d
+        };
     }
 }

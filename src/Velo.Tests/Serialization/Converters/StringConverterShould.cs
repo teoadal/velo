@@ -92,7 +92,6 @@ namespace Velo.Tests.Serialization.Converters
             get
             {
                 yield return new object[] {string.Empty};
-                yield return new object[] {""};
                 yield return new object[] {null};
                 yield return new object[] {Guid.NewGuid().ToString("N")};
             }

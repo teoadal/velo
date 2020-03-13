@@ -29,16 +29,10 @@ namespace Velo.Tests.CQRS.Commands
             _ct = CancellationToken.None;
             _command = new Command();
 
-            _behaviour = BuildBehaviour();
-
-            _preProcessor = BuildPreProcessor();
-
-            _processor = new Mock<ICommandProcessor<Command>>();
-            _processor
-                .Setup(processor => processor.Process(_command, _ct))
-                .Returns(Task.CompletedTask);
-
-            _postProcessor = BuildPostProcessor();
+            _behaviour = MockBehaviour();
+            _preProcessor = MockCommandPreProcessor(_command, _ct);
+            _processor = MockCommandProcessor(_command, _ct);
+            _postProcessor = MockCommandPostProcessor(_command, _ct);
 
             _pipeline = new CommandFullPipeline<Command>(
                 new[] {_behaviour.Object},
@@ -109,7 +103,7 @@ namespace Velo.Tests.CQRS.Commands
         [Fact]
         public void UseManyBehaviour()
         {
-            var behaviours = BuildMany(5, BuildBehaviour);
+            var behaviours = Many(5, MockBehaviour);
             var pipeline = new CommandFullPipeline<Command>(
                 behaviours.Select(mock => mock.Object).ToArray(),
                 new[] {_preProcessor.Object},
@@ -131,7 +125,8 @@ namespace Velo.Tests.CQRS.Commands
         [Fact]
         public void UseManyPreProcessor()
         {
-            var preProcessors = BuildMany(5, BuildPreProcessor);
+            var preProcessors = Many(5, () => MockCommandPreProcessor(_command, _ct));
+            
             var pipeline = new CommandFullPipeline<Command>(
                 new[] {_behaviour.Object},
                 preProcessors.Select(mock => mock.Object).ToArray(),
@@ -151,7 +146,8 @@ namespace Velo.Tests.CQRS.Commands
         [Fact]
         public void UseManyPostProcessor()
         {
-            var postProcessors = BuildMany(5, BuildPostProcessor);
+            var postProcessors = Many(5, () => MockCommandPostProcessor(_command, _ct));
+            
             var pipeline = new CommandFullPipeline<Command>(
                 new[] {_behaviour.Object},
                 new[] {_preProcessor.Object},
@@ -179,7 +175,7 @@ namespace Velo.Tests.CQRS.Commands
         }
 
 
-        private Mock<ICommandBehaviour<Command>> BuildBehaviour()
+        private Mock<ICommandBehaviour<Command>> MockBehaviour()
         {
             var behaviour = new Mock<ICommandBehaviour<Command>>();
 
@@ -189,27 +185,6 @@ namespace Velo.Tests.CQRS.Commands
                 .Returns<Command, Func<Task>, CancellationToken>((command, next, ct) => next());
 
             return behaviour;
-        }
-
-        private Mock<ICommandPreProcessor<Command>> BuildPreProcessor()
-        {
-            var preProcessor = new Mock<ICommandPreProcessor<Command>>();
-
-            preProcessor
-                .Setup(processor => processor.PreProcess(_command, _ct))
-                .Returns(Task.CompletedTask);
-
-            return preProcessor;
-        }
-
-        private Mock<ICommandPostProcessor<Command>> BuildPostProcessor()
-        {
-            var postProcessor = new Mock<ICommandPostProcessor<Command>>();
-            postProcessor
-                .Setup(processor => processor.PostProcess(_command, _ct))
-                .Returns(Task.CompletedTask);
-
-            return postProcessor;
         }
     }
 }

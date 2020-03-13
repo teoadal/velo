@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using FluentAssertions;
@@ -91,18 +90,14 @@ namespace Velo.Tests.Serialization.Converters
             jsonValue.Serialize().Should().Be(JsonConvert.SerializeObject(value));
         }
 
-        public static IEnumerable<object[]> Values
+        public static TheoryData<int?> Values = new TheoryData<int?>()
         {
-            // ReSharper disable once UnusedMember.Global
-            get
-            {
-                yield return new object[] {(int?)1};
-                yield return new object[] {(int?)-1};
-                yield return new object[] {(int?)100};
-                yield return new object[] {(int?)-100};
-                yield return new object[] {(int?)0};
-                yield return new object[] {null};
-            }
-        }
+            1,
+            -1,
+            100,
+            -100,
+            0,
+            null
+        };
     }
 }
