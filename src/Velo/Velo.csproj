@@ -3,7 +3,7 @@
     <PropertyGroup>
         <Title>Velo</Title>
         <Description>Simple implementations of DI, Mediator (or CQRS), Logger, JSON Serializer/Deserializer and Mapper</Description>
-        <Version>0.3.10</Version>
+        <Version>0.3.11</Version>
         <LangVersion>8</LangVersion>
         <TargetFramework>netstandard2.0</TargetFramework>
         <RepositoryType>git</RepositoryType>
@@ -18,6 +18,7 @@
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <AssemblyName>Velo</AssemblyName>
         <Nullable>disable</Nullable>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
     <ItemGroup>

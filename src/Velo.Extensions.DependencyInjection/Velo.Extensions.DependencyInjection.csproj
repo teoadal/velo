@@ -4,7 +4,7 @@
         <Title>Velo.Extensions.DependencyInjection</Title>
         <Description>Velo implementation of the interfaces in Microsoft.Extensions.DependencyInjection. Velo is simple implementations of IoC-Container, Mediator (or CQRS), Mapper and JSON Serializer/Deserializer</Description>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <Version>0.3.10</Version>
+        <Version>0.3.11</Version>
         <LangVersion>8</LangVersion>
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/teoadal/velo</RepositoryUrl>
@@ -15,6 +15,7 @@
         <Product>Velo</Product>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <Nullable>disable</Nullable>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
     <ItemGroup>
