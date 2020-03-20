@@ -26,6 +26,16 @@ namespace Velo.Tests.DependencyInjection.Resolvers
 
             _resolver = new ActivatorResolver(_implementation);
         }
+
+        [Fact]
+        public void CallScope()
+        {
+            var constructor = ReflectionUtils.GetConstructor(_implementation);
+
+            _resolver.Resolve(_contract, _scope.Object);
+
+            _scope.Verify(scope => scope.Activate(_implementation, constructor));
+        }
         
         [Fact]
         public void ResolveInstance()
@@ -37,16 +47,6 @@ namespace Velo.Tests.DependencyInjection.Resolvers
                 .Returns(instance.Object);
 
             _resolver.Resolve(_contract, _scope.Object).Should().Be(instance.Object);
-        }
-
-        [Fact]
-        public void CallScope()
-        {
-            var constructor = ReflectionUtils.GetConstructor(_implementation);
-
-            _resolver.Resolve(_contract, _scope.Object);
-
-            _scope.Verify(scope => scope.Activate(_implementation, constructor));
         }
     }
 }

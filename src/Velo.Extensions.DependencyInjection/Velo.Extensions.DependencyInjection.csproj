@@ -12,8 +12,7 @@
         <PackageTags>mediator;cqrs;logger;dependencyinjection;ioc;di;json;serializer;deserializer;mapper</PackageTags>
         <Authors>teoadal</Authors>
         <Company>teoadal</Company>
-        <Product>teoadal</Product>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Product>Velo</Product>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <Nullable>disable</Nullable>
     </PropertyGroup>

@@ -14,8 +14,7 @@
         <PackageProjectUrl>https://github.com/teoadal/velo</PackageProjectUrl>
         <Authors>teoadal</Authors>
         <Company>teoadal</Company>
-        <Product>teoadal</Product>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Product>Velo</Product>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <AssemblyName>Velo</AssemblyName>
         <Nullable>disable</Nullable>

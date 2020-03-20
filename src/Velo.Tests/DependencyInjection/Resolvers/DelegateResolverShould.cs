@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
 using Velo.DependencyInjection;
@@ -34,6 +35,12 @@ namespace Velo.Tests.DependencyInjection.Resolvers
             resolver.Resolve(_contract, _scope).Should().Be(instance.Object);
         }
 
+        [Fact]
+        public void ResolveInstanceParallel()
+        {
+            Parallel.For(0, 10, _ => ResolveInstance());
+        }
+        
         [Fact]
         public void ResolveTypedInstance()
         {

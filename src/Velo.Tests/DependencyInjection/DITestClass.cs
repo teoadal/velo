@@ -15,16 +15,6 @@ namespace Velo.Tests.DependencyInjection
         {
         }
 
-        protected static Mock<IDependencyScope> MockScope()
-        {
-            var scope = new Mock<IDependencyScope>();
-
-            scope.SetupAdd(s => s.Destroy += It.IsAny<Action<IDependencyScope>>());
-            scope.SetupRemove(s => s.Destroy -= It.IsAny<Action<IDependencyScope>>());
-
-            return scope;
-        }
-
         protected static Mock<DependencyResolver> MockResolver(Type implementation,
             Func<Type, IDependencyScope, object> resolveInstance)
         {
@@ -36,6 +26,16 @@ namespace Velo.Tests.DependencyInjection
                 .Returns(resolveInstance);
 
             return resolver;
+        }
+
+        protected static Mock<IDependencyScope> MockScope()
+        {
+            var scope = new Mock<IDependencyScope>();
+
+            scope.SetupAdd(s => s.Destroy += It.IsAny<Action<IDependencyScope>>());
+            scope.SetupRemove(s => s.Destroy -= It.IsAny<Action<IDependencyScope>>());
+
+            return scope;
         }
 
         public static TheoryData<DependencyLifetime> Lifetimes => new TheoryData<DependencyLifetime>
