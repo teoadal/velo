@@ -11,6 +11,8 @@ namespace Velo.Collections
         TValue GetOrAdd(TKey key, Func<TKey, TValue> factory);
 
         TValue GetOrAdd<TArg>(TKey key, Func<TKey, TArg, TValue> factory, TArg arg);
+        
+        void TryAdd(TKey key, TValue value);
     }
 
     /// <summary>
@@ -67,6 +69,16 @@ namespace Velo.Collections
             if (lockTaken) Monitor.Exit(_lock);
 
             return value;
+        }
+
+        public void TryAdd(TKey key, TValue value)
+        {
+            var lockTaken = false;
+            Monitor.Enter(_lock, ref lockTaken);
+
+            this[key] = value;
+
+            if (lockTaken) Monitor.Exit(_lock);
         }
     }
 }

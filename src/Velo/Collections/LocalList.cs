@@ -174,7 +174,7 @@ namespace Velo.Collections
                     _array[0] = element;
                     break;
                 default:
-                    AddToArray(element);
+                    CollectionUtils.Add(ref _array, _length - Capacity, element);
                     break;
             }
 
@@ -421,26 +421,6 @@ namespace Velo.Collections
             {
                 if (index >= _length) throw Error.OutOfRange();
                 return Get(index);
-            }
-        }
-
-        private void AddToArray(T element)
-        {
-            var array = _array;
-            var arrayIndex = _length - Capacity;
-
-            if ((uint) arrayIndex < (uint) array.Length)
-            {
-                array[arrayIndex] = element;
-            }
-            else
-            {
-                var newArray = new T[array.Length * 2];
-                Array.Copy(array, 0, newArray, 0, arrayIndex);
-
-                newArray[arrayIndex] = element;
-
-                _array = newArray;
             }
         }
 

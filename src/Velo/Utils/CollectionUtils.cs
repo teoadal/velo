@@ -6,6 +6,29 @@ namespace Velo.Utils
 {
     internal static class CollectionUtils
     {
+        public static void Add<T>(ref T[] array, int index, T element)
+        {
+            if ((uint) index < (uint) array.Length)
+            {
+                array[index] = element;
+            }
+            else
+            {
+                var newArray = new T[array.Length * 2];
+                Array.Copy(array, 0, newArray, 0, index);
+
+                newArray[index] = element;
+
+                array = newArray;
+            }
+        }
+
+        public static void Add<T>(ref T[] array, ref int index, T element)
+        {
+            Add(ref array, index, element);
+            index++;
+        }
+
         public static void Cut<T>(ref T[] array, int index)
         {
             var length = array.Length - 1;
