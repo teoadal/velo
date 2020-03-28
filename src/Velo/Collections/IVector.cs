@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using Velo.Utils;
 
 namespace Velo.Collections
 {
@@ -11,7 +12,7 @@ namespace Velo.Collections
         TValue GetOrAdd(TKey key, Func<TKey, TValue> factory);
 
         TValue GetOrAdd<TArg>(TKey key, Func<TKey, TArg, TValue> factory, TArg arg);
-        
+
         void TryAdd(TKey key, TValue value);
     }
 
@@ -25,6 +26,12 @@ namespace Velo.Collections
         private readonly object _lock;
 
         public DangerousVector() : base(10)
+        {
+            _lock = new object();
+        }
+
+        public DangerousVector(int capacity)
+            : base(capacity < 10 ? throw Error.InvalidOperation("Capacity less 10") : capacity)
         {
             _lock = new object();
         }

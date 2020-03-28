@@ -1,48 +1,38 @@
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Threading;
+using Velo.Collections;
 
 namespace Velo.Utils
 {
     internal static class Typeof<T>
     {
-        public static readonly Type Raw = typeof(T);
-        
         // ReSharper disable once StaticMemberInGenericType
-        public static readonly int Id = Typeof.GetTypeId(Raw);
+        public static readonly int Id = Typeof.GetNextTypeId();
+
+        public static readonly Type Raw = typeof(T);
     }
 
     internal static class Typeof
     {
-        private static readonly Dictionary<Type, int> RegisteredTypes;
         private static int _nextId;
 
-        private static SpinLock _lock;
+        private static readonly DangerousVector<Type, int> RegisteredTypes;
 
         static Typeof()
         {
-            RegisteredTypes = new Dictionary<Type, int>(100);
-            _lock = new SpinLock(Debugger.IsAttached);
+            RegisteredTypes = new DangerousVector<Type, int>(100);
         }
 
         public static int GetTypeId(Type type)
         {
-            var lockTaken = false;
-            try
-            {
-                _lock.Enter(ref lockTaken);
-
-                if (RegisteredTypes.TryGetValue(type, out var exists)) return exists;
-                
-                _nextId++;
-                RegisteredTypes.Add(type, _nextId);
-                return _nextId;
-            }
-            finally
-            {
-                if (lockTaken) _lock.Exit();
-            }
+            return RegisteredTypes.GetOrAdd(type, key => (int) typeof(Typeof<>)
+                .MakeGenericType(key)
+                .GetField(nameof(Typeof<object>.Id))
+                .GetValue(null));
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetNextTypeId() => Interlocked.Increment(ref _nextId);
     }
 }
