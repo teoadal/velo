@@ -8,40 +8,40 @@ namespace Velo.DependencyInjection
 {
     public static class SettingsInstaller
     {
-        public static DependencyCollection AddSettings(this DependencyCollection collection)
+        public static DependencyCollection AddSettings(this DependencyCollection dependencies)
         {
-            collection
+            dependencies
                 .AddFactory(new SettingsProviderFactory())
                 .AddFactory(new SettingsFactory());
 
-            return collection;
+            return dependencies;
         }
 
-        public static DependencyCollection AddEnvironmentSettings(this DependencyCollection collection)
+        public static DependencyCollection AddEnvironmentSettings(this DependencyCollection dependencies)
         {
-            collection.AddInstance<ISettingsSource>(new EnvironmentSource());
-            return collection;
+            dependencies.AddInstance<ISettingsSource>(new EnvironmentSource());
+            return dependencies;
         }
 
-        public static DependencyCollection AddCommandLineSettings(this DependencyCollection collection,
+        public static DependencyCollection AddCommandLineSettings(this DependencyCollection dependencies,
             string[] commandLineArgs)
         {
-            collection.AddInstance<ISettingsSource>(new CommandLineSource(commandLineArgs));
-            return collection;
+            dependencies.AddInstance<ISettingsSource>(new CommandLineSource(commandLineArgs));
+            return dependencies;
         }
 
-        public static DependencyCollection AddJsonSettings(this DependencyCollection collection,
+        public static DependencyCollection AddJsonSettings(this DependencyCollection dependencies,
             string path = "appsettings.json", bool required = false)
         {
-            collection.AddInstance<ISettingsSource>(new JsonFileSource(path, required));
-            return collection;
+            dependencies.AddInstance<ISettingsSource>(new JsonFileSource(path, required));
+            return dependencies;
         }
 
-        public static DependencyCollection AddJsonSettings(this DependencyCollection collection,
+        public static DependencyCollection AddJsonSettings(this DependencyCollection dependencies,
             Func<IDependencyScope, string> fileNameBuilder, bool required = false)
         {
-            collection.AddSingleton<ISettingsSource>(ctx => new JsonFileSource(fileNameBuilder(ctx), required));
-            return collection;
+            dependencies.AddSingleton<ISettingsSource>(ctx => new JsonFileSource(fileNameBuilder(ctx), required));
+            return dependencies;
         }
     }
 }

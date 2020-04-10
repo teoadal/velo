@@ -1,25 +1,24 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using Velo.Utils;
 
-namespace Velo.Utils
+namespace Velo.Collections
 {
     internal static class CollectionUtils
     {
         public static void Add<T>(ref T[] array, int index, T element)
         {
-            if ((uint) index < (uint) array.Length)
+            var arrayLength = array.Length;
+            if ((uint) index < (uint) arrayLength)
             {
                 array[index] = element;
             }
             else
             {
-                var newArray = new T[array.Length * 2];
-                Array.Copy(array, 0, newArray, 0, index);
-
-                newArray[index] = element;
-
-                array = newArray;
+                var newLength = arrayLength == 0 ? 2 : arrayLength * 2;
+                Array.Resize(ref array, newLength);
+                array[index] = element;
             }
         }
 
@@ -74,6 +73,14 @@ namespace Velo.Utils
                 {
                     disposable.Dispose();
                 }
+            }
+        }
+
+        public static void EnsureCapacity<T>(ref T[] array, int capacity)
+        {
+            if (array.Length < capacity)
+            {
+                Array.Resize(ref array, capacity);
             }
         }
     }

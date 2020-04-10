@@ -10,7 +10,7 @@ using Velo.Utils;
 
 namespace Velo.Settings.Provider
 {
-    internal sealed class SettingsProvider : DangerousVector<string, object>, ISettings
+    internal sealed class SettingsProvider : DangerousVector<string, object>, ISettingsProvider
     {
         public ISettingsSource[] Sources => _sources;
 

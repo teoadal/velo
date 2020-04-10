@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Velo.Settings;
+using Velo.Settings.Provider;
 using Velo.TestsModels.Infrastructure;
 
 namespace Velo.TestsModels.Boos
 {
     public class BooRepository : IBooRepository, IDisposable
     {
-        public ISettings Settings { get; }
+        public ISettingsProvider Settings { get; }
 
         public ISession Session { get; }
 
@@ -16,7 +16,7 @@ namespace Velo.TestsModels.Boos
         
         private Dictionary<int, Boo> _storage;
         
-        public BooRepository(ISettings settings, ISession session)
+        public BooRepository(ISettingsProvider settings, ISession session)
         {
             Settings = settings;
             Session = session;

@@ -53,7 +53,7 @@ namespace Velo.Tests.Logging.Providers
             var provider = _dependencies.BuildProvider();
 
             var logProvider = provider.GetRequiredService<ILogProvider>();
-            logProvider.Should().BeOfType<NullProvider>();
+            logProvider.Should().BeOfType<NullLogProvider>();
         }
 
         [Fact]

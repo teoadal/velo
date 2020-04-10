@@ -2,9 +2,9 @@ using System;
 
 namespace Velo.Logging.Provider
 {
-    internal sealed class NullProvider : ILogProvider
+    internal sealed class NullLogProvider : ILogProvider
     {
-        public static readonly ILogProvider Instance = new NullProvider();
+        public static readonly ILogProvider Instance = new NullLogProvider();
         
         public void Write(LogLevel level, Type sender, string template)
         {

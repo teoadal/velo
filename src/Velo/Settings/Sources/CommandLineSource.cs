@@ -1,3 +1,4 @@
+using Velo.Collections;
 using Velo.Serialization.Models;
 
 namespace Velo.Settings.Sources
@@ -8,7 +9,7 @@ namespace Velo.Settings.Sources
 
         public CommandLineSource(string[] args)
         {
-            if (args == null || args.Length == 0) return;
+            if (args.NullOrEmpty()) return;
 
             _configuration = new JsonObject();
             for (var i = 0; i < args.Length; i++)

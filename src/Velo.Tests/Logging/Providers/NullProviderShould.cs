@@ -8,13 +8,13 @@ using Xunit.Abstractions;
 
 namespace Velo.Tests.Logging.Providers
 {
-    public class NullProviderShould : TestClass
+    public class NullLogProviderShould : TestClass
     {
-        private readonly NullProvider _provider;
+        private readonly NullLogProvider _provider;
         
-        public NullProviderShould(ITestOutputHelper output) : base(output)
+        public NullLogProviderShould(ITestOutputHelper output) : base(output)
         {
-            _provider = new NullProvider();
+            _provider = new NullLogProvider();
         }
 
         [Theory, AutoData]

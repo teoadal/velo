@@ -10,19 +10,19 @@ namespace Velo.DependencyInjection
     public static class WorldInstaller
     {
         // ReSharper disable once InconsistentNaming
-        public static DependencyCollection AddECS(this DependencyCollection collection)
+        public static DependencyCollection AddECS(this DependencyCollection dependencies)
         {
-            collection
+            dependencies
                 .AddSingleton<ActorContext>()
                 .AddSingleton<AssetContext>()
                 .AddSingleton<SystemService>()
                 .AddSingleton<World>();
 
-            return collection;
+            return dependencies;
         }
 
         // ReSharper disable once InconsistentNaming
-        public static DependencyCollection AddECSSystem<TSystem>(this DependencyCollection collection,
+        public static DependencyCollection AddECSSystem<TSystem>(this DependencyCollection dependencies,
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
             where TSystem : class, ISystem
         {
@@ -30,9 +30,9 @@ namespace Velo.DependencyInjection
             var systemsInterfaces = ReflectionUtils.GetInterfaceImplementations(type, typeof(ISystem));
             systemsInterfaces.Add(type);
             
-            collection.AddDependency(systemsInterfaces.ToArray(), type, lifetime);
+            dependencies.AddDependency(systemsInterfaces.ToArray(), type, lifetime);
             
-            return collection;
+            return dependencies;
         }
     }
 }

@@ -6,16 +6,16 @@ namespace Velo.DependencyInjection
 {
     public static class SerializationInstaller
     {
-        public static DependencyCollection AddJsonConverter(this DependencyCollection collection,
+        public static DependencyCollection AddJsonConverter(this DependencyCollection dependencies,
             CultureInfo culture = null)
         {
             var convertersCollection = new ConvertersCollection(culture ?? CultureInfo.InvariantCulture);
 
-            collection
+            dependencies
                 .AddInstance<IConvertersCollection>(convertersCollection)
                 .AddInstance(new JConverter(convertersCollection));
 
-            return collection;
+            return dependencies;
         }
     }
 }

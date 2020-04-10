@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Velo.Ordering;
-using Velo.Settings;
+using Velo.Settings.Provider;
 using Velo.TestsModels.Infrastructure;
 
 namespace Velo.TestsModels.Foos
@@ -9,13 +9,13 @@ namespace Velo.TestsModels.Foos
     [Order(1)]
     public class FooRepository : IFooRepository
     {
-        public ISettings Settings { get; }
+        public ISettingsProvider Settings { get; }
 
         public ISession Session { get; }
 
         private List<Foo> _foos;
         
-        public FooRepository(ISettings settings, ISession session)
+        public FooRepository(ISettingsProvider settings, ISession session)
         {
             Settings = settings;
             Session = session;

@@ -8,6 +8,7 @@ using Velo.CQRS.Notifications;
 using Velo.CQRS.Notifications.Pipeline;
 using Velo.CQRS.Queries;
 using Velo.CQRS.Queries.Pipeline;
+using Velo.Threading;
 using Velo.Utils;
 
 #nullable enable
@@ -35,7 +36,7 @@ namespace Velo.CQRS
         }
 
         public Task<TResult> Ask<TQuery, TResult>(TQuery query, CancellationToken cancellationToken = default)
-            where TQuery : notnull, IQuery<TResult>
+            where TQuery : IQuery<TResult>
         {
             EnsureNotDisposed();
 
@@ -44,7 +45,7 @@ namespace Velo.CQRS
         }
 
         public Task Execute<TCommand>(TCommand command, CancellationToken cancellationToken = default)
-            where TCommand : notnull, ICommand
+            where TCommand : ICommand
         {
             EnsureNotDisposed();
 
@@ -53,7 +54,7 @@ namespace Velo.CQRS
         }
 
         public Task Publish<TNotification>(TNotification notification, CancellationToken cancellationToken = default)
-            where TNotification : notnull, INotification
+            where TNotification : INotification
         {
             EnsureNotDisposed();
 

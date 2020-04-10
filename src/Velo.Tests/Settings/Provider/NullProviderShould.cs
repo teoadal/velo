@@ -10,11 +10,11 @@ namespace Velo.Tests.Settings.Provider
 {
     public class NullProviderShould : TestClass
     {
-        private readonly NullProvider _provider;
+        private readonly NullSettingsProvider _provider;
 
         public NullProviderShould(ITestOutputHelper output) : base(output)
         {
-            _provider = new NullProvider();
+            _provider = new NullSettingsProvider();
         }
 
         [Theory, AutoData]

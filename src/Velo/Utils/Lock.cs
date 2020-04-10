@@ -60,7 +60,7 @@ namespace Velo.Utils
         public static WriteLock Enter(ReaderWriterLockSlim lockObject)
         {
             var locker = new WriteLock(lockObject);
-            lockObject.EnterReadLock();
+            lockObject.EnterWriteLock();
             return locker;
         }
 

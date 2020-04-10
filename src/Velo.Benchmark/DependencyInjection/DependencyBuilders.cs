@@ -11,12 +11,11 @@ using Velo.Logging;
 using Velo.Logging.Provider;
 using Velo.Mapping;
 using Velo.Serialization;
-using Velo.Settings;
+using Velo.Settings.Provider;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Domain;
 using Velo.TestsModels.Foos;
 using Velo.TestsModels.Infrastructure;
-using NullProvider = Velo.Logging.Provider.NullProvider;
 
 namespace Velo.Benchmark.DependencyInjection
 {
@@ -27,10 +26,10 @@ namespace Velo.Benchmark.DependencyInjection
             var builder = new ContainerBuilder();
             builder.RegisterType<JConverter>().SingleInstance();
             builder.RegisterType<Logger<SomethingController>>().As<ILogger<SomethingController>>().SingleInstance();
-            builder.RegisterType<NullProvider>().As<ILogProvider>().SingleInstance();
+            builder.RegisterType<NullLogProvider>().As<ILogProvider>().SingleInstance();
             builder.RegisterType<CompiledMapper<Boo>>().As<IMapper<Boo>>().SingleInstance();
             builder.RegisterType<CompiledMapper<Foo>>().As<IMapper<Foo>>().SingleInstance();
-            builder.Register(ctx => new Settings.Provider.NullProvider()).As<ISettings>().SingleInstance();
+            builder.Register(ctx => new NullSettingsProvider()).As<ISettingsProvider>().SingleInstance();
             builder.RegisterType<Session>().As<ISession>().SingleInstance();
 
             builder.RegisterType<FooService>().As<IFooService>().SingleInstance();
@@ -49,10 +48,10 @@ namespace Velo.Benchmark.DependencyInjection
             return new WindsorContainer().Register(
                 Component.For<JConverter>().LifeStyle.Singleton,
                 Component.For<ILogger<SomethingController>>().ImplementedBy<Logger<SomethingController>>().LifeStyle.Singleton,
-                Component.For<ILogProvider>().ImplementedBy<NullProvider>().LifeStyle.Singleton,
+                Component.For<ILogProvider>().ImplementedBy<NullLogProvider>().LifeStyle.Singleton,
                 Component.For<IMapper<Boo>>().ImplementedBy<CompiledMapper<Boo>>().LifeStyle.Singleton,
                 Component.For<IMapper<Foo>>().ImplementedBy<CompiledMapper<Foo>>().LifeStyle.Singleton,
-                Component.For<ISettings>().UsingFactoryMethod(() => new Settings.Provider.NullProvider()).LifeStyle.Singleton, 
+                Component.For<ISettingsProvider>().UsingFactoryMethod(() => new NullSettingsProvider()).LifeStyle.Singleton, 
                 Component.For<ISession>().ImplementedBy<Session>().LifeStyle.Singleton,
                 
                 Component.For<IFooService>().ImplementedBy<FooService>().LifeStyle.Singleton,
@@ -70,10 +69,10 @@ namespace Velo.Benchmark.DependencyInjection
             return new ServiceCollection()
                 .AddSingleton<JConverter>()
                 .AddSingleton<ILogger<SomethingController>, Logger<SomethingController>>()
-                .AddSingleton<ILogProvider, NullProvider>()
+                .AddSingleton<ILogProvider, NullLogProvider>()
                 .AddSingleton<IMapper<Boo>, CompiledMapper<Boo>>()
                 .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
-                .AddSingleton<ISettings>(ctx => new Settings.Provider.NullProvider())
+                .AddSingleton<ISettingsProvider>(ctx => new NullSettingsProvider())
                 .AddSingleton<ISession, Session>()
                 
                 .AddSingleton<IFooService, FooService>()
@@ -90,10 +89,10 @@ namespace Velo.Benchmark.DependencyInjection
             return new ServiceCollection()
                 .AddSingleton<JConverter>()
                 .AddSingleton<ILogger<SomethingController>, Logger<SomethingController>>()
-                .AddSingleton<ILogProvider, NullProvider>()
+                .AddSingleton<ILogProvider, NullLogProvider>()
                 .AddSingleton<IMapper<Boo>, CompiledMapper<Boo>>()
                 .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
-                .AddSingleton<ISettings>(ctx => new Settings.Provider.NullProvider())
+                .AddSingleton<ISettingsProvider>(ctx => new NullSettingsProvider())
                 .AddTransient<ISession, Session>()
                 
                 .AddScoped<IFooService, FooService>()
@@ -112,10 +111,10 @@ namespace Velo.Benchmark.DependencyInjection
             container
                 .RegisterSingleton(provider => new JConverter())
                 .RegisterSingleton<ILogger<SomethingController>, Logger<SomethingController>>()
-                .RegisterSingleton<ILogProvider, NullProvider>()
+                .RegisterSingleton<ILogProvider, NullLogProvider>()
                 .RegisterSingleton<IMapper<Boo>, CompiledMapper<Boo>>()
                 .RegisterSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
-                .RegisterSingleton<ISettings>(provider => new Settings.Provider.NullProvider())
+                .RegisterSingleton<ISettingsProvider>(provider => new NullSettingsProvider())
                 .RegisterSingleton<ISession, Session>()
                 
                 .RegisterSingleton<IFooService, FooService>()
@@ -135,10 +134,10 @@ namespace Velo.Benchmark.DependencyInjection
             
             container.Register(typeof(JConverter), () => new JConverter(), Lifestyle.Singleton);
             container.RegisterSingleton<ILogger<SomethingController>, Logger<SomethingController>>();
-            container.RegisterSingleton<ILogProvider, NullProvider>();
+            container.RegisterSingleton<ILogProvider, NullLogProvider>();
             container.RegisterSingleton<IMapper<Boo>, CompiledMapper<Boo>>();
             container.RegisterSingleton<IMapper<Foo>, CompiledMapper<Foo>>();
-            container.Register(typeof(ISettings), () => new Settings.Provider.NullProvider(), Lifestyle.Singleton);
+            container.Register(typeof(ISettingsProvider), () => new NullSettingsProvider(), Lifestyle.Singleton);
             container.RegisterSingleton<ISession, Session>();
 
             container.RegisterSingleton<IFooService, FooService>();
@@ -157,10 +156,10 @@ namespace Velo.Benchmark.DependencyInjection
             return new DependencyCollection()
                 .AddSingleton<JConverter>()
                 .AddSingleton<ILogger<SomethingController>, Logger<SomethingController>>()
-                .AddSingleton<ILogProvider, NullProvider>()
+                .AddSingleton<ILogProvider, NullLogProvider>()
                 .AddSingleton<IMapper<Boo>, CompiledMapper<Boo>>()
                 .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
-                .AddSingleton<ISettings>(ctx => new Settings.Provider.NullProvider())
+                .AddSingleton<ISettingsProvider>(ctx => new NullSettingsProvider())
                 .AddSingleton<ISession, Session>()
                 
                 .AddSingleton<IFooService, FooService>()
@@ -177,10 +176,10 @@ namespace Velo.Benchmark.DependencyInjection
             return new DependencyCollection()
                 .AddSingleton<JConverter>()
                 .AddSingleton<ILogger<SomethingController>, Logger<SomethingController>>()
-                .AddSingleton<ILogProvider, NullProvider>()
+                .AddSingleton<ILogProvider, NullLogProvider>()
                 .AddSingleton<IMapper<Boo>, CompiledMapper<Boo>>()
                 .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
-                .AddSingleton<ISettings>(ctx => new Settings.Provider.NullProvider())
+                .AddSingleton<ISettingsProvider>(ctx => new NullSettingsProvider())
                 .AddTransient<ISession, Session>()
                 
                 .AddScoped<IFooService, FooService>()
@@ -197,10 +196,10 @@ namespace Velo.Benchmark.DependencyInjection
             return new UnityContainer()
                 .RegisterSingleton<JConverter>()
                 .RegisterSingleton<ILogger<SomethingController>, Logger<SomethingController>>()
-                .RegisterSingleton<ILogProvider, NullProvider>()
+                .RegisterSingleton<ILogProvider, NullLogProvider>()
                 .RegisterSingleton<IMapper<Boo>, CompiledMapper<Boo>>()
                 .RegisterSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
-                .RegisterFactory<ISettings>(ctx => new Settings.Provider.NullProvider(), new SingletonLifetimeManager())
+                .RegisterFactory<ISettingsProvider>(ctx => new NullSettingsProvider(), new SingletonLifetimeManager())
                 .RegisterSingleton<ISession, Session>()
                 
                 .RegisterSingleton<IFooService, FooService>()

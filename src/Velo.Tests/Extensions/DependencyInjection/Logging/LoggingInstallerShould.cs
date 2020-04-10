@@ -104,7 +104,7 @@ namespace Velo.Tests.Extensions.DependencyInjection.Logging
             _services
                 .BuildServiceProvider()
                 .GetService<ILogProvider>()
-                .Should().BeOfType<NullProvider>();
+                .Should().BeOfType<NullLogProvider>();
         }
 
         [Fact]

@@ -76,7 +76,7 @@
       <Compile Update="CQRS\Queries\Pipeline\QueryFullPipeline.BehaviourContext.cs">
         <DependentUpon>QueryFullPipeline.cs</DependentUpon>
       </Compile>
-      <Compile Update="CQRS\Commands\Pipeline\CommandBehaviours.cs">
+      <Compile Update="CQRS\Commands\Pipeline\CommandFullPipeline.CommandBehaviours.cs">
         <DependentUpon>CommandFullPipeline.cs</DependentUpon>
       </Compile>
     </ItemGroup>

@@ -23,13 +23,11 @@ namespace Velo.Logging.Provider
 
         public IDependency BuildDependency(Type contract, IDependencyEngine engine)
         {
-            var writers = engine.GetApplicable(typeof(ILogWriter));
-
             var contracts = new[] {_providerType};
 
-            if (writers.Length == 0)
+            if (!engine.Contains(typeof(ILogWriter)))
             {
-                return new InstanceDependency(contracts, new NullProvider());
+                return new InstanceDependency(contracts, new NullLogProvider());
             }
 
             var resolver = new CompiledResolver(typeof(LogProvider), engine);

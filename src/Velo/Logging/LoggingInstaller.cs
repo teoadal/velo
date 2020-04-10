@@ -11,24 +11,24 @@ namespace Velo.DependencyInjection
 {
     public static class LoggingInstaller
     {
-        public static DependencyCollection AddLogging(this DependencyCollection collection)
+        public static DependencyCollection AddLogging(this DependencyCollection dependencies)
         {
-            collection
+            dependencies
                 .AddSingleton<IRenderersCollection, RenderersCollection>()
                 .AddFactory(new LogProviderFactory())
                 .AddScoped(typeof(ILogger<>), typeof(Logger<>));
 
-            return collection;
+            return dependencies;
         }
 
-        public static DependencyCollection AddDefaultConsoleLogWriter(this DependencyCollection collection,
+        public static DependencyCollection AddDefaultConsoleLogWriter(this DependencyCollection dependencies,
             LogLevel level = LogLevel.Debug)
         {
-            collection.AddInstance(new DefaultConsoleWriter(level));
-            return collection;
+            dependencies.AddInstance(new DefaultConsoleWriter(level));
+            return dependencies;
         }
 
-        public static DependencyCollection AddDefaultFileLogWriter(this DependencyCollection collection,
+        public static DependencyCollection AddDefaultFileLogWriter(this DependencyCollection dependencies,
             string filePath = null, LogLevel level = LogLevel.Debug)
         {
             if (string.IsNullOrWhiteSpace(filePath))
@@ -36,54 +36,54 @@ namespace Velo.DependencyInjection
                 filePath = $"{AppDomain.CurrentDomain.FriendlyName}.log";
             }
 
-            collection.AddInstance(new DefaultFileWriter(filePath, level));
-            return collection;
+            dependencies.AddInstance(new DefaultFileWriter(filePath, level));
+            return dependencies;
         }
 
-        public static DependencyCollection AddDefaultLogEnrichers(this DependencyCollection collection)
+        public static DependencyCollection AddDefaultLogEnrichers(this DependencyCollection dependencies)
         {
-            AddLogEnricher<LogLevelEnricher>(collection);
-            AddLogEnricher<SenderEnricher>(collection);
-            AddLogEnricher<TimeStampEnricher>(collection);
+            AddLogEnricher<LogLevelEnricher>(dependencies);
+            AddLogEnricher<SenderEnricher>(dependencies);
+            AddLogEnricher<TimeStampEnricher>(dependencies);
 
-            return collection;
+            return dependencies;
         }
 
-        public static DependencyCollection AddLogEnricher<TEnricher>(this DependencyCollection collection,
+        public static DependencyCollection AddLogEnricher<TEnricher>(this DependencyCollection dependencies,
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
             where TEnricher : ILogEnricher
         {
             var implementation = Typeof<TEnricher>.Raw;
             var contracts = new[] {Typeof<ILogEnricher>.Raw, implementation};
 
-            collection.AddDependency(contracts, implementation, lifetime);
+            dependencies.AddDependency(contracts, implementation, lifetime);
 
-            return collection;
+            return dependencies;
         }
 
-        public static DependencyCollection AddLogEnricher(this DependencyCollection collection,
+        public static DependencyCollection AddLogEnricher(this DependencyCollection dependencies,
             ILogEnricher logEnricher)
         {
-            collection.AddInstance(logEnricher);
-            return collection;
+            dependencies.AddInstance(logEnricher);
+            return dependencies;
         }
 
-        public static DependencyCollection AddLogWriter<TWriter>(this DependencyCollection collection,
+        public static DependencyCollection AddLogWriter<TWriter>(this DependencyCollection dependencies,
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
             where TWriter : ILogWriter
         {
             var implementation = Typeof<TWriter>.Raw;
             var contracts = new[] {Typeof<ILogWriter>.Raw, implementation};
 
-            collection.AddDependency(contracts, implementation, lifetime);
+            dependencies.AddDependency(contracts, implementation, lifetime);
 
-            return collection;
+            return dependencies;
         }
 
-        public static DependencyCollection AddLogWriter(this DependencyCollection collection, ILogWriter logWriter)
+        public static DependencyCollection AddLogWriter(this DependencyCollection dependencies, ILogWriter logWriter)
         {
-            collection.AddInstance(logWriter);
-            return collection;
+            dependencies.AddInstance(logWriter);
+            return dependencies;
         }
     }
 }

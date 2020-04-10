@@ -1,6 +1,6 @@
 using System;
 using Velo.Ordering;
-using Velo.Settings;
+using Velo.Settings.Provider;
 using Velo.TestsModels.Infrastructure;
 
 namespace Velo.TestsModels.Foos
@@ -8,11 +8,11 @@ namespace Velo.TestsModels.Foos
     [Order(2)]
     public class OtherFooRepository : IFooRepository
     {
-        public ISettings Settings { get; }
+        public ISettingsProvider Settings { get; }
 
         public ISession Session { get; }
 
-        public OtherFooRepository(ISettings settings, ISession session)
+        public OtherFooRepository(ISettingsProvider settings, ISession session)
         {
             Settings = settings;
             Session = session;

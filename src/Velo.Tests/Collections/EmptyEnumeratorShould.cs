@@ -4,14 +4,14 @@ using Xunit.Abstractions;
 
 namespace Velo.Tests.Collections
 {
-    public class OtherCollectionsTests : TestClass
+    public class EmptyEnumeratorShould : TestClass
     {
-        public OtherCollectionsTests(ITestOutputHelper output) : base(output)
+        public EmptyEnumeratorShould(ITestOutputHelper output) : base(output)
         {
         }
 
         [Fact]
-        public void Empty()
+        public void BeEmpty()
         {
             var instance = EmptyEnumerator<int>.Instance;
             

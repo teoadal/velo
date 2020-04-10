@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Velo.Utils
+namespace Velo.Threading
 {
     internal static class TaskUtils
     {

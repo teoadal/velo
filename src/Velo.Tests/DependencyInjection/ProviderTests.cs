@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Velo.DependencyInjection;
 using Velo.Mapping;
 using Velo.Serialization;
-using Velo.Settings;
 using Velo.Settings.Provider;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Domain;
@@ -26,7 +25,7 @@ namespace Velo.Tests.DependencyInjection
         {
             _dependencies = new DependencyCollection()
                 .AddSingleton<JConverter>()
-                .AddSingleton<ISettings>(ctx => new NullProvider())
+                .AddSingleton<ISettingsProvider>(ctx => new NullSettingsProvider())
                 .AddSingleton<ISession, Session>();
         }
 
@@ -66,7 +65,7 @@ namespace Velo.Tests.DependencyInjection
         {
             var provider = _dependencies
                 .AddSingleton<IMapper<Boo>, CompiledMapper<Boo>>()
-                .AddSingleton<IBooRepository>(ctx => new BooRepository(ctx.GetService<ISettings>(), ctx.GetService<ISession>()))
+                .AddSingleton<IBooRepository>(ctx => new BooRepository(ctx.GetService<ISettingsProvider>(), ctx.GetService<ISession>()))
                 .AddSingleton<BooService>()
                 .BuildProvider();
 
@@ -86,7 +85,7 @@ namespace Velo.Tests.DependencyInjection
                 .AddSingleton<JConverter>()
                 .AddSingleton<IMapper<Boo>, CompiledMapper<Boo>>()
                 .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
-                .AddSingleton<ISettings>(ctx => new NullProvider())
+                .AddSingleton<ISettingsProvider>(ctx => new NullSettingsProvider())
                 .AddTransient<ISession, Session>()
                 .AddSingleton<IFooService, FooService>()
                 .AddSingleton<IFooRepository, FooRepository>()

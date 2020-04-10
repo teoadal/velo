@@ -1,12 +1,12 @@
 using System;
 using Velo.Mapping;
-using Velo.Settings;
+using Velo.Settings.Provider;
 
 namespace Velo.TestsModels.Boos
 {
     public class BooService : IBooService
     {
-        public ISettings Settings { get; }
+        public ISettingsProvider Settings { get; }
 
         public bool Disposed { get; private set; }
         
@@ -16,7 +16,7 @@ namespace Velo.TestsModels.Boos
 
         public IBooRepository Repository { get; }
 
-        public BooService(ISettings settings, IMapper<Boo> mapper, IBooRepository repository)
+        public BooService(ISettingsProvider settings, IMapper<Boo> mapper, IBooRepository repository)
         {
             Settings = settings;
             Mapper = mapper;

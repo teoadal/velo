@@ -1,6 +1,6 @@
 using System;
 using Velo.Mapping;
-using Velo.Settings;
+using Velo.Settings.Provider;
 
 namespace Velo.TestsModels.Foos
 {
@@ -8,7 +8,7 @@ namespace Velo.TestsModels.Foos
     {
         public Guid Id { get; }
         
-        public ISettings Settings { get; }
+        public ISettingsProvider Settings { get; }
 
         public bool Disposed { get; private set; }
         
@@ -18,7 +18,7 @@ namespace Velo.TestsModels.Foos
 
         public IFooRepository Repository { get; }
 
-        public FooService(ISettings settings, IMapper<Foo> mapper, IFooRepository repository)
+        public FooService(ISettingsProvider settings, IMapper<Foo> mapper, IFooRepository repository)
         {
             Id = Guid.NewGuid();
             Settings = settings;

@@ -2,7 +2,6 @@ using System;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Jobs;
-using Serilog;
 using Velo.Logging;
 
 namespace Velo.Benchmark.Logging
@@ -23,12 +22,12 @@ namespace Velo.Benchmark.Logging
         private NullLogTarget _nlogNullTarget;
         private StringLogTarget _nlogStringTarget;
         
-        private ILogger _serilogString;
+        private Serilog.ILogger _serilogString;
         private StringSink _serilogStringSink;
         private ILogger<LoggerBenchmark> _veloString;
         private StringLogWriter _veloStringWriter;
         
-        private ILogger _serilogNull;
+        private Serilog.ILogger _serilogNull;
         private NullSink _serilogNullSink;
         private ILogger<LoggerBenchmark> _veloNull;
         private NullLogWriter _veloNullWriter;

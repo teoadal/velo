@@ -6,7 +6,6 @@ using FluentAssertions;
 using Moq;
 using Velo.Serialization;
 using Velo.Serialization.Models;
-using Velo.Settings;
 using Velo.Settings.Provider;
 using Velo.Settings.Sources;
 using Velo.TestsModels;
@@ -25,7 +24,7 @@ namespace Velo.Tests.Settings.Provider
         private readonly string _nestedProperty;
         private readonly JsonObject _nestedValue;
         private readonly JsonObject _out;
-        private readonly ISettings _settings;
+        private readonly ISettingsProvider _settings;
         private readonly Mock<ISettingsSource> _source;
 
         public SettingsProviderShould(ITestOutputHelper output) : base(output)
@@ -177,7 +176,7 @@ namespace Velo.Tests.Settings.Provider
 
             _settings.TryGet<Boo>($"{_nestedProperty}.{boo}", out var booValue).Should().BeTrue();
             
-            var expected = _converters.Get<Boo>().Read(((JsonObject) _nestedValue[boo]));
+            var expected = _converters.Get<Boo>().Read((JsonObject) _nestedValue[boo]);
             booValue.Should().BeEquivalentTo(expected);
         }
         

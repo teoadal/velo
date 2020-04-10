@@ -60,7 +60,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             var writers = provider.GetArray<ILogWriter>();
 
-            if (writers.Length == 0) return NullProvider.Instance;
+            if (writers.Length == 0) return NullLogProvider.Instance;
 
             var enrichers = provider.GetArray<ILogEnricher>();
             var renderers = provider.GetRequiredService<IRenderersCollection>();

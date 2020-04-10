@@ -8,7 +8,7 @@ using Velo.DependencyInjection;
 namespace Velo.CQRS.Queries
 {
     internal sealed class ActionQueryProcessor<TQuery, TResult> : IQueryProcessor<TQuery, TResult>
-        where TQuery : notnull, IQuery<TResult>
+        where TQuery : IQuery<TResult>
     {
         private readonly Func<TQuery, TResult> _processor;
 
@@ -25,7 +25,7 @@ namespace Velo.CQRS.Queries
     }
     
     internal sealed class ActionQueryProcessor<TQuery, TContext, TResult> : IQueryProcessor<TQuery, TResult>
-        where TQuery : notnull, IQuery<TResult>
+        where TQuery : IQuery<TResult>
     {
         private readonly Func<TQuery, TContext, TResult> _processor;
         private readonly IDependencyScope _scope;

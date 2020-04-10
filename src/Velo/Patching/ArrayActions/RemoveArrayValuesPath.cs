@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Velo.Collections;
 
 namespace Velo.Patching.ArrayActions
 {
@@ -20,7 +21,7 @@ namespace Velo.Patching.ArrayActions
         public void Apply(T instance)
         {
             var array = _getter(instance);
-            if (array == null || array.Length == 0) return;
+            if (array.NullOrEmpty()) return;
 
             var list = new List<TValue>();
             var values = _values;

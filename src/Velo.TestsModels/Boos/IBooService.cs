@@ -1,12 +1,12 @@
 using System;
 using Velo.Mapping;
-using Velo.Settings;
+using Velo.Settings.Provider;
 
 namespace Velo.TestsModels.Boos
 {
     public interface IBooService : IDisposable
     {
-        ISettings Settings { get; }
+        ISettingsProvider Settings { get; }
 
         IMapper<Boo> Mapper { get; }
 

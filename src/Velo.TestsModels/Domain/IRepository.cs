@@ -1,12 +1,12 @@
 using System;
-using Velo.Settings;
+using Velo.Settings.Provider;
 using Velo.TestsModels.Infrastructure;
 
 namespace Velo.TestsModels.Domain
 {
     public interface IRepository
     {
-        ISettings Settings { get; }
+        ISettingsProvider Settings { get; }
 
         ISession Session { get; }
     }

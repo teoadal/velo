@@ -13,7 +13,7 @@ namespace Velo.Settings.Provider
 
         public SettingsProviderFactory()
         {
-            _contract = typeof(ISettings);
+            _contract = typeof(ISettingsProvider);
         }
 
         public bool Applicable(Type contract)
@@ -27,7 +27,7 @@ namespace Velo.Settings.Provider
 
             if (!engine.Contains(typeof(ISettingsSource)))
             {
-                return new InstanceDependency(contracts, new NullProvider());
+                return new InstanceDependency(contracts, new NullSettingsProvider());
             }
 
             var resolver = new ActivatorResolver(typeof(SettingsProvider));

@@ -1,6 +1,7 @@
 using System;
 using Velo.DependencyInjection;
 using Velo.DependencyInjection.Resolvers;
+using Velo.Settings.Provider;
 using Velo.Utils;
 
 namespace Velo.Settings
@@ -18,7 +19,7 @@ namespace Velo.Settings
 
             protected override object ResolveInstance(Type contract, IDependencyScope scope)
             {
-                var configuration = scope.GetRequiredService<ISettings>();
+                var configuration = scope.GetRequiredService<ISettingsProvider>();
                 return configuration.Get<TSettings>(_path);
             }
         }

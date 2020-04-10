@@ -2,7 +2,6 @@ using System;
 using FluentAssertions;
 using Moq;
 using Velo.DependencyInjection;
-using Velo.Settings;
 using Velo.Settings.Provider;
 using Velo.Settings.Sources;
 using Velo.TestsModels.Boos;
@@ -19,7 +18,7 @@ namespace Velo.Tests.Settings.Provider
 
         public SettingsProviderFactoryShould(ITestOutputHelper output) : base(output)
         {
-            _contract = typeof(ISettings);
+            _contract = typeof(ISettingsProvider);
             _engine = new Mock<IDependencyEngine>();
             _factory = new SettingsProviderFactory();
         }
@@ -44,7 +43,7 @@ namespace Velo.Tests.Settings.Provider
         {
             var dependency = _factory.BuildDependency(_contract, _engine.Object);
             dependency.Lifetime.Should().Be(DependencyLifetime.Singleton);
-            dependency.Resolver.Implementation.Should().Be(typeof(NullProvider));
+            dependency.Resolver.Implementation.Should().Be(typeof(NullSettingsProvider));
         }
 
         [Fact]

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace Velo.CQRS.Queries.Pipeline
 {
     internal sealed class QuerySimplePipeline<TQuery, TResult> : IQueryPipeline<TQuery, TResult>
-        where TQuery : notnull, IQuery<TResult>
+        where TQuery : IQuery<TResult>
     {
         private IQueryProcessor<TQuery, TResult> _processor;
 

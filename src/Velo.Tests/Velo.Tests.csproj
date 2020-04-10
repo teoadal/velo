@@ -33,4 +33,19 @@
             <DependentUpon>appsettings.json</DependentUpon>
         </None>
     </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="NewECS\Assets\Filters\AssetWrapper1.cs">
+        <DependentUpon>AssetFilter1.cs</DependentUpon>
+      </Compile>
+      <Compile Update="NewECS\Assets\Filters\AssetWrapper2.cs">
+        <DependentUpon>AssetFilter2.cs</DependentUpon>
+      </Compile>
+      <Compile Update="NewECS\Actors\Filters\ActorWrapper1.cs">
+        <DependentUpon>ActorFilter1.cs</DependentUpon>
+      </Compile>
+      <Compile Update="NewECS\Actors\Filters\ActorWrapper2.cs">
+        <DependentUpon>ActorFilter2.cs</DependentUpon>
+      </Compile>
+    </ItemGroup>
 </Project>

@@ -14,125 +14,125 @@ namespace Velo.DependencyInjection
 {
     public static class EmitterInstaller
     {
-        public static DependencyCollection AddEmitter(this DependencyCollection collection)
+        public static DependencyCollection AddEmitter(this DependencyCollection dependencies)
         {
-            collection
+            dependencies
                 .AddFactory(new CommandPipelineFactory())
                 .AddFactory(new NotificationPipelineFactory())
                 .AddFactory(new QueryPipelineFactory())
                 .AddScoped<IEmitter>(ctx => new Emitter(ctx));
 
-            return collection;
+            return dependencies;
         }
 
-        public static DependencyCollection AddCommandBehaviour<TBehaviour>(this DependencyCollection collection,
+        public static DependencyCollection AddCommandBehaviour<TBehaviour>(this DependencyCollection dependencies,
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
         {
             var behaviourTypes = Types.CommandBehaviourTypes;
             var implementation = typeof(TBehaviour);
 
-            if (!AddDependencies(collection, implementation, behaviourTypes, lifetime))
+            if (!AddDependencies(dependencies, implementation, behaviourTypes, lifetime))
             {
                 throw NotImplementedCommand(implementation, "behaviour");
             }
 
-            return collection;
+            return dependencies;
         }
 
-        public static DependencyCollection AddCommandProcessor<TProcessor>(this DependencyCollection collection,
+        public static DependencyCollection AddCommandProcessor<TProcessor>(this DependencyCollection dependencies,
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
         {
             var implementation = typeof(TProcessor);
             var processorTypes = Types.CommandProcessorTypes;
 
-            if (!AddDependencies(collection, implementation, processorTypes, lifetime))
+            if (!AddDependencies(dependencies, implementation, processorTypes, lifetime))
             {
                 throw NotImplementedCommand(implementation, "processor");
             }
 
-            return collection;
+            return dependencies;
         }
 
-        public static DependencyCollection AddCommandProcessor(this DependencyCollection collection, object processor)
+        public static DependencyCollection AddCommandProcessor(this DependencyCollection dependencies, object processor)
         {
             var implementation = processor.GetType();
             var processorTypes = Types.CommandProcessorTypes;
 
-            if (!AddInstance(collection, processor, processorTypes))
+            if (!AddInstance(dependencies, processor, processorTypes))
             {
                 throw NotImplementedCommand(implementation, "processor");
             }
 
-            return collection;
+            return dependencies;
         }
 
-        public static DependencyCollection AddNotificationProcessor<TProcessor>(this DependencyCollection collection,
+        public static DependencyCollection AddNotificationProcessor<TProcessor>(this DependencyCollection dependencies,
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
         {
             var implementation = typeof(TProcessor);
             var processorTypes = Types.NotificationProcessorTypes;
 
-            if (!AddDependencies(collection, implementation, processorTypes, lifetime))
+            if (!AddDependencies(dependencies, implementation, processorTypes, lifetime))
             {
                 throw NotImplementedNotification(implementation);
             }
 
-            return collection;
+            return dependencies;
         }
 
-        public static DependencyCollection AddNotificationProcessor(this DependencyCollection collection,
+        public static DependencyCollection AddNotificationProcessor(this DependencyCollection dependencies,
             object processor)
         {
             var implementation = processor.GetType();
             var processorTypes = Types.NotificationProcessorTypes;
 
-            if (!AddInstance(collection, processor, processorTypes))
+            if (!AddInstance(dependencies, processor, processorTypes))
             {
                 throw NotImplementedNotification(implementation);
             }
 
-            return collection;
+            return dependencies;
         }
 
-        public static DependencyCollection AddQueryBehaviour<TBehaviour>(this DependencyCollection collection,
+        public static DependencyCollection AddQueryBehaviour<TBehaviour>(this DependencyCollection dependencies,
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
         {
             var behaviourTypes = Types.QueryBehaviourTypes;
             var implementation = typeof(TBehaviour);
 
-            if (!AddDependencies(collection, implementation, behaviourTypes, lifetime))
+            if (!AddDependencies(dependencies, implementation, behaviourTypes, lifetime))
             {
                 throw NotImplementedQuery(implementation, "behaviour");
             }
 
-            return collection;
+            return dependencies;
         }
 
-        public static DependencyCollection AddQueryProcessor<TProcessor>(this DependencyCollection collection,
+        public static DependencyCollection AddQueryProcessor<TProcessor>(this DependencyCollection dependencies,
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
         {
             var implementation = typeof(TProcessor);
             var processorTypes = Types.QueryProcessorTypes;
 
-            if (!AddDependencies(collection, implementation, processorTypes, lifetime))
+            if (!AddDependencies(dependencies, implementation, processorTypes, lifetime))
             {
                 throw NotImplementedQuery(implementation, "processor");
             }
 
-            return collection;
+            return dependencies;
         }
 
-        public static DependencyCollection AddQueryProcessor(this DependencyCollection collection, object processor)
+        public static DependencyCollection AddQueryProcessor(this DependencyCollection dependencies, object processor)
         {
             var implementation = processor.GetType();
             var processorTypes = Types.QueryProcessorTypes;
 
-            if (!AddInstance(collection, processor, processorTypes))
+            if (!AddInstance(dependencies, processor, processorTypes))
             {
                 throw NotImplementedQuery(implementation, "processor");
             }
 
-            return collection;
+            return dependencies;
         }
 
         public static DependencyScanner AddEmitterProcessors(this DependencyScanner scanner,
@@ -141,41 +141,41 @@ namespace Velo.DependencyInjection
             return scanner.UseAllover(new ProcessorsAllover(lifetime));
         }
 
-        public static DependencyCollection CreateProcessor<TCommand>(this DependencyCollection collection,
+        public static DependencyCollection CreateProcessor<TCommand>(this DependencyCollection dependencies,
             Action<TCommand> processor)
             where TCommand : ICommand
         {
-            return collection.AddInstance(new ActionCommandProcessor<TCommand>(processor));
+            return dependencies.AddInstance(new ActionCommandProcessor<TCommand>(processor));
         }
 
         public static DependencyCollection CreateProcessor<TCommand, TContext>(
-            this DependencyCollection collection, Action<TCommand, TContext> processor)
+            this DependencyCollection dependencies, Action<TCommand, TContext> processor)
             where TCommand : ICommand
         {
-            return collection.AddSingleton<ICommandProcessor<TCommand>>(scope =>
+            return dependencies.AddSingleton<ICommandProcessor<TCommand>>(scope =>
                 new ActionCommandProcessor<TCommand, TContext>(processor,
                     scope.GetRequiredService<DependencyProvider>()));
         }
 
-        public static DependencyCollection CreateProcessor<TQuery, TResult>(this DependencyCollection collection,
+        public static DependencyCollection CreateProcessor<TQuery, TResult>(this DependencyCollection dependencies,
             Func<TQuery, TResult> processor)
             where TQuery : IQuery<TResult>
         {
-            return collection.AddInstance(new ActionQueryProcessor<TQuery, TResult>(processor));
+            return dependencies.AddInstance(new ActionQueryProcessor<TQuery, TResult>(processor));
         }
 
         public static DependencyCollection CreateProcessor<TQuery, TContext, TResult>(
-            this DependencyCollection collection, Func<TQuery, TContext, TResult> processor)
+            this DependencyCollection dependencies, Func<TQuery, TContext, TResult> processor)
             where TQuery : IQuery<TResult>
         {
-            return collection.AddSingleton<IQueryProcessor<TQuery, TResult>>(scope =>
+            return dependencies.AddSingleton<IQueryProcessor<TQuery, TResult>>(scope =>
                 new ActionQueryProcessor<TQuery, TContext, TResult>(processor,
                     scope.GetRequiredService<DependencyProvider>()));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool AddDependencies(
-            DependencyCollection collection,
+            DependencyCollection dependencies,
             Type implementation,
             Type[] genericInterfaces,
             DependencyLifetime lifetime)
@@ -188,13 +188,13 @@ namespace Velo.DependencyInjection
             }
 
             contracts.Add(implementation);
-            collection.AddDependency(contracts.ToArray(), implementation, lifetime);
+            dependencies.AddDependency(contracts.ToArray(), implementation, lifetime);
             return true;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool AddInstance(
-            DependencyCollection collection,
+            DependencyCollection dependencies,
             object instance,
             Type[] genericInterfaces)
         {
@@ -206,7 +206,7 @@ namespace Velo.DependencyInjection
                 return false;
             }
 
-            collection.AddInstance(contracts.ToArray(), instance);
+            dependencies.AddInstance(contracts.ToArray(), instance);
             return true;
         }
 

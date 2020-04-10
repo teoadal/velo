@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Velo.DependencyInjection;
-using Velo.Utils;
+using Velo.Threading;
 
 namespace Velo.CQRS.Commands
 {

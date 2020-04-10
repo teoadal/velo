@@ -1,4 +1,5 @@
 using System;
+using Velo.Collections;
 using Velo.Utils;
 
 namespace Velo.ECS.Actors

@@ -1,7 +1,7 @@
 using FluentAssertions;
 using Moq;
 using Velo.DependencyInjection;
-using Velo.Settings;
+using Velo.Settings.Provider;
 using Velo.Settings.Sources;
 using Xunit;
 using Xunit.Abstractions;
@@ -51,7 +51,7 @@ namespace Velo.Tests.Settings
         {
             _dependencies
                 .BuildProvider()
-                .GetRequiredService<ISettings>()
+                .GetRequiredService<ISettingsProvider>()
                 .Should().NotBeNull();
         }
     }

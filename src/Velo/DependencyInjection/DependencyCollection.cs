@@ -54,6 +54,27 @@ namespace Velo.DependencyInjection
             return AddDependency(dependency);
         }
 
+        public DependencyCollection AddDependency<TResult>(Type[] contracts, Func<IDependencyScope, TResult> builder,
+            DependencyLifetime lifetime)
+            where TResult : class
+        {
+            var resultType = typeof(TResult);
+            foreach (var contract in contracts)
+            {
+                if (contract.IsAssignableFrom(resultType)) continue;
+
+                var contractName = ReflectionUtils.GetName(contract);
+                var resultName = ReflectionUtils.GetName<TResult>();
+
+                throw Error.InvalidOperation($"Type {resultName} is not assignable from {contractName}");
+            }
+
+            var resolver = new DelegateResolver<TResult>(builder);
+
+            var dependency = Dependency.Build(lifetime, contracts, resolver);
+            return AddDependency(dependency);
+        }
+
         public DependencyCollection AddFactory(IDependencyFactory factory)
         {
             _engine.AddFactory(factory);
@@ -64,12 +85,12 @@ namespace Velo.DependencyInjection
         {
             return AddDependency(new InstanceDependency(contracts, instance));
         }
-        
+
         public DependencyCollection AddInstance(Type contract, object instance)
         {
             return AddInstance(new[] {contract}, instance);
         }
-        
+
         public DependencyCollection AddInstance<TContract>(TContract instance)
             where TContract : class
         {
@@ -200,7 +221,7 @@ namespace Velo.DependencyInjection
         public bool Contains(Type contract) => _engine.Contains(contract);
 
         public DependencyLifetime GetLifetime<TContract>() => _engine.GetDependency(Typeof<TContract>.Raw).Lifetime;
-        
+
         public DependencyLifetime GetLifetime(Type contract) => _engine.GetDependency(contract).Lifetime;
 
         public DependencyCollection Scan(Action<DependencyScanner> action)
@@ -217,7 +238,7 @@ namespace Velo.DependencyInjection
         {
             return _engine.Remove(contract);
         }
-        
+
         private static void CheckIsGenericTypeDefinition(Type type)
         {
             if (type != null && !type.IsGenericTypeDefinition)

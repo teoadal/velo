@@ -6,27 +6,27 @@ namespace Velo.DependencyInjection
 {
     public static class PoolInstaller
     {
-        public static DependencyCollection AddPool<T>(this DependencyCollection collection, T[] buffer)
+        public static DependencyCollection AddPool<T>(this DependencyCollection dependencies, T[] buffer)
             where T : class
         {
-            collection.AddInstance<IPool<T>>(new Pool<T>(buffer));
-            return collection;
+            dependencies.AddInstance<IPool<T>>(new Pool<T>(buffer));
+            return dependencies;
         }
 
-        public static DependencyCollection AddPool<T>(this DependencyCollection collection,
+        public static DependencyCollection AddPool<T>(this DependencyCollection dependencies,
             Func<T> builder, int capacity = 10)
             where T : class
         {
-            collection.AddInstance<IPool<T>>(new Pool<T>(capacity, builder));
-            return collection;
+            dependencies.AddInstance<IPool<T>>(new Pool<T>(capacity, builder));
+            return dependencies;
         }
 
-        public static DependencyCollection AddPool<T>(this DependencyCollection collection,
+        public static DependencyCollection AddPool<T>(this DependencyCollection dependencies,
             Func<IDependencyScope, T> builder, int capacity = 10)
             where T : class
         {
-            collection.AddSingleton<IPool<T>>(ctx => new Pool<T>(capacity, () => builder(ctx)));
-            return collection;
+            dependencies.AddSingleton<IPool<T>>(ctx => new Pool<T>(capacity, () => builder(ctx)));
+            return dependencies;
         }
     }
 }

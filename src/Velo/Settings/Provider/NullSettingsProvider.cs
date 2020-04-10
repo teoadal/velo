@@ -2,7 +2,7 @@ using Velo.Utils;
 
 namespace Velo.Settings.Provider
 {
-    internal sealed class NullProvider : ISettings
+    internal sealed class NullSettingsProvider : ISettingsProvider
     {
         public bool Contains(string path)
         {

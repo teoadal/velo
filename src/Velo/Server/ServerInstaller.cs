@@ -8,39 +8,39 @@ namespace Velo.DependencyInjection
 {
     public static class ServerInstaller
     {
-        public static DependencyCollection AddServer(this DependencyCollection collection)
+        public static DependencyCollection AddServer(this DependencyCollection dependencies)
         {
-            if (collection.Contains<HttpServer>()) return collection;
+            if (dependencies.Contains<HttpServer>()) return dependencies;
 
-            collection
+            dependencies
                 .AddSingleton<HttpServer>()
                 .AddSingleton<HttpRouter>();
 
-            return collection;
+            return dependencies;
         }
 
-        public static DependencyCollection AddFileServer(this DependencyCollection collection, string path = null)
+        public static DependencyCollection AddFileServer(this DependencyCollection dependencies, string path = null)
         {
-            if (!collection.Contains<HttpServer>()) AddServer(collection);
+            if (!dependencies.Contains<HttpServer>()) AddServer(dependencies);
 
-            collection.AddInstance<IHttpRequestHandler>(new FileRequestHandler(path));
-            return collection;
+            dependencies.AddInstance<IHttpRequestHandler>(new FileRequestHandler(path));
+            return dependencies;
         }
 
-        public static DependencyCollection AddHttpHandler<THandler>(this DependencyCollection collection,
+        public static DependencyCollection AddHttpHandler<THandler>(this DependencyCollection dependencies,
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
             where THandler : class, IHttpRequestHandler
         {
-            collection.AddDependency(Typeof<IHttpRequestHandler>.Raw, typeof(THandler), lifetime);
-            return collection;
+            dependencies.AddDependency(Typeof<IHttpRequestHandler>.Raw, typeof(THandler), lifetime);
+            return dependencies;
         }
 
-        public static DependencyCollection AddHttpHandler(this DependencyCollection collection,
+        public static DependencyCollection AddHttpHandler(this DependencyCollection dependencies,
             Func<IDependencyScope, IHttpRequestHandler> builder,
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
         {
-            collection.AddDependency(builder, lifetime);
-            return collection;
+            dependencies.AddDependency(builder, lifetime);
+            return dependencies;
         }
     }
 }
