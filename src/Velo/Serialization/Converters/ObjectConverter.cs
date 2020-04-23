@@ -44,7 +44,7 @@ namespace Velo.Serialization.Converters
                 var tokenType = token.TokenType;
 
                 // ReSharper disable once ConvertIfStatementToSwitchStatement
-                if (tokenType == JsonTokenType.Null) return default;
+                if (tokenType == JsonTokenType.Null) return default!;
                 if (tokenType == JsonTokenType.ObjectStart) continue;
                 if (tokenType == JsonTokenType.ObjectEnd) break;
 
@@ -73,7 +73,7 @@ namespace Velo.Serialization.Converters
 
         public TObject Read(JsonData jsonData)
         {
-            if (jsonData.Type == JsonDataType.Null) return default;
+            if (jsonData.Type == JsonDataType.Null) return default!;
 
             var instance = _activator();
 
@@ -130,7 +130,7 @@ namespace Velo.Serialization.Converters
             return jsonObject;
         }
 
-        object IJsonConverter.ReadObject(JsonData data) => Read(data);
+        object IJsonConverter.ReadObject(JsonData data) => Read(data)!;
 
         void IJsonConverter.SerializeObject(object value, TextWriter writer) => Serialize((TObject) value, writer);
 

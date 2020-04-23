@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using Velo.Collections;
 using Velo.ECS.Components;
-using Velo.Utils;
+using Velo.Threading;
 
 namespace Velo.ECS.Actors
 {

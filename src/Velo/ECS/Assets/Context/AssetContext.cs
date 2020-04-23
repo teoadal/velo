@@ -5,6 +5,7 @@ using Velo.Collections;
 using Velo.ECS.Assets.Filters;
 using Velo.ECS.Assets.Groups;
 using Velo.ECS.Components;
+using Velo.Threading;
 using Velo.Utils;
 
 namespace Velo.ECS.Assets.Context

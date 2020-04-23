@@ -27,7 +27,7 @@ namespace Velo.Serialization.Converters
                 var tokenType = token.TokenType;
 
                 // ReSharper disable once ConvertIfStatementToSwitchStatement
-                if (tokenType == JsonTokenType.Null) return null;
+                if (tokenType == JsonTokenType.Null) return null!;
                 if (tokenType == JsonTokenType.ArrayStart) continue;
                 if (tokenType == JsonTokenType.ArrayEnd) break;
 
@@ -47,7 +47,7 @@ namespace Velo.Serialization.Converters
 
         public List<TElement> Read(JsonData jsonData)
         {
-            if (jsonData.Type == JsonDataType.Null) return null;
+            if (jsonData.Type == JsonDataType.Null) return null!;
 
             var listData = (JsonArray) jsonData;
             var list = new List<TElement>(listData.Length);

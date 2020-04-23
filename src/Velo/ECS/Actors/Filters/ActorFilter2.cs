@@ -5,7 +5,7 @@ using System.Threading;
 using Velo.Collections;
 using Velo.ECS.Actors.Context;
 using Velo.ECS.Components;
-using Velo.Utils;
+using Velo.Threading;
 
 namespace Velo.ECS.Actors.Filters
 {

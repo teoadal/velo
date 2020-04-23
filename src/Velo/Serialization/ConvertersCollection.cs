@@ -8,13 +8,6 @@ using Velo.Utils;
 
 namespace Velo.Serialization
 {
-    internal interface IConvertersCollection
-    {
-        IJsonConverter Get(Type type);
-
-        IJsonConverter<T> Get<T>();
-    }
-
     internal sealed class ConvertersCollection : ConcurrentDictionary<Type, IJsonConverter>, IConvertersCollection
     {
         private readonly Func<Type, IJsonConverter> _builder;

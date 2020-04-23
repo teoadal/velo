@@ -1,6 +1,6 @@
 using System.Threading;
 
-namespace Velo.Utils
+namespace Velo.Threading
 {
     public ref struct Lock
     {

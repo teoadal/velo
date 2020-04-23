@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Text;
 using Velo.Serialization.Models;
-using Velo.Utils;
+using Velo.Threading;
 
 namespace Velo.Logging.Writers
 {

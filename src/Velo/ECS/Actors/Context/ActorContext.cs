@@ -7,6 +7,7 @@ using Velo.Collections;
 using Velo.ECS.Actors.Filters;
 using Velo.ECS.Actors.Groups;
 using Velo.ECS.Components;
+using Velo.Threading;
 using Velo.Utils;
 
 namespace Velo.ECS.Actors.Context

@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using Velo.Serialization.Models;
-using Velo.Utils;
+using Velo.Threading;
 
 namespace Velo.Logging.Writers
 {

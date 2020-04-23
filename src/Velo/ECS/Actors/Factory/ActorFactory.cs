@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Velo.ECS.Actors.Context;
 using Velo.ECS.Components;
+using Velo.Threading;
 using Velo.Utils;
 
 namespace Velo.ECS.Actors.Factory
