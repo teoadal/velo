@@ -7,15 +7,6 @@ using Velo.Utils;
 
 namespace Velo.DependencyInjection
 {
-    public interface IDependencyEngine : IDisposable
-    {
-        bool Contains(Type type);
-
-        IDependency[] GetApplicable(Type contract);
-
-        IDependency GetDependency(Type contract, bool required = false);
-    }
-
     internal sealed class DependencyEngine : IDependencyEngine
     {
         private readonly List<IDependency> _dependencies;
@@ -79,7 +70,7 @@ namespace Velo.DependencyInjection
             return localList.ToArray();
         }
 
-        public IDependency GetDependency(Type contract, bool required = false)
+        public IDependency? GetDependency(Type contract)
         {
             if (_resolvedDependencies.TryGetValue(contract, out var existsDependency))
             {
@@ -104,14 +95,21 @@ namespace Velo.DependencyInjection
                 return dependency;
             }
 
-            if (required)
-            {
-                throw Error.NotFound($"Dependency with contract {ReflectionUtils.GetName(contract)} is not registered");
-            }
-
             return null;
         }
 
+        public IDependency GetRequiredDependency(Type contract)
+        {
+            var dependency = GetDependency(contract);
+
+            if (dependency == null)
+            {
+                throw Error.NotFound($"Dependency with contract {ReflectionUtils.GetName(contract)} is not registered");
+            }
+            
+            return dependency;
+        }
+        
         public bool Remove(Type contract)
         {
             _resolvedDependencies.Remove(contract);

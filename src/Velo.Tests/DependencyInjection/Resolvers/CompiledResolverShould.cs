@@ -30,8 +30,8 @@ namespace Velo.Tests.DependencyInjection.Resolvers
 
             var engine = new Mock<IDependencyEngine>();
             engine
-                .Setup(e => e.GetDependency(_contract, true))
-                .Returns<Type, bool>(DependencyBuilder);
+                .Setup(e => e.GetRequiredDependency(_contract))
+                .Returns<Type>(DependencyBuilder);
 
             _resolver = new CompiledResolver(_implementation, engine.Object);
         }
@@ -57,10 +57,8 @@ namespace Velo.Tests.DependencyInjection.Resolvers
             instance.Should().BeOfType(_implementation);
         }
 
-        private IDependency DependencyBuilder(Type contract, bool isRequired)
+        private IDependency DependencyBuilder(Type contract)
         {
-            if (!isRequired) return null;
-
             var dependency = new Mock<IDependency>();
             dependency
                 .SetupGet(d => d.Lifetime)
@@ -71,7 +69,7 @@ namespace Velo.Tests.DependencyInjection.Resolvers
 
             dependency
                 .Setup(d => d.GetInstance(contract, _scope.Object))
-                .Returns(mock.Object);
+                .Returns(mock!.Object);
 
             _dependencies.Add(contract, dependency);
 

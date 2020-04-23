@@ -41,7 +41,10 @@ namespace Velo.DependencyInjection.Resolvers
                 var parameterType = parameter.ParameterType;
                 var required = !parameter.HasDefaultValue;
 
-                var parameterDependency = _dependencyEngine.GetDependency(parameterType, required);
+                var parameterDependency = required 
+                    ? _dependencyEngine.GetRequiredDependency(parameterType)
+                    : _dependencyEngine.GetDependency(parameterType);
+
                 parameters[i] = BuildParameter(parameterDependency, parameterType, argument, scope);
             }
 
@@ -52,7 +55,7 @@ namespace Velo.DependencyInjection.Resolvers
         }
 
         private static Expression BuildParameter(
-            IDependency parameterDependency,
+            IDependency? parameterDependency,
             Type parameterType,
             Expression argument,
             IDependencyScope scope)

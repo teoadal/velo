@@ -231,7 +231,9 @@ namespace Velo.DependencyInjection
             foreach (var parameter in parameters)
             {
                 var required = !parameter.HasDefaultValue;
-                var dependency = engine.GetDependency(parameter.ParameterType, required);
+                var dependency = required
+                    ? engine.GetRequiredDependency(parameter.ParameterType)
+                    : engine.GetDependency(parameter.ParameterType);
 
                 if (dependency != null)
                 {
@@ -252,11 +254,17 @@ namespace Velo.DependencyInjection
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IDependency GetDependency<TContract>(
-            this DependencyCollection dependencies,
-            bool required = false) where TContract : class
+        public static IDependency? GetDependency<TContract>(this DependencyCollection dependencies)
+            where TContract : class
         {
-            return dependencies.GetDependency(Typeof<TContract>.Raw, required);
+            return dependencies.GetDependency(Typeof<TContract>.Raw);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IDependency GetRequiredDependency<TContract>(this DependencyCollection dependencies)
+            where TContract : class
+        {
+            return dependencies.GetRequiredDependency(Typeof<TContract>.Raw);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

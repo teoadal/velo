@@ -134,7 +134,7 @@ namespace Velo.Tests.CQRS.Queries
         {
             _engine.Setup(engine => engine.Contains(_behaviourType)).Returns(true);
             _engine
-                .Setup(engine => engine.GetDependency(_behaviourType.MakeArrayType(), true))
+                .Setup(engine => engine.GetRequiredDependency(_behaviourType.MakeArrayType()))
                 .Returns(_processorDependency.Object);
         }
 
@@ -142,7 +142,7 @@ namespace Velo.Tests.CQRS.Queries
         {
             _engine.Setup(engine => engine.Contains(_preProcessorType)).Returns(true);
             _engine
-                .Setup(engine => engine.GetDependency(_preProcessorType.MakeArrayType(), true))
+                .Setup(engine => engine.GetRequiredDependency(_preProcessorType.MakeArrayType()))
                 .Returns(_processorDependency.Object);
         }
 
@@ -150,7 +150,7 @@ namespace Velo.Tests.CQRS.Queries
         {
             _engine.Setup(engine => engine.Contains(_postProcessorType)).Returns(true);
             _engine
-                .Setup(engine => engine.GetDependency(_postProcessorType.MakeArrayType(), true))
+                .Setup(engine => engine.GetRequiredDependency(_postProcessorType.MakeArrayType()))
                 .Returns(_processorDependency.Object);
         }
     }

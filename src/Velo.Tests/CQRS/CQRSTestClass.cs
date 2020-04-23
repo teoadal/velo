@@ -76,7 +76,7 @@ namespace Velo.Tests.CQRS
         {
             var engine = new Mock<IDependencyEngine>();
             engine
-                .Setup(e => e.GetDependency(contract, required))
+                .Setup(e => e.GetRequiredDependency(contract))
                 .Returns(result);
 
             return engine;

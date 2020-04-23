@@ -60,7 +60,10 @@ namespace Velo.DependencyInjection
                     var parameterType = parameter.ParameterType;
                     var required = !parameter.HasDefaultValue;
 
-                    var dependency = engine.GetDependency(parameterType, required);
+                    var dependency = required 
+                        ? engine.GetRequiredDependency(parameterType)
+                        : engine.GetDependency(parameterType);
+
                     parameterInstances[i] = dependency?.GetInstance(parameterType, this);
                 }
             }
@@ -83,7 +86,7 @@ namespace Velo.DependencyInjection
 
             lock (_lock)
             {
-                var dependency = engine.GetDependency(contract, true);
+                var dependency = engine.GetRequiredDependency(contract);
                 return dependency.GetInstance(contract, this);
             }
         }
