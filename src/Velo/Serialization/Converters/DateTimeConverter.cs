@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using Velo.Serialization.Models;
 using Velo.Serialization.Tokenization;
+using Velo.Utils;
 
 namespace Velo.Serialization.Converters
 {
@@ -23,7 +24,7 @@ namespace Velo.Serialization.Converters
         public DateTime Deserialize(ref JsonTokenizer tokenizer)
         {
             var value = tokenizer.Current.Value;
-            return Parse(value);
+            return Parse(value ?? throw Error.Null("Null isn't convert to DateTime"));
         }
 
         public DateTime Read(JsonData jsonData)

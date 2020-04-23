@@ -11,8 +11,6 @@ using Velo.CQRS.Queries.Pipeline;
 using Velo.Threading;
 using Velo.Utils;
 
-#nullable enable
-
 namespace Velo.CQRS
 {
     internal sealed class Emitter : IEmitter, IDisposable
@@ -107,5 +105,3 @@ namespace Velo.CQRS
         }
     }
 }
-
-#nullable restore

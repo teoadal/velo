@@ -9,6 +9,7 @@ namespace Velo.Settings
     internal sealed partial class SettingsFactory
     {
         private sealed class SettingsResolver<TSettings> : DependencyResolver
+            where TSettings: class
         {
             private readonly string _path;
 

@@ -105,7 +105,7 @@ namespace Velo.Logging.Provider
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void WriteMessage(LogLevel level, Type sender, ILogFormatter formatter, string template,
+        private void WriteMessage(LogLevel level, Type sender, ILogFormatter? formatter, string template,
             JsonObject message)
         {
             var context = new LogContext(level, sender, template, formatter);

@@ -7,7 +7,7 @@ namespace Velo.Pools
     internal sealed class Pool<T> : IPool<T>
         where T : class
     {
-        private readonly T[] _buffer;
+        private readonly T?[] _buffer;
 
         private int _index;
         private SpinLock _lock;
@@ -76,7 +76,7 @@ namespace Velo.Pools
                 var buffer = _buffer;
                 if ((uint) _index < (uint) buffer.Length)
                 {
-                    element = buffer[_index];
+                    element = buffer[_index]!;
                     buffer[_index++] = null;
                     return true;
                 }
@@ -86,7 +86,7 @@ namespace Velo.Pools
                 if (lockTaken) _lock.Exit(false);
             }
 
-            element = default;
+            element = default!;
             return false;
         }
     }

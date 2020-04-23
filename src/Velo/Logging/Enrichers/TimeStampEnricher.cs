@@ -15,6 +15,7 @@ namespace Velo.Logging.Enrichers
         public TimeStampEnricher()
         {
             _lock = new SpinLock();
+            _lastVerbose = GetTimestamp();
             
             GetTimestamp();
         }

@@ -21,7 +21,7 @@ namespace Velo.Settings.Sources
             if (!File.Exists(_path))
             {
                 if (_required) throw Error.FileNotFound(_path);
-                data = null;
+                data = null!;
                 return false;
             }
 

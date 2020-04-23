@@ -12,7 +12,7 @@ namespace Velo.Serialization.Tokenization
         private bool _canRead;
         private readonly TextReader _streamReader;
 
-        public JsonReader(Stream stream, Encoding encoding = null)
+        public JsonReader(Stream stream, Encoding? encoding = null)
         {
             Current = default;
 

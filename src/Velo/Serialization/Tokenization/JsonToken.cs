@@ -7,9 +7,9 @@ namespace Velo.Serialization.Tokenization
     {
         public readonly JsonTokenType TokenType;
 
-        public readonly string Value;
+        public readonly string? Value;
 
-        public JsonToken(JsonTokenType tokenType, string value = null)
+        public JsonToken(JsonTokenType tokenType, string? value = null)
         {
             TokenType = tokenType;
             Value = value;

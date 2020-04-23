@@ -19,7 +19,7 @@ namespace Velo.DependencyInjection
             return dependencies;
         }
 
-        public static DependencyCollection AddFileServer(this DependencyCollection dependencies, string path = null)
+        public static DependencyCollection AddFileServer(this DependencyCollection dependencies, string? path = null)
         {
             if (!dependencies.Contains<HttpServer>()) AddServer(dependencies);
 

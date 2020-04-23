@@ -31,14 +31,14 @@ namespace Velo.Collections
                 Func<T, TInner, TResult> resultBuilder)
             {
                 _comparer = comparer;
-                _current = default;
+                _current = default!;
 
                 _inner = inner;
                 _innerKeySelector = innerKeySelector;
 
                 _outer = outer;
-                _outerCurrent = default;
-                _outerKey = default;
+                _outerCurrent = default!;
+                _outerKey = default!;
                 _outerKeySelector = outerKeySelector;
                 _outerMove = true;
 
@@ -80,7 +80,7 @@ namespace Velo.Collections
 
             public LocalList<TResult>.GroupEnumerator<TGroupKey> GroupBy<TGroupKey>(
                 Func<TResult, TGroupKey> keySelector,
-                EqualityComparer<TGroupKey> keyComparer = null)
+                EqualityComparer<TGroupKey>? keyComparer = null)
             {
                 var localList = new LocalList<TResult>();
 
@@ -89,12 +89,12 @@ namespace Velo.Collections
                     localList.Add(_current);
                 }
 
-                if (keyComparer == null) keyComparer = EqualityComparer<TGroupKey>.Default;
+                keyComparer ??= EqualityComparer<TGroupKey>.Default;
                 return new LocalList<TResult>.GroupEnumerator<TGroupKey>(localList, keySelector, keyComparer);
             }
 
             public LocalList<TResult> OrderBy<TProperty>(Func<TResult, TProperty> path,
-                Comparer<TProperty> comparer = null)
+                Comparer<TProperty>? comparer = null)
             {
                 var localList = new LocalList<TResult>();
 

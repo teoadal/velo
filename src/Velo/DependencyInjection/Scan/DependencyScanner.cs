@@ -8,8 +8,6 @@ namespace Velo.DependencyInjection.Scan
 {
     public sealed class DependencyScanner
     {
-        public DependencyCollection Collection => _dependencyCollection;
-        
         private readonly HashSet<Assembly> _assemblies;
         private readonly List<IDependencyAllover> _alloverCollection;
         private readonly DependencyCollection _dependencyCollection;
@@ -114,7 +112,7 @@ namespace Velo.DependencyInjection.Scan
             return this;
         }
 
-        internal void Execute()
+        public void Execute()
         {
             var anonType = typeof(CompilerGeneratedAttribute);
             foreach (var assembly in _assemblies)

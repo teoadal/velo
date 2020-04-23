@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace Velo.CQRS.Commands.Pipeline
 {
     internal sealed class CommandSimplePipeline<TCommand> : ICommandPipeline<TCommand>
-        where TCommand : notnull, ICommand
+        where TCommand : ICommand
     {
         private ICommandProcessor<TCommand> _processor;
 
@@ -25,7 +25,7 @@ namespace Velo.CQRS.Commands.Pipeline
 
         public void Dispose()
         {
-            _processor = null;
+            _processor = null!;
         }
     }
 }

@@ -89,7 +89,7 @@ namespace Velo.Patching
         public Patch<T> Drop<TValue>(Expression<Func<T, TValue>> path)
         {
             var setter = _patchMethods.GetSetter(path);
-            return Execute(new AssignPatch<T, TValue>(setter, default));
+            return Execute(new AssignPatch<T, TValue>(setter, default!));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

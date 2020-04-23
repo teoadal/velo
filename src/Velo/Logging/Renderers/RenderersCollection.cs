@@ -20,7 +20,7 @@ namespace Velo.Logging.Renderers
         private readonly IConvertersCollection _converters;
         private readonly Func<string, Type, Renderer> _rendererBuilder;
 
-        public RenderersCollection(IConvertersCollection converters = null)
+        public RenderersCollection(IConvertersCollection? converters = null)
         {
             _arrayRendererBuilder = BuildArrayRenderer;
             _converters = converters ?? new ConvertersCollection(CultureInfo.InvariantCulture);

@@ -151,6 +151,7 @@ namespace Velo.DependencyInjection
         public static DependencyCollection CreateProcessor<TCommand, TContext>(
             this DependencyCollection dependencies, Action<TCommand, TContext> processor)
             where TCommand : ICommand
+            where TContext : class
         {
             return dependencies.AddSingleton<ICommandProcessor<TCommand>>(scope =>
                 new ActionCommandProcessor<TCommand, TContext>(processor,
@@ -167,6 +168,7 @@ namespace Velo.DependencyInjection
         public static DependencyCollection CreateProcessor<TQuery, TContext, TResult>(
             this DependencyCollection dependencies, Func<TQuery, TContext, TResult> processor)
             where TQuery : IQuery<TResult>
+            where TContext : class
         {
             return dependencies.AddSingleton<IQueryProcessor<TQuery, TResult>>(scope =>
                 new ActionQueryProcessor<TQuery, TContext, TResult>(processor,

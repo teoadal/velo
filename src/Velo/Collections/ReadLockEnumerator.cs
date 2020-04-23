@@ -18,7 +18,7 @@ namespace Velo.Collections
 
             _enumerator = list.GetEnumerator(); // after enter read lock
 
-            Current = default;
+            Current = default!;
         }
 
         public bool MoveNext()
@@ -34,7 +34,7 @@ namespace Velo.Collections
         {
         }
 
-        object IEnumerator.Current => Current;
+        object IEnumerator.Current => Current!;
 
         public void Dispose()
         {
@@ -59,7 +59,7 @@ namespace Velo.Collections
 
             _enumerator = valueCollection.GetEnumerator(); // after enter read lock
 
-            Current = default;
+            Current = default!;
         }
 
         public bool MoveNext()
@@ -75,7 +75,7 @@ namespace Velo.Collections
         {
         }
 
-        object IEnumerator.Current => Current;
+        object IEnumerator.Current => Current!;
 
         public void Dispose()
         {

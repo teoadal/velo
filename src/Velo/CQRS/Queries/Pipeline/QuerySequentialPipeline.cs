@@ -1,8 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-#nullable enable
-
 namespace Velo.CQRS.Queries.Pipeline
 {
     public class QuerySequentialPipeline<TQuery, TResult> : IQueryPipeline<TQuery, TResult>
@@ -54,5 +52,3 @@ namespace Velo.CQRS.Queries.Pipeline
         }
     }
 }
-
-#nullable restore

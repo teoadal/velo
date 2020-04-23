@@ -1,8 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-#nullable enable
-
 namespace Velo.CQRS.Queries
 {
     public interface IQueryProcessor<in TQuery, TResult>
@@ -11,5 +9,3 @@ namespace Velo.CQRS.Queries
         Task<TResult> Process(TQuery query, CancellationToken cancellationToken);
     }
 }
-
-#nullable restore

@@ -11,13 +11,15 @@ namespace Velo.Serialization.Converters
         public string Deserialize(ref JsonTokenizer tokenizer)
         {
             var token = tokenizer.Current;
-            return token.Value;
+            return token.Value!;
         }
 
         public string Read(JsonData jsonData)
         {
             var jsonValue = (JsonValue) jsonData;
-            return jsonValue.Type == JsonDataType.Null ? null : jsonValue.Value;
+            return jsonValue.Type == JsonDataType.Null
+                ? null!
+                : jsonValue.Value;
         }
 
         public void Serialize(string value, TextWriter writer)

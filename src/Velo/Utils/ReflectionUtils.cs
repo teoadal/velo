@@ -31,7 +31,7 @@ namespace Velo.Utils
         /// Get first declared not static constructor
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ConstructorInfo GetConstructor(Type type)
+        public static ConstructorInfo? GetConstructor(Type type)
         {
             CheckIsNotAbstractAndNotInterface(type);
 
@@ -40,7 +40,7 @@ namespace Velo.Utils
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ConstructorInfo GetEmptyConstructor(Type type)
+        public static ConstructorInfo? GetEmptyConstructor(Type type)
         {
             CheckIsNotAbstractAndNotInterface(type);
 
@@ -66,14 +66,18 @@ namespace Velo.Utils
         
         public static string GetName<T>()
         {
-            return GetName(typeof(T));
+            var builder = new StringBuilder();
+            WriteName(typeof(T), new StringWriter(builder));
+            
+            return builder.ToString();
         }
         
-        public static string GetName(Type type, StringBuilder sb = null)
+        public static string GetName(Type type)
         {
-            var builder = sb ?? new StringBuilder();
+            var builder = new StringBuilder();
             WriteName(type, new StringWriter(builder));
-            return sb == null ? builder.ToString() : null;
+            
+            return builder.ToString();
         }
 
         public static Type[] GetGenericInterfaceParameters(Type type, Type genericInterface)
@@ -141,8 +145,14 @@ namespace Velo.Utils
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsDisposable<T>(T instance, out IDisposable disposable)
         {
-            disposable = instance as IDisposable;
-            return disposable != null;
+            if (instance is IDisposable result)
+            {
+                disposable = result;
+                return true;
+            }
+            
+            disposable = null!;
+            return false;
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -185,6 +195,12 @@ namespace Velo.Utils
         {
             if (type.IsAbstract) throw Error.InvalidOperation($"'{GetName(type)}' is abstract or static");
             if (type.IsInterface) throw Error.InvalidOperation($"'{GetName(type)}' is interface");
+        }
+
+        public static void WriteName(Type type, StringBuilder sb)
+        {
+            var writer = new StringWriter(sb);
+            WriteName(type, writer);
         }
         
         public static void WriteName(Type type, TextWriter writer)

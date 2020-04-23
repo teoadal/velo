@@ -1,51 +1,47 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Velo.DependencyInjection;
+using Velo.ECS.Systems.Handler;
 
 namespace Velo.ECS.Systems
 {
-    internal sealed class SystemService
+    internal sealed class SystemService : ISystemService
     {
-        private readonly DependencyProvider _provider;
+        private readonly ISystemHandler<ICleanupSystem> _cleanup;
+        private readonly ISystemHandler<IInitSystem> _init;
 
-        public SystemService(DependencyProvider provider)
+        private readonly ISystemHandler<IBeforeUpdateSystem> _beforeHandler;
+        private readonly ISystemHandler<IUpdateSystem> _update;
+        private readonly ISystemHandler<IAfterUpdateSystem> _afterHandler;
+
+        public SystemService(
+            ISystemHandler<ICleanupSystem> cleanup, 
+            ISystemHandler<IInitSystem> init, 
+            ISystemHandler<IBeforeUpdateSystem> beforeHandler, 
+            ISystemHandler<IUpdateSystem> update, 
+            ISystemHandler<IAfterUpdateSystem> afterHandler)
         {
-            _provider = provider;
+            _cleanup = cleanup;
+            _init = init;
+            _beforeHandler = beforeHandler;
+            _update = update;
+            _afterHandler = afterHandler;
         }
 
-        public async Task Initialize(CancellationToken cancellationToken)
+        public Task Cleanup(CancellationToken cancellationToken)
         {
-            var initSystems = _provider.GetServices<IInitializeSystem>();
-            foreach (var initSystem in initSystems)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                await initSystem.Initialize(cancellationToken);
-            }
+            return _cleanup.Execute(cancellationToken);
+        }
+
+        public Task Init(CancellationToken cancellationToken)
+        {
+            return _init.Execute(cancellationToken);
         }
 
         public async Task Update(CancellationToken cancellationToken)
         {
-            var beforeUpdateSystems = _provider.GetServices<IBeforeUpdateSystem>();
-            foreach (var beforeUpdateSystem in beforeUpdateSystems)
-            {
-                await beforeUpdateSystem.BeforeUpdate(cancellationToken);
-            }
-
-            cancellationToken.ThrowIfCancellationRequested();
-            
-            var updateSystems = _provider.GetServices<IUpdateSystem>();
-            foreach (var updateSystem in updateSystems)
-            {
-                await updateSystem.Update(cancellationToken);
-            }
-            
-            cancellationToken.ThrowIfCancellationRequested();
-            
-            var afterUpdateSystems = _provider.GetServices<IAfterUpdateSystem>();
-            foreach (var afterUpdateSystem in afterUpdateSystems)
-            {
-                await afterUpdateSystem.AfterUpdate(cancellationToken);
-            }
+            await _beforeHandler.Execute(cancellationToken);
+            await _update.Execute(cancellationToken);
+            await _afterHandler.Execute(cancellationToken);
         }
     }
 }

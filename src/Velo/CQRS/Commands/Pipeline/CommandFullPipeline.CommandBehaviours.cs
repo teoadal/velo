@@ -60,8 +60,8 @@ namespace Velo.CQRS.Commands.Pipeline
 
             public void Dispose()
             {
-                _behaviours = null;
-                _pipeline = null;
+                _behaviours = null!;
+                _pipeline = null!;
             }
         }
         

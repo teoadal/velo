@@ -11,7 +11,7 @@ namespace Velo.Server.Handlers
     {
         private readonly string _root;
 
-        public FileRequestHandler(string path)
+        public FileRequestHandler(string? path)
         {
             var currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
             _root = string.IsNullOrWhiteSpace(path)

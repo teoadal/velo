@@ -8,7 +8,7 @@ namespace Velo.DependencyInjection.Dependencies
     [DebuggerDisplay("Contract = {Contracts[0]}")]
     internal sealed class SingletonDependency : Dependency
     {
-        private object _instance;
+        private object? _instance;
 
         public SingletonDependency(Type[] contracts, DependencyResolver resolver)
             : base(contracts, resolver, DependencyLifetime.Singleton)

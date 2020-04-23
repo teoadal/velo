@@ -20,7 +20,8 @@ namespace Velo.Mapping
 
             _outType = typeof(TOut);
             _outProperties = _outType.GetProperties().ToDictionary(p => p.Name);
-            _outConstructor = ReflectionUtils.GetEmptyConstructor(_outType);
+            _outConstructor = ReflectionUtils.GetEmptyConstructor(_outType) 
+                              ?? throw Error.DefaultConstructorNotFound(_outType);
 
             if (_outConstructor == null) throw Error.DefaultConstructorNotFound(_outType);
         }

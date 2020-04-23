@@ -50,11 +50,12 @@ namespace Velo.Serialization.Converters
             if (jsonData.Type == JsonDataType.Null) return null;
 
             var listData = (JsonArray) jsonData;
-
             var list = new List<TElement>(listData.Length);
-            for (var i = 0; i < listData.Length; i++)
+            
+            // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
+            foreach (var value in listData)
             {
-                list.Add(_elementConverter.Read(listData[i]));
+                list.Add(_elementConverter.Read(value));
             }
 
             return list;

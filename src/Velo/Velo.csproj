@@ -17,7 +17,7 @@
         <Product>Velo</Product>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <AssemblyName>Velo</AssemblyName>
-        <Nullable>disable</Nullable>
+        <Nullable>enable</Nullable>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
@@ -40,9 +40,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Update="ECS\SignBuilder.cs">
-        <DependentUpon>Sign.cs</DependentUpon>
-      </Compile>
       <Compile Update="Collections\LocalList.Enumerator.cs">
         <DependentUpon>LocalList.cs</DependentUpon>
       </Compile>

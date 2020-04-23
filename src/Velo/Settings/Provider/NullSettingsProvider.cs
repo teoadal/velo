@@ -25,7 +25,7 @@ namespace Velo.Settings.Provider
 
         public bool TryGet<T>(string path, out T value)
         {
-            value = default;
+            value = default!;
             return false;
         }
     }

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace Velo.CQRS.Queries.Pipeline
 {
     internal interface IQueryPipeline<in TQuery, TResult> : IQueryPipeline<TResult>
-        where TQuery: notnull, IQuery<TResult>
+        where TQuery: IQuery<TResult>
     {
         Task<TResult> GetResponse(TQuery query, CancellationToken cancellationToken);
     }

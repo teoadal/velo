@@ -11,25 +11,9 @@ namespace Velo.CQRS.Queries.Pipeline
     {
         private readonly Type _contract;
 
-        private readonly Type _behaviourType;
-        private readonly Type _preProcessorType;
-        private readonly Type _postProcessorType;
-
-        private readonly Type _fullPipeline;
-        private readonly Type _simplePipeline;
-        private readonly Type _sequentialPipeline;
-
         public QueryPipelineFactory()
         {
             _contract = typeof(IQueryPipeline<,>);
-
-            _behaviourType = typeof(IQueryBehaviour<,>);
-            _preProcessorType = typeof(IQueryPreProcessor<,>);
-            _postProcessorType = typeof(IQueryPostProcessor<,>);
-
-            _fullPipeline = typeof(QueryFullPipeline<,>);
-            _simplePipeline = typeof(QuerySimplePipeline<,>);
-            _sequentialPipeline = typeof(QuerySequentialPipeline<,>);
         }
 
         public bool Applicable(Type contract)
@@ -42,9 +26,18 @@ namespace Velo.CQRS.Queries.Pipeline
             var genericArgs = contract.GenericTypeArguments;
 
             Type pipelineType;
-            if (ExistsBehaviour(genericArgs, engine)) pipelineType = _fullPipeline;
-            else if (ExistsPreOrPostProcessor(genericArgs, engine)) pipelineType = _sequentialPipeline;
-            else pipelineType = _simplePipeline;
+            if (ExistsBehaviour(genericArgs, engine))
+            {
+                pipelineType = typeof(QueryFullPipeline<,>);
+            }
+            else if (ExistsPreOrPostProcessor(genericArgs, engine))
+            {
+                pipelineType = typeof(QuerySequentialPipeline<,>);
+            }
+            else
+            {
+                pipelineType = typeof(QuerySimplePipeline<,>);
+            }
 
             var implementation = pipelineType.MakeGenericType(genericArgs);
             var lifetime = engine.DefineLifetime(implementation);
@@ -55,16 +48,16 @@ namespace Velo.CQRS.Queries.Pipeline
 
         private bool ExistsBehaviour(Type[] contractGenericArgs, IDependencyEngine engine)
         {
-            var behaviourType = _behaviourType.MakeGenericType(contractGenericArgs);
+            var behaviourType = typeof(IQueryBehaviour<,>).MakeGenericType(contractGenericArgs);
             return engine.Contains(behaviourType);
         }
 
         private bool ExistsPreOrPostProcessor(Type[] contractGenericArgs, IDependencyEngine engine)
         {
-            var preProcessorType = _preProcessorType.MakeGenericType(contractGenericArgs);
+            var preProcessorType = typeof(IQueryPreProcessor<,>).MakeGenericType(contractGenericArgs);
             if (engine.Contains(preProcessorType)) return true;
 
-            var postProcessorType = _postProcessorType.MakeGenericType(contractGenericArgs);
+            var postProcessorType = typeof(IQueryPostProcessor<,>).MakeGenericType(contractGenericArgs);
             return engine.Contains(postProcessorType);
         }
     }

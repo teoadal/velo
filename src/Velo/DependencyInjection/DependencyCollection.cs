@@ -17,6 +17,8 @@ namespace Velo.DependencyInjection
             _engine = new DependencyEngine(capacity);
         }
 
+        #region AddDependency
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public DependencyCollection AddDependency(IDependency dependency)
         {
@@ -43,7 +45,8 @@ namespace Velo.DependencyInjection
             return AddDependency(dependency);
         }
 
-        public DependencyCollection AddDependency<TContract>(Func<IDependencyScope, TContract> builder,
+        public DependencyCollection AddDependency<TContract>(
+            Func<IDependencyScope, TContract> builder,
             DependencyLifetime lifetime)
             where TContract : class
         {
@@ -54,7 +57,9 @@ namespace Velo.DependencyInjection
             return AddDependency(dependency);
         }
 
-        public DependencyCollection AddDependency<TResult>(Type[] contracts, Func<IDependencyScope, TResult> builder,
+        public DependencyCollection AddDependency<TResult>(
+            Type[] contracts,
+            Func<IDependencyScope, TResult> builder,
             DependencyLifetime lifetime)
             where TResult : class
         {
@@ -75,131 +80,26 @@ namespace Velo.DependencyInjection
             return AddDependency(dependency);
         }
 
+        #endregion
+
         public DependencyCollection AddFactory(IDependencyFactory factory)
         {
             _engine.AddFactory(factory);
             return this;
         }
 
+        #region AddInstance
+
         public DependencyCollection AddInstance(Type[] contracts, object instance)
         {
             return AddDependency(new InstanceDependency(contracts, instance));
         }
 
-        public DependencyCollection AddInstance(Type contract, object instance)
-        {
-            return AddInstance(new[] {contract}, instance);
-        }
-
         public DependencyCollection AddInstance<TContract>(TContract instance)
             where TContract : class
         {
-            return AddInstance(Typeof<TContract>.Raw, instance);
-        }
-
-        #region AddScoped
-
-        public DependencyCollection AddScoped(Type implementation)
-        {
-            return AddDependency(implementation, implementation, DependencyLifetime.Scoped);
-        }
-
-        public DependencyCollection AddScoped(Type contract, Type implementation)
-        {
-            return AddDependency(contract, implementation, DependencyLifetime.Scoped);
-        }
-
-        public DependencyCollection AddScoped<TImplementation>()
-        {
-            var implementation = Typeof<TImplementation>.Raw;
-            return AddDependency(implementation, implementation, DependencyLifetime.Scoped);
-        }
-
-        public DependencyCollection AddScoped<TContract>(Func<IDependencyScope, TContract> builder)
-            where TContract : class
-        {
-            return AddDependency(builder, DependencyLifetime.Scoped);
-        }
-
-        public DependencyCollection AddScoped<TContract, TImplementation>()
-            where TImplementation : TContract
-        {
-            var contract = Typeof<TContract>.Raw;
-            var implementation = typeof(TImplementation);
-
-            return AddDependency(contract, implementation, DependencyLifetime.Scoped);
-        }
-
-        #endregion
-
-        #region AddSingleton
-
-        public DependencyCollection AddSingleton(Type implementation)
-        {
-            return implementation.IsGenericTypeDefinition
-                ? AddFactory(new GenericFactory(implementation, implementation, DependencyLifetime.Singleton))
-                : AddDependency(implementation, implementation, DependencyLifetime.Singleton);
-        }
-
-        public DependencyCollection AddSingleton(Type contract, Type implementation)
-        {
-            return AddDependency(contract, implementation, DependencyLifetime.Singleton);
-        }
-
-        public DependencyCollection AddSingleton<TImplementation>()
-        {
-            var implementation = Typeof<TImplementation>.Raw;
-            return AddDependency(implementation, implementation, DependencyLifetime.Singleton);
-        }
-
-        public DependencyCollection AddSingleton<TContract>(Func<IDependencyScope, TContract> builder)
-            where TContract : class
-        {
-            return AddDependency(builder, DependencyLifetime.Singleton);
-        }
-
-        public DependencyCollection AddSingleton<TContract, TImplementation>()
-            where TImplementation : TContract
-        {
-            var contract = Typeof<TContract>.Raw;
-            var implementation = typeof(TImplementation);
-
-            return AddDependency(contract, implementation, DependencyLifetime.Singleton);
-        }
-
-        #endregion
-
-        #region AddTransient
-
-        public DependencyCollection AddTransient(Type implementation)
-        {
-            return AddDependency(implementation, implementation, DependencyLifetime.Transient);
-        }
-
-        public DependencyCollection AddTransient(Type contract, Type implementation)
-        {
-            return AddDependency(contract, implementation, DependencyLifetime.Transient);
-        }
-
-        public DependencyCollection AddTransient<TImplementation>()
-        {
-            var implementation = Typeof<TImplementation>.Raw;
-            return AddDependency(implementation, implementation, DependencyLifetime.Transient);
-        }
-
-        public DependencyCollection AddTransient<TContract>(Func<IDependencyScope, TContract> builder)
-            where TContract : class
-        {
-            return AddDependency(builder, DependencyLifetime.Transient);
-        }
-
-        public DependencyCollection AddTransient<TContract, TImplementation>()
-            where TImplementation : TContract
-        {
-            var contract = Typeof<TContract>.Raw;
-            var implementation = typeof(TImplementation);
-
-            return AddDependency(contract, implementation, DependencyLifetime.Transient);
+            var contracts = new[] {Typeof<TContract>.Raw};
+            return AddDependency(new InstanceDependency(contracts, instance));
         }
 
         #endregion
@@ -216,11 +116,14 @@ namespace Velo.DependencyInjection
             return provider;
         }
 
-        public bool Contains<TContract>() => _engine.Contains(Typeof<TContract>.Raw);
-
         public bool Contains(Type contract) => _engine.Contains(contract);
 
-        public DependencyLifetime GetLifetime<TContract>() => _engine.GetDependency(Typeof<TContract>.Raw).Lifetime;
+        public IDependency[] GetApplicable(Type contract) => _engine.GetApplicable(contract);
+
+        public IDependency GetDependency(Type contract, bool required = false)
+        {
+            return _engine.GetDependency(contract, required);
+        }
 
         public DependencyLifetime GetLifetime(Type contract) => _engine.GetDependency(contract).Lifetime;
 

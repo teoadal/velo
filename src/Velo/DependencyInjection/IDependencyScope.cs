@@ -5,18 +5,10 @@ namespace Velo.DependencyInjection
 {
     public interface IDependencyScope : IServiceProvider, IDisposable
     {
-        event Action<IDependencyScope> Destroy;
-        
-        object Activate(Type implementation, ConstructorInfo constructor = null);
-        
-        object GetRequiredService(Type contract);
+        event Action<IDependencyScope>? Destroy;
 
-        T Activate<T>(ConstructorInfo constructor = null);
-        
-        T GetService<T>();
-        
-        T[] GetServices<T>();
-        
-        T GetRequiredService<T>();
+        object Activate(Type implementation, ConstructorInfo? constructor = null);
+
+        object GetRequiredService(Type contract);
     }
 }

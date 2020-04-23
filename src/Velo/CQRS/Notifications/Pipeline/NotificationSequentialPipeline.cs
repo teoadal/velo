@@ -32,7 +32,7 @@ namespace Velo.CQRS.Notifications.Pipeline
 
         public void Dispose()
         {
-            _processors = null;
+            _processors = null!;
         }
     }
 }

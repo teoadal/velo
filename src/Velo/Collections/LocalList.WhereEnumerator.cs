@@ -17,7 +17,7 @@ namespace Velo.Collections
 
             internal WhereEnumerator(Enumerator enumerator, Predicate<T> predicate)
             {
-                _current = default;
+                _current = default!;
                 _enumerator = enumerator;
                 _predicate = predicate;
             }
@@ -29,7 +29,7 @@ namespace Velo.Collections
                 Func<T, TKey> outerKeySelector,
                 Func<TInner, TKey> innerKeySelector,
                 Func<T, TInner, TResult> resultBuilder,
-                EqualityComparer<TKey> keyComparer = null)
+                EqualityComparer<TKey>? keyComparer = null)
             {
                 var outer = new LocalList<T>();
 
@@ -59,7 +59,7 @@ namespace Velo.Collections
                 return false;
             }
 
-            public LocalList<T> OrderBy<TProperty>(Func<T, TProperty> path, Comparer<TProperty> comparer = null)
+            public LocalList<T> OrderBy<TProperty>(Func<T, TProperty> path, Comparer<TProperty>? comparer = null)
             {
                 var localList = new LocalList<T>();
 
@@ -123,7 +123,7 @@ namespace Velo.Collections
             public WhereEnumerator(Enumerator enumerator, Func<T, TArg, bool> predicate, TArg arg)
             {
                 _arg = arg;
-                _current = default;
+                _current = default!;
                 _enumerator = enumerator;
                 _predicate = predicate;
             }
@@ -135,7 +135,7 @@ namespace Velo.Collections
                 Func<T, TKey> outerKeySelector,
                 Func<TInner, TKey> innerKeySelector,
                 Func<T, TInner, TResult> resultBuilder,
-                EqualityComparer<TKey> keyComparer = null)
+                EqualityComparer<TKey>? keyComparer = null)
             {
                 var outer = new LocalList<T>();
                 while (MoveNext())
@@ -160,7 +160,7 @@ namespace Velo.Collections
                 return false;
             }
 
-            public LocalList<T> OrderBy<TProperty>(Func<T, TProperty> path, Comparer<TProperty> comparer = null)
+            public LocalList<T> OrderBy<TProperty>(Func<T, TProperty> path, Comparer<TProperty>? comparer = null)
             {
                 var localList = new LocalList<T>();
 

@@ -12,12 +12,12 @@ namespace Velo.Utils
 
         public static ErrorHandler<TException> Map(Func<TException, Exception> exceptionMapper)
         {
-            return new ErrorHandler<TException>(null, exceptionMapper);
+            return new ErrorHandler<TException>(null!, exceptionMapper);
         }
 
         public static ErrorHandler<TException> Try(int attempts = 1)
         {
-            return new ErrorHandler<TException>(null, null, attempts, true);
+            return new ErrorHandler<TException>(null!, null, attempts, true);
         }
     }
 
@@ -25,13 +25,13 @@ namespace Velo.Utils
         where TException : Exception
     {
         private int _attempts;
-        private Action<TException> _attemptHandler;
+        private Action<TException>? _attemptHandler;
         private bool _enabled;
         private Action<TException> _exceptionHandler;
-        private Func<TException, Exception> _exceptionMapper;
+        private Func<TException, Exception>? _exceptionMapper;
         private bool _rethrow;
 
-        internal ErrorHandler(Action<TException> handler, Func<TException, Exception> mapper = null, int attempts = 1,
+        internal ErrorHandler(Action<TException> handler, Func<TException, Exception>? mapper = null, int attempts = 1,
             bool rethrow = false)
         {
             _attempts = attempts;
@@ -82,7 +82,7 @@ namespace Velo.Utils
         {
             if (!_enabled) action();
 
-            TException lastException = null;
+            TException? lastException = null;
             for (var counter = 0; counter < _attempts; counter++)
             {
                 try
@@ -103,7 +103,7 @@ namespace Velo.Utils
         {
             if (!_enabled) action(arg1);
 
-            TException lastException = null;
+            TException? lastException = null;
             for (var counter = 0; counter < _attempts; counter++)
             {
                 try
@@ -124,7 +124,7 @@ namespace Velo.Utils
         {
             if (!_enabled) action(arg1, arg2);
 
-            TException lastException = null;
+            TException? lastException = null;
             for (var counter = 0; counter < _attempts; counter++)
             {
                 try
@@ -145,7 +145,7 @@ namespace Velo.Utils
         {
             if (!_enabled) return function();
 
-            TException lastException = null;
+            TException? lastException = null;
             for (var counter = 0; counter < _attempts; counter++)
             {
                 try
@@ -169,7 +169,7 @@ namespace Velo.Utils
         {
             if (!_enabled) return function(arg1);
 
-            TException lastException = null;
+            TException? lastException = null;
             for (var counter = 0; counter < _attempts; counter++)
             {
                 try
@@ -193,7 +193,7 @@ namespace Velo.Utils
         {
             if (!_enabled) return function(arg1, arg2);
 
-            TException lastException = null;
+            TException? lastException = null;
             for (var counter = 0; counter < _attempts; counter++)
             {
                 try

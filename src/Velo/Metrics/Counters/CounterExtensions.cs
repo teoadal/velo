@@ -8,6 +8,8 @@ namespace Velo.Metrics.Counters
 {
     public static class CounterExtensions
     {
+        private static readonly CultureInfo Invariant = CultureInfo.InvariantCulture;
+        
         public static Dictionary<string, double> Flush(this ICounter counter)
         {
             return Extract(counter, label => label.Flush());
@@ -58,7 +60,7 @@ namespace Velo.Metrics.Counters
                 writer.Write("\":");
 
                 var value = extractor(label);
-                writer.Write(value.ToString(DoubleConverter.Pattern, CultureInfo.InvariantCulture));
+                writer.Write(value.ToString(DoubleConverter.Pattern, Invariant));
             }
 
             writer.Write('}');

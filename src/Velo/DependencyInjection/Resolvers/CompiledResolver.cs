@@ -10,20 +10,22 @@ namespace Velo.DependencyInjection.Resolvers
     [DebuggerDisplay("Implementation = {_constructor.DeclaringType}")]
     internal sealed class CompiledResolver : DependencyResolver
     {
-        private Func<IDependencyScope, object> _builder;
+        private Func<IDependencyScope, object>? _builder;
         private readonly ConstructorInfo _constructor;
         private readonly IDependencyEngine _dependencyEngine;
 
         public CompiledResolver(Type implementation, IDependencyEngine dependencyEngine)
             : base(implementation)
         {
-            _constructor = ReflectionUtils.GetConstructor(implementation);
+            _constructor = ReflectionUtils.GetConstructor(implementation)
+                           ?? throw Error.DefaultConstructorNotFound(implementation);
+
             _dependencyEngine = dependencyEngine;
         }
 
         protected override object ResolveInstance(Type contract, IDependencyScope scope)
         {
-            if (_builder == null) _builder = CreateBuilder(scope);
+            _builder ??= CreateBuilder(scope);
             return _builder(scope);
         }
 
@@ -49,7 +51,10 @@ namespace Velo.DependencyInjection.Resolvers
             return result;
         }
 
-        private Expression BuildParameter(IDependency parameterDependency, Type parameterType, Expression argument,
+        private static Expression BuildParameter(
+            IDependency parameterDependency,
+            Type parameterType,
+            Expression argument,
             IDependencyScope scope)
         {
             if (parameterDependency == null) return Expression.Default(parameterType);
@@ -72,9 +77,9 @@ namespace Velo.DependencyInjection.Resolvers
                 case DependencyLifetime.Singleton:
                     var parameterConstant = parameterDependency.GetInstance(parameterType, scope);
                     return Expression.Constant(parameterConstant);
+                default:
+                    throw Error.InvalidDependencyLifetime($"Unsupported lifetime '{parameterDependency.Lifetime}'");
             }
-
-            throw Error.InvalidDependencyLifetime();
         }
     }
 }

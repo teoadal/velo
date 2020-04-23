@@ -5,7 +5,7 @@ namespace Velo.Settings.Sources
 {
     internal sealed class CommandLineSource : ISettingsSource
     {
-        private readonly JsonObject _configuration;
+        private readonly JsonObject? _configuration;
 
         public CommandLineSource(string[] args)
         {
@@ -44,8 +44,14 @@ namespace Velo.Settings.Sources
 
         public bool TryGet(out JsonObject data)
         {
-            data = _configuration;
-            return _configuration != null;
+            if (_configuration != null)
+            {
+                data = _configuration;
+                return true;
+            }
+
+            data = null!;
+            return false;
         }
 
         private static void SetValueByPath(JsonObject node, string path, JsonData value)
@@ -72,11 +78,11 @@ namespace Velo.Settings.Sources
             node[valueProperty] = value;
         }
 
-        private static JsonData VisitValue(string value)
+        private static JsonData VisitValue(string? value)
         {
             if (string.IsNullOrEmpty(value)) return JsonValue.Null;
 
-            var firstChar = value[0];
+            var firstChar = value![0];
 
             if (char.IsDigit(firstChar))
             {

@@ -9,14 +9,13 @@ namespace Velo.Server
 {
     public sealed class HttpServer : IDisposable
     {
-        public bool IsStarted { get; private set; }
-        
         private readonly HttpRouter _router;
         private readonly DependencyProvider _dependencyProvider;
 
         private bool _disposed;
-        private HttpListener _httpListener;
-        private Task _listenerTask;
+        private HttpListener? _httpListener;
+        private Task? _listenerTask;
+        private bool _isStarted;
 
         internal HttpServer(HttpRouter router, DependencyProvider dependencyProvider)
         {
@@ -27,28 +26,31 @@ namespace Velo.Server
         public void Start(int port = 8125)
         {
             if (_disposed) throw Error.Disposed(nameof(HttpServer));
-            if (IsStarted) throw Error.InvalidOperation("Server already started");
+            if (_isStarted) throw Error.InvalidOperation("Server already started");
 
             _httpListener = new HttpListener();
             _httpListener.Prefixes.Add($"http://*:{port}/");
 
             _listenerTask = Task.Run(Listen);
-            IsStarted = true;
+
+            _isStarted = true;
         }
 
         public void Stop()
         {
-            if (!IsStarted) throw Error.InvalidOperation("Server not started");
-
-            _httpListener.Stop();
-            _listenerTask.Wait();
+            if (!_isStarted) throw Error.InvalidOperation("Server not started");
+            
+            _httpListener?.Stop();
+            _listenerTask?.Wait();
             _httpListener = null;
 
-            IsStarted = false;
+            _isStarted = false;
         }
 
         private async Task Listen()
         {
+            if (_httpListener == null) throw Error.InvalidOperation("HttpListener isn't created");
+            
             _httpListener.Start();
 
             while (_httpListener.IsListening)
@@ -99,7 +101,7 @@ namespace Velo.Server
         {
             if (_disposed) return;
 
-            if (IsStarted) Stop();
+            if (_isStarted) Stop();
 
             _disposed = true;
         }

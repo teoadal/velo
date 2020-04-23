@@ -7,12 +7,12 @@ namespace Velo.DependencyInjection
 {
     public sealed class DependencyProvider : IDependencyScope
     {
-        public event Action<IDependencyScope> Destroy;
+        public event Action<IDependencyScope>? Destroy;
 
         private bool _disposed;
-        private readonly IDependencyEngine _engine;
+        private readonly IDependencyEngine? _engine;
         private readonly object _lock;
-        private readonly DependencyProvider _parent;
+        private readonly DependencyProvider? _parent;
 
         internal DependencyProvider(IDependencyEngine engine)
         {
@@ -31,12 +31,7 @@ namespace Velo.DependencyInjection
             return new DependencyProvider(this);
         }
 
-        public T Activate<T>(ConstructorInfo constructor = null)
-        {
-            return (T) Activate(typeof(T), constructor);
-        }
-
-        public object Activate(Type implementation, ConstructorInfo constructor = null)
+        public object Activate(Type implementation, ConstructorInfo? constructor = null)
         {
             if (implementation.IsInterface || implementation.IsGenericTypeDefinition)
             {
@@ -45,15 +40,17 @@ namespace Velo.DependencyInjection
 
             if (_disposed) throw Error.Disposed(nameof(DependencyProvider));
 
+            constructor ??= ReflectionUtils.GetConstructor(implementation);
+
             if (constructor == null)
             {
-                constructor = ReflectionUtils.GetConstructor(implementation);
+                throw Error.DefaultConstructorNotFound(implementation);
             }
 
             var engine = GetEngine();
             var parameters = constructor.GetParameters();
 
-            var parameterInstances = new object[parameters.Length];
+            var parameterInstances = new object?[parameters.Length];
 
             lock (_lock)
             {
@@ -91,11 +88,7 @@ namespace Velo.DependencyInjection
             }
         }
 
-        public T GetRequiredService<T>() => (T) GetRequiredService(Typeof<T>.Raw);
-
-        public T GetService<T>() => (T) GetService(Typeof<T>.Raw);
-
-        public object GetService(Type contract)
+        public object? GetService(Type contract)
         {
             if (_disposed) throw Error.Disposed(nameof(DependencyProvider));
             var engine = GetEngine();
@@ -107,12 +100,13 @@ namespace Velo.DependencyInjection
             }
         }
 
-        public T[] GetServices<T>() => (T[]) GetService(Typeof<T[]>.Raw);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private IDependencyEngine GetEngine()
         {
-            return _engine ?? _parent.GetEngine();
+            if (_engine != null) return _engine;
+            return _parent == null
+                ? throw Error.InvalidOperation("Bad dependency provider configuration")
+                : _parent.GetEngine();
         }
 
         public void Dispose()

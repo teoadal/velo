@@ -4,8 +4,6 @@ using Velo.CQRS.Commands;
 using Velo.CQRS.Notifications;
 using Velo.CQRS.Queries;
 
-#nullable enable
-
 namespace Velo.CQRS
 {
     public interface IEmitter
@@ -26,5 +24,3 @@ namespace Velo.CQRS
         Task Send(INotification notification, CancellationToken cancellationToken = default);
     }
 }
-
-#nullable restore

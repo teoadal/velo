@@ -7,7 +7,7 @@ namespace Velo.DependencyInjection
     public static class SerializationInstaller
     {
         public static DependencyCollection AddJsonConverter(this DependencyCollection dependencies,
-            CultureInfo culture = null)
+            CultureInfo? culture = null)
         {
             var convertersCollection = new ConvertersCollection(culture ?? CultureInfo.InvariantCulture);
 

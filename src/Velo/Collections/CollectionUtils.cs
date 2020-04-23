@@ -37,7 +37,7 @@ namespace Velo.Collections
                 Array.Copy(array, index + 1, array, index, length - index);
             }
 
-            array[length] = default;
+            array[length] = default!;
         }
 
         public static void DisposeValuesIfDisposable<TKey, TValue>(ConcurrentDictionary<TKey, TValue> dictionary)

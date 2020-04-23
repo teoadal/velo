@@ -50,15 +50,20 @@ namespace Velo.Serialization.Converters
 
                 if (tokenType != JsonTokenType.Property)
                 {
-                    throw new InvalidCastException($"Invalid token '{token.TokenType}' in object");
+                    throw Error.Cast($"Expected '{JsonTokenType.Property}' token, but found '{token.TokenType}'");
                 }
 
                 var propertyName = token.Value;
 
+                if (propertyName == null)
+                {
+                    throw Error.Cast($"Expected not empty {JsonTokenType.Property} token");
+                }
+
                 tokenizer.MoveNext(); // to property value
 
                 if (tokenizer.Current.TokenType == JsonTokenType.Null) continue;
-                if (!_propertyConverters.TryGetValue(propertyName, out var converter)) continue;
+                if (!_propertyConverters.TryGetValue(propertyName, out PropertyConverter<TObject> converter)) continue;
 
                 converter.Deserialize(instance, ref tokenizer);
             }
@@ -85,7 +90,7 @@ namespace Velo.Serialization.Converters
 
         public void Serialize(TObject instance, TextWriter writer)
         {
-            if (_equalityComparer.Equals(instance, default))
+            if (_equalityComparer.Equals(instance, default!))
             {
                 writer.Write(JsonTokenizer.TokenNullValue);
                 return;
@@ -110,7 +115,7 @@ namespace Velo.Serialization.Converters
 
         public JsonData Write(TObject instance)
         {
-            if (_equalityComparer.Equals(instance, default))
+            if (_equalityComparer.Equals(instance, default!))
             {
                 return JsonValue.Null;
             }

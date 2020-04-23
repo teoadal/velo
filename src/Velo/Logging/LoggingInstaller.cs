@@ -29,12 +29,9 @@ namespace Velo.DependencyInjection
         }
 
         public static DependencyCollection AddDefaultFileLogWriter(this DependencyCollection dependencies,
-            string filePath = null, LogLevel level = LogLevel.Debug)
+            string? filePath = null, LogLevel level = LogLevel.Debug)
         {
-            if (string.IsNullOrWhiteSpace(filePath))
-            {
-                filePath = $"{AppDomain.CurrentDomain.FriendlyName}.log";
-            }
+            filePath ??= $"{AppDomain.CurrentDomain.FriendlyName}.log";
 
             dependencies.AddInstance(new DefaultFileWriter(filePath, level));
             return dependencies;

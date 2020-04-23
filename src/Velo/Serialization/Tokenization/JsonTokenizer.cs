@@ -181,7 +181,7 @@ namespace Velo.Serialization.Tokenization
 
             Current = default;
 
-            _builder = null;
+            _builder = null!;
             _disposed = true;
         }
     }

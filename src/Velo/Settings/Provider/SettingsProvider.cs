@@ -20,8 +20,9 @@ namespace Velo.Settings.Provider
 
         private JsonObject _configuration;
 
-        public SettingsProvider(ISettingsSource[] sources, IConvertersCollection converters = null)
+        public SettingsProvider(ISettingsSource[] sources, IConvertersCollection? converters = null)
         {
+            _configuration = new JsonObject();
             _converters = converters ?? new ConvertersCollection(CultureInfo.InvariantCulture);
             _sectionBuilder = BuildSection;
             _sources = sources;
@@ -96,7 +97,7 @@ namespace Velo.Settings.Provider
 
         private object BuildSection(string path, Type sectionType)
         {
-            if (!TryGetJsonData(path, out var jsonData)) return null;
+            if (!TryGetJsonData(path, out var jsonData)) return null!;
 
             var jsonDataType = jsonData.Type;
             var primitiveData = jsonDataType != JsonDataType.Object && jsonDataType != JsonDataType.Array;
@@ -116,13 +117,13 @@ namespace Velo.Settings.Provider
 
             var instance = _configuration;
 
-            data = null;
+            data = null!;
             foreach (var property in properties)
             {
                 if (data != null) instance = (JsonObject) data;
                 if (instance.TryGet(property, out data)) continue;
 
-                data = null;
+                data = null!;
                 return false;
             }
 

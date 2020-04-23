@@ -11,7 +11,7 @@ namespace Velo.Logging.Renderers
         public readonly ILogFormatter Formatter;
         
         [ThreadStatic]
-        private static JsonObject _buffer;
+        private static JsonObject? _buffer;
         
         protected Renderer(ILogFormatter formatter)
         {

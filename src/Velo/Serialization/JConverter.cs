@@ -9,11 +9,11 @@ namespace Velo.Serialization
     public sealed class JConverter
     {
         [ThreadStatic] 
-        private static StringBuilder _buffer;
+        private static StringBuilder? _buffer;
 
         private readonly IConvertersCollection _converters;
 
-        public JConverter(CultureInfo culture = null)
+        public JConverter(CultureInfo? culture = null)
         {
             _converters = new ConvertersCollection(culture ?? CultureInfo.InvariantCulture);
         }
@@ -32,7 +32,7 @@ namespace Velo.Serialization
             return result;
         }
 
-        public TOut Deserialize<TOut>(Stream source, Encoding encoding = null)
+        public TOut Deserialize<TOut>(Stream source, Encoding? encoding = null)
         {
             var reader = new JsonReader(source, encoding ?? Encoding.UTF8);
             var result = Deserialize<TOut>(reader);

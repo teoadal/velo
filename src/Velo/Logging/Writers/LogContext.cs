@@ -11,9 +11,9 @@ namespace Velo.Logging.Writers
         public readonly Type Sender;
         public readonly string Template;
 
-        private readonly ILogFormatter _formatter;
+        private readonly ILogFormatter? _formatter;
 
-        internal LogContext(LogLevel level, Type sender, string template, ILogFormatter formatter = null)
+        internal LogContext(LogLevel level, Type sender, string template, ILogFormatter? formatter = null)
         {
             Level = level;
             Sender = sender;

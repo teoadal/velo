@@ -40,7 +40,7 @@ namespace Velo.Patching.Methods
 
             var commonMethods = _commonMethods[propertyInfo];
             return new CommonMethods<T, TValue>(
-                (Action<T>) commonMethods.Initializer,
+                (Action<T>?) commonMethods.Initializer,
                 (Func<T, TValue>) commonMethods.Getter,
                 (Action<T, TValue>) commonMethods.Setter);
         }
@@ -93,10 +93,10 @@ namespace Velo.Patching.Methods
         private readonly struct CommonMethods
         {
             public readonly Delegate Getter;
-            public readonly Delegate Initializer;
+            public readonly Delegate? Initializer;
             public readonly Delegate Setter;
 
-            public CommonMethods(Delegate initializer, Delegate getter, Delegate setter)
+            public CommonMethods(Delegate? initializer, Delegate getter, Delegate setter)
             {
                 Initializer = initializer;
                 Getter = getter;

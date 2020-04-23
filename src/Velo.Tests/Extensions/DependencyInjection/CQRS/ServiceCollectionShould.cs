@@ -140,7 +140,7 @@ namespace Velo.Tests.Extensions.DependencyInjection.CQRS
         }
 
         [Theory, AutoData]
-        public async Task ResolveNotificationSequencePipeline(uint count)
+        public async Task ResolveNotificationSequentialPipeline(uint count)
         {
             for (var i = 0; i < count; i++)
             {
@@ -173,7 +173,7 @@ namespace Velo.Tests.Extensions.DependencyInjection.CQRS
         }
 
         [Theory, AutoData]
-        public async Task ResolveQuerySequencePipeline(int booId)
+        public async Task ResolveQuerySequentialPipeline(int booId)
         {
             var emitter = _serviceCollection
                 .AddQueryProcessor<BoosGet.PreProcessor>()

@@ -2,8 +2,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-#nullable enable
-
 namespace Velo.CQRS.Queries.Pipeline
 {
     internal sealed partial class QueryFullPipeline<TQuery, TResult>
@@ -98,5 +96,3 @@ namespace Velo.CQRS.Queries.Pipeline
         }
     }
 }
-
-#nullable restore

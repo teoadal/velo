@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Velo.Utils;
 
 namespace Velo.Patching.CollectionActions
 {
@@ -8,10 +9,10 @@ namespace Velo.Patching.CollectionActions
         where TCollection: ICollection<TValue>
     {
         private readonly Func<T, TCollection> _getter;
-        private readonly Action<T> _initializer;
+        private readonly Action<T>? _initializer;
         private readonly TValue _value;
 
-        public AddValuePatch(Action<T> initializer, Func<T, TCollection> getter, TValue value)
+        public AddValuePatch(Action<T>? initializer, Func<T, TCollection> getter, TValue value)
         {
             _getter = getter;
             _initializer = initializer;
@@ -30,6 +31,11 @@ namespace Velo.Patching.CollectionActions
 
             if (collection != null) return collection;
 
+            if (_initializer == null)
+            {
+                throw Error.InvalidOperation("Initializer isn't presented");
+            }
+            
             _initializer(instance);
             collection = _getter(instance);
 

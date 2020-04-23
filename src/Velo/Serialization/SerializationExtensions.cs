@@ -13,7 +13,7 @@ namespace Velo.Serialization
             return converters.Get<T>().Read(json);
         }
 
-        internal static T Deserialize<T>(this IJsonConverter<T> converter, string json, StringBuilder sb = null)
+        internal static T Deserialize<T>(this IJsonConverter<T> converter, string json, StringBuilder? sb = null)
         {
             using var reader = new JsonReader(json);
 

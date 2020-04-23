@@ -13,7 +13,8 @@ namespace Velo.DependencyInjection.Resolvers
         public ActivatorResolver(Type implementation)
             : base(implementation)
         {
-            _constructor = ReflectionUtils.GetConstructor(implementation);
+            _constructor = ReflectionUtils.GetConstructor(implementation)
+                           ?? throw Error.DefaultConstructorNotFound(implementation);
         }
 
         protected override object ResolveInstance(Type contract, IDependencyScope scope)

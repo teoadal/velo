@@ -8,14 +8,12 @@ namespace Velo.DependencyInjection.Factories
 {
     internal sealed partial class ArrayFactory : IDependencyFactory
     {
-        private static readonly Type EmptyResolverType = typeof(EmptyArrayResolver<>);
-        private static readonly Type EnumerableType = typeof(IEnumerable<>);
-        private static readonly Type ResolverType = typeof(ArrayResolver<>);
+        private readonly Type _enumerableType = typeof(IEnumerable<>);
 
         public bool Applicable(Type contract)
         {
             return contract.IsArray ||
-                   contract.IsGenericType && contract.GetGenericTypeDefinition() == EnumerableType;
+                   contract.IsGenericType && contract.GetGenericTypeDefinition() == _enumerableType;
         }
 
         public IDependency BuildDependency(Type contract, IDependencyEngine engine)
@@ -24,17 +22,17 @@ namespace Velo.DependencyInjection.Factories
                 ? ReflectionUtils.GetArrayElementType(contract)
                 : contract.GenericTypeArguments[0];
 
-            var contracts = new[] {elementType.MakeArrayType(), EnumerableType.MakeGenericType(elementType)};
+            var contracts = new[] {elementType.MakeArrayType(), _enumerableType.MakeGenericType(elementType)};
             var dependencies = engine.GetApplicable(elementType);
 
             if (dependencies.Length == 0)
             {
-                var emptyResolverType = EmptyResolverType.MakeGenericType(elementType);
+                var emptyResolverType = typeof(EmptyArrayResolver<>).MakeGenericType(elementType);
                 var emptyResolver = (DependencyResolver) Activator.CreateInstance(emptyResolverType);
                 return new SingletonDependency(contracts, emptyResolver);
             }
 
-            var resolverType = ResolverType.MakeGenericType(elementType);
+            var resolverType = typeof(ArrayResolver<>).MakeGenericType(elementType);
             var resolverParameters = new object[] {dependencies};
             var resolver = (DependencyResolver) Activator.CreateInstance(resolverType, resolverParameters);
 

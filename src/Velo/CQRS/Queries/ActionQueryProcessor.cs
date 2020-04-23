@@ -3,8 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Velo.DependencyInjection;
 
-#nullable enable
-
 namespace Velo.CQRS.Queries
 {
     internal sealed class ActionQueryProcessor<TQuery, TResult> : IQueryProcessor<TQuery, TResult>
@@ -26,6 +24,7 @@ namespace Velo.CQRS.Queries
     
     internal sealed class ActionQueryProcessor<TQuery, TContext, TResult> : IQueryProcessor<TQuery, TResult>
         where TQuery : IQuery<TResult>
+        where TContext: class
     {
         private readonly Func<TQuery, TContext, TResult> _processor;
         private readonly IDependencyScope _scope;
@@ -44,5 +43,3 @@ namespace Velo.CQRS.Queries
         }
     }
 }
-
-#nullable restore

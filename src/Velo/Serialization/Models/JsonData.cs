@@ -9,9 +9,10 @@ namespace Velo.Serialization.Models
 {
     public abstract class JsonData
     {
-        [ThreadStatic] private static StringBuilder _buffer;
+        [ThreadStatic] 
+        private static StringBuilder? _buffer;
 
-        public static JsonData Parse(Stream stream, Encoding encoding = null)
+        public static JsonData Parse(Stream stream, Encoding? encoding = null)
         {
             var reader = new JsonReader(stream, encoding ?? Encoding.UTF8);
             var result = Parse(reader);
@@ -95,6 +96,10 @@ namespace Velo.Serialization.Models
                 if (current.TokenType == JsonTokenType.ObjectEnd) break;
 
                 var property = current.Value;
+                if (property == null || string.IsNullOrWhiteSpace(property))
+                {
+                    throw Error.InvalidOperation("Null or invalid property name");
+                }
 
                 tokenizer.MoveNext();
 
@@ -111,7 +116,7 @@ namespace Velo.Serialization.Models
                 case JsonTokenType.False:
                     return JsonValue.False;
                 case JsonTokenType.Number:
-                    var value = token.Value;
+                    var value = token.Value!;
                     return value.Length == 1 && value[0] == '0'
                         ? JsonValue.Zero
                         : new JsonValue(value, JsonDataType.Number);

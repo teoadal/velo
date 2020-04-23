@@ -11,14 +11,16 @@ namespace Velo.Tests.Collections
     public class ReadLockEnumeratorShould : TestClass
     {
         private readonly ReaderWriterLockSlim _lock;
+
         private readonly List<int> _list;
         private readonly Dictionary<int, int> _dictionary;
 
         public ReadLockEnumeratorShould(ITestOutputHelper output) : base(output)
         {
             _lock = new ReaderWriterLockSlim();
-            _list = Fixture.Create<List<int>>();
+
             _dictionary = Fixture.Create<Dictionary<int, int>>();
+            _list = Fixture.Create<List<int>>();
         }
 
         [Fact]
@@ -36,7 +38,7 @@ namespace Velo.Tests.Collections
         }
 
         [Fact]
-        public void EnumerateByDictionary()
+        public void EnumerateDictionary()
         {
             var exists = new HashSet<int>();
 
@@ -51,7 +53,7 @@ namespace Velo.Tests.Collections
         }
 
         [Fact]
-        public void EnumerateByList()
+        public void EnumerateList()
         {
             var exists = new HashSet<int>();
 

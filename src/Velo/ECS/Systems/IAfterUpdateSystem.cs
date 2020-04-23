@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Velo.ECS.Systems
 {
-    public interface IAfterUpdateSystem : ISystem
+    public interface IAfterUpdateSystem
     {
         Task AfterUpdate(CancellationToken cancellationToken);
     }

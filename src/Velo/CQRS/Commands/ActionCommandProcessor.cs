@@ -7,7 +7,7 @@ using Velo.Threading;
 namespace Velo.CQRS.Commands
 {
     internal sealed class ActionCommandProcessor<TCommand> : ICommandProcessor<TCommand>
-        where TCommand: ICommand
+        where TCommand : ICommand
     {
         private readonly Action<TCommand> _processor;
 
@@ -22,9 +22,10 @@ namespace Velo.CQRS.Commands
             return TaskUtils.CompletedTask;
         }
     }
-    
+
     internal sealed class ActionCommandProcessor<TCommand, TContext> : ICommandProcessor<TCommand>
-        where TCommand: ICommand
+        where TCommand : ICommand
+        where TContext : class
     {
         private readonly Action<TCommand, TContext> _processor;
         private readonly IDependencyScope _scope;
@@ -38,9 +39,9 @@ namespace Velo.CQRS.Commands
         public Task Process(TCommand command, CancellationToken cancellationToken)
         {
             var context = _scope.GetRequiredService<TContext>();
-            
+
             _processor(command, context);
-            
+
             return TaskUtils.CompletedTask;
         }
     }

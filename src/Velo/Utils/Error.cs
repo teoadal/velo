@@ -7,7 +7,7 @@ namespace Velo.Utils
 {
     internal static class Error
     {
-        public static ArgumentException AlreadyExists(string message = null)
+        public static ArgumentException AlreadyExists(string? message = null)
         {
             return new ArgumentException(message ?? "Element already exists");
         }
@@ -17,7 +17,7 @@ namespace Velo.Utils
             return new TypeAccessException($"Detected circular dependency '{ReflectionUtils.GetName(contract)}'");
         }
 
-        public static InvalidCastException Cast(string message, Exception innerException = null)
+        public static InvalidCastException Cast(string message, Exception? innerException = null)
         {
             return new InvalidCastException(message, innerException);
         }
@@ -53,14 +53,9 @@ namespace Velo.Utils
             return new InvalidDataException(message);
         }
 
-        public static InvalidDataException InvalidDependencyLifetime(string message = null)
+        public static InvalidDataException InvalidDependencyLifetime(string? message = null)
         {
-            if (string.IsNullOrWhiteSpace(message))
-            {
-                message = "Invalid dependency lifetime";
-            }
-            
-            return new InvalidDataException(message);
+            return new InvalidDataException(message ?? "Invalid dependency lifetime");
         }
         
         public static InvalidOperationException InvalidOperation(string message)
@@ -73,24 +68,14 @@ namespace Velo.Utils
             return new FileNotFoundException($"Required file '{path}' not found", Path.GetFileName(path));
         }
         
-        public static IndexOutOfRangeException OutOfRange(string message = null)
+        public static IndexOutOfRangeException OutOfRange(string? message = null)
         {
-            if (string.IsNullOrWhiteSpace(message))
-            {
-                message = "Index out of range";
-            }
-            
-            return new IndexOutOfRangeException(message);
+            return new IndexOutOfRangeException(message ?? "Index out of range");
         }
         
-        public static KeyNotFoundException NotFound(string message = null)
+        public static KeyNotFoundException NotFound(string? message = null)
         {
-            if (string.IsNullOrWhiteSpace(message))
-            {
-                message = "Element not found";
-            }
-            
-            return new KeyNotFoundException(message);
+            return new KeyNotFoundException(message ?? "Element not found");
         }
 
         public static AmbiguousMatchException NotSingle(string message)

@@ -11,14 +11,11 @@ namespace Velo.Utils
 
         #region Builders
 
-        public static Func<T> BuildActivator<T>(ConstructorInfo constructor = null)
+        public static Func<T> BuildActivator<T>(ConstructorInfo? constructor = null)
         {
             var type = typeof(T);
 
-            if (constructor == null)
-            {
-                constructor = ReflectionUtils.GetEmptyConstructor(type);
-            }
+            constructor ??= ReflectionUtils.GetEmptyConstructor(type);
 
             return constructor == null
                 ? throw Error.DefaultConstructorNotFound(type)

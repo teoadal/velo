@@ -17,7 +17,7 @@ namespace Velo.Collections
 
             internal SelectEnumerator(Enumerator enumerator, Func<T, TValue> selector)
             {
-                _current = default;
+                _current = default!;
                 _enumerator = enumerator;
                 _selector = selector;
             }
@@ -29,7 +29,7 @@ namespace Velo.Collections
                 Func<TValue, TKey> outerKeySelector,
                 Func<TInner, TKey> innerKeySelector,
                 Func<TValue, TInner, TResult> resultBuilder,
-                EqualityComparer<TKey> keyComparer = null)
+                EqualityComparer<TKey>? keyComparer = null)
             {
                 var outer = new LocalList<TValue>();
 
@@ -53,7 +53,7 @@ namespace Velo.Collections
             }
 
             public LocalList<TValue> OrderBy<TProperty>(Func<TValue, TProperty> path,
-                Comparer<TProperty> comparer = null)
+                Comparer<TProperty>? comparer = null)
             {
                 var localList = new LocalList<TValue>();
 
@@ -126,7 +126,7 @@ namespace Velo.Collections
             public SelectEnumerator(Enumerator enumerator, Func<T, TArg, TValue> selector, TArg arg)
             {
                 _arg = arg;
-                _current = default;
+                _current = default!;
                 _enumerator = enumerator;
                 _selector = selector;
             }
@@ -138,7 +138,7 @@ namespace Velo.Collections
                 Func<TValue, TKey> outerKeySelector,
                 Func<TInner, TKey> innerKeySelector,
                 Func<TValue, TInner, TResult> resultBuilder,
-                EqualityComparer<TKey> keyComparer = null)
+                EqualityComparer<TKey>? keyComparer = null)
             {
                 var outer = new LocalList<TValue>();
                 while (MoveNext())
@@ -161,7 +161,7 @@ namespace Velo.Collections
             }
 
             public LocalList<TValue> OrderBy<TProperty>(Func<TValue, TProperty> path,
-                Comparer<TProperty> comparer = null)
+                Comparer<TProperty>? comparer = null)
             {
                 var localList = new LocalList<TValue>();
 

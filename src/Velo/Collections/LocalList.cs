@@ -24,7 +24,7 @@ namespace Velo.Collections
         private T _element7;
         private T _element8;
         private T _element9;
-        private T[] _array;
+        private T[]? _array;
 
         private int _length;
 
@@ -32,16 +32,16 @@ namespace Velo.Collections
 
         public LocalList(int capacity)
         {
-            _element0 = default;
-            _element1 = default;
-            _element2 = default;
-            _element3 = default;
-            _element4 = default;
-            _element5 = default;
-            _element6 = default;
-            _element7 = default;
-            _element8 = default;
-            _element9 = default;
+            _element0 = default!;
+            _element1 = default!;
+            _element2 = default!;
+            _element3 = default!;
+            _element4 = default!;
+            _element5 = default!;
+            _element6 = default!;
+            _element7 = default!;
+            _element8 = default!;
+            _element9 = default!;
 
             _array = capacity > Capacity ? new T[capacity - Capacity] : null;
 
@@ -170,11 +170,11 @@ namespace Velo.Collections
                     _element9 = element;
                     break;
                 case Capacity:
-                    if (_array == null) _array = new T[4];
+                    _array ??= new T[4];
                     _array[0] = element;
                     break;
                 default:
-                    CollectionUtils.Add(ref _array, _length - Capacity, element);
+                    CollectionUtils.Add(ref _array!, _length - Capacity, element);
                     break;
             }
 
@@ -228,9 +228,9 @@ namespace Velo.Collections
             _length = 0;
         }
 
-        public readonly bool Contains(T element, EqualityComparer<T> comparer = null)
+        public readonly bool Contains(T element, EqualityComparer<T>? comparer = null)
         {
-            if (comparer == null) comparer = EqualityComparer<T>.Default;
+            comparer ??= EqualityComparer<T>.Default;
 
             for (var i = 0; i < _length; i++)
             {
@@ -278,15 +278,15 @@ namespace Velo.Collections
         }
 
         public readonly GroupEnumerator<TKey> GroupBy<TKey>(Func<T, TKey> keySelector,
-            EqualityComparer<TKey> keyComparer = null)
+            EqualityComparer<TKey>? keyComparer = null)
         {
-            if (keyComparer == null) keyComparer = EqualityComparer<TKey>.Default;
+            keyComparer ??= EqualityComparer<TKey>.Default;
             return new GroupEnumerator<TKey>(this, keySelector, keyComparer);
         }
 
-        public readonly int IndexOf(T element, EqualityComparer<T> comparer = null)
+        public readonly int IndexOf(T element, EqualityComparer<T>? comparer = null)
         {
-            if (comparer == null) comparer = EqualityComparer<T>.Default;
+            comparer ??= EqualityComparer<T>.Default;
 
             for (var index = 0; index < _length; index++)
             {
@@ -299,7 +299,7 @@ namespace Velo.Collections
             return -1;
         }
 
-        public LocalList<T> OrderBy<TProperty>(Func<T, TProperty> property, Comparer<TProperty> comparer = null)
+        public LocalList<T> OrderBy<TProperty>(Func<T, TProperty> property, Comparer<TProperty>? comparer = null)
         {
             Sort(property, comparer);
             return this;
@@ -310,9 +310,9 @@ namespace Velo.Collections
             Func<T, TKey> outerKeySelector,
             Func<TInner, TKey> innerKeySelector,
             Func<T, TInner, TResult> resultBuilder,
-            EqualityComparer<TKey> keyComparer = null)
+            EqualityComparer<TKey>? keyComparer = null)
         {
-            if (keyComparer == null) keyComparer = EqualityComparer<TKey>.Default;
+            keyComparer ??= EqualityComparer<TKey>.Default;
 
             return new JoinEnumerator<TResult, TInner, TKey>(keyComparer,
                 inner.GetEnumerator(), innerKeySelector,
@@ -320,9 +320,9 @@ namespace Velo.Collections
                 resultBuilder);
         }
 
-        public bool Remove(T element, EqualityComparer<T> comparer = null)
+        public bool Remove(T element, EqualityComparer<T>? comparer = null)
         {
-            if (comparer == null) comparer = EqualityComparer<T>.Default;
+            comparer ??= EqualityComparer<T>.Default;
 
             var index = IndexOf(element, comparer);
             if (index < 0) return false;
@@ -343,9 +343,9 @@ namespace Velo.Collections
             _length--;
         }
 
-        public void Sort<TProperty>(Func<T, TProperty> property, Comparer<TProperty> comparer = null)
+        public void Sort<TProperty>(Func<T, TProperty> property, Comparer<TProperty>? comparer = null)
         {
-            if (comparer == null) comparer = Comparer<TProperty>.Default;
+            comparer ??= Comparer<TProperty>.Default;
 
             var border = _length - 1;
             for (var i = 0; i < border; i++)
@@ -440,7 +440,7 @@ namespace Velo.Collections
                 case 8: return _element8;
                 case 9: return _element9;
                 default:
-                    return _array[index - Capacity];
+                    return _array![index - Capacity];
             }
         }
 
@@ -479,7 +479,7 @@ namespace Velo.Collections
                     _element9 = value;
                     return;
                 default:
-                    _array[index - Capacity] = value;
+                    _array![index - Capacity] = value;
                     return;
             }
         }
