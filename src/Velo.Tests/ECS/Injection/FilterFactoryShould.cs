@@ -20,21 +20,23 @@ namespace Velo.Tests.ECS.Injection
             _actorFilterFactory = new FilterFactory<IActorContext>(typeof(IActorFilter));
         }
 
-        [Theory, MemberData(nameof(FilterTypes))]
+        [Theory]
+        [MemberData(nameof(FilterTypes))]
         public void Applicable(Type filterType)
         {
             _actorFilterFactory.Applicable(filterType).Should().BeTrue();
         }
 
-        [Theory, MemberData(nameof(FilterTypes))]
+        [Theory]
+        [MemberData(nameof(FilterTypes))]
         public void CreateDependency(Type filterType)
         {
             var dependency = _actorFilterFactory.BuildDependency(filterType, Mock.Of<IDependencyEngine>());
-            dependency.Resolver.Implementation.Should().Be(filterType);
+            dependency.Should().BeOfType<ContextDependency<IActorContext>>();
         }
 
         [Fact]
-        public void CreateResolvableDependency()
+        public void CreateResolvable()
         {
             var provider = new DependencyCollection()
                 .AddECS()

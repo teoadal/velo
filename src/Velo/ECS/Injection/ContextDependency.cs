@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using Velo.DependencyInjection;
 using Velo.DependencyInjection.Dependencies;
 using Velo.DependencyInjection.Resolvers;
@@ -25,13 +26,17 @@ namespace Velo.ECS.Injection
             return Implementation == contract;
         }
 
-        protected override object ResolveInstance(Type contract, IDependencyScope scope)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public object GetInstance(Type contract, IDependencyScope scope)
         {
             var actorContext = scope.GetRequiredService<TContext>();
             return _resolver(actorContext);
         }
 
-        object IDependency.GetInstance(Type contract, IDependencyScope scope) => ResolveInstance(contract, scope);
+        protected override object ResolveInstance(Type contract, IDependencyScope scope)
+        {
+            return GetInstance(contract, scope);
+        }
 
         public void Dispose()
         {

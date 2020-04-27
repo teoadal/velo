@@ -11,10 +11,8 @@ using Velo.ECS.Systems.Handlers;
 // ReSharper disable once CheckNamespace
 namespace Velo.DependencyInjection
 {
-    // ReSharper disable once InconsistentNaming
     public static class ECSInstaller
     {
-        // ReSharper disable once InconsistentNaming
         public static DependencyCollection AddECS(this DependencyCollection dependencies)
         {
             dependencies

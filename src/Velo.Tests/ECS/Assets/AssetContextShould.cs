@@ -7,7 +7,6 @@ using Velo.ECS.Assets;
 using Velo.ECS.Assets.Context;
 using Velo.ECS.Assets.Filters;
 using Velo.ECS.Assets.Groups;
-using Velo.ECS.Assets.Sources;
 using Velo.ECS.Components;
 using Velo.TestsModels.ECS;
 using Xunit;
@@ -24,9 +23,9 @@ namespace Velo.Tests.ECS.Assets
         {
             InjectComponentsArray(new IComponent[] {new TestComponent1(), new TestComponent2()});
 
-            var assets = Fixture.CreateMany<TestAsset>().Cast<Asset>().ToArray();
+            var assets = Fixture.CreateMany<TestAsset>().ToArray();
             _asset = assets[0];
-            _assetContext = new AssetContext(new IAssetSource[] {new MemoryAssetSource(assets)});
+            _assetContext = new AssetContext(assets);
         }
 
         [Fact]
