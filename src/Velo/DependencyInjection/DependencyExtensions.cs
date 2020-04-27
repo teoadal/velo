@@ -27,13 +27,11 @@ namespace Velo.DependencyInjection
 
         internal static DependencyCollection AddFactory<TContract, TImplementation>(
             this DependencyCollection dependencies,
-            Action<DependencyFactoryBuilder> builder)
+            Func<DependencyFactoryBuilder, DependencyFactoryBuilder> buildAction)
             where TImplementation : class, TContract
         {
-            var builderInstance = new DependencyFactoryBuilder(typeof(TContract), typeof(TImplementation));
-            builder(builderInstance);
-
-            dependencies.AddFactory(builderInstance.Build());
+            var builder = buildAction(new DependencyFactoryBuilder(typeof(TContract), typeof(TImplementation)));
+            dependencies.AddFactory(builder.Build());
 
             return dependencies;
         }

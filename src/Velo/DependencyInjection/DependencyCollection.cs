@@ -126,7 +126,7 @@ namespace Velo.DependencyInjection
         }
 
         public IDependency GetRequiredDependency(Type contract) => _engine.GetRequiredDependency(contract);
-        
+
         public DependencyLifetime GetLifetime(Type contract) => _engine.GetRequiredDependency(contract).Lifetime;
 
         public DependencyCollection Scan(Action<DependencyScanner> action)

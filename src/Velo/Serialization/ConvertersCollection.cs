@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
@@ -9,7 +8,7 @@ using Velo.Utils;
 
 namespace Velo.Serialization
 {
-    internal sealed class ConvertersCollection : ConcurrentDictionary<Type, IJsonConverter>, IConvertersCollection
+    internal sealed class ConvertersCollection : DangerousVector<Type, IJsonConverter>, IConvertersCollection
     {
         private readonly Func<Type, IJsonConverter> _builder;
 

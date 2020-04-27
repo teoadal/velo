@@ -3,6 +3,11 @@ using Velo.ECS.Actors.Context;
 using Velo.ECS.Actors.Factory;
 using Velo.ECS.Actors.Filters;
 using Velo.ECS.Actors.Groups;
+using Velo.ECS.Assets;
+using Velo.ECS.Assets.Context;
+using Velo.ECS.Assets.Filters;
+using Velo.ECS.Assets.Groups;
+using Velo.ECS.Assets.Sources;
 using Velo.ECS.Components;
 using Velo.ECS.Injection;
 using Velo.ECS.Systems;
@@ -25,6 +30,19 @@ namespace Velo.DependencyInjection
                 .AddSingleton<IActorFactory, ActorFactory>()
                 .AddSingleton<IComponentFactory, ComponentFactory>();
 
+            return dependencies;
+        }
+
+        public static DependencyCollection AddECSAssets(this DependencyCollection dependencies, IAssetSource source)
+        {
+            dependencies
+                .AddFactory(new FilterFactory<IAssetContext>(typeof(IAssetFilter)))
+                .AddFactory(new GroupFactory<IAssetContext>(typeof(IAssetGroup)))
+                .AddFactory(new SingleFactory<IAssetContext>(typeof(SingleAsset<>)))
+                .AddSingleton<IAssetContext, AssetContext>();
+
+            dependencies.AddInstance(source);
+            
             return dependencies;
         }
     }

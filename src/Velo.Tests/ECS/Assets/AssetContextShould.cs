@@ -7,6 +7,7 @@ using Velo.ECS.Assets;
 using Velo.ECS.Assets.Context;
 using Velo.ECS.Assets.Filters;
 using Velo.ECS.Assets.Groups;
+using Velo.ECS.Assets.Sources;
 using Velo.ECS.Components;
 using Velo.TestsModels.ECS;
 using Xunit;
@@ -67,6 +68,20 @@ namespace Velo.Tests.ECS.Assets
             _assetContext.Should().Contain(a => a.Id == _asset.Id);
         }
 
+        [Fact]
+        public void DisposeSource()
+        {
+            var source = new Mock<IAssetSource>();
+            source
+                .Setup(s => s.GetAssets())
+                .Returns(System.Linq.Enumerable.Empty<Asset>());
+            
+            var _ = new AssetContext(source.Object);
+            
+            source.Verify(s => s.GetAssets());
+            source.Verify(s => s.Dispose());
+        }
+        
         [Fact]
         public void EnumerableWhere()
         {

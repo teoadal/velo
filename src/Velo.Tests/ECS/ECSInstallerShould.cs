@@ -1,7 +1,10 @@
 using FluentAssertions;
+using Moq;
 using Velo.DependencyInjection;
 using Velo.ECS.Actors.Context;
 using Velo.ECS.Actors.Factory;
+using Velo.ECS.Assets.Context;
+using Velo.ECS.Assets.Sources;
 using Velo.ECS.Components;
 using Velo.ECS.Systems;
 using Xunit;
@@ -37,6 +40,13 @@ namespace Velo.Tests.ECS
         public void InstallSystemService()
         {
             _dependencies.Contains<ISystemService>().Should().BeTrue();
+        }
+
+        [Fact]
+        public void InstallAssets()
+        {
+            _dependencies.AddECSAssets(Mock.Of<IAssetSource>());
+            _dependencies.Contains<IAssetContext>().Should().BeTrue();
         }
     }
 }

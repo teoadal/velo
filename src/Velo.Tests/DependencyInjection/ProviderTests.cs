@@ -69,8 +69,8 @@ namespace Velo.Tests.DependencyInjection
                 .AddSingleton<BooService>()
                 .BuildProvider();
 
-            var repository = (BooRepository) provider.GetService<IBooRepository>();
-            var service = provider.GetService<BooService>();
+            var repository = (BooRepository) provider.GetRequiredService<IBooRepository>();
+            var service = provider.GetRequiredService<BooService>();
 
             provider.Dispose();
 

@@ -25,11 +25,16 @@ namespace Velo.Collections
     {
         private readonly object _lock;
 
-        public DangerousVector() : base(10)
+        public DangerousVector() : this(10)
+        {
+        }
+
+        public DangerousVector(IDictionary<TKey, TValue> source) 
+            : base(source)
         {
             _lock = new object();
         }
-
+        
         public DangerousVector(int capacity)
             : base(capacity < 10 ? throw Error.InvalidOperation("Capacity less 10") : capacity)
         {

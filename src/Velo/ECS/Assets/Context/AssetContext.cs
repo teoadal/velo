@@ -5,6 +5,7 @@ using System.Linq;
 using Velo.Collections;
 using Velo.ECS.Assets.Filters;
 using Velo.ECS.Assets.Groups;
+using Velo.ECS.Assets.Sources;
 using Velo.ECS.Components;
 using Velo.Threading;
 using Velo.Utils;
@@ -17,6 +18,17 @@ namespace Velo.ECS.Assets.Context
         private readonly Dictionary<int, IAssetFilter> _filters;
         private readonly Dictionary<int, IAssetGroup> _groups;
         private readonly Dictionary<int, object> _singleAssets;
+
+        public AssetContext(IAssetSource source)
+        {
+            _assets = source.GetAssets().ToArray();
+
+            source.Dispose();
+
+            _filters = new Dictionary<int, IAssetFilter>(25);
+            _groups = new Dictionary<int, IAssetGroup>(25);
+            _singleAssets = new Dictionary<int, object>();
+        }
 
         public AssetContext(IEnumerable<Asset> assets)
         {
