@@ -84,8 +84,7 @@ namespace Velo.Tests.ECS.Assets
         [Fact]
         public void TryGetFalse()
         {
-            var actorId = _asset.Id;
-            _assetGroup.TryGet(-actorId, out _).Should().BeFalse();
+            _assetGroup.TryGet(-_asset.Id, out _).Should().BeFalse();
         }
     }
 }

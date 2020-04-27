@@ -12,20 +12,20 @@ using Velo.TestsModels.ECS;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Tests.ECS.Actors.Filters
+namespace Velo.Tests.ECS.Actors
 {
-    public class ActorFilter1Should : ECSTestClass
+    public class ActorFilter2Should : ECSTestClass
     {
         private readonly TestActor _actor;
         private readonly Mock<IActorContext> _actorContext;
-        private readonly IActorFilter<TestComponent1> _actorFilter;
+        private readonly IActorFilter<TestComponent1, TestComponent2> _actorFilter;
 
-        public ActorFilter1Should(ITestOutputHelper output) : base(output)
+        public ActorFilter2Should(ITestOutputHelper output) : base(output)
         {
-            var components = new IComponent[] {new TestComponent1()};
+            var components = new IComponent[] {new TestComponent1(), new TestComponent2()};
             _actor = new TestActor(1, components);
             _actorContext = new Mock<IActorContext>();
-            _actorFilter = new ActorFilter<TestComponent1>(_actorContext.Object);
+            _actorFilter = new ActorFilter<TestComponent1, TestComponent2>(_actorContext.Object);
 
             InjectComponentsArray(components);
         }
@@ -55,6 +55,10 @@ namespace Velo.Tests.ECS.Actors.Filters
                 actor.Component1
                     .Should().NotBeNull().And
                     .BeOfType<TestComponent1>();
+
+                actor.Component2
+                    .Should().NotBeNull().And
+                    .BeOfType<TestComponent2>();
             }
 
             exists.Count.Should().Be(length);
@@ -66,10 +70,10 @@ namespace Velo.Tests.ECS.Actors.Filters
             foreach (var actor in Fixture.CreateMany<TestActor>())
             {
                 RaiseActorAdded(_actorContext, actor);
-
+                
                 _actorFilter
                     .Where((a, id) => a.Id == id, actor.Id)
-                    .Should().ContainSingle(a => a.Id == actor.Id);
+                    .Should().ContainSingle(a => a.Id == actor.Id);    
             }
         }
 
@@ -112,7 +116,7 @@ namespace Velo.Tests.ECS.Actors.Filters
 
             RaiseActorAdded(_actorContext, _actor);
 
-            actorFilter.Should().Raise(nameof(IActorFilter<TestComponent1>.Added));
+            actorFilter.Should().Raise(nameof(IActorFilter<TestComponent1, TestComponent2>.Added));
         }
 
         [Fact]
@@ -123,7 +127,7 @@ namespace Velo.Tests.ECS.Actors.Filters
             RaiseActorAdded(_actorContext, _actor);
             RaiseActorRemoved(_actorContext, _actor);
 
-            actorFilter.Should().Raise(nameof(IActorFilter<TestComponent2>.Removed));
+            actorFilter.Should().Raise(nameof(IActorFilter<TestComponent1, TestComponent2>.Removed));
         }
 
         [Fact]

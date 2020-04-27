@@ -19,7 +19,7 @@ namespace Velo.Settings.Sources
 
                 var key = verbatim ? element.Substring(2) : element;
 
-                var value = string.Empty;
+                string? value = null;
                 if (verbatim)
                 {
                     value = i < args.Length - 1 ? args[++i] : null;

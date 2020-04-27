@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using AutoFixture;
-using AutoFixture.Xunit2;
 using FluentAssertions;
 using Moq;
 using Velo.ECS.Assets;
@@ -118,11 +117,10 @@ namespace Velo.Tests.ECS.Assets
                 .Which.Should().NotBeNull();
         }
 
-        [Theory]
-        [AutoData]
-        public void NotContains(int actorId)
+        [Fact]
+        public void NotContains()
         {
-            _assetContext.Contains(actorId).Should().BeFalse();
+            _assetContext.Contains(-_asset.Id).Should().BeFalse();
         }
 
         [Fact]
@@ -132,20 +130,18 @@ namespace Velo.Tests.ECS.Assets
             exists.Should().Be(_asset);
         }
 
-        [Theory]
-        [AutoData]
-        public void TryGetNotExists(int actorId)
+        [Fact]
+        public void TryGetNotExists()
         {
-            _assetContext.TryGet(actorId, out var exists).Should().BeFalse();
+            _assetContext.TryGet(-_asset.Id, out var exists).Should().BeFalse();
             exists.Should().BeNull();
         }
 
-        [Theory]
-        [AutoData]
-        public void ThrowIfGetNotExists(int actorId)
+        [Fact]
+        public void ThrowIfGetNotExists()
         {
             _assetContext
-                .Invoking<IAssetContext>(context => context.Get(actorId))
+                .Invoking<IAssetContext>(context => context.Get(-_asset.Id))
                 .Should().Throw<KeyNotFoundException>();
         }
     }

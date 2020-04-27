@@ -141,8 +141,7 @@ namespace Velo.Tests.ECS.Actors
         [Fact]
         public void TryGetFalse()
         {
-            var actorId = _actor.Id;
-            _actorGroup.TryGet(-actorId, out _).Should().BeFalse();
+            _actorGroup.TryGet(-_actor.Id, out _).Should().BeFalse();
         }
     }
 }

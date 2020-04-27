@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
-using AutoFixture.Xunit2;
 using FluentAssertions;
 using Moq;
 using Velo.ECS.Actors;
@@ -165,11 +164,10 @@ namespace Velo.Tests.ECS.Actors
                 .Which.Should().NotBeNull();
         }
 
-        [Theory]
-        [AutoData]
-        public void NotContains(int actorId)
+        [Fact]
+        public void NotContains()
         {
-            _actorContext.Contains(actorId).Should().BeFalse();
+            _actorContext.Contains(-_actor.Id).Should().BeFalse();
         }
 
         [Fact]
@@ -219,21 +217,18 @@ namespace Velo.Tests.ECS.Actors
             exists.Should().Be(_actor);
         }
 
-        [Theory]
-        [AutoData]
-        public void TryGetNotExists(int actorId)
+        [Fact]
+        public void TryGetNotExists()
         {
-            _actorContext.Add(_actor);
-            _actorContext.TryGet(actorId, out var exists).Should().BeFalse();
+            _actorContext.TryGet(-_actor.Id, out var exists).Should().BeFalse();
             exists.Should().BeNull();
         }
 
-        [Theory]
-        [AutoData]
-        public void ThrowIfGetNotExists(int actorId)
+        [Fact]
+        public void ThrowIfGetNotExists()
         {
             _actorContext
-                .Invoking<IActorContext>(context => context.Get(actorId))
+                .Invoking<IActorContext>(context => context.Get(-_actor.Id))
                 .Should().Throw<KeyNotFoundException>();
         }
     }

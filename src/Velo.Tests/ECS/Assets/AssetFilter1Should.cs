@@ -17,8 +17,8 @@ namespace Velo.Tests.ECS.Assets
         private readonly IAssetFilter<TestComponent1> _assetFilter;
         private readonly int _assetsCount;
 
-        private TestComponent1 _component1;
-        private TestComponent2 _component2;
+        private readonly TestComponent1 _component1;
+        private readonly TestComponent2 _component2;
 
         public AssetFilter1Should(ITestOutputHelper output) : base(output)
         {
@@ -92,8 +92,7 @@ namespace Velo.Tests.ECS.Assets
         [Fact]
         public void TryGetFalse()
         {
-            var assetId = _asset.Id;
-            _assetFilter.TryGet(-assetId, out _).Should().BeFalse();
+            _assetFilter.TryGet(-_asset.Id, out _).Should().BeFalse();
         }
     }
 }

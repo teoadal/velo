@@ -16,7 +16,7 @@ namespace Velo.Tests.ECS.Assets
         private readonly Asset _asset;
         private readonly int _assetCount;
         private readonly IAssetFilter<TestComponent1, TestComponent2> _assetFilter;
-        
+
         private readonly TestComponent1 _component1;
         private readonly TestComponent2 _component2;
 
@@ -38,7 +38,7 @@ namespace Velo.Tests.ECS.Assets
         {
             _assetFilter.Contains(_asset.Id).Should().BeTrue();
         }
-        
+
         [Fact]
         public void Enumerable()
         {
@@ -63,25 +63,25 @@ namespace Velo.Tests.ECS.Assets
                 .Where((a, id) => a.Id == id, _asset.Id)
                 .Should().ContainSingle(a => a.Id == _asset.Id);
         }
-        
+
         [Fact]
         public void HasLength()
         {
             _assetFilter.Length.Should().Be(_assetCount);
         }
-        
+
         [Fact]
         public void NotContains()
         {
-            var valid = new Asset(1, new IComponent[] { _component1, _component2 });
-            var notValid = new Asset(2, new IComponent[] { _component2 });
-            
+            var valid = new Asset(1, new IComponent[] {_component1, _component2});
+            var notValid = new Asset(2, new IComponent[] {_component2});
+
             var filter = new AssetFilter<TestComponent1, TestComponent2>(new[] {valid, notValid});
 
             filter.Should().Contain(asset => asset.Id == valid.Id);
             filter.Should().NotContain(asset => asset.Id == notValid.Id);
         }
-        
+
         [Fact]
         public void TryGetTrue()
         {
@@ -92,8 +92,7 @@ namespace Velo.Tests.ECS.Assets
         [Fact]
         public void TryGetFalse()
         {
-            var assetId = _asset.Id;
-            _assetFilter.TryGet(-assetId, out _).Should().BeFalse();
+            _assetFilter.TryGet(-_asset.Id, out _).Should().BeFalse();
         }
     }
 }

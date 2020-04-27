@@ -5,7 +5,7 @@ namespace Velo.Pools
     {
         private readonly T _defaultValue;
         
-        public EmptyPool(T defaultValue = default)
+        public EmptyPool(T defaultValue)
         {
             _defaultValue = defaultValue;
         }
