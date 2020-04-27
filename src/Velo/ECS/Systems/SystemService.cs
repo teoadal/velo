@@ -1,6 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Velo.ECS.Systems.Handler;
+using Velo.ECS.Systems.Handlers;
 
 namespace Velo.ECS.Systems
 {

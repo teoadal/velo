@@ -1,5 +1,4 @@
 using System;
-using Velo.DependencyInjection.Factories;
 using Velo.Metrics.Counters;
 using Velo.Metrics.Provider;
 using Velo.Settings.Provider;
@@ -12,10 +11,9 @@ namespace Velo.DependencyInjection
         public static DependencyCollection AddMetrics(this DependencyCollection dependencies)
         {
             dependencies
-                .AddFactory(new DependencyFactoryBuilder<IMetricsProvider, MetricsProvider>()
+                .AddFactory<IMetricsProvider, MetricsProvider>(factory => factory
                     .Lifetime(DependencyLifetime.Singleton)
-                    .CreateIf<NullSettingsProvider>(engine => !engine.Contains(typeof(ICounter)))
-                    .Build());
+                    .CreateIf<NullSettingsProvider>(engine => !engine.Contains(typeof(ICounter))));
             
             return dependencies;
         }

@@ -2,15 +2,26 @@ using System;
 
 namespace Velo.DependencyInjection.Factories
 {
-    internal ref struct DependencyFactoryBuilder<TContract, TImplementation>
-        where TImplementation : TContract
+    internal struct DependencyFactoryBuilder
     {
-        private DependencyLifetime? _lifetime;
+        private readonly Type _contract;
+        private readonly Type _implementation;
 
+        private DependencyLifetime? _lifetime;
         private Type _nullService;
         private Predicate<IDependencyEngine> _nullServicePredicate;
 
-        public DependencyFactoryBuilder<TContract, TImplementation> CreateIf<TNullImplementation>(
+        internal DependencyFactoryBuilder(Type contract, Type implementation)
+        {
+            _contract = contract;
+            _implementation = implementation;
+
+            _lifetime = null;
+            _nullService = null!;
+            _nullServicePredicate = null!;
+        }
+
+        public DependencyFactoryBuilder CreateIf<TNullImplementation>(
             Predicate<IDependencyEngine> predicate)
             where TNullImplementation : class
         {
@@ -20,13 +31,13 @@ namespace Velo.DependencyInjection.Factories
             return this;
         }
 
-        public DependencyFactoryBuilder<TContract, TImplementation> DependedLifetime()
+        public DependencyFactoryBuilder DependedLifetime()
         {
             _lifetime = null;
             return this;
         }
 
-        public DependencyFactoryBuilder<TContract, TImplementation> Lifetime(DependencyLifetime lifetime)
+        public DependencyFactoryBuilder Lifetime(DependencyLifetime lifetime)
         {
             _lifetime = lifetime;
             return this;
@@ -34,10 +45,8 @@ namespace Velo.DependencyInjection.Factories
 
         public IDependencyFactory Build()
         {
-            var contract = typeof(TContract);
-            var implementation = typeof(TImplementation);
-            return new ConfiguredDependencyFactory(
-                contract, _lifetime, implementation,
+            return new ConfiguredFactory(
+                _contract, _lifetime, _implementation,
                 _nullService, _nullServicePredicate);
         }
     }

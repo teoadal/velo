@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Velo.Threading;
 
-namespace Velo.ECS.Systems.Handler
+namespace Velo.ECS.Systems.Handlers
 {
     internal sealed class SystemFullHandler<TSystem> : ISystemHandler<TSystem>
         where TSystem: class

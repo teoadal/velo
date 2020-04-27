@@ -8,7 +8,7 @@ using Velo.Utils;
 
 namespace Velo.DependencyInjection
 {
-    internal static class DependencyExtensions
+    public static class DependencyExtensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T Activate<T>(this IDependencyScope scope, ConstructorInfo? constructor = null)
@@ -23,6 +23,19 @@ namespace Velo.DependencyInjection
             object instance)
         {
             return dependencies.AddInstance(new[] {contract}, instance);
+        }
+
+        internal static DependencyCollection AddFactory<TContract, TImplementation>(
+            this DependencyCollection dependencies,
+            Action<DependencyFactoryBuilder> builder)
+            where TImplementation : class, TContract
+        {
+            var builderInstance = new DependencyFactoryBuilder(typeof(TContract), typeof(TImplementation));
+            builder(builderInstance);
+
+            dependencies.AddFactory(builderInstance.Build());
+
+            return dependencies;
         }
 
         #region AddScoped

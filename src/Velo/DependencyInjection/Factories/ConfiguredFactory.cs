@@ -4,7 +4,7 @@ using Velo.DependencyInjection.Resolvers;
 
 namespace Velo.DependencyInjection.Factories
 {
-    internal sealed class ConfiguredDependencyFactory : IDependencyFactory
+    internal sealed class ConfiguredFactory : IDependencyFactory
     {
         private readonly Type _contract;
         private readonly DependencyLifetime? _lifetime;
@@ -13,7 +13,7 @@ namespace Velo.DependencyInjection.Factories
         private readonly Type _nullService;
         private readonly Predicate<IDependencyEngine> _nullServicePredicate;
 
-        public ConfiguredDependencyFactory(
+        public ConfiguredFactory(
             Type contract,
             DependencyLifetime? lifetime,
             Type implementation,

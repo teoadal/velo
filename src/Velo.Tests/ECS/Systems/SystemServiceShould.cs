@@ -2,7 +2,7 @@ using System.Threading;
 using FluentAssertions;
 using Moq;
 using Velo.ECS.Systems;
-using Velo.ECS.Systems.Handler;
+using Velo.ECS.Systems.Handlers;
 using Xunit;
 using Xunit.Abstractions;
 

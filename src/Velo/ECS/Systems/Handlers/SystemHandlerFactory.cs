@@ -5,7 +5,7 @@ using Velo.DependencyInjection.Factories;
 using Velo.DependencyInjection.Resolvers;
 using Velo.Threading;
 
-namespace Velo.ECS.Systems.Handler
+namespace Velo.ECS.Systems.Handlers
 {
     internal sealed class SystemHandlerFactory : IDependencyFactory
     {

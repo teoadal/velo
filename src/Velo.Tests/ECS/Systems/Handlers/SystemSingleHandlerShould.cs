@@ -2,11 +2,11 @@ using System.Threading;
 using FluentAssertions;
 using Moq;
 using Velo.ECS.Systems;
-using Velo.ECS.Systems.Handler;
+using Velo.ECS.Systems.Handlers;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Tests.ECS.Systems.Handler
+namespace Velo.Tests.ECS.Systems.Handlers
 {
     public class SystemSingleHandlerShould : ECSTestClass
     {

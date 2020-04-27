@@ -1,12 +1,12 @@
 using System.Threading;
 using FluentAssertions;
 using Velo.ECS.Systems;
-using Velo.ECS.Systems.Handler;
+using Velo.ECS.Systems.Handlers;
 using Velo.Threading;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Tests.ECS.Systems.Handler
+namespace Velo.Tests.ECS.Systems.Handlers
 {
     public class SystemNullHandlerShould : ECSTestClass
     {

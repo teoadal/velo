@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Velo.ECS.Systems.Handler
+namespace Velo.ECS.Systems.Handlers
 {
     internal sealed class SystemSingleHandler<TSystem> : ISystemHandler<TSystem>
         where TSystem : class

@@ -1,5 +1,4 @@
 using System;
-using Velo.DependencyInjection.Factories;
 using Velo.Logging;
 using Velo.Logging.Enrichers;
 using Velo.Logging.Provider;
@@ -16,10 +15,9 @@ namespace Velo.DependencyInjection
         {
             dependencies
                 .AddSingleton<IRenderersCollection, RenderersCollection>()
-                .AddFactory(new DependencyFactoryBuilder<ILogProvider, LogProvider>()
+                .AddFactory<ILogProvider, LogProvider>(factory => factory
                     .Lifetime(DependencyLifetime.Scoped)
-                    .CreateIf<NullLogProvider>(engine => !engine.Contains(typeof(ILogWriter)))
-                    .Build())
+                    .CreateIf<NullLogProvider>(engine => !engine.Contains(typeof(ILogWriter))))
                 .AddScoped(typeof(ILogger<>), typeof(Logger<>));
 
             return dependencies;

@@ -76,7 +76,7 @@
       <Compile Update="CQRS\Commands\Pipeline\CommandFullPipeline.CommandBehaviours.cs">
         <DependentUpon>CommandFullPipeline.cs</DependentUpon>
       </Compile>
-      <Compile Update="DependencyInjection\Factories\ConfiguredDependencyFactory.cs">
+      <Compile Update="DependencyInjection\Factories\ConfiguredFactory.cs">
         <DependentUpon>DependencyFactoryBuilder.cs</DependentUpon>
       </Compile>
     </ItemGroup>
