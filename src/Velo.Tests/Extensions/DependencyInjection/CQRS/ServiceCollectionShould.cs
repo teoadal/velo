@@ -42,8 +42,9 @@ namespace Velo.Tests.Extensions.DependencyInjection.CQRS
             var serviceDescriptor = _serviceCollection.First(s => s.ServiceType == typeof(IEmitter));
             serviceDescriptor.Lifetime.Should().Be(ServiceLifetime.Scoped);
         }
-        
-        [Theory, AutoData]
+
+        [Theory]
+        [AutoData]
         public async Task ResolveCommandPipeline(int booId)
         {
             var emitter = _serviceCollection
@@ -57,7 +58,8 @@ namespace Velo.Tests.Extensions.DependencyInjection.CQRS
                 .AddElement(It.Is<Boo>(b => b.Id == booId)));
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public async Task ResolveCommandPipelineWithBehaviour(int booId)
         {
             var emitter = _serviceCollection
@@ -75,7 +77,8 @@ namespace Velo.Tests.Extensions.DependencyInjection.CQRS
                 .AddElement(It.Is<Boo>(b => b.Id == booId)));
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public async Task ResolveCommandFullPipeline(int booId)
         {
             var emitter = _serviceCollection
@@ -107,7 +110,8 @@ namespace Velo.Tests.Extensions.DependencyInjection.CQRS
             emitter.Should().NotBeNull();
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public async Task ResolveNotificationParallelPipeline(uint count)
         {
             for (var i = 0; i < count; i++)
@@ -139,7 +143,8 @@ namespace Velo.Tests.Extensions.DependencyInjection.CQRS
             notification.Counter.Should().Be(1);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public async Task ResolveNotificationSequentialPipeline(uint count)
         {
             for (var i = 0; i < count; i++)
@@ -172,7 +177,8 @@ namespace Velo.Tests.Extensions.DependencyInjection.CQRS
             response.Message.Should().Be(2);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public async Task ResolveQuerySequentialPipeline(int booId)
         {
             var emitter = _serviceCollection
@@ -190,8 +196,9 @@ namespace Velo.Tests.Extensions.DependencyInjection.CQRS
 
             response.Id.Should().Be(booId);
         }
-        
-        [Theory, AutoData]
+
+        [Theory]
+        [AutoData]
         public async Task ResolveQueryFullPipeline(int booId)
         {
             var emitter = _serviceCollection

@@ -21,7 +21,8 @@ namespace Velo.Tests.CQRS.Queries
                 .AddEmitter();
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Executed(Query query)
         {
             var processor = new Mock<Func<Query, Boo>>();
@@ -36,7 +37,8 @@ namespace Velo.Tests.CQRS.Queries
             processor.Verify(p => p.Invoke(query));
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void ExecutedWithContext(Query query)
         {
             var repository = Mock.Of<IBooRepository>();

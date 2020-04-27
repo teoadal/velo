@@ -21,7 +21,8 @@ namespace Velo.Tests.Serialization
             _converter = new JConverter();
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Serialize_Array_Object(Boo[] array)
         {
             var json = _converter.Serialize(array);
@@ -38,8 +39,9 @@ namespace Velo.Tests.Serialization
                 Assert.Equal(element.Int, deserializedElement.Int);
             }
         }
-        
-        [Theory, AutoData]
+
+        [Theory]
+        [AutoData]
         public void Serialize_Array_Float(float[] array)
         {
             var json = _converter.Serialize(array);
@@ -50,8 +52,9 @@ namespace Velo.Tests.Serialization
                 Assert.Equal(array[i], deserialized[i]);
             }
         }
-        
-        [Theory, AutoData]
+
+        [Theory]
+        [AutoData]
         public void Serialize_Array_MultiThreading(int[][] arrays)
         {
             var jsons = arrays.Select(_converter.Serialize).ToArray();
@@ -83,8 +86,9 @@ namespace Velo.Tests.Serialization
             
             Assert.Null(deserialized);
         }
-        
-        [Theory, AutoData]
+
+        [Theory]
+        [AutoData]
         public void Serialize_Array_String(string[] array)
         {
             var json = _converter.Serialize(array);
@@ -95,8 +99,9 @@ namespace Velo.Tests.Serialization
                 Assert.Equal(array[i], deserialized[i]);
             }
         }
-        
-        [Theory, AutoData]
+
+        [Theory]
+        [AutoData]
         public void Serialize_BigObject(BigObject source)
         {
             var serialized = _converter.Serialize(source);
@@ -126,8 +131,9 @@ namespace Velo.Tests.Serialization
             Assert.Equal(source.Int, deserialized.Int);
             Assert.Equal(source.String, deserialized.String);
         }
-        
-        [Theory, AutoData]
+
+        [Theory]
+        [AutoData]
         public void Serialize_Boolean(bool source)
         {
             var json = _converter.Serialize(source);
@@ -146,8 +152,9 @@ namespace Velo.Tests.Serialization
             
             Assert.Equal(source, deserialized);
         }
-        
-        [Theory, AutoData]
+
+        [Theory]
+        [AutoData]
         public void Serialize_Double(double source)
         {
             var json = _converter.Serialize(source);
@@ -155,8 +162,9 @@ namespace Velo.Tests.Serialization
             
             Assert.Equal(source, deserialized);
         }
-        
-        [Theory, AutoData]
+
+        [Theory]
+        [AutoData]
         public void Serialize_Enum(ModelType modelType)
         {
             var json = _converter.Serialize(modelType);
@@ -175,8 +183,9 @@ namespace Velo.Tests.Serialization
             
             Assert.Equal(source, deserialized);
         }
-        
-        [Theory, AutoData]
+
+        [Theory]
+        [AutoData]
         public void Serialize_Float(float source)
         {
             var json = _converter.Serialize(source);
@@ -185,7 +194,8 @@ namespace Velo.Tests.Serialization
             Assert.Equal(source, deserialized);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Serialize_Int(int source)
         {
             var json = _converter.Serialize(source);
@@ -194,7 +204,8 @@ namespace Velo.Tests.Serialization
             Assert.Equal(source, deserialized);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Serialize_List(List<bool?> source)
         {
             var json = _converter.Serialize(source);
@@ -272,8 +283,9 @@ namespace Velo.Tests.Serialization
             
             Assert.Equal(source, deserialized);
         }
-        
-        [Theory, AutoData]
+
+        [Theory]
+        [AutoData]
         public void Serialize_String(string source)
         {
             var json = _converter.Serialize(source);
@@ -281,8 +293,9 @@ namespace Velo.Tests.Serialization
             
             Assert.Equal(source, deserialized);
         }
-        
-        [Theory, AutoData]
+
+        [Theory]
+        [AutoData]
         public void Serialize_TimeSpan(TimeSpan source)
         {
             var json = _converter.Serialize(source);

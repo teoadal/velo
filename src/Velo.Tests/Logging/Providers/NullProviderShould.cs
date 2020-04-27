@@ -17,7 +17,8 @@ namespace Velo.Tests.Logging.Providers
             _provider = new NullLogProvider();
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void CallWithoutResults(LogLevel level, Type sender, string template, int arg1, string arg2, Guid arg3, Boo arg4)
         {
             _provider.Write(level, sender, template);

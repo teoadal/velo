@@ -17,13 +17,15 @@ namespace Velo.Tests.Settings.Provider
             _provider = new NullSettingsProvider();
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void NotContain(string path)
         {
             _provider.Contains(path).Should().BeFalse();
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void NotReturnValue(string path)
         {
             _provider.TryGet<Boo>(path, out _).Should().BeFalse();
@@ -37,7 +39,8 @@ namespace Velo.Tests.Settings.Provider
                 .Should().NotThrow();
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void ThrowGet(string path)
         {
             _provider
@@ -45,7 +48,8 @@ namespace Velo.Tests.Settings.Provider
                 .Should().Throw<KeyNotFoundException>();
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void ThrowGetObject(string path)
         {
             _provider

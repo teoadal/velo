@@ -24,21 +24,24 @@ namespace Velo.Tests.Logging.Enrichers
             _sender = typeof(SenderEnricherShould);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void AddProperty(LogLevel level)
         {
             _enricher.Enrich(level, _sender, _message);
             _message.Contains(SenderEnricher.Name);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void AddVerbose(LogLevel level)
         {
             _enricher.Enrich(level, _sender, _message);
             _message[SenderEnricher.Name].Type.Should().Be(JsonDataType.Verbose);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void AddMany(LogLevel level)
         {
             var messages = Enumerable.Range(0, 100).Select(_ => new JsonObject());
@@ -49,7 +52,8 @@ namespace Velo.Tests.Logging.Enrichers
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void AddMultiThreading(LogLevel level)
         {
             var messages = Many(() => new JsonObject());
@@ -61,8 +65,9 @@ namespace Velo.Tests.Logging.Enrichers
                 message.Contains(SenderEnricher.Name).Should().BeTrue();
             }
         }
-        
-        [Theory, AutoData]
+
+        [Theory]
+        [AutoData]
         public void HaveOneVerboseInstance(LogLevel level)
         {
             var messages = Many(() => new JsonObject());

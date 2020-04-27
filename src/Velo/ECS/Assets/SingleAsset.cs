@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Velo.Utils;
 
 namespace Velo.ECS.Assets
@@ -8,7 +7,7 @@ namespace Velo.ECS.Assets
     {
         private readonly TAsset _instance = null!;
 
-        public SingleAsset(IEnumerable<Asset> assets)
+        public SingleAsset(Asset[] assets)
         {
             foreach (var asset in assets)
             {

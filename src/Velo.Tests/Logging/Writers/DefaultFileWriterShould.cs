@@ -43,7 +43,8 @@ namespace Velo.Tests.Logging.Writers
             writer.Level.Should().Be(level);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Write(string template)
         {
             var context = new LogContext(LogLevel.Debug, _sender, template);

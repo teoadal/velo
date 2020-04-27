@@ -19,7 +19,8 @@ namespace Velo.Tests
             _builder = new PatchBuilder();
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void AddValue(List<int> value, int add)
         {
             var boo = new Boo {Values = value};
@@ -32,7 +33,8 @@ namespace Velo.Tests
             Assert.Contains(add, boo.Values);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void AddValue_NotInitialized(int add)
         {
             var boo = new Boo();
@@ -45,7 +47,8 @@ namespace Velo.Tests
             Assert.Contains(add, boo.Values);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void AddValue_ToArray(int[] value, int add)
         {
             var foo = new Foo {Array = value};
@@ -57,7 +60,8 @@ namespace Velo.Tests
             Assert.Contains(add, foo.Array);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void AddValues(List<int> values, int[] add)
         {
             var boo = new Boo {Values = values};
@@ -74,7 +78,8 @@ namespace Velo.Tests
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void AddValues_NotInitialized(int[] add)
         {
             var boo = new Boo();
@@ -91,7 +96,8 @@ namespace Velo.Tests
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void AddValues_ToArray(int[] values, int[] add)
         {
             var foo = new Foo {Array = values};
@@ -106,7 +112,8 @@ namespace Velo.Tests
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Assign(Boo first, Boo second)
         {
             _builder.CreatePatch<Boo>()
@@ -124,7 +131,8 @@ namespace Velo.Tests
             Assert.Equal(second.Int, first.Int);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Assign_Builder(Boo boo)
         {
             _builder.CreatePatch<Boo>()
@@ -134,7 +142,8 @@ namespace Velo.Tests
             Assert.Equal(boo.Int > boo.Id, boo.Bool);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Clear(List<int> values)
         {
             var boo = new Boo {Values = values};
@@ -146,7 +155,8 @@ namespace Velo.Tests
             Assert.Empty(boo.Values);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Clear_Array(int[] values)
         {
             var foo = new Foo {Array = values};
@@ -170,7 +180,8 @@ namespace Velo.Tests
             Assert.Null(boo.Values);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Decrement(Boo boo)
         {
             var initValue = boo.Int;
@@ -182,7 +193,8 @@ namespace Velo.Tests
             Assert.Equal(initValue - 1, boo.Int);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Drop(Boo boo)
         {
             _builder.CreatePatch<Boo>()
@@ -202,7 +214,8 @@ namespace Velo.Tests
             Assert.Equal(default, boo.Values);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Execute(Boo boo, int remove)
         {
             boo.Values.Add(remove);
@@ -214,7 +227,8 @@ namespace Velo.Tests
             Assert.DoesNotContain(remove, boo.Values);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Increment(Boo boo)
         {
             var initValue = boo.Int;
@@ -226,7 +240,8 @@ namespace Velo.Tests
             Assert.Equal(initValue + 1, boo.Int);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void RemoveValue(List<int> values, int remove)
         {
             values.Add(remove);
@@ -240,7 +255,8 @@ namespace Velo.Tests
             Assert.DoesNotContain(remove, boo.Values);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void RemoveValue_NotInitialized(int remove)
         {
             var boo = new Boo();
@@ -252,7 +268,8 @@ namespace Velo.Tests
             Assert.Null(boo.Values);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void RemoveValue_FromArray(int[] values, int remove)
         {
             values = values.Prepend(remove).ToArray();
@@ -267,7 +284,8 @@ namespace Velo.Tests
             Assert.DoesNotContain(remove, foo.Array);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void RemoveValues(List<int> values, int[] remove)
         {
             values.AddRange(remove);
@@ -286,7 +304,8 @@ namespace Velo.Tests
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void RemoveValues_NotInitialized(int[] remove)
         {
             var boo = new Boo();
@@ -298,7 +317,8 @@ namespace Velo.Tests
             Assert.Null(boo.Values);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void RemoveValues_FromArray(int[] values, int[] remove)
         {
             values = values.Concat(remove).ToArray();
@@ -317,7 +337,8 @@ namespace Velo.Tests
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void ReplaceValue(List<int> values, int oldValue, int newValue)
         {
             values.Add(oldValue);
@@ -332,7 +353,8 @@ namespace Velo.Tests
             Assert.Contains(newValue, boo.Values);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void ReplaceValue_InArray(int[] values, int oldValue, int newValue)
         {
             values = values.Prepend(oldValue).ToArray();

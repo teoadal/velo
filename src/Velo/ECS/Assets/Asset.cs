@@ -20,6 +20,12 @@ namespace Velo.ECS.Assets
             return TryGetComponent<TComponent>(out _);
         }
 
+        public bool ContainsComponents<TComponent1, TComponent2>()
+            where TComponent1 : IComponent where TComponent2 : IComponent
+        {
+            return _components.ContainsComponents<TComponent1, TComponent2>();
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryGetComponent<TComponent>(out TComponent component) where TComponent : IComponent
         {
@@ -38,28 +44,7 @@ namespace Velo.ECS.Assets
         public bool TryGetComponents<TComponent1, TComponent2>(out TComponent1 component1, out TComponent2 component2)
             where TComponent1 : IComponent where TComponent2 : IComponent
         {
-            component1 = default!;
-            component2 = default!;
-
-            var counter = 0;
-            foreach (var exists in _components)
-            {
-                switch (exists)
-                {
-                    case TComponent1 found1:
-                        component1 = found1;
-                        counter++;
-                        continue;
-                    case TComponent2 found2:
-                        component2 = found2;
-                        counter++;
-                        continue;
-                }
-
-                if (counter == 2) return true;
-            }
-
-            return false;
+            return _components.TryGetComponents(out component1, out component2);
         }
     }
 }

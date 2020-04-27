@@ -3,7 +3,6 @@ using System.Reflection;
 using Velo.DependencyInjection;
 using Velo.DependencyInjection.Dependencies;
 using Velo.DependencyInjection.Factories;
-using Velo.DependencyInjection.Resolvers;
 
 namespace Velo.Settings
 {
@@ -17,10 +16,9 @@ namespace Velo.Settings
         public IDependency BuildDependency(Type contract, IDependencyEngine engine)
         {
             var path = contract.GetCustomAttribute<SettingsAttribute>().Path;
-            var resolverType = typeof(SettingsResolver<>).MakeGenericType(contract);
-            var resolver = (DependencyResolver) Activator.CreateInstance(resolverType, path);
+            var dependencyType = typeof(SettingsDependency<>).MakeGenericType(contract);
 
-            return new TransientDependency(contract, resolver);
+            return (IDependency) Activator.CreateInstance(dependencyType, path);
         }
     }
 }

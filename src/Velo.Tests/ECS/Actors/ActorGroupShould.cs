@@ -8,6 +8,7 @@ using Velo.ECS.Actors;
 using Velo.ECS.Actors.Context;
 using Velo.ECS.Actors.Groups;
 using Velo.ECS.Components;
+using Velo.TestsModels.ECS;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -44,7 +45,8 @@ namespace Velo.Tests.ECS.Actors
             _actorGroup.Contains(_actor.Id).Should().BeTrue();
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Enumerable(int length)
         {
             for (var i = 0; i < length; i++)
@@ -74,8 +76,9 @@ namespace Velo.Tests.ECS.Actors
                     .Should().ContainSingle(a => a.Id == actor.Id);    
             }
         }
-        
-        [Theory, AutoData]
+
+        [Theory]
+        [AutoData]
         public void HasLength(int length)
         {
             for (var i = 0; i < length; i++)
@@ -138,8 +141,8 @@ namespace Velo.Tests.ECS.Actors
         [Fact]
         public void TryGetFalse()
         {
-            _actorGroup.TryGet(_actor.Id, out var exists).Should().BeFalse();
-            exists.Should().BeNull();
+            var actorId = _actor.Id;
+            _actorGroup.TryGet(-actorId, out _).Should().BeFalse();
         }
     }
 }

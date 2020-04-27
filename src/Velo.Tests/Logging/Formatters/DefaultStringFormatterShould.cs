@@ -36,7 +36,8 @@ namespace Velo.Tests.Logging.Formatters
             formatter.Should().NotBeNull();
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Write(int arg1, string arg2)
         {
             var message = new JsonObject
@@ -53,8 +54,9 @@ namespace Velo.Tests.Logging.Formatters
                 .Replace("{arg1}", arg1.ToString())
                 .Replace("{arg2}", $"\"{arg2}\""));
         }
-        
-        [Theory, AutoData]
+
+        [Theory]
+        [AutoData]
         public void WritePrefix(int arg1, string arg2)
         {
             var message = new JsonObject

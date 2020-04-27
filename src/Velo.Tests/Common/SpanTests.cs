@@ -6,7 +6,8 @@ namespace Velo.Tests.Common
 {
     public class SpanTests
     {
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void StringFrom_StackallocSpan(string source)
         {
             Span<char> chars = stackalloc char[source.Length];
@@ -19,7 +20,8 @@ namespace Velo.Tests.Common
             Assert.Equal(source, result);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void StringFrom_StackallocSpan_Partial(string source)
         {
             Span<char> chars = stackalloc char[source.Length];

@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using AutoFixture;
+using AutoFixture.Xunit2;
 using FluentAssertions;
 using Newtonsoft.Json;
 using Velo.Serialization;
@@ -42,6 +44,51 @@ namespace Velo.Tests.Serialization.Converters
             }
         }
 
+        [Theory]
+        [AutoData]
+        public void DeserializeICollection(ICollection<Boo> collection)
+        {
+            var serialized = JsonConvert.SerializeObject(collection);
+            var deserialized = _converter.Deserialize(serialized);
+
+            var array = collection.ToArray();
+
+            for (var i = 0; i < array.Length; i++)
+            {
+                deserialized[i].Should().BeEquivalentTo(array[i]);
+            }
+        }
+
+        [Theory]
+        [AutoData]
+        public void DeserializeEnumerable(IEnumerable<Boo> collection)
+        {
+            var serialized = JsonConvert.SerializeObject(collection);
+            var deserialized = _converter.Deserialize(serialized);
+
+            var array = collection.ToArray();
+
+            for (var i = 0; i < array.Length; i++)
+            {
+                deserialized[i].Should().BeEquivalentTo(array[i]);
+            }
+        }
+
+        [Theory]
+        [AutoData]
+        public void DeserializeIReadonlyCollection(IReadOnlyCollection<Boo> collection)
+        {
+            var serialized = JsonConvert.SerializeObject(collection);
+            var deserialized = _converter.Deserialize(serialized);
+
+            var array = collection.ToArray();
+
+            for (var i = 0; i < array.Length; i++)
+            {
+                deserialized[i].Should().BeEquivalentTo(array[i]);
+            }
+        }
+        
         [Fact]
         public void DeserializeNull()
         {
@@ -69,7 +116,7 @@ namespace Velo.Tests.Serialization.Converters
             for (var i = 0; i < array.Length; i++)
             {
                 result[i].Should().BeEquivalentTo(array[i]);
-            }   
+            }
         }
 
         [Fact]
@@ -77,7 +124,7 @@ namespace Velo.Tests.Serialization.Converters
         {
             _converter.Read(JsonValue.Null).Should().BeNull();
         }
-        
+
         [Theory]
         [MemberData(nameof(Values))]
         public void ReadObject(Boo[] array)
@@ -107,11 +154,11 @@ namespace Velo.Tests.Serialization.Converters
         {
             var stringWriter = new StringWriter();
             _converter.Serialize(null, stringWriter);
-            
+
             var result = stringWriter.ToString();
             result.Should().Be(JsonConvert.SerializeObject(null));
         }
-        
+
         [Theory]
         [MemberData(nameof(Values))]
         public void SerializeObject(Boo[] array)
@@ -137,7 +184,7 @@ namespace Velo.Tests.Serialization.Converters
             var jsonArray = (JsonValue) _converter.Write(null);
             jsonArray.Serialize().Should().Be(JsonConvert.SerializeObject(null));
         }
-        
+
         [Theory]
         [MemberData(nameof(Values))]
         public void WriteObject(Boo[] array)
@@ -154,7 +201,7 @@ namespace Velo.Tests.Serialization.Converters
             jsonData.Length.Should().Be(array.Length);
         }
 
-        public static TheoryData<Boo[]> Values 
+        public static TheoryData<Boo[]> Values
         {
             // ReSharper disable once UnusedMember.Global
             get

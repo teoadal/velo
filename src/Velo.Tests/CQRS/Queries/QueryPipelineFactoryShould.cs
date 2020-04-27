@@ -39,7 +39,7 @@ namespace Velo.Tests.CQRS.Queries
                 .SetupGet(dependency => dependency.Lifetime)
                 .Returns(() => _processorLifetime);
             
-            _engine = MockDependencyEngine(typeof(IQueryProcessor<Query, Boo>), _processorDependency.Object);
+            _engine = TestUtils.MockDependencyEngine(typeof(IQueryProcessor<Query, Boo>), _processorDependency.Object);
         }
 
         [Fact]

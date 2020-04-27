@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Velo.Collections;
 using Velo.ECS.Components;
 
 namespace Velo.ECS.Assets.Filters
@@ -8,6 +10,9 @@ namespace Velo.ECS.Assets.Filters
         where TComponent1 : IComponent where TComponent2 : IComponent
     {
         bool TryGet(int assetId, out Asset<TComponent1, TComponent2> asset);
+
+        IEnumerable<Asset<TComponent1, TComponent2>> Where<TArg>(
+            Func<Asset<TComponent1, TComponent2>, TArg, bool> filter, TArg arg);
     }
 
     internal sealed class AssetFilter<TComponent1, TComponent2> : IAssetFilter<TComponent1, TComponent2>
@@ -35,7 +40,7 @@ namespace Velo.ECS.Assets.Filters
 
         public IEnumerator<Asset<TComponent1, TComponent2>> GetEnumerator()
         {
-            return (IEnumerator<Asset<TComponent1, TComponent2>>) _assets.GetEnumerator();
+            return new ArrayEnumerator<Asset<TComponent1, TComponent2>>(_assets);
         }
 
         public bool TryGet(int assetId, out Asset<TComponent1, TComponent2> asset)
@@ -52,6 +57,12 @@ namespace Velo.ECS.Assets.Filters
             return false;
         }
 
-        IEnumerator IEnumerable.GetEnumerator() => _assets.GetEnumerator();
+        public IEnumerable<Asset<TComponent1, TComponent2>> Where<TArg>(
+            Func<Asset<TComponent1, TComponent2>, TArg, bool> filter, TArg arg)
+        {
+            return new ArrayWhereEnumerator<Asset<TComponent1, TComponent2>, TArg>(_assets, filter, arg);
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

@@ -67,7 +67,7 @@
       <Compile Update="Collections\LocalList.Row.cs">
         <DependentUpon>LocalList.cs</DependentUpon>
       </Compile>
-      <Compile Update="Settings\SettingsResolver.cs">
+      <Compile Update="Settings\SettingsDependency.cs">
         <DependentUpon>SettingsFactory.cs</DependentUpon>
       </Compile>
       <Compile Update="CQRS\Queries\Pipeline\QueryFullPipeline.BehaviourContext.cs">
@@ -75,6 +75,9 @@
       </Compile>
       <Compile Update="CQRS\Commands\Pipeline\CommandFullPipeline.CommandBehaviours.cs">
         <DependentUpon>CommandFullPipeline.cs</DependentUpon>
+      </Compile>
+      <Compile Update="DependencyInjection\Factories\ConfiguredDependencyFactory.cs">
+        <DependentUpon>DependencyFactoryBuilder.cs</DependentUpon>
       </Compile>
     </ItemGroup>
 </Project>

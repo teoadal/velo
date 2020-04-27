@@ -20,7 +20,8 @@ namespace Velo.Tests.Utils
         {
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void GetArrayElementType(Type elementType)
         {
             var arrayType = elementType.MakeArrayType();
@@ -129,8 +130,9 @@ namespace Velo.Tests.Utils
             Assert.True(ReflectionUtils.IsDisposable(disposable, out _));
             Assert.True(ReflectionUtils.IsDisposableType(disposable.GetType()));
         }
-        
-        [Theory, AutoData]
+
+        [Theory]
+        [AutoData]
         public void ThrowGetArrayElement_NotArray(Type elementType)
         {
             Assert.Throws<InvalidDataException>(() => ReflectionUtils.GetArrayElementType(elementType));

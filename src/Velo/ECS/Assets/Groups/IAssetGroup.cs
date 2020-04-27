@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Velo.ECS.Assets.Groups
@@ -13,5 +14,7 @@ namespace Velo.ECS.Assets.Groups
         where TAsset : Asset
     {
         bool TryGet(int assetId, out TAsset asset);
+        
+        IEnumerable<TAsset> Where<TArg>(Func<TAsset, TArg, bool> filter, TArg arg);
     }
 }

@@ -14,11 +14,11 @@ namespace Velo.ECS.Systems
         private readonly ISystemHandler<IAfterUpdateSystem> _afterHandler;
 
         public SystemService(
-            ISystemHandler<ICleanupSystem> cleanup, 
             ISystemHandler<IInitSystem> init, 
             ISystemHandler<IBeforeUpdateSystem> beforeHandler, 
             ISystemHandler<IUpdateSystem> update, 
-            ISystemHandler<IAfterUpdateSystem> afterHandler)
+            ISystemHandler<IAfterUpdateSystem> afterHandler,
+            ISystemHandler<ICleanupSystem> cleanup) 
         {
             _cleanup = cleanup;
             _init = init;

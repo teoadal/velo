@@ -32,7 +32,8 @@ namespace Velo.Tests.Mapping
             provider.GetRequiredService<IMapper<Boo>>();
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void ConvertAnonymousToFoo(bool boolValue, float floatValue, int intValue)
         {
             var source = new
@@ -49,7 +50,8 @@ namespace Velo.Tests.Mapping
             foo.Int.Should().Be(source.Int);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void ConvertBooToFoo(Boo source)
         {
             var foo = _mapper.Map(source);
@@ -59,14 +61,16 @@ namespace Velo.Tests.Mapping
             foo.Int.Should().Be(source.Int);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void ConvertFooToFoo(Foo source)
         {
             var foo = _mapper.Map(source);
             foo.Should().BeEquivalentTo(source);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void ConvertObjectToFoo(object source)
         {
             var foo = _mapper.Map(source);
@@ -76,7 +80,8 @@ namespace Velo.Tests.Mapping
             foo.Int.Should().Be(default);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void ConvertManyDifferentTypes(Boo boo, Foo foo, bool boolValue, float floatValue, int intValue)
         {
             for (var i = 0; i < 5; i++)

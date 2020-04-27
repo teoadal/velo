@@ -22,28 +22,32 @@ namespace Velo.Tests.Logging.Enrichers
             _message = new JsonObject();
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void AddProperty(LogLevel level, Type sender)
         {
             _enricher.Enrich(level, sender, _message);
             _message.Contains(TimeStampEnricher.Name);
         }
-        
-        [Theory, AutoData]
+
+        [Theory]
+        [AutoData]
         public void AddDateTime(LogLevel level, Type sender)
         {
             _enricher.Enrich(level, sender, _message);
             DateTime.TryParse(((JsonVerbose)_message[TimeStampEnricher.Name]).Value, out _).Should().BeTrue();
         }
-        
-        [Theory, AutoData]
+
+        [Theory]
+        [AutoData]
         public void AddVerbose(LogLevel level, Type sender)
         {
             _enricher.Enrich(level, sender, _message);
             _message[TimeStampEnricher.Name].Type.Should().Be(JsonDataType.Verbose);
         }
-        
-        [Theory, AutoData]
+
+        [Theory]
+        [AutoData]
         public void AddMany(LogLevel level, Type sender)
         {
             var messages = Enumerable.Range(0, 100).Select(_ => new JsonObject());
@@ -53,8 +57,9 @@ namespace Velo.Tests.Logging.Enrichers
                 message.Contains(TimeStampEnricher.Name).Should().BeTrue();
             }
         }
-        
-        [Theory, AutoData]
+
+        [Theory]
+        [AutoData]
         public void AddMultiThreading(LogLevel level, Type sender)
         {
             var messages = Enumerable.Range(0, 100).Select(_ => new JsonObject()).ToArray();

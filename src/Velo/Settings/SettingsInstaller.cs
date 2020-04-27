@@ -1,4 +1,5 @@
 using System;
+using Velo.DependencyInjection.Factories;
 using Velo.Settings;
 using Velo.Settings.Provider;
 using Velo.Settings.Sources;
@@ -11,7 +12,10 @@ namespace Velo.DependencyInjection
         public static DependencyCollection AddSettings(this DependencyCollection dependencies)
         {
             dependencies
-                .AddFactory(new SettingsProviderFactory())
+                .AddFactory(new DependencyFactoryBuilder<ISettingsProvider, SettingsProvider>()
+                    .CreateIf<NullSettingsProvider>(engine => !engine.Contains(typeof(ISettingsSource)))
+                    .Lifetime(DependencyLifetime.Singleton)
+                    .Build())
                 .AddFactory(new SettingsFactory());
 
             return dependencies;

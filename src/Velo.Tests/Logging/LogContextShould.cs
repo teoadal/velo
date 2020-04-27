@@ -34,7 +34,8 @@ namespace Velo.Tests.Logging
             context.Template.Should().Be(template);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void NotUseFormatterIfNotExists(string template)
         {
             var context = new LogContext(LogLevel.Debug, _sender, template);

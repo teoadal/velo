@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,15 +41,26 @@ namespace Velo.ECS.Assets.Context
 
         public void AddGroup<TAsset>(IAssetGroup<TAsset> assetGroup) where TAsset : Asset
         {
-            var groupId = Typeof<IAssetGroup<TAsset>>.Id;
+            var groupId = Typeof<TAsset>.Id;
             _groups.Add(groupId, assetGroup);
         }
 
+        public bool Contains(int assetId)
+        {
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var asset in _assets)
+            {
+                if (asset.Id == assetId) return true;
+            }
+
+            return false;
+        }
+        
         public Asset Get(int assetId)
         {
             return TryGet(assetId, out var asset)
                 ? asset
-                : throw Error.NotFound($"Asset with id {assetId} not found in current context");
+                : throw Error.NotFound($"Asset with id '{assetId}' not found in current context");
         }
 
         public IAssetFilter<TComponent> GetFilter<TComponent>() where TComponent : IComponent
@@ -59,7 +71,7 @@ namespace Velo.ECS.Assets.Context
             using (Lock.Enter(_filters))
             {
                 // ReSharper disable once InvertIf
-                if (_filters.TryGetValue(filterId, out filter))
+                if (!_filters.TryGetValue(filterId, out filter))
                 {
                     filter = new AssetFilter<TComponent>(_assets);
                     _filters.Add(filterId, filter);
@@ -78,7 +90,7 @@ namespace Velo.ECS.Assets.Context
             using (Lock.Enter(_filters))
             {
                 // ReSharper disable once InvertIf
-                if (_filters.TryGetValue(filterId, out filter))
+                if (!_filters.TryGetValue(filterId, out filter))
                 {
                     filter = new AssetFilter<TComponent1, TComponent2>(_assets);
                     _filters.Add(filterId, filter);
@@ -116,7 +128,7 @@ namespace Velo.ECS.Assets.Context
                 // ReSharper disable once InvertIf
                 if (!_singleAssets.TryGetValue(typeId, out singleAsset))
                 {
-                    singleAsset = new SingleAsset<TAsset>(this);
+                    singleAsset = new SingleAsset<TAsset>(_assets);
                     _singleAssets.Add(typeId, singleAsset);
                 }
             }
@@ -140,9 +152,14 @@ namespace Velo.ECS.Assets.Context
 
         public IEnumerator<Asset> GetEnumerator()
         {
-            return (IEnumerator<Asset>) _assets.GetEnumerator();
+            return new ArrayEnumerator<Asset>(_assets);
         }
 
+        public IEnumerable<Asset> Where<TArg>(Func<Asset, TArg, bool> filter, TArg arg)
+        {
+            return new ArrayWhereEnumerator<Asset, TArg>(_assets, filter, arg);
+        }
+        
         public void Dispose()
         {
             CollectionUtils.DisposeValuesIfDisposable(_filters);

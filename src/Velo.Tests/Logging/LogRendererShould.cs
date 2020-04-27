@@ -43,7 +43,8 @@ namespace Velo.Tests.Logging
             _logger = provider.GetRequiredService<ILogger<LogRendererShould>>();
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void BuildMessage(string template)
         {
             _logger.Debug(template);
@@ -52,7 +53,8 @@ namespace Velo.Tests.Logging
                 .Write(It.IsAny<LogContext>(), It.IsNotNull<JsonObject>()));
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void BuildMessage1(int arg1)
         {
             _logWriteCallback = (context, message) =>
@@ -61,7 +63,8 @@ namespace Velo.Tests.Logging
             _logger.Debug(Template1, arg1);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void BuildMessage2(int arg1, string arg2)
         {
             _logWriteCallback = (context, message) =>
@@ -73,7 +76,8 @@ namespace Velo.Tests.Logging
             _logger.Debug(Template2, arg1, arg2);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void BuildMessage3(int arg1, string arg2, Boo arg3)
         {
             _logWriteCallback = (context, message) =>
@@ -86,7 +90,8 @@ namespace Velo.Tests.Logging
             _logger.Debug(Template3, arg1, arg2, arg3);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void BuildMessage4(int arg1, string arg2, Boo arg3, TimeSpan? arg4)
         {
             _logWriteCallback = (context, message) =>
@@ -100,7 +105,8 @@ namespace Velo.Tests.Logging
             _logger.Debug(Template4, arg1, arg2, arg3, arg4);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void RenderString(int arg1, string arg2, Boo arg3)
         {
             _logWriteCallback = (context, message) => context.RenderMessage(message)

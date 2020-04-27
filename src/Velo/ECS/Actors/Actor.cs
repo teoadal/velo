@@ -66,24 +66,10 @@ namespace Velo.ECS.Actors
         public bool ContainsComponents<TComponent1, TComponent2>()
             where TComponent1 : IComponent where TComponent2 : IComponent
         {
-            var counter = 0;
             using (ReadLock.Enter(_lock))
             {
-                foreach (var component in _components)
-                {
-                    switch (component)
-                    {
-                        case TComponent1 _:
-                        case TComponent2 _:
-                            counter++;
-                            break;
-                    }
-
-                    if (counter == 2) return true;
-                }
+                return _components.ContainsComponents<TComponent1, TComponent2>();
             }
-
-            return false;
         }
 
         public bool RemoveComponent<TComponent>() where TComponent : IComponent
@@ -132,31 +118,10 @@ namespace Velo.ECS.Actors
         public bool TryGetComponents<TComponent1, TComponent2>(out TComponent1 component1, out TComponent2 component2)
             where TComponent1 : IComponent where TComponent2 : IComponent
         {
-            component1 = default!;
-            component2 = default!;
-
-            var counter = 0;
             using (ReadLock.Enter(_lock))
             {
-                foreach (var exists in _components)
-                {
-                    switch (exists)
-                    {
-                        case TComponent1 found1:
-                            component1 = found1;
-                            counter++;
-                            continue;
-                        case TComponent2 found2:
-                            component2 = found2;
-                            counter++;
-                            continue;
-                    }
-
-                    if (counter == 2) return true;
-                }
+                return _components.TryGetComponents(out component1, out component2);
             }
-
-            return counter == 2;
         }
 
         protected virtual void OnComponentAdded(IComponent component)

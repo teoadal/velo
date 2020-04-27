@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Moq;
 using Velo.ECS.Components;
+using Velo.TestsModels.ECS;
 using Xunit;
 using Xunit.Abstractions;
 

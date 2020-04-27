@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
+using Velo.Collections;
 
 namespace Velo.Serialization.Models
 {
@@ -38,7 +38,10 @@ namespace Velo.Serialization.Models
             return false;
         }
 
-        public Enumerator GetEnumerator() => new Enumerator(_elements);
+        public ArrayEnumerator<JsonData> GetEnumerator()
+        {
+            return new ArrayEnumerator<JsonData>(_elements);
+        }
 
         public override void Serialize(TextWriter writer)
         {
@@ -58,31 +61,6 @@ namespace Velo.Serialization.Models
         
         public ref JsonData this[int index] => ref _elements[index];
 
-        public ref struct Enumerator
-        {
-            public JsonData Current
-            {
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get => _array[_position];
-            }
-
-            // ReSharper disable once FieldCanBeMadeReadOnly.Local
-            private JsonData[] _array;
-            private int _position;
-
-            public Enumerator(JsonData[] array)
-            {
-                _array = array;
-                _position = -1;
-            }
-
-            public bool MoveNext()
-            {
-                _position++;
-                return _position < _array.Length;
-            }
-        }
-        
         IEnumerator<JsonData> IEnumerable<JsonData>.GetEnumerator()
         {
             return ((IEnumerable<JsonData>) _elements).GetEnumerator();

@@ -26,7 +26,8 @@ namespace Velo.Tests.CQRS
             _dependencies = new DependencyCollection();
         }
 
-        [Theory, MemberData(nameof(Lifetimes))]
+        [Theory]
+        [MemberData(nameof(Lifetimes))]
         public void AddCommandBehaviour(DependencyLifetime lifetime)
         {
             _dependencies.AddCommandBehaviour<TestsModels.Emitting.MeasureBehaviour>(lifetime);
@@ -37,7 +38,8 @@ namespace Velo.Tests.CQRS
             _dependencies.GetLifetime(behaviourType).Should().Be(lifetime);
         }
 
-        [Theory, MemberData(nameof(Lifetimes))]
+        [Theory]
+        [MemberData(nameof(Lifetimes))]
         public void AddCommandProcessor(DependencyLifetime lifetime)
         {
             _dependencies.AddCommandProcessor<Processor>(lifetime);
@@ -67,7 +69,8 @@ namespace Velo.Tests.CQRS
             _dependencies.Contains(typeof(ICommandProcessor<Command>));
         }
 
-        [Theory, MemberData(nameof(Lifetimes))]
+        [Theory]
+        [MemberData(nameof(Lifetimes))]
         public void AddNotificationProcessor(DependencyLifetime lifetime)
         {
             _dependencies.AddNotificationProcessor<NotificationProcessor>(lifetime);
@@ -91,7 +94,8 @@ namespace Velo.Tests.CQRS
             _dependencies.Contains<INotificationProcessor<Notification>>();
         }
 
-        [Theory, MemberData(nameof(Lifetimes))]
+        [Theory]
+        [MemberData(nameof(Lifetimes))]
         public void AddQueryBehaviour(DependencyLifetime lifetime)
         {
             _dependencies.AddQueryBehaviour<Behaviour>(lifetime);
@@ -102,7 +106,8 @@ namespace Velo.Tests.CQRS
             _dependencies.GetLifetime(behaviourType).Should().Be(lifetime);
         }
 
-        [Theory, MemberData(nameof(Lifetimes))]
+        [Theory]
+        [MemberData(nameof(Lifetimes))]
         public void AddQueryProcessor(DependencyLifetime lifetime)
         {
             _dependencies.AddQueryProcessor<TestsModels.Emitting.Boos.Get.Processor>(lifetime);

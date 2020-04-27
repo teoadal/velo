@@ -17,7 +17,8 @@ namespace Velo.Tests.Metrics
             _label = new CounterLabel(Fixture.Create<string>());
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void HasName(string name)
         {
             ICounterLabel label = new CounterLabel(name);
@@ -40,7 +41,8 @@ namespace Velo.Tests.Metrics
             actual.Should().Be(lastValue + 1d);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void IncrementValue(double value)
         {
             var lastValue = _label.Value;

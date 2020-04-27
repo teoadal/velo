@@ -18,7 +18,8 @@ namespace Velo.Tests.Serialization.Models
             _converters = new ConvertersCollection(CultureInfo.InvariantCulture);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Contains(string property, int value)
         {
             var obj = new JsonObject();
@@ -27,7 +28,8 @@ namespace Velo.Tests.Serialization.Models
             obj.Contains(property).Should().BeTrue();
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Get(string property, bool value)
         {
             var obj = new JsonObject();
@@ -42,7 +44,8 @@ namespace Velo.Tests.Serialization.Models
             new JsonObject().Type.Should().Be(JsonDataType.Object);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Read(BigObject source)
         {
             var converter = _converters.Get<BigObject>();
@@ -63,8 +66,9 @@ namespace Velo.Tests.Serialization.Models
             var result = converter.Read(jsonObject);
             result.Should().BeNull();
         }
-        
-        [Theory, AutoData]
+
+        [Theory]
+        [AutoData]
         public void Remove(string property)
         {
             var obj = new JsonObject();
@@ -75,8 +79,9 @@ namespace Velo.Tests.Serialization.Models
             obj.Remove(property).Should().BeFalse();
             obj.Contains(property).Should().BeFalse();
         }
-        
-        [Theory, AutoData]
+
+        [Theory]
+        [AutoData]
         public void Write(BigObject source)
         {
             var converter = _converters.Get<BigObject>();

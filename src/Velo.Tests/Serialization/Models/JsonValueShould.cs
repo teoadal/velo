@@ -24,8 +24,9 @@ namespace Velo.Tests.Serialization.Models
             JsonValue.String(string.Empty).Should().Be(JsonValue.StringEmpty);
             JsonValue.String("abc").Should().Be(JsonValue.String("abc"));
         }
-        
-        [Theory, AutoData]
+
+        [Theory]
+        [AutoData]
         public void HasValidHashCode(string str, int number)
         {
             JsonValue.String(str).GetHashCode().Should().Be(str.GetHashCode());

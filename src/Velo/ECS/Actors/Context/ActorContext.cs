@@ -116,7 +116,7 @@ namespace Velo.ECS.Actors.Context
         {
             return TryGet(actorId, out var actor)
                 ? actor
-                : throw Error.NotFound($"Actor with id {actorId} not found in context");
+                : throw Error.NotFound($"Actor with id '{actorId}' not found in context");
         }
 
         public IEnumerator<Actor> GetEnumerator()
@@ -227,7 +227,7 @@ namespace Velo.ECS.Actors.Context
 
         public IEnumerable<Actor> Where<TArg>(Func<Actor, TArg, bool> filter, TArg arg)
         {
-            return new ReadLockWhereEnumerator<int, Actor,TArg>(_actors.Values, filter, arg, _actorsLock);
+            return new ReadLockWhereEnumerator<int, Actor, TArg>(_actors.Values, filter, arg, _actorsLock);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -25,7 +25,8 @@ namespace Velo.Tests.Settings.Sources
             fileSource.TryGet(out _).Should().BeTrue();
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void ReturnValidValues(BigObject values)
         {
             var fileName = $"{nameof(ReturnValidValues)}.json";

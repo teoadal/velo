@@ -64,7 +64,8 @@ namespace Velo.Tests.Logging.Providers
                 .GetLifetime<ILogProvider>().Should().Be(DependencyLifetime.Scoped);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void NotWriteIfLogLevelGreater(string message)
         {
             _logWriter.SetupGet(writer => writer.Level).Returns(LogLevel.Error);
@@ -129,7 +130,8 @@ namespace Velo.Tests.Logging.Providers
                     context.Template == message), It.IsNotNull<JsonObject>()));
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void WriteLogMessage(int arg1, Guid arg2, Boo arg3)
         {
             _logWriteCallback = (context, message) =>
@@ -171,7 +173,8 @@ namespace Velo.Tests.Logging.Providers
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void ThrowIfTemplateUsedWrong(int arg1, string arg2, Boo wrong1, DateTime? wrong2)
         {
             const string template = "Template {arg1} and {arg2}";
@@ -180,7 +183,8 @@ namespace Velo.Tests.Logging.Providers
             Assert.Throws<InvalidCastException>(() => _logger.Error(template, wrong1, wrong2));
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void ThrowIfTemplateNull(int arg1, Guid arg2, float arg3, Boo arg4)
         {
             Assert.Throws<ArgumentNullException>(() => _logger.Debug(null));

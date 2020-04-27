@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
+using Velo.Collections;
 using Velo.Serialization.Converters;
 using Velo.Utils;
 
@@ -11,13 +12,25 @@ namespace Velo.Serialization
     internal sealed class ConvertersCollection : ConcurrentDictionary<Type, IJsonConverter>, IConvertersCollection
     {
         private readonly Func<Type, IJsonConverter> _builder;
-        private readonly Type _listGenericType;
+
+        private readonly Type[] _arrayLikeGenericTypes;
+        private readonly Type[] _listGenericTypes;
 
         public ConvertersCollection(CultureInfo culture)
             : base(BuildDefaultConverters(culture))
         {
             _builder = Build;
-            _listGenericType = typeof(List<>);
+            _arrayLikeGenericTypes = new[]
+            {
+                typeof(ICollection<>),
+                typeof(IEnumerable<>),
+                typeof(IReadOnlyCollection<>),
+            };
+            _listGenericTypes = new[]
+            {
+                typeof(List<>),
+                typeof(IList<>)
+            };
         }
 
         public IJsonConverter Get(Type type)
@@ -39,7 +52,12 @@ namespace Velo.Serialization
 
             if (type.IsEnum) return BuildEnumConverter(type);
 
-            return ReflectionUtils.IsGenericTypeImplementation(type, _listGenericType)
+            if (_arrayLikeGenericTypes.Contains((arrayLike, test) => ReflectionUtils.IsGenericTypeImplementation(test, arrayLike), type))
+            {
+                return BuildArrayLikeConverter(type);
+            }
+
+            return _listGenericTypes.Contains((arrayLike, test) => ReflectionUtils.IsGenericTypeImplementation(test, arrayLike), type)
                 ? BuildListConverter(type)
                 : BuildObjectConverter(type);
         }
@@ -53,6 +71,15 @@ namespace Velo.Serialization
             return (IJsonConverter) Activator.CreateInstance(converterType, elementConverter);
         }
 
+        private IJsonConverter BuildArrayLikeConverter(Type type)
+        {
+            var elementType = type.GenericTypeArguments[0];
+            var elementConverter = Get(elementType);
+
+            var converterType = typeof(ArrayConverter<>).MakeGenericType(elementType);
+            return (IJsonConverter) Activator.CreateInstance(converterType, elementConverter);
+        }
+        
         private static IJsonConverter BuildEnumConverter(Type type)
         {
             var converterType = typeof(EnumConverter<>).MakeGenericType(type);

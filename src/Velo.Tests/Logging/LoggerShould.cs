@@ -61,8 +61,9 @@ namespace Velo.Tests.Logging
             
             VerifyLogWrite(level, Times.Exactly(5));
         }
-        
-        [Theory, AutoData]
+
+        [Theory]
+        [AutoData]
         public void LogDebug(DateTime arg1, float arg2, Boo arg3, Guid? arg4)
         {
             _logger.Debug(Template0);
@@ -73,8 +74,9 @@ namespace Velo.Tests.Logging
             
             VerifyLogWrite(LogLevel.Debug, Times.Exactly(5));
         }
-        
-        [Theory, AutoData]
+
+        [Theory]
+        [AutoData]
         public void LogError(DateTime arg1, float arg2, Boo arg3, Guid? arg4)
         {
             _logger.Error(Template0);
@@ -85,8 +87,9 @@ namespace Velo.Tests.Logging
             
             VerifyLogWrite(LogLevel.Error, Times.Exactly(5));
         }
-        
-        [Theory, AutoData]
+
+        [Theory]
+        [AutoData]
         public void LogInfo(DateTime arg1, float arg2, Boo arg3, Guid? arg4)
         {
             _logger.Info(Template0);
@@ -97,8 +100,9 @@ namespace Velo.Tests.Logging
             
             VerifyLogWrite(LogLevel.Info, Times.Exactly(5));
         }
-        
-        [Theory, AutoData]
+
+        [Theory]
+        [AutoData]
         public void LogTrace(DateTime arg1, float arg2, Boo arg3, Guid? arg4)
         {
             _logger.Trace(Template0);
@@ -110,7 +114,8 @@ namespace Velo.Tests.Logging
             VerifyLogWrite(LogLevel.Trace, Times.Exactly(5));
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void LogWarning(DateTime arg1, float arg2, Boo arg3, Guid? arg4)
         {
             _logger.Warning(Template0);
@@ -143,7 +148,8 @@ namespace Velo.Tests.Logging
             VerifyLogWrite(LogLevel.Debug, Times.Exactly(callCount));
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void WriteManyMessages(DateTime arg1, float arg2, Boo arg3, Guid? arg4)
         {
             LogTrace(arg1, arg2, arg3, arg4);

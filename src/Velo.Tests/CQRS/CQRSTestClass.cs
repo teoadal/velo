@@ -1,4 +1,3 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Moq;
@@ -6,7 +5,6 @@ using Velo.CQRS.Commands;
 using Velo.CQRS.Notifications;
 using Velo.CQRS.Queries;
 using Velo.DependencyInjection;
-using Velo.DependencyInjection.Dependencies;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -53,33 +51,6 @@ namespace Velo.Tests.CQRS
                 .Returns(Task.CompletedTask);
 
             return postProcessor;
-        }
-
-        protected Mock<IDependency> MockDependency(DependencyLifetime lifetime, Type contract = null)
-        {
-            var dependency = new Mock<IDependency>();
-            dependency
-                .SetupGet(d => d.Lifetime)
-                .Returns(lifetime);
-
-            if (contract != null)
-            {
-                dependency
-                    .SetupGet(d => d.Contracts)
-                    .Returns(new[] {contract});
-            }
-
-            return dependency;
-        }
-
-        protected Mock<IDependencyEngine> MockDependencyEngine(Type contract, IDependency result, bool required = true)
-        {
-            var engine = new Mock<IDependencyEngine>();
-            engine
-                .Setup(e => e.GetRequiredDependency(contract))
-                .Returns(result);
-
-            return engine;
         }
 
         protected Mock<INotificationProcessor<TNotification>> MockNotificationProcessor<TNotification>(

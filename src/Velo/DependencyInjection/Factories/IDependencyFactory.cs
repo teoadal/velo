@@ -7,6 +7,6 @@ namespace Velo.DependencyInjection.Factories
     {
         bool Applicable(Type contract);
 
-        IDependency BuildDependency(Type contract , IDependencyEngine engine);
+        IDependency BuildDependency(Type contract, IDependencyEngine engine);
     }
 }

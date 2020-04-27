@@ -17,7 +17,8 @@ namespace Velo.Tests.Mapping
             _mapper = new BasicMapper<Foo>();
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void ConvertBooToFoo(Boo source)
         {
             var foo = _mapper.Map(source);
@@ -27,7 +28,8 @@ namespace Velo.Tests.Mapping
             foo.Int.Should().Be(source.Int);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void ConvertAnonymousToFoo(bool boolValue, float floatValue, int intValue)
         {
             var source = new

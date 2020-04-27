@@ -15,7 +15,8 @@ namespace Velo.Tests.Pools
         {
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void GetReturn_Array(int capacity)
         {
             capacity = Math.Abs(capacity);
@@ -30,7 +31,8 @@ namespace Velo.Tests.Pools
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void GetReturn_Object(int capacity)
         {
             capacity = Math.Abs(capacity);
@@ -45,7 +47,8 @@ namespace Velo.Tests.Pools
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void GetReturn_Array_MultiThreading(int capacity)
         {
             capacity = Math.Abs(capacity);

@@ -36,8 +36,9 @@ namespace Velo.Tests.Pools
             
             Assert.Same(array1, array2);
         }
-        
-        [Theory, AutoData]
+
+        [Theory]
+        [AutoData]
         public void GetArray(int arrayLength)
         {
             arrayLength = Math.Abs(arrayLength);
@@ -48,8 +49,9 @@ namespace Velo.Tests.Pools
                 Assert.Equal(length, array.Length);
             }
         }
-        
-        [Theory, AutoData]
+
+        [Theory]
+        [AutoData]
         public void GetArray_MultiThreading(int arrayLength)
         {
             arrayLength = Math.Abs(arrayLength);

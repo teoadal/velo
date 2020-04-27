@@ -86,7 +86,8 @@ namespace Velo.Tests.Logging
             _dependencies.GetLifetime<ILogEnricher>().Should().Be(DependencyLifetime.Singleton);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void AddLogEnricherWithLifetime(DependencyLifetime lifetime)
         {
             _dependencies.AddLogEnricher<TestEnricher>(lifetime);

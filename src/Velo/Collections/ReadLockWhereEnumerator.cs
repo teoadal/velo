@@ -9,10 +9,10 @@ namespace Velo.Collections
     {
         public T Current { get; private set; }
 
-        private readonly TArg _arg;
-        private readonly Func<T, TArg, bool> _filter;
+        private TArg _arg;
+        private Func<T, TArg, bool> _filter;
         private List<T>.Enumerator _enumerator;
-        private readonly ReaderWriterLockSlim _lockObject;
+        private ReaderWriterLockSlim _lockObject;
 
         public ReadLockWhereEnumerator(
             List<T> list,
@@ -59,6 +59,13 @@ namespace Velo.Collections
         {
             _lockObject.ExitReadLock();
             _enumerator.Dispose();
+
+            Current = default!;
+            
+            _arg = default!;
+            _filter = null!;
+            _enumerator = default;
+            _lockObject = null!;
         }
     }
 
@@ -66,10 +73,10 @@ namespace Velo.Collections
     {
         public TValue Current { get; private set; }
 
-        private readonly TArg _arg;
-        private readonly Func<TValue, TArg, bool> _filter;
+        private TArg _arg;
+        private Func<TValue, TArg, bool> _filter;
         private Dictionary<TKey, TValue>.ValueCollection.Enumerator _enumerator;
-        private readonly ReaderWriterLockSlim _lockObject;
+        private ReaderWriterLockSlim _lockObject;
 
         public ReadLockWhereEnumerator(
             Dictionary<TKey, TValue>.ValueCollection valueCollection,
@@ -116,6 +123,11 @@ namespace Velo.Collections
         {
             _lockObject.ExitReadLock();
             _enumerator.Dispose();
+
+            _arg = default!;
+            _filter = null!;
+            _enumerator = default;
+            _lockObject = null!;
         }
     }
 }

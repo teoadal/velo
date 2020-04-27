@@ -33,15 +33,17 @@ namespace Velo.Tests.Collections
             int[] array = {1};
             array.NullOrEmpty().Should().BeFalse();
         }
-        
-        [Theory, AutoData]
+
+        [Theory]
+        [AutoData]
         public void ExecuteForeach(int[] values)
         {
             var counter = 0;
             values.Foreach(item => item.Should().Be(values[counter++]));
         }
-        
-        [Theory, AutoData]
+
+        [Theory]
+        [AutoData]
         public void ExecuteDo(int[] values)
         {
             var counter = 0;

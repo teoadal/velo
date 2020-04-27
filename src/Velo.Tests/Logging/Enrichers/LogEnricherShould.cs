@@ -43,7 +43,8 @@ namespace Velo.Tests.Logging.Enrichers
             _sender = typeof(LogEnricherShould);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void EnrichMessage(string template, string property, int value)
         {
             _logEnricher
@@ -56,7 +57,8 @@ namespace Velo.Tests.Logging.Enrichers
             _logger.Debug(template);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void EnrichManyMessages((string, string, int)[] values)
         {
             foreach (var (message, property, value) in values)

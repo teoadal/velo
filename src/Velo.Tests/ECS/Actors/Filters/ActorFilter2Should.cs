@@ -8,10 +8,11 @@ using Velo.ECS.Actors;
 using Velo.ECS.Actors.Context;
 using Velo.ECS.Actors.Filters;
 using Velo.ECS.Components;
+using Velo.TestsModels.ECS;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Tests.ECS.Actors
+namespace Velo.Tests.ECS.Actors.Filters
 {
     public class ActorFilter2Should : ECSTestClass
     {
@@ -37,7 +38,8 @@ namespace Velo.Tests.ECS.Actors
             _actorFilter.Contains(_actor.Id).Should().BeTrue();
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Enumerable(int length)
         {
             Fixture
@@ -75,7 +77,8 @@ namespace Velo.Tests.ECS.Actors
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void HasLength(int length)
         {
             for (var i = 0; i < length; i++)
@@ -148,7 +151,8 @@ namespace Velo.Tests.ECS.Actors
         [Fact]
         public void TryGetFalse()
         {
-            _actorFilter.TryGet(_actor.Id, out _).Should().BeFalse();
+            var actorId = _actor.Id;
+            _actorFilter.TryGet(-actorId, out _).Should().BeFalse();
         }
     }
 }

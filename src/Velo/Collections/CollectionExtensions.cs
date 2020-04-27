@@ -6,6 +6,16 @@ namespace Velo.Collections
 {
     public static class CollectionExtensions
     {
+        public static bool Contains<T, TArg>(this T[] array, Func<T, TArg, bool> predicate, TArg arg)
+        {
+            foreach (var element in array)
+            {
+                if (predicate(element, arg)) return true;
+            }
+
+            return false;
+        }
+        
         public static IEnumerable<T> Do<T>(this IEnumerable<T> collection, Action<T> action)
         {
             foreach (var element in collection)

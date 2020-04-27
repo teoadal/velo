@@ -42,7 +42,7 @@ namespace Velo.Tests.Settings
             var dependency = _factory.BuildDependency(_settingsType, _engine);
 
             dependency.Contracts.Should().Contain(_settingsType);
-            dependency.Lifetime.Should().Be(DependencyLifetime.Transient);
+            dependency.Lifetime.Should().Be(DependencyLifetime.Singleton);
         }
 
         [Fact]

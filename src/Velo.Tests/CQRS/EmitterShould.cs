@@ -38,7 +38,8 @@ namespace Velo.Tests.CQRS
             _emitter = new Emitter(scope.Object);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void AskedQuery(Query query)
         {
             var pipeline = new Mock<IQueryPipeline<Boo>>();
@@ -51,7 +52,8 @@ namespace Velo.Tests.CQRS
             pipeline.Verify(p => p.GetResponse(query, _ct));
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void AskedConcreteQuery(Query query)
         {
             var processor = new Mock<IQueryProcessor<Query, Boo>>();
@@ -64,7 +66,8 @@ namespace Velo.Tests.CQRS
             processor.Verify(p => p.Process(query, _ct));
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void ExecuteCommand(Command command)
         {
             var processor = new Mock<ICommandProcessor<Command>>();
@@ -107,7 +110,8 @@ namespace Velo.Tests.CQRS
             processor.Verify(p => p.Process(notification, _ct));
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void SendCommand(Command command)
         {
             var processor = new Mock<ICommandProcessor<Command>>();
@@ -134,7 +138,8 @@ namespace Velo.Tests.CQRS
             processor.Verify(p => p.Process(notification, _ct));
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void ThrowIfCommandProcessorNotRegistered(Command command)
         {
             var emitter = new DependencyCollection()
@@ -149,7 +154,8 @@ namespace Velo.Tests.CQRS
                 .Should().Throw<KeyNotFoundException>();
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void ThrowIfQueryProcessorNotRegistered(Query query)
         {
             var emitter = new DependencyCollection()

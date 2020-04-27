@@ -1,8 +1,11 @@
 using AutoFixture;
 using Moq;
+using Velo.DependencyInjection;
 using Velo.ECS.Actors;
 using Velo.ECS.Actors.Context;
 using Velo.ECS.Components;
+using Velo.TestsModels.ECS;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace Velo.Tests.ECS
@@ -34,5 +37,13 @@ namespace Velo.Tests.ECS
         {
             context.Raise(ctx => ctx.Removed += null, actor);
         }
+        
+        public static TheoryData<DependencyLifetime> Lifetimes => new TheoryData<DependencyLifetime>
+        {
+            DependencyLifetime.Scoped,
+            DependencyLifetime.Singleton,
+            DependencyLifetime.Transient
+        };
+
     }
 }

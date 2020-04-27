@@ -21,7 +21,9 @@ namespace Velo.Tests.Collections
         }
 
         [Theory]
-        [InlineData(25), InlineData("test"), InlineData(typeof(TestClass))]
+        [InlineData(25)]
+        [InlineData("test")]
+        [InlineData(typeof(TestClass))]
         public void Add<T>(T item)
         {
             var localList = new LocalList<T>();
@@ -30,7 +32,8 @@ namespace Velo.Tests.Collections
             Assert.True(localList.Contains(item));
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Add_Many(int count)
         {
             count = FixCount(count);
@@ -47,7 +50,8 @@ namespace Velo.Tests.Collections
             Assert.Equal(items.Length, localList.Length);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void AddRange(Boo[] items)
         {
             var localList = new LocalList<Boo>();
@@ -56,7 +60,8 @@ namespace Velo.Tests.Collections
             Assert.Equal(items.Length, localList.Length);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Any(int[] items)
         {
             var localList = new LocalList<int>();
@@ -76,7 +81,8 @@ namespace Velo.Tests.Collections
             Assert.False(localList.Any(i => i > 2));
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Any_AvoidClosure(int[] items)
         {
             var localList = new LocalList<int>();
@@ -89,7 +95,9 @@ namespace Velo.Tests.Collections
         }
 
         [Theory]
-        [InlineData(25), InlineData("test"), InlineData(typeof(TestClass))]
+        [InlineData(25)]
+        [InlineData("test")]
+        [InlineData(typeof(TestClass))]
         public void Contains<T>(T item)
         {
             var localList = new LocalList<T>();
@@ -106,7 +114,9 @@ namespace Velo.Tests.Collections
         }
 
         [Theory]
-        [InlineData(25), InlineData("test"), InlineData(typeof(TestClass))]
+        [InlineData(25)]
+        [InlineData("test")]
+        [InlineData(typeof(TestClass))]
         public void Contains_WithComparer<T>(T item)
         {
             var localList = new LocalList<T>();
@@ -115,7 +125,8 @@ namespace Velo.Tests.Collections
             Assert.True(localList.Contains(item, EqualityComparer<T>.Default));
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Clear(int[] items)
         {
             var localList = new LocalList<int>();
@@ -128,7 +139,8 @@ namespace Velo.Tests.Collections
             Assert.Equal(0, localList.Length);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void First(int[] items)
         {
             var localList = new LocalList<int>();
@@ -141,7 +153,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void First_AvoidClosure(int[] items)
         {
             var localList = new LocalList<int>();
@@ -153,7 +166,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void GetEnumerator(int[] items)
         {
             var localList = new LocalList<int>();
@@ -166,7 +180,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void GroupBy(List<Boo> items)
         {
             items.AddRange(items.Select(i => new Boo {Id = i.Id}).ToArray());
@@ -196,7 +211,8 @@ namespace Velo.Tests.Collections
             groupEnumerator.Dispose();
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void GroupBy_Select(List<Boo> items)
         {
             items.AddRange(items.Select(i => new Boo {Id = i.Id}).ToArray());
@@ -220,7 +236,8 @@ namespace Velo.Tests.Collections
             groupEnumerator.Dispose();
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void GroupBy_Where(List<Boo> items)
         {
             items.AddRange(items.Select(i => new Boo {Id = i.Id}).ToArray());
@@ -250,7 +267,8 @@ namespace Velo.Tests.Collections
             groupEnumerator.Dispose();
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void IndexOf(Boo[] items)
         {
             var localList = new LocalList<Boo>(items);
@@ -261,7 +279,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Indexer(int count)
         {
             count = FixCount(count);
@@ -275,7 +294,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Join(Boo[] items)
         {
             var outer = new LocalList<Boo>(items);
@@ -292,7 +312,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Join_Many(int count)
         {
             count = FixCount(count);
@@ -333,7 +354,8 @@ namespace Velo.Tests.Collections
             Assert.Equal(joinSum, localListSum);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Join_OrderBy(Boo[] items)
         {
             var innerItems = items.Select(i => new Foo {Int = i.Id}).ToArray();
@@ -353,7 +375,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Join_Select(Boo[] items)
         {
             var innerItems = items.Select(i => new Foo {Int = i.Id}).ToArray();
@@ -373,7 +396,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Join_ToArray(Boo[] items)
         {
             var innerItems = items.Select(i => new Foo {Int = i.Id}).ToArray();
@@ -390,7 +414,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Join_Where(Boo[] items)
         {
             var innerItems = items.Select(i => new Foo {Int = i.Id}).ToArray();
@@ -412,7 +437,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Join_Where_AvoidClosure(Boo[] items)
         {
             var outer = new LocalList<Boo>(items);
@@ -434,7 +460,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Length(int[] items)
         {
             var localList = new LocalList<int>();
@@ -467,7 +494,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Mix_Many(int count)
         {
             count = FixCount(count);
@@ -486,7 +514,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Remove(int[] items)
         {
             var localList = new LocalList<int>(items);
@@ -496,7 +525,8 @@ namespace Velo.Tests.Collections
             Assert.False(localList.Contains(item));
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Remove_All(int[] items)
         {
             var localList = new LocalList<int>(items);
@@ -508,7 +538,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Remove_At(int[] items)
         {
             var localList = new LocalList<int>(items);
@@ -521,7 +552,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Remove_First(int[] items)
         {
             var localList = new LocalList<int>(items);
@@ -531,7 +563,8 @@ namespace Velo.Tests.Collections
             Assert.False(localList.Contains(item));
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Remove_Last(int[] items)
         {
             var localList = new LocalList<int>(items);
@@ -541,7 +574,8 @@ namespace Velo.Tests.Collections
             Assert.False(localList.Contains(item));
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void RemoveAt(int[] items)
         {
             var localList = new LocalList<int>(items);
@@ -556,7 +590,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Select(Boo[] items)
         {
             var select = items.Select(i => i.Id).ToArray();
@@ -570,7 +605,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Select_AvoidClosure(Boo[] items)
         {
             // ReSharper disable once ConvertToConstant.Local
@@ -586,7 +622,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Select_AvoidClosure_ToArray(Boo[] items)
         {
             // ReSharper disable once ConvertToConstant.Local
@@ -604,7 +641,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Select_AvoidClosure_OrderBy(Boo[] items)
         {
             // ReSharper disable once ConvertToConstant.Local
@@ -622,7 +660,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Select_AvoidClosure_Where(Boo[] items)
         {
             // ReSharper disable once ConvertToConstant.Local
@@ -640,7 +679,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Select_OrderBy(Boo[] items)
         {
             var select = items.Select(i => i.Id).OrderBy(n => n).ToArray();
@@ -654,7 +694,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Select_Where(Boo[] items)
         {
             var select = items.Select(i => i.Id).Where(id => id > 1).ToArray();
@@ -668,7 +709,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Select_Where_AvoidClosure(Boo[] items)
         {
             var localList = new LocalList<Boo>(items);
@@ -682,7 +724,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Select_ToArray(Boo[] items)
         {
             var localList = new LocalList<Boo>(items);
@@ -696,7 +739,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Sort(Boo[] items)
         {
             var sorted = items.OrderBy(b => b.Id).ToArray();
@@ -712,7 +756,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Sum(int count)
         {
             count = FixCount(count);
@@ -753,7 +798,8 @@ namespace Velo.Tests.Collections
             Assert.Equal(sum, vectorSum);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void ToArray(Boo[] items)
         {
             var localList = new LocalList<Boo>(items);
@@ -787,7 +833,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Where(Boo[] items)
         {
             var localList = new LocalList<Boo>(items);
@@ -801,7 +848,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Where_AvoidClosure(Boo[] items)
         {
             var localList = new LocalList<Boo>(items);
@@ -818,7 +866,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Where_AvoidClosure_Select(Boo[] items)
         {
             var localList = new LocalList<Boo>(items);
@@ -835,7 +884,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Where_AvoidClosure_Join(Boo[] items)
         {
             // ReSharper disable once ConvertToConstant.Local
@@ -860,7 +910,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Where_AvoidClosure_OrderBy(Boo[] items)
         {
             // ReSharper disable once ConvertToConstant.Local
@@ -879,7 +930,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Where_Join(Boo[] items)
         {
             var innerItems = items.Select(i => new Foo {Int = i.Id}).ToArray();
@@ -900,7 +952,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Where_OrderBy(Boo[] items)
         {
             var localList = new LocalList<Boo>(items);
@@ -914,7 +967,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Where_Select(Boo[] items)
         {
             var localList = new LocalList<Boo>(items);
@@ -928,7 +982,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Where_ToArray(Boo[] items)
         {
             var localList = new LocalList<Boo>(items);
@@ -942,7 +997,8 @@ namespace Velo.Tests.Collections
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Where_ToArray_AvoidClosure(Boo[] items)
         {
             var localList = new LocalList<Boo>(items);

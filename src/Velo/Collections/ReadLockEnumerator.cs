@@ -9,7 +9,7 @@ namespace Velo.Collections
         public T Current { get; private set; }
 
         private List<T>.Enumerator _enumerator;
-        private readonly ReaderWriterLockSlim _lock;
+        private ReaderWriterLockSlim _lock;
 
         internal ReadLockEnumerator(List<T> list, ReaderWriterLockSlim lockObject)
         {
@@ -40,6 +40,11 @@ namespace Velo.Collections
         {
             _lock.ExitReadLock();
             _enumerator.Dispose();
+
+            Current = default!;
+
+            _enumerator = default;
+            _lock = null!;
         }
     }
 

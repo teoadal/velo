@@ -1,6 +1,6 @@
 using Velo.ECS.Components;
 
-namespace Velo.Tests.ECS
+namespace Velo.TestsModels.ECS
 {
     public class TestComponent1: IComponent
     {

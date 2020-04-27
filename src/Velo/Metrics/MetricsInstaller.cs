@@ -1,6 +1,8 @@
 using System;
+using Velo.DependencyInjection.Factories;
 using Velo.Metrics.Counters;
 using Velo.Metrics.Provider;
+using Velo.Settings.Provider;
 
 // ReSharper disable once CheckNamespace
 namespace Velo.DependencyInjection
@@ -9,7 +11,12 @@ namespace Velo.DependencyInjection
     {
         public static DependencyCollection AddMetrics(this DependencyCollection dependencies)
         {
-            dependencies.AddFactory(new MetricsProviderFactory());
+            dependencies
+                .AddFactory(new DependencyFactoryBuilder<IMetricsProvider, MetricsProvider>()
+                    .Lifetime(DependencyLifetime.Singleton)
+                    .CreateIf<NullSettingsProvider>(engine => !engine.Contains(typeof(ICounter)))
+                    .Build());
+            
             return dependencies;
         }
 

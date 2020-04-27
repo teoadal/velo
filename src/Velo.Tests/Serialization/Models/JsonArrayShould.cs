@@ -58,7 +58,8 @@ namespace Velo.Tests.Serialization.Models
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void CreatedByArray(int[] source)
         {
             var jsonArray = new JsonArray(source.Select(_elementConverter.Write).ToArray());
@@ -70,7 +71,8 @@ namespace Velo.Tests.Serialization.Models
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void CreatedByEnumerable(int[] source)
         {
             var jsonArray = new JsonArray(source.Select(_elementConverter.Write));

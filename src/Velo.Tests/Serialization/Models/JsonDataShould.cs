@@ -20,7 +20,8 @@ namespace Velo.Tests.Serialization.Models
             _converters = new ConvertersCollection(CultureInfo.InvariantCulture);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void ParseArrayFromString(int[] array)
         {
             var serialized = JsonConvert.SerializeObject(array);
@@ -38,7 +39,8 @@ namespace Velo.Tests.Serialization.Models
             }
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void ParseDateTimeFromString(DateTime source)
         {
             var serialized = JsonConvert.SerializeObject(source);
@@ -48,7 +50,8 @@ namespace Velo.Tests.Serialization.Models
             result.Should().Be(source);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void ParseGuidFromString(Guid source)
         {
             var serialized = JsonConvert.SerializeObject(source);
@@ -58,7 +61,8 @@ namespace Velo.Tests.Serialization.Models
             result.Should().Be(source);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void ParseIntFromString(int source)
         {
             var serialized = JsonConvert.SerializeObject(source);
@@ -68,7 +72,8 @@ namespace Velo.Tests.Serialization.Models
             result.Should().Be(source);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void ParseObjectFromString(BigObject source)
         {
             var serialized = JsonConvert.SerializeObject(source);
@@ -77,8 +82,9 @@ namespace Velo.Tests.Serialization.Models
 
             result.Should().BeEquivalentTo(source);
         }
-        
-        [Theory, AutoData]
+
+        [Theory]
+        [AutoData]
         public void ParseObjectArrayFromString(BigObject[] array)
         {
             var serialized = JsonConvert.SerializeObject(array);

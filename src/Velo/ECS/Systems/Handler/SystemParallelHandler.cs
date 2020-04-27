@@ -24,7 +24,7 @@ namespace Velo.ECS.Systems.Handler
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            for (var i = _buffer.Length - 1; i > 0; i--)
+            for (var i = _buffer.Length - 1; i >= 0; i--)
             {
                 _buffer[i] = _update(_systems[i], cancellationToken);
             }

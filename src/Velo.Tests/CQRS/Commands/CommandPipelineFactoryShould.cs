@@ -38,7 +38,7 @@ namespace Velo.Tests.CQRS.Commands
                 .SetupGet(dependency => dependency.Lifetime)
                 .Returns(() => _processorLifetime);
 
-            _engine = MockDependencyEngine(typeof(ICommandProcessor<Command>), _processorDependency.Object);
+            _engine = TestUtils.MockDependencyEngine(typeof(ICommandProcessor<Command>), _processorDependency.Object);
         }
 
         [Fact]

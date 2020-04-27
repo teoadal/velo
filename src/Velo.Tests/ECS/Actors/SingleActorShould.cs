@@ -4,6 +4,7 @@ using Moq;
 using Velo.Collections;
 using Velo.ECS.Actors;
 using Velo.ECS.Actors.Context;
+using Velo.TestsModels.ECS;
 using Xunit;
 using Xunit.Abstractions;
 

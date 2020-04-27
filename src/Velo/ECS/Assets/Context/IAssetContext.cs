@@ -15,6 +15,8 @@ namespace Velo.ECS.Assets.Context
 
         void AddGroup<TAsset>(IAssetGroup<TAsset> assetGroup) where TAsset : Asset;
 
+        bool Contains(int assetId);
+
         Asset Get(int assetId);
         
         IAssetFilter<TComponent> GetFilter<TComponent>() where TComponent : IComponent;
@@ -27,5 +29,7 @@ namespace Velo.ECS.Assets.Context
         SingleAsset<TAsset> GetSingle<TAsset>() where TAsset : Asset;
 
         bool TryGet(int assetId, out Asset asset);
+        
+        IEnumerable<Asset> Where<TArg>(Func<Asset, TArg, bool> filter, TArg arg);
     }
 }

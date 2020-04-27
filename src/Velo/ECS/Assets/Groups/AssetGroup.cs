@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Velo.Collections;
 
 namespace Velo.ECS.Assets.Groups
 {
@@ -41,11 +43,16 @@ namespace Velo.ECS.Assets.Groups
             return false;
         }
 
-        public IEnumerator<TAsset> GetEnumerator()
+        public IEnumerable<TAsset> Where<TArg>(Func<TAsset, TArg, bool> filter, TArg arg)
         {
-            return (IEnumerator<TAsset>) _assets.GetEnumerator();
+            return new ArrayWhereEnumerator<TAsset, TArg>(_assets, filter, arg);
         }
 
-        IEnumerator IEnumerable.GetEnumerator() => _assets.GetEnumerator();
+        public IEnumerator<TAsset> GetEnumerator()
+        {
+            return new ArrayEnumerator<TAsset>(_assets);
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

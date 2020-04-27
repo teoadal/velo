@@ -42,14 +42,16 @@ namespace Velo.Tests.Metrics
             _counter[labelName].Should().Be(value);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void HasName(string name)
         {
             ICounter counter = new Counter<CounterShould>(name, null, Array.Empty<ICounterLabel>());
             counter.Name.Should().Be(name);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void HasDescription(string name, string description)
         {
             ICounter counter = new Counter<CounterShould>(name, description, Array.Empty<ICounterLabel>());

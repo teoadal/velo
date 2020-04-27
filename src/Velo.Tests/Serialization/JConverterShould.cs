@@ -29,8 +29,9 @@ namespace Velo.Tests.Serialization
             Assert.NotNull(provider.GetService<JConverter>());
             Assert.NotNull(provider.GetService<IConvertersCollection>());
         }
-        
-        [Theory, AutoData]
+
+        [Theory]
+        [AutoData]
         public void SerializeToTextWriter(BigObject obj)
         {
             var writer = new StringWriter();

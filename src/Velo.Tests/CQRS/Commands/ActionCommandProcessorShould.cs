@@ -21,7 +21,8 @@ namespace Velo.Tests.CQRS.Commands
                 .AddEmitter();
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void Executed(Command command)
         {
             var processor = new Mock<Action<Command>>();
@@ -36,7 +37,8 @@ namespace Velo.Tests.CQRS.Commands
             processor.Verify(p => p.Invoke(command));
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void ExecutedWithContext(Command command)
         {
             var repository = Mock.Of<IBooRepository>();

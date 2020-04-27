@@ -10,6 +10,7 @@ using Velo.ECS.Actors.Context;
 using Velo.ECS.Actors.Filters;
 using Velo.ECS.Actors.Groups;
 using Velo.ECS.Components;
+using Velo.TestsModels.ECS;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -164,7 +165,8 @@ namespace Velo.Tests.ECS.Actors
                 .Which.Should().NotBeNull();
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void NotContains(int actorId)
         {
             _actorContext.Contains(actorId).Should().BeFalse();
@@ -217,7 +219,8 @@ namespace Velo.Tests.ECS.Actors
             exists.Should().Be(_actor);
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void TryGetNotExists(int actorId)
         {
             _actorContext.Add(_actor);
@@ -225,7 +228,8 @@ namespace Velo.Tests.ECS.Actors
             exists.Should().BeNull();
         }
 
-        [Theory, AutoData]
+        [Theory]
+        [AutoData]
         public void ThrowIfGetNotExists(int actorId)
         {
             _actorContext

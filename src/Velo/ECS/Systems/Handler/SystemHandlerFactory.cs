@@ -26,28 +26,31 @@ namespace Velo.ECS.Systems.Handler
             var systemType = contract.GenericTypeArguments[0];
             var dependencies = engine.GetApplicable(systemType);
 
+            var contracts = new[] {contract};
+
             if (dependencies.Length == 0)
             {
                 var nullHandlerType = typeof(SystemNullHandler<>).MakeGenericType(systemType);
                 var nullHandler = Activator.CreateInstance(nullHandlerType);
-                return new InstanceDependency(new[] {contract}, nullHandler);
+                return new InstanceDependency(contracts, nullHandler);
             }
 
-            var (hasParallel, hasSequential) = DefineTypes(dependencies);
-
-            var handlerType = hasParallel
-                ? hasSequential
-                    ? typeof(SystemFullHandler<>)
-                    : typeof(SystemParallelHandler<>)
-                : typeof(SystemSequentialHandler<>);
+            var handlerType = DefineHandlerType(dependencies);
 
             var implementation = handlerType.MakeGenericType(systemType);
-            var resolver = DependencyResolver.Build(DependencyLifetime.Singleton, implementation, engine);
-            return Dependency.Build(DependencyLifetime.Singleton, new[] {contract}, resolver);
+            var lifetime = dependencies.DefineLifetime();
+            var resolver = DependencyResolver.Build(lifetime, implementation, engine);
+
+            return Dependency.Build(lifetime, contracts, resolver);
         }
 
-        private static (bool, bool) DefineTypes(IDependency[] dependencies)
+        private static Type DefineHandlerType(IDependency[] dependencies)
         {
+            if (dependencies.Length == 1)
+            {
+                return typeof(SystemSingleHandler<>);
+            }
+
             bool hasParallels = false, hasSequential = false;
 
             foreach (var dependency in dependencies)
@@ -62,7 +65,11 @@ namespace Velo.ECS.Systems.Handler
                 }
             }
 
-            return (hasParallels, hasSequential);
+            return hasParallels
+                ? hasSequential
+                    ? typeof(SystemFullHandler<>)
+                    : typeof(SystemParallelHandler<>)
+                : typeof(SystemSequentialHandler<>);
         }
     }
 }
