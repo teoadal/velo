@@ -25,20 +25,14 @@ namespace Velo.Serialization
         
         public TOut Deserialize<TOut>(string source)
         {
-            var reader = new JsonReader(source);
-            var result = Deserialize<TOut>(reader);
-            reader.Dispose();
-
-            return result;
+            using var reader = new JsonReader(source);
+            return Deserialize<TOut>(reader);
         }
 
         public TOut Deserialize<TOut>(Stream source, Encoding? encoding = null)
         {
-            var reader = new JsonReader(source, encoding ?? Encoding.UTF8);
-            var result = Deserialize<TOut>(reader);
-            reader.Dispose();
-
-            return result;
+            using var reader = new JsonReader(source, encoding ?? Encoding.UTF8);
+            return Deserialize<TOut>(reader);
         }
 
         public string Serialize(object source)

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Velo.Extensions;
 using Velo.Serialization.Models;
 using Velo.Serialization.Tokenization;
@@ -9,24 +10,30 @@ using Velo.Utils;
 
 namespace Velo.Serialization.Converters
 {
-    internal sealed class ObjectConverter<TObject> : IJsonConverter<TObject>
+    internal interface IObjectConverter : IJsonConverter
+    {
+        public object FillObject(JsonData jsonData, object instance);
+    }
+
+    internal sealed class ObjectConverter<T> : IObjectConverter, IJsonConverter<T>
     {
         public bool IsPrimitive => false;
 
-        private readonly Func<TObject> _activator;
-        private readonly EqualityComparer<TObject> _equalityComparer;
-        private readonly Dictionary<string, PropertyConverter<TObject>> _propertyConverters;
+        private readonly Func<T> _activator;
+        private readonly EqualityComparer<T> _equalityComparer;
+        private readonly Dictionary<string, PropertyConverter<T>> _propertyConverters;
 
         public ObjectConverter((PropertyInfo, IJsonConverter)[] propertyConverters)
         {
-            _activator = ExpressionUtils.BuildActivator<TObject>();
-            _equalityComparer = EqualityComparer<TObject>.Default;
+            _activator = ExpressionUtils.BuildActivator<T>(throwIfEmptyConstructorNotFound: false);
+            _equalityComparer = EqualityComparer<T>.Default;
 
-            var converters = new Dictionary<string, PropertyConverter<TObject>>(propertyConverters.Length);
+            var converters =
+                new Dictionary<string, PropertyConverter<T>>(propertyConverters.Length, StringUtils.IgnoreCaseComparer);
             foreach (var (propertyInfo, converter) in propertyConverters)
             {
                 var propertyName = propertyInfo.Name;
-                var propertyConverter = new PropertyConverter<TObject>(propertyInfo, converter);
+                var propertyConverter = new PropertyConverter<T>(propertyInfo, converter);
 
                 converters.Add(propertyName, propertyConverter);
             }
@@ -34,7 +41,7 @@ namespace Velo.Serialization.Converters
             _propertyConverters = converters;
         }
 
-        public TObject Deserialize(ref JsonTokenizer tokenizer)
+        public T Deserialize(ref JsonTokenizer tokenizer)
         {
             var instance = _activator();
 
@@ -48,22 +55,12 @@ namespace Velo.Serialization.Converters
                 if (tokenType == JsonTokenType.ObjectStart) continue;
                 if (tokenType == JsonTokenType.ObjectEnd) break;
 
-                if (tokenType != JsonTokenType.Property)
-                {
-                    throw Error.Cast($"Expected '{JsonTokenType.Property}' token, but found '{token.TokenType}'");
-                }
-
-                var propertyName = token.Value;
-
-                if (propertyName == null)
-                {
-                    throw Error.Cast($"Expected not empty {JsonTokenType.Property} token");
-                }
+                var propertyName = token.GetNotNullPropertyName();
 
                 tokenizer.MoveNext(); // to property value
 
                 if (tokenizer.Current.TokenType == JsonTokenType.Null) continue;
-                if (!_propertyConverters.TryGetValue(propertyName, out PropertyConverter<TObject> converter)) continue;
+                if (!_propertyConverters.TryGetValue(propertyName!, out PropertyConverter<T> converter)) continue;
 
                 converter.Deserialize(instance, ref tokenizer);
             }
@@ -71,24 +68,26 @@ namespace Velo.Serialization.Converters
             return instance;
         }
 
-        public TObject Read(JsonData jsonData)
+        public T Fill(JsonData jsonData, T instance)
         {
-            if (jsonData.Type == JsonDataType.Null) return default!;
+            if (jsonData.Type == JsonDataType.Null) return instance;
 
-            var instance = _activator();
-
-            var objectData = (JsonObject) jsonData;
-            foreach (var (property, value) in objectData)
-            {
-                if (!_propertyConverters.TryGetValue(property, out var converter)) continue;
-
-                converter.Read(instance, value);
-            }
+            VisitProperties((JsonObject) jsonData, instance);
 
             return instance;
         }
 
-        public void Serialize(TObject instance, TextWriter writer)
+        public T Read(JsonData jsonData)
+        {
+            if (jsonData.Type == JsonDataType.Null) return default!;
+
+            var instance = _activator();
+            VisitProperties((JsonObject) jsonData, instance);
+
+            return instance;
+        }
+
+        public void Serialize(T instance, TextWriter writer)
         {
             if (_equalityComparer.Equals(instance, default!))
             {
@@ -113,7 +112,7 @@ namespace Velo.Serialization.Converters
             writer.Write('}');
         }
 
-        public JsonData Write(TObject instance)
+        public JsonData Write(T instance)
         {
             if (_equalityComparer.Equals(instance, default!))
             {
@@ -130,10 +129,25 @@ namespace Velo.Serialization.Converters
             return jsonObject;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void VisitProperties(JsonObject jsonObject, T instance)
+        {
+            foreach (var (property, value) in jsonObject)
+            {
+                if (!_propertyConverters.TryGetValue(property, out PropertyConverter<T> converter)) continue;
+
+                converter.Read(instance, value);
+            }
+        }
+
+        object IJsonConverter.DeserializeObject(ref JsonTokenizer tokenizer) => Deserialize(ref tokenizer)!;
+
         object IJsonConverter.ReadObject(JsonData data) => Read(data)!;
 
-        void IJsonConverter.SerializeObject(object value, TextWriter writer) => Serialize((TObject) value, writer);
+        object IObjectConverter.FillObject(JsonData data, object instance) => Fill(data, (T) instance)!;
 
-        JsonData IJsonConverter.WriteObject(object value) => Write((TObject) value);
+        void IJsonConverter.SerializeObject(object value, TextWriter writer) => Serialize((T) value, writer);
+
+        JsonData IJsonConverter.WriteObject(object value) => Write((T) value);
     }
 }

@@ -104,7 +104,7 @@ namespace Velo.DependencyInjection
 
             if (dependency == null)
             {
-                throw Error.NotFound($"Dependency with contract {ReflectionUtils.GetName(contract)} is not registered");
+                throw Error.NotFound($"Dependency with contract '{ReflectionUtils.GetName(contract)}' isn't registered");
             }
             
             return dependency;

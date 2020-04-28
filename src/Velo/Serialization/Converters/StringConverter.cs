@@ -39,11 +39,13 @@ namespace Velo.Serialization.Converters
         public JsonData Write(string value)
         {
             if (value == null) return JsonValue.Null;
-            
+
             return string.IsNullOrEmpty(value)
                 ? JsonValue.StringEmpty
                 : new JsonValue(value, JsonDataType.String);
         }
+
+        object IJsonConverter.DeserializeObject(ref JsonTokenizer tokenizer) => Deserialize(ref tokenizer);
 
         object IJsonConverter.ReadObject(JsonData data) => Read(data);
 

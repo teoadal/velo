@@ -3,6 +3,7 @@ using Velo.DependencyInjection;
 using Velo.Serialization;
 using Velo.Settings.Provider;
 using Velo.Settings.Sources;
+using Velo.TestsModels;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Domain;
 using Velo.TestsModels.Foos;

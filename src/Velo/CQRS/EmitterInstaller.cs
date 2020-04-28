@@ -20,7 +20,7 @@ namespace Velo.DependencyInjection
                 .AddFactory(new CommandPipelineFactory())
                 .AddFactory(new NotificationPipelineFactory())
                 .AddFactory(new QueryPipelineFactory())
-                .AddScoped<IEmitter>(ctx => new Emitter(ctx));
+                .AddScoped<IEmitter>(scope => new Emitter(scope));
 
             return dependencies;
         }
@@ -141,14 +141,14 @@ namespace Velo.DependencyInjection
             return scanner.UseAllover(new ProcessorsAllover(lifetime));
         }
 
-        public static DependencyCollection CreateProcessor<TCommand>(this DependencyCollection dependencies,
+        public static DependencyCollection CreateCommandProcessor<TCommand>(this DependencyCollection dependencies,
             Action<TCommand> processor)
             where TCommand : ICommand
         {
             return dependencies.AddInstance(new ActionCommandProcessor<TCommand>(processor));
         }
 
-        public static DependencyCollection CreateProcessor<TCommand, TContext>(
+        public static DependencyCollection CreateCommandProcessor<TCommand, TContext>(
             this DependencyCollection dependencies, Action<TCommand, TContext> processor)
             where TCommand : ICommand
             where TContext : class
@@ -158,14 +158,14 @@ namespace Velo.DependencyInjection
                     scope.GetRequiredService<DependencyProvider>()));
         }
 
-        public static DependencyCollection CreateProcessor<TQuery, TResult>(this DependencyCollection dependencies,
+        public static DependencyCollection CreateQueryProcessor<TQuery, TResult>(this DependencyCollection dependencies,
             Func<TQuery, TResult> processor)
             where TQuery : IQuery<TResult>
         {
             return dependencies.AddInstance(new ActionQueryProcessor<TQuery, TResult>(processor));
         }
 
-        public static DependencyCollection CreateProcessor<TQuery, TContext, TResult>(
+        public static DependencyCollection CreateQueryProcessor<TQuery, TContext, TResult>(
             this DependencyCollection dependencies, Func<TQuery, TContext, TResult> processor)
             where TQuery : IQuery<TResult>
             where TContext : class

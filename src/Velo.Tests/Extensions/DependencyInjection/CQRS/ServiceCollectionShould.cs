@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Velo.CQRS;
 using Velo.CQRS.Commands;
+using Velo.TestsModels;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting;
 using Velo.TestsModels.Emitting.Parallel;

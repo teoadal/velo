@@ -39,7 +39,8 @@ namespace Velo.DependencyInjection
             Func<IDependencyScope, IHttpRequestHandler> builder,
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
         {
-            dependencies.AddDependency(builder, lifetime);
+            var contracts = new[] {typeof(IHttpRequestHandler)};
+            dependencies.AddDependency(contracts, builder, lifetime);
             return dependencies;
         }
     }

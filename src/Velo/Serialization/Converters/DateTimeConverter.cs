@@ -53,6 +53,8 @@ namespace Velo.Serialization.Converters
                 : DateTime.Parse(value, _cultureInfo);
         }
         
+        object IJsonConverter.DeserializeObject(ref JsonTokenizer tokenizer) => Deserialize(ref tokenizer);
+        
         object IJsonConverter.ReadObject(JsonData data) => Read(data);
         
         void IJsonConverter.SerializeObject(object value, TextWriter writer) => Serialize((DateTime) value, writer);

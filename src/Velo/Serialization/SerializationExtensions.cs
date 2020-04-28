@@ -3,14 +3,29 @@ using System.Text;
 using Velo.Serialization.Converters;
 using Velo.Serialization.Models;
 using Velo.Serialization.Tokenization;
+using Velo.Utils;
 
 namespace Velo.Serialization
 {
     public static class SerializationExtensions
     {
-        internal static T Read<T>(this IConvertersCollection converters, JsonData json)
+        internal static string GetNotNullPropertyName(this JsonToken token)
         {
-            return converters.Get<T>().Read(json);
+            var tokenType = token.TokenType;
+
+            if (tokenType != JsonTokenType.Property)
+            {
+                throw Error.Deserialization(JsonTokenType.Property, tokenType);
+            }
+
+            var propertyName = token.Value;
+
+            if (string.IsNullOrWhiteSpace(propertyName))
+            {
+                throw Error.Deserialization($"Expected not empty {JsonTokenType.Property} token");
+            }
+
+            return propertyName!;
         }
 
         internal static T Deserialize<T>(this IJsonConverter<T> converter, string json, StringBuilder? sb = null)
@@ -25,6 +40,11 @@ namespace Velo.Serialization
             tokenizer.Dispose();
 
             return result;
+        }
+
+        internal static T Read<T>(this IConvertersCollection converters, JsonData json)
+        {
+            return converters.Get<T>().Read(json);
         }
 
         public static string Serialize(this JsonData data)

@@ -6,6 +6,7 @@ using Velo.CQRS.Commands;
 using Velo.CQRS.Notifications;
 using Velo.CQRS.Queries;
 using Velo.DependencyInjection;
+using Velo.TestsModels;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting.Boos.Create;
 using Velo.TestsModels.Emitting.Boos.Get;
@@ -137,7 +138,7 @@ namespace Velo.Tests.CQRS
         public void CreateCommandProcessor()
         {
             var processor = new Mock<Action<Command>>();
-            _dependencies.CreateProcessor(processor.Object);
+            _dependencies.CreateCommandProcessor(processor.Object);
             _dependencies.Contains<ActionCommandProcessor<Command>>();
         }
 
@@ -145,7 +146,7 @@ namespace Velo.Tests.CQRS
         public void CreateCommandProcessorWithContext()
         {
             var processor = new Mock<Action<Command, IBooRepository>>();
-            _dependencies.CreateProcessor(processor.Object);
+            _dependencies.CreateCommandProcessor(processor.Object);
             _dependencies.Contains<ActionCommandProcessor<Command>>();
         }
 
@@ -153,7 +154,7 @@ namespace Velo.Tests.CQRS
         public void CreateQueryProcessor()
         {
             var processor = new Mock<Func<Query, Boo>>();
-            _dependencies.CreateProcessor(processor.Object);
+            _dependencies.CreateQueryProcessor(processor.Object);
             _dependencies.Contains<ActionQueryProcessor<Query, Boo>>();
         }
 
@@ -161,7 +162,7 @@ namespace Velo.Tests.CQRS
         public void CreateQueryProcessorWithContext()
         {
             var processor = new Mock<Func<Query, IBooRepository, Boo>>();
-            _dependencies.CreateProcessor(processor.Object);
+            _dependencies.CreateQueryProcessor(processor.Object);
             _dependencies.Contains<ActionQueryProcessor<Query, IBooRepository, Boo>>();
         }
 

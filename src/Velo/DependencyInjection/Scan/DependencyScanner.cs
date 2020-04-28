@@ -60,7 +60,7 @@ namespace Velo.DependencyInjection.Scan
         #region SingletonOf
 
         public DependencyScanner SingletonOf<TContract>()
-            where TContract: class
+            where TContract : class
         {
             return SingletonOf(Typeof<TContract>.Raw);
         }
@@ -84,7 +84,7 @@ namespace Velo.DependencyInjection.Scan
         #region TransientOf
 
         public DependencyScanner TransientOf<TContract>()
-            where TContract: class
+            where TContract : class
         {
             return TransientOf(Typeof<TContract>.Raw);
         }

@@ -1,8 +1,10 @@
 using FluentAssertions;
 using Moq;
 using Velo.DependencyInjection;
+using Velo.Serialization;
 using Velo.Settings.Provider;
 using Velo.Settings.Sources;
+using Velo.TestsModels;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -53,6 +55,12 @@ namespace Velo.Tests.Settings
                 .BuildProvider()
                 .GetRequiredService<ISettingsProvider>()
                 .Should().NotBeNull();
+        }
+
+        [Fact]
+        public void InstallJson()
+        {
+            _dependencies.Contains<JConverter>().Should().BeTrue();
         }
     }
 }

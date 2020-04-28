@@ -11,17 +11,30 @@ namespace Velo.Utils
 
         #region Builders
 
-        public static Func<T> BuildActivator<T>(ConstructorInfo? constructor = null)
+        public static Func<T> BuildActivator<T>(
+            ConstructorInfo? constructor = null,
+            bool throwIfEmptyConstructorNotFound = true)
         {
             var type = typeof(T);
 
             constructor ??= ReflectionUtils.GetEmptyConstructor(type);
 
-            return constructor == null
-                ? throw Error.DefaultConstructorNotFound(type)
-                : Expression.Lambda<Func<T>>(Expression.New(constructor)).Compile();
+            if (constructor != null)
+            {
+                return Expression.Lambda<Func<T>>(Expression.New(constructor)).Compile();
+            }
+
+            var exception = Error.DefaultConstructorNotFound(type);
+            if (throwIfEmptyConstructorNotFound)
+            {
+                throw exception;
+            }
+
+            return Expression.Lambda<Func<T>>(Expression.Block(
+                Expression.Throw(Expression.Constant(exception)),
+                Expression.Default(type))).Compile();
         }
-        
+
         public static Delegate BuildDecrement(Type owner, PropertyInfo propertyInfo)
         {
             var instance = Expression.Parameter(owner, "instance");
@@ -62,7 +75,7 @@ namespace Velo.Utils
 
             return Expression.Lambda(body, instance).Compile();
         }
-        
+
         public static Delegate BuildGetter(Type owner, PropertyInfo propertyInfo)
         {
             var instance = Expression.Parameter(owner, "instance");
@@ -99,7 +112,7 @@ namespace Velo.Utils
             // ReSharper disable once AssignNullToNotNullAttribute
             return Expression.Call(instance, method, arg1, arg2);
         }
-        
+
         public static Expression ConstantCall(object instance, string methodName, Expression arg1)
         {
             var instanceType = instance.GetType();

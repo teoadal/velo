@@ -2,6 +2,7 @@ using System;
 using AutoFixture.Xunit2;
 using Velo.Logging;
 using Velo.Logging.Provider;
+using Velo.TestsModels;
 using Velo.TestsModels.Boos;
 using Xunit;
 using Xunit.Abstractions;

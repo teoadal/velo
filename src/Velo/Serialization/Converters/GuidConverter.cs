@@ -33,6 +33,8 @@ namespace Velo.Serialization.Converters
             return new JsonValue(value.ToString(), JsonDataType.String);
         }
 
+        object IJsonConverter.DeserializeObject(ref JsonTokenizer tokenizer) => Deserialize(ref tokenizer);
+
         object IJsonConverter.ReadObject(JsonData data) => Read(data);
 
         void IJsonConverter.SerializeObject(object value, TextWriter writer) => Serialize((Guid) value, writer);

@@ -25,7 +25,7 @@ namespace Velo.DependencyInjection
             Func<IDependencyScope, T> builder, int capacity = 10)
             where T : class
         {
-            dependencies.AddSingleton<IPool<T>>(ctx => new Pool<T>(capacity, () => builder(ctx)));
+            dependencies.AddSingleton<IPool<T>>(scope => new Pool<T>(capacity, () => builder(scope)));
             return dependencies;
         }
     }

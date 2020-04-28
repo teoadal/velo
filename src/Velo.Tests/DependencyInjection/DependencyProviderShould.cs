@@ -3,6 +3,7 @@ using System.Reflection;
 using FluentAssertions;
 using Velo.DependencyInjection;
 using Velo.Mapping;
+using Velo.TestsModels;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Foos;
 using Xunit;

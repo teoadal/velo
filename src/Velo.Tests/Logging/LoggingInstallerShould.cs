@@ -7,7 +7,9 @@ using Velo.Logging;
 using Velo.Logging.Enrichers;
 using Velo.Logging.Provider;
 using Velo.Logging.Writers;
+using Velo.Serialization;
 using Velo.Serialization.Models;
+using Velo.TestsModels;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -27,16 +29,14 @@ namespace Velo.Tests.Logging
         public void AddDefaultConsoleWriter()
         {
             _dependencies.AddDefaultConsoleLogWriter();
-
-            _dependencies.Contains<DefaultConsoleWriter>().Should().BeTrue();
+            _dependencies.Contains<ILogWriter>().Should().BeTrue();
         }
         
         [Fact]
         public void AddDefaultFileWriter()
         {
             _dependencies.AddDefaultFileLogWriter();
-
-            _dependencies.Contains<DefaultFileWriter>().Should().BeTrue();
+            _dependencies.Contains<ILogWriter>().Should().BeTrue();
         }
         
         [Fact]
@@ -124,6 +124,14 @@ namespace Velo.Tests.Logging
         {
             _dependencies.AddLogWriter<TestWriter>(lifetime);
             _dependencies.GetLifetime<TestWriter>().Should().Be(lifetime);
+        }
+        
+        [Fact]
+        public void InstallJson()
+        {
+            _dependencies
+                .AddLogging()
+                .Contains<JConverter>().Should().BeTrue();
         }
         
         private sealed class TestEnricher : ILogEnricher

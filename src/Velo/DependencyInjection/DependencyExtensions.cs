@@ -68,7 +68,8 @@ namespace Velo.DependencyInjection
             Func<IDependencyScope, TContract> builder)
             where TContract : class
         {
-            return dependencies.AddDependency(builder, DependencyLifetime.Scoped);
+            var contracts = new[] {typeof(TContract)};
+            return dependencies.AddDependency(contracts, builder, DependencyLifetime.Scoped);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -123,7 +124,8 @@ namespace Velo.DependencyInjection
             Func<IDependencyScope, TContract> builder)
             where TContract : class
         {
-            return dependencies.AddDependency(builder, DependencyLifetime.Singleton);
+            var contracts = new[] {typeof(TContract)};
+            return dependencies.AddDependency(contracts, builder, DependencyLifetime.Singleton);
         }
 
         public static DependencyCollection AddSingleton<TContract, TImplementation>(
@@ -170,7 +172,8 @@ namespace Velo.DependencyInjection
             Func<IDependencyScope, TContract> builder)
             where TContract : class
         {
-            return dependencies.AddDependency(builder, DependencyLifetime.Transient);
+            var contracts = new[] {typeof(TContract)};
+            return dependencies.AddDependency(contracts, builder, DependencyLifetime.Transient);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

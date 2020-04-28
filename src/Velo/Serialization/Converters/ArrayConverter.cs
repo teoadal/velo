@@ -86,6 +86,8 @@ namespace Velo.Serialization.Converters
             return new JsonArray(jsonElements);
         }
 
+        object IJsonConverter.DeserializeObject(ref JsonTokenizer tokenizer) => Deserialize(ref tokenizer);
+        
         object IJsonConverter.ReadObject(JsonData data) => Read(data);
         
         void IJsonConverter.SerializeObject(object value, TextWriter writer) => Serialize((TElement[]) value, writer);

@@ -8,6 +8,8 @@ namespace Velo.Serialization.Converters
     {
         bool IsPrimitive { get; }
 
+        object DeserializeObject(ref JsonTokenizer tokenizer);
+        
         object ReadObject(JsonData jsonData);
 
         void SerializeObject(object value, TextWriter writer);

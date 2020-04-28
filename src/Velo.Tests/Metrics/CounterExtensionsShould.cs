@@ -4,6 +4,7 @@ using AutoFixture;
 using FluentAssertions;
 using Velo.Metrics.Counters;
 using Velo.Serialization.Converters;
+using Velo.TestsModels;
 using Xunit;
 using Xunit.Abstractions;
 

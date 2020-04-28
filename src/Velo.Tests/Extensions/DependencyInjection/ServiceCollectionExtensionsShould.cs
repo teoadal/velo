@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Velo.CQRS;
 using Velo.DependencyInjection;
 using Velo.Serialization;
+using Velo.TestsModels;
 using Velo.TestsModels.Boos;
 using Xunit;
 using Xunit.Abstractions;

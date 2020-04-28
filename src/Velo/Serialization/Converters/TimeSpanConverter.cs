@@ -9,7 +9,7 @@ namespace Velo.Serialization.Converters
     internal sealed class TimeSpanConverter : IJsonConverter<TimeSpan>
     {
         public const string Pattern = "c";
-        
+
         public bool IsPrimitive => true;
 
         private readonly CultureInfo _cultureInfo;
@@ -42,6 +42,8 @@ namespace Velo.Serialization.Converters
         {
             return new JsonValue(value.ToString(Pattern, _cultureInfo), JsonDataType.String);
         }
+
+        object IJsonConverter.DeserializeObject(ref JsonTokenizer tokenizer) => Deserialize(ref tokenizer);
 
         object IJsonConverter.ReadObject(JsonData data) => Read(data);
 

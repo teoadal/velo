@@ -4,6 +4,7 @@ using FluentAssertions;
 using Moq;
 using Velo.CQRS;
 using Velo.DependencyInjection;
+using Velo.TestsModels;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting.Boos.Get;
 using Xunit;
@@ -28,7 +29,7 @@ namespace Velo.Tests.CQRS.Queries
             var processor = new Mock<Func<Query, Boo>>();
 
             var emitter = _dependencyCollection
-                .CreateProcessor(processor.Object)
+                .CreateQueryProcessor(processor.Object)
                 .BuildProvider()
                 .GetRequiredService<IEmitter>();
 
@@ -46,7 +47,7 @@ namespace Velo.Tests.CQRS.Queries
 
             var emitter = _dependencyCollection
                 .AddInstance(repository)
-                .CreateProcessor(processor.Object)
+                .CreateQueryProcessor(processor.Object)
                 .BuildProvider()
                 .GetRequiredService<IEmitter>();
 

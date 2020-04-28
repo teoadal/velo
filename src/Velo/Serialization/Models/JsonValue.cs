@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using Velo.Serialization.Converters;
@@ -6,6 +7,7 @@ using Velo.Serialization.Tokenization;
 
 namespace Velo.Serialization.Models
 {
+    [DebuggerDisplay("{Type} {Value}")]
     public sealed class JsonValue : JsonData, IEquatable<JsonValue>
     {
         private static readonly CultureInfo Invariant = CultureInfo.InvariantCulture;

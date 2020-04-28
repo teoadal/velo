@@ -45,28 +45,16 @@ namespace Velo.DependencyInjection
             return AddDependency(dependency);
         }
 
-        public DependencyCollection AddDependency<TContract>(
-            Func<IDependencyScope, TContract> builder,
-            DependencyLifetime lifetime)
-            where TContract : class
-        {
-            var contracts = new[] {Typeof<TContract>.Raw};
-            var resolver = new DelegateResolver<TContract>(builder);
-
-            var dependency = Dependency.Build(lifetime, contracts, resolver);
-            return AddDependency(dependency);
-        }
-
         public DependencyCollection AddDependency<TResult>(
             Type[] contracts,
             Func<IDependencyScope, TResult> builder,
             DependencyLifetime lifetime)
             where TResult : class
         {
-            var resultType = typeof(TResult);
+            var implementation = typeof(TResult);
             foreach (var contract in contracts)
             {
-                if (contract.IsAssignableFrom(resultType)) continue;
+                if (contract.IsAssignableFrom(implementation)) continue;
 
                 var contractName = ReflectionUtils.GetName(contract);
                 var resultName = ReflectionUtils.GetName<TResult>();

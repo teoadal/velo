@@ -17,5 +17,15 @@ namespace Velo.DependencyInjection
 
             return dependencies;
         }
+
+        internal static DependencyCollection EnsureJsonEnabled(this DependencyCollection dependencies)
+        {
+            if (!dependencies.Contains(typeof(IConvertersCollection)))
+            {
+                AddJsonConverter(dependencies);
+            }
+
+            return dependencies;
+        }
     }
 }

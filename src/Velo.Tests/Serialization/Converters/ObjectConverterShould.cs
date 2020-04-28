@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using Velo.Serialization;
 using Velo.Serialization.Converters;
 using Velo.Serialization.Models;
+using Velo.TestsModels;
 using Velo.TestsModels.Boos;
 using Xunit;
 using Xunit.Abstractions;

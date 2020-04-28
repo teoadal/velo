@@ -13,18 +13,43 @@ namespace Velo.Utils
         private static readonly Type DisposableInterfaceType = typeof(IDisposable);
 
         public static TDelegate BuildStaticMethodDelegate<TDelegate>(MethodInfo methodInfo)
-            where TDelegate: Delegate
+            where TDelegate : Delegate
         {
             var methodDelegate = methodInfo.CreateDelegate(typeof(TDelegate), null);
             return (TDelegate) methodDelegate;
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Type GetArrayElementType(Type arrayType)
         {
             var elementType = arrayType.GetElementType();
             if (elementType == null) throw Error.InvalidData($"Type '{GetName(arrayType)}' is not array");
             return elementType;
+        }
+
+        public static Assembly[] GetUserAssemblies()
+        {
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+
+            var result = new LocalList<Assembly>();
+            foreach (var assembly in assemblies)
+            {
+                if (assembly.IsDynamic) continue;
+
+                var name = assembly.FullName;
+                if (name.StartsWith("Microsoft") || name.StartsWith("System") || name.StartsWith("NuGet") ||
+                    name.StartsWith("netstandard") || name.StartsWith("mscorlib") || name.StartsWith("xunit") ||
+                    name.StartsWith("Newtonsoft") || name.StartsWith("JetBrains") || name.StartsWith("Castle") ||
+                    name.StartsWith("Moq") || name.StartsWith("AutoFixture") || name.StartsWith("FluentAssertions") ||
+                    name == "Velo")
+                {
+                    continue;
+                }
+
+                result.Add(assembly);
+            }
+
+            return result.ToArray();
         }
 
         /// <summary>
@@ -60,23 +85,23 @@ namespace Velo.Utils
                     implementations.Add(typeInterface);
                 }
             }
-            
+
             return implementations;
         }
-        
+
         public static string GetName<T>()
         {
             var builder = new StringBuilder();
             WriteName(typeof(T), new StringWriter(builder));
-            
+
             return builder.ToString();
         }
-        
+
         public static string GetName(Type type)
         {
             var builder = new StringBuilder();
             WriteName(type, new StringWriter(builder));
-            
+
             return builder.ToString();
         }
 
@@ -101,7 +126,8 @@ namespace Velo.Utils
             throw Error.NotFound($"Generic interface {GetName(genericInterface)} is not implemented");
         }
 
-        public static LocalList<Type> GetGenericInterfaceImplementations(Type type, Type genericInterface, bool throwIfNotFound = true)
+        public static LocalList<Type> GetGenericInterfaceImplementations(Type type, Type genericInterface,
+            bool throwIfNotFound = true)
         {
             CheckIsGenericInterfaceTypeDefinition(genericInterface);
 
@@ -138,7 +164,7 @@ namespace Velo.Utils
                 var currentImplementations = GetGenericInterfaceImplementations(type, genericInterface, false);
                 implementations.AddRange(currentImplementations);
             }
-            
+
             return implementations;
         }
 
@@ -150,11 +176,11 @@ namespace Velo.Utils
                 disposable = result;
                 return true;
             }
-            
+
             disposable = null!;
             return false;
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsDisposableType(Type type)
         {
@@ -166,7 +192,7 @@ namespace Velo.Utils
         {
             return type.IsGenericType && type.GetGenericTypeDefinition() == genericType;
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasEmptyConstructor(Type type)
         {
@@ -202,7 +228,7 @@ namespace Velo.Utils
             var writer = new StringWriter(sb);
             WriteName(type, writer);
         }
-        
+
         public static void WriteName(Type type, TextWriter writer)
         {
             if (type.IsArray)
@@ -215,7 +241,7 @@ namespace Velo.Utils
                 var genericDefinitionName = type.GetGenericTypeDefinition().Name;
                 writer.Write(genericDefinitionName.Remove(genericDefinitionName.IndexOf('`')));
                 writer.Write('<');
-                
+
                 var genericArguments = type.GenericTypeArguments;
                 for (var i = 0; i < genericArguments.Length; i++)
                 {

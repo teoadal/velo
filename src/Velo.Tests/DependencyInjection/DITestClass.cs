@@ -3,6 +3,7 @@ using Moq;
 using Moq.Protected;
 using Velo.DependencyInjection;
 using Velo.DependencyInjection.Resolvers;
+using Velo.TestsModels;
 using Xunit;
 using Xunit.Abstractions;
 

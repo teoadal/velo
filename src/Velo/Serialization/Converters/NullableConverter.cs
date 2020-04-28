@@ -43,6 +43,8 @@ namespace Velo.Serialization.Converters
                 : _valueConverter.Write(value.Value);
         }
 
+        object IJsonConverter.DeserializeObject(ref JsonTokenizer tokenizer) => Deserialize(ref tokenizer)!;
+        
         object IJsonConverter.ReadObject(JsonData data) => Read(data)!;
 
         void IJsonConverter.SerializeObject(object value, TextWriter writer) => Serialize((TNullable?) value, writer);

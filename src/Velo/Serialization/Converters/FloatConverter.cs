@@ -40,6 +40,8 @@ namespace Velo.Serialization.Converters
             return new JsonValue(value.ToString(Pattern, _cultureInfo), JsonDataType.Number);
         }
 
+        object IJsonConverter.DeserializeObject(ref JsonTokenizer tokenizer) => Deserialize(ref tokenizer);
+        
         object IJsonConverter.ReadObject(JsonData data) => Read(data);
 
         void IJsonConverter.SerializeObject(object value, TextWriter writer) => Serialize((float) value, writer);

@@ -10,7 +10,7 @@ namespace Velo.Serialization.Tokenization
     internal ref struct JsonTokenizer
     {
         public static readonly Type ByRefType = typeof(JsonTokenizer).MakeByRefType();
-        
+
         public const string TokenFalseValue = "false";
         public const string TokenNullValue = "null";
         public const string TokenTrueValue = "true";

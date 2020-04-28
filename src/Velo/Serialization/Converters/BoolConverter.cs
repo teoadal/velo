@@ -40,8 +40,10 @@ namespace Velo.Serialization.Converters
             return value ? JsonValue.True : JsonValue.False;
         }
 
+        object IJsonConverter.DeserializeObject(ref JsonTokenizer tokenizer) => Deserialize(ref tokenizer);
+
         object IJsonConverter.ReadObject(JsonData data) => Read(data);
-        
+
         void IJsonConverter.SerializeObject(object value, TextWriter writer) => Serialize((bool) value, writer);
 
         JsonData IJsonConverter.WriteObject(object value) => Write((bool) value);

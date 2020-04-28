@@ -1,4 +1,5 @@
 using System;
+using Velo.DependencyInjection.Dependencies;
 using Velo.Logging;
 using Velo.Logging.Enrichers;
 using Velo.Logging.Provider;
@@ -11,6 +12,8 @@ namespace Velo.DependencyInjection
 {
     public static class LoggingInstaller
     {
+        private static readonly Type[] LogWriterContracts = {Typeof<ILogWriter>.Raw};
+
         public static DependencyCollection AddLogging(this DependencyCollection dependencies)
         {
             dependencies
@@ -18,7 +21,8 @@ namespace Velo.DependencyInjection
                 .AddFactory<ILogProvider, LogProvider>(factory => factory
                     .Lifetime(DependencyLifetime.Scoped)
                     .CreateIf<NullLogProvider>(engine => !engine.Contains(typeof(ILogWriter))))
-                .AddScoped(typeof(ILogger<>), typeof(Logger<>));
+                .AddScoped(typeof(ILogger<>), typeof(Logger<>))
+                .EnsureJsonEnabled();
 
             return dependencies;
         }
@@ -26,7 +30,9 @@ namespace Velo.DependencyInjection
         public static DependencyCollection AddDefaultConsoleLogWriter(this DependencyCollection dependencies,
             LogLevel level = LogLevel.Debug)
         {
-            dependencies.AddInstance(new DefaultConsoleWriter(level));
+            var dependency = new InstanceDependency(LogWriterContracts, new DefaultConsoleWriter(level));
+            dependencies.AddDependency(dependency);
+
             return dependencies;
         }
 
@@ -35,7 +41,9 @@ namespace Velo.DependencyInjection
         {
             filePath ??= $"{AppDomain.CurrentDomain.FriendlyName}.log";
 
-            dependencies.AddInstance(new DefaultFileWriter(filePath, level));
+            var dependency = new InstanceDependency(LogWriterContracts, new DefaultFileWriter(filePath, level));
+            dependencies.AddDependency(dependency);
+
             return dependencies;
         }
 

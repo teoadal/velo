@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Runtime.Serialization;
+using Velo.Serialization.Tokenization;
 
 namespace Velo.Utils
 {
@@ -31,6 +33,16 @@ namespace Velo.Utils
         public static KeyNotFoundException DefaultConstructorNotFound(Type type)
         {
             return new KeyNotFoundException($"Default constructor for '{ReflectionUtils.GetName(type)}' not found");
+        }
+
+        public static SerializationException Deserialization(string message)
+        {
+            return new SerializationException(message);
+        }
+        
+        public static SerializationException Deserialization(JsonTokenType expected, JsonTokenType actual)
+        {
+            return new SerializationException($"Expected {expected} json token, but found {actual}");
         }
         
         public static ObjectDisposedException Disposed(string objectName)
