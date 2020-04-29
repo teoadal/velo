@@ -20,9 +20,7 @@ jobs:
     - name: Build with dotnet
       run: dotnet build -c Release
     - name: Run tests with coverage
-      run: |
-        cd ./src/Velo.Tests/
-        dotnet test -c Release --no-build /p:CollectCoverage=true /p:CoverletOutput=TestResults/ /p:CoverletOutputFormat=opencover /p:Exclude="[*]Velo.TestsModels.*"
+      run: dotnet test -c Release --no-build /p:CollectCoverage=true /p:CoverletOutput=TestResults/ /p:CoverletOutputFormat=opencover /p:Exclude="[*]Velo.TestsModels.*"
     - name: Publish coverage report
       if: startsWith(matrix.os, 'ubuntu')
       uses: codecov/codecov-action@v1
