@@ -9,6 +9,7 @@ namespace Velo.ECS.Assets.Context
         private sealed class AssetContextDebugVisualizer
         {
             // ReSharper disable UnusedMember.Local
+
             public Asset[] Assets => _context.ToArray();
 
             public IAssetFilter[] Filters => _context._filters.Values.ToArray();

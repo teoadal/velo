@@ -4,6 +4,6 @@ namespace Velo.ECS.Assets.Sources
 {
     public interface IAssetSource
     {
-        IEnumerable<Asset> GetAssets();
+        IEnumerable<Asset> GetAssets(IAssetSourceContext sourceContext);
     }
 }

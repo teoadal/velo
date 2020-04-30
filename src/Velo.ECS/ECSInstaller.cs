@@ -24,7 +24,7 @@ namespace Velo.DependencyInjection
     public static class ECSInstaller
     {
         private static readonly Type[] AssetSourceContracts = {Typeof<IAssetSource>.Raw};
-        
+
         public static DependencyCollection AddECS(this DependencyCollection dependencies)
         {
             //actors
@@ -40,7 +40,8 @@ namespace Velo.DependencyInjection
                 .AddFactory(new FilterFactory<IAssetContext>(typeof(IAssetFilter)))
                 .AddFactory(new GroupFactory<IAssetContext>(typeof(IAssetGroup)))
                 .AddFactory(new SingleFactory<IAssetContext>(typeof(SingleAsset<>)))
-                .AddSingleton<IAssetContext, AssetContext>();
+                .AddSingleton<IAssetContext, AssetContext>()
+                .AddSingleton<AssetSourceContext>();
 
             // components
             dependencies
@@ -59,24 +60,33 @@ namespace Velo.DependencyInjection
             return dependencies;
         }
 
+        public static DependencyCollection AddAssets(this DependencyCollection dependencies, IAssetSource assetSource)
+        {
+            var dependency = new InstanceDependency(AssetSourceContracts, assetSource);
+            dependencies.AddDependency(dependency);
+
+            return dependencies;
+        }
+        
+        public static DependencyCollection AddAssets(this DependencyCollection dependencies,
+            Func<IAssetSourceContext, IEnumerable<Asset>> assets)
+        {
+            if (assets == null) throw Error.Null(nameof(assets));
+
+            var dependency = new InstanceDependency(AssetSourceContracts, new AssetDelegateSource(assets));
+            dependencies.AddDependency(dependency);
+
+            return dependencies;
+        }
+        
         public static DependencyCollection AddJsonAssets(this DependencyCollection dependencies, string path)
         {
             if (string.IsNullOrWhiteSpace(path)) throw Error.Null(nameof(path));
 
             dependencies.AddDependency(
                 AssetSourceContracts,
-                scope => new JsonAssetSource(scope.GetRequiredService<JsonEntityConverters>(), path),
+                scope => new AssetJsonFileSource(scope.GetRequiredService<JsonEntityConverters>(), path),
                 DependencyLifetime.Singleton);
-
-            return dependencies;
-        }
-
-        public static DependencyCollection AddMemoryAssets(this DependencyCollection dependencies, IEnumerable<Asset> assets)
-        {
-            if (assets == null) throw Error.Null(nameof(assets));
-
-            var dependency = new InstanceDependency(AssetSourceContracts, new MemoryAssetSource(assets));
-            dependencies.AddDependency(dependency);
 
             return dependencies;
         }

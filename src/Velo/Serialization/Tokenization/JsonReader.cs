@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Velo.Utils;
 
 namespace Velo.Serialization.Tokenization
 {
@@ -12,6 +13,7 @@ namespace Velo.Serialization.Tokenization
         public bool CanRead => _canRead;
 
         private bool _canRead;
+        private bool _disposed;
         private readonly TextReader _streamReader;
 
         public JsonReader(Stream stream, Encoding? encoding = null)
@@ -19,6 +21,7 @@ namespace Velo.Serialization.Tokenization
             Current = default;
 
             _canRead = true;
+            _disposed = false;
             _streamReader = new StreamReader(stream, encoding ?? Encoding.UTF8);
         }
 
@@ -27,11 +30,14 @@ namespace Velo.Serialization.Tokenization
             Current = default;
 
             _canRead = true;
+            _disposed = false;
             _streamReader = new StringReader(source);
         }
 
         public bool MoveNext()
         {
+            if (_disposed) throw Error.Disposed(nameof(JsonReader));
+
             var value = _streamReader.Read();
             if (value == -1)
             {
@@ -54,7 +60,12 @@ namespace Velo.Serialization.Tokenization
 
         public void Dispose()
         {
+            if (_disposed) return;
+
+            _canRead = false;
             _streamReader.Dispose();
+
+            _disposed = true;
         }
     }
 }

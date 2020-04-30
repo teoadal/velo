@@ -51,6 +51,17 @@ namespace Velo.TestsModels
             return result;
         }
         
+        protected static T[] Many<T>(int count, Func<int, T> action)
+        {
+            var result = new T[count];
+            for (var i = 0; i < count; i++)
+            {
+                result[i] = action(i);
+            }
+
+            return result;
+        }
+        
         protected StopwatchScope Measure()
         {
             _stopwatch = Stopwatch.StartNew();

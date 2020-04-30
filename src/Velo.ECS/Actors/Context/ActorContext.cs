@@ -41,9 +41,9 @@ namespace Velo.ECS.Actors.Context
         {
             _actorsLock = new ReaderWriterLockSlim();
 
-            _actors = new Dictionary<int, Actor>(1000);
-            _filters = new Dictionary<int, IActorFilter>(50);
-            _groups = new Dictionary<int, IActorGroup>(50);
+            _actors = new Dictionary<int, Actor>(1024);
+            _filters = new Dictionary<int, IActorFilter>(64);
+            _groups = new Dictionary<int, IActorGroup>(64);
             _singleActors = new Dictionary<int, object>();
         }
 

@@ -24,8 +24,8 @@ namespace Velo.ECS.Assets.Context
         private readonly Dictionary<int, IAssetGroup> _groups;
         private readonly Dictionary<int, object> _singleAssets;
 
-        public AssetContext(IAssetSource[] sources)
-            : this(sources.SelectMany(source => source.GetAssets()))
+        public AssetContext(AssetSourceContext sourceContext)
+            : this(sourceContext.GetAssets())
         {
         }
 
@@ -37,8 +37,8 @@ namespace Velo.ECS.Assets.Context
                 _assets,
                 asset => throw Error.AlreadyExists($"Asset with id '{asset.Id}' already exists"));
 
-            _filters = new Dictionary<int, IAssetFilter>(25);
-            _groups = new Dictionary<int, IAssetGroup>(25);
+            _filters = new Dictionary<int, IAssetFilter>(32);
+            _groups = new Dictionary<int, IAssetGroup>(32);
             _singleAssets = new Dictionary<int, object>();
         }
 

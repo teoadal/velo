@@ -3,7 +3,7 @@ using Velo.ECS.Components;
 
 namespace Velo.ECS.Assets.Filters
 {
-    [DebuggerDisplay("{GetType().Name} {Entity.Id}")]
+    [DebuggerDisplay("{Entity.GetType().Name} {Entity.Id}")]
     public readonly struct Asset<TComponent>
         where TComponent : IComponent
     {

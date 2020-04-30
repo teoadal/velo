@@ -123,6 +123,7 @@ namespace Velo.Serialization
             {
                 {typeof(bool), new BoolConverter()},
                 {typeof(DateTime), new DateTimeConverter(culture)},
+                {typeof(decimal), new DecimalConverter(culture)},
                 {typeof(double), new DoubleConverter(culture)},
                 {typeof(float), new FloatConverter(culture)},
                 {typeof(Guid), new GuidConverter()},

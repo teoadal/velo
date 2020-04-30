@@ -5,6 +5,7 @@ using Velo.ECS.Components;
 
 namespace Velo.ECS.Assets
 {
+    [DebuggerTypeProxy(typeof(DebuggerVisualizer))]
     [DebuggerDisplay("{GetType().Name} {Id}")]
     public class Asset : IEquatable<Asset>
     {
@@ -64,6 +65,24 @@ namespace Velo.ECS.Assets
             where TComponent1 : IComponent where TComponent2 : IComponent
         {
             return _components.TryGetComponents(out component1, out component2);
+        }
+
+        private sealed class DebuggerVisualizer
+        {
+            // ReSharper disable UnusedMember.Local
+
+            public int Id => _asset.Id;
+
+            public IComponent[] Components => _asset._components;
+
+            // ReSharper restore UnusedMember.Local
+
+            private readonly Asset _asset;
+
+            public DebuggerVisualizer(Asset asset)
+            {
+                _asset = asset;
+            }
         }
     }
 }

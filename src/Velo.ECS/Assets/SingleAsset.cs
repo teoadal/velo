@@ -1,7 +1,9 @@
+using System.Diagnostics;
 using Velo.Utils;
 
 namespace Velo.ECS.Assets
 {
+    [DebuggerDisplay("{_instance.GetType().Name} {_instance.Id}")]
     public sealed class SingleAsset<TAsset>
         where TAsset : Asset
     {

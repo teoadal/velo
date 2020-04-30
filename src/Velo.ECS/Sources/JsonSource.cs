@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -6,38 +8,63 @@ using Velo.Utils;
 
 namespace Velo.ECS.Sources
 {
-    internal abstract class JsonSource<TEntity>
-        where TEntity : class
+    internal sealed class JsonSource<T> : IEnumerable<T>, IEnumerator<T>
+        where T : class
     {
-        protected IEnumerable<TEntity> Visit(Stream stream)
-        {
-            using var jsonReader = new JsonReader(stream);
-            using var tokenizer = new JsonTokenizer(jsonReader, new StringBuilder(200));
+        public T Current { get; private set; }
 
-            return VisitArray(tokenizer);
+        private Func<JsonTokenizer, T> _deserializer;
+
+        private JsonTokenizer _tokenizer;
+
+        public JsonSource(Stream stream, Func<JsonTokenizer, T> deserializer)
+            : this(new JsonTokenizer(new JsonReader(stream), new StringBuilder(200)), deserializer)
+        {
         }
 
-        protected abstract TEntity VisitEntity(JsonTokenizer tokenizer);
-
-        private IEnumerable<TEntity> VisitArray(JsonTokenizer tokenizer)
+        public JsonSource(JsonTokenizer tokenizer, Func<JsonTokenizer, T> deserializer)
         {
-            tokenizer.MoveNext(); // skip array start
+            _deserializer = deserializer;
+            Current = null!;
 
-            var entities = new List<TEntity>();
-            while (tokenizer.MoveNext())
+            _tokenizer = tokenizer;
+
+            _tokenizer.MoveNext(); // skip array start
+        }
+
+        public IEnumerator<T> GetEnumerator() => this;
+
+        public bool MoveNext()
+        {
+            while (_tokenizer.MoveNext())
             {
-                var tokenType = tokenizer.Current.TokenType;
+                var tokenType = _tokenizer.Current.TokenType;
                 if (tokenType == JsonTokenType.ArrayEnd) break;
                 if (tokenType != JsonTokenType.ObjectStart)
                 {
                     throw Error.Deserialization(JsonTokenType.ObjectStart, tokenType);
                 }
 
-                var entity = VisitEntity(tokenizer);
-                entities.Add(entity);
+                Current = _deserializer(_tokenizer);
+                return true;
             }
 
-            return entities;
+            return false;
+        }
+
+        object IEnumerator.Current => Current;
+        IEnumerator IEnumerable.GetEnumerator() => this;
+
+        void IEnumerator.Reset()
+        {
+        }
+
+        public void Dispose()
+        {
+            _deserializer = null!;
+
+            _tokenizer?.Dispose();
+            _tokenizer = null!;
         }
     }
 }

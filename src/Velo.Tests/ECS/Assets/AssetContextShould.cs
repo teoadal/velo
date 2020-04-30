@@ -3,7 +3,6 @@ using System.Linq;
 using AutoFixture;
 using FluentAssertions;
 using Moq;
-using Velo.DependencyInjection;
 using Velo.ECS.Assets;
 using Velo.ECS.Assets.Context;
 using Velo.ECS.Assets.Filters;
@@ -65,20 +64,6 @@ namespace Velo.Tests.ECS.Assets
         }
 
         [Fact]
-        public void CreateFromFileSource()
-        {
-            var provider = new DependencyCollection()
-                .AddECS()
-                .AddJsonAssets("ECS/assets.json")
-                .BuildProvider();
-
-            provider
-                .Invoking(p => p.GetRequiredService<IAssetContext>())
-                .Should().NotThrow()
-                .Which.Should().HaveCountGreaterThan(0);
-        }
-
-        [Fact]
         public void Enumerable()
         {
             _assetContext.Should().Contain(a => a.Id == _asset.Id);
@@ -97,7 +82,7 @@ namespace Velo.Tests.ECS.Assets
         {
             _assetContext.Length.Should().Be(_assetsCount);
         }
-        
+
         [Fact]
         public void Get()
         {

@@ -1,6 +1,7 @@
 using System;
 using AutoFixture;
 using FluentAssertions;
+using Moq;
 using Velo.DependencyInjection;
 using Velo.ECS.Actors.Context;
 using Velo.ECS.Actors.Factory;
@@ -45,6 +46,29 @@ namespace Velo.Tests.ECS
         }
 
         [Fact]
+        public void InstallAssetSource()
+        {
+            var dependency = _dependencies
+                .AddAssets(Mock.Of<IAssetSource>())
+                .GetRequiredDependency<IAssetSource>();
+
+            dependency.Contracts.Should().Contain(typeof(IAssetSource));
+            dependency.Lifetime.Should().Be(DependencyLifetime.Singleton);
+        }
+
+        [Fact]
+        public void InstallAssets()
+        {
+            var dependency = _dependencies
+                .AddAssets(_ => new[] {new Asset(1, Array.Empty<IComponent>())})
+                .GetRequiredDependency<IAssetSource>();
+
+            dependency.Contracts.Should().Contain(typeof(IAssetSource));
+            dependency.Lifetime.Should().Be(DependencyLifetime.Singleton);
+            dependency.Resolver.Implementation.Should().Be(typeof(AssetDelegateSource));
+        }
+
+        [Fact]
         public void InstallJsonAssets()
         {
             var dependency = _dependencies
@@ -53,19 +77,7 @@ namespace Velo.Tests.ECS
 
             dependency.Contracts.Should().Contain(typeof(IAssetSource));
             dependency.Lifetime.Should().Be(DependencyLifetime.Singleton);
-            dependency.Resolver.Implementation.Should().Be(typeof(JsonAssetSource));
-        }
-
-        [Fact]
-        public void InstallMemoryAssets()
-        {
-            var dependency = _dependencies
-                .AddMemoryAssets(new[] {new Asset(1, Array.Empty<IComponent>())})
-                .GetRequiredDependency<IAssetSource>();
-
-            dependency.Contracts.Should().Contain(typeof(IAssetSource));
-            dependency.Lifetime.Should().Be(DependencyLifetime.Singleton);
-            dependency.Resolver.Implementation.Should().Be(typeof(MemoryAssetSource));
+            dependency.Resolver.Implementation.Should().Be(typeof(AssetJsonFileSource));
         }
 
         [Fact]

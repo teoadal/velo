@@ -12,7 +12,7 @@ namespace Velo.Serialization.Models
         public const string FalseToken = "false";
         public const string NullToken = "null";
         public const string TrueToken = "true";
-        
+
         private static readonly CultureInfo Invariant = CultureInfo.InvariantCulture;
 
         public static readonly JsonValue True = new JsonValue(TrueToken, JsonDataType.True);
@@ -39,14 +39,21 @@ namespace Velo.Serialization.Models
         public static JsonValue Number(float value, CultureInfo? cultureInfo = null)
         {
             return new JsonValue(
-                value.ToString(FloatConverter.Pattern, cultureInfo ?? Invariant), 
+                value.ToString(FloatConverter.Pattern, cultureInfo ?? Invariant),
                 JsonDataType.Number);
         }
 
         public static JsonValue Number(double value, CultureInfo? cultureInfo = null)
         {
             return new JsonValue(
-                value.ToString(DoubleConverter.Pattern, cultureInfo ?? Invariant), 
+                value.ToString(DoubleConverter.Pattern, cultureInfo ?? Invariant),
+                JsonDataType.Number);
+        }
+
+        public static JsonValue Number(decimal value, CultureInfo? cultureInfo = null)
+        {
+            return new JsonValue(
+                value.ToString(cultureInfo ?? Invariant),
                 JsonDataType.Number);
         }
 
@@ -61,7 +68,7 @@ namespace Velo.Serialization.Models
         public static JsonValue TimeSpan(TimeSpan value, CultureInfo? cultureInfo = null)
         {
             return new JsonValue(
-                value.ToString(TimeSpanConverter.Pattern, cultureInfo ?? Invariant), 
+                value.ToString(TimeSpanConverter.Pattern, cultureInfo ?? Invariant),
                 JsonDataType.Number);
         }
 
@@ -94,9 +101,9 @@ namespace Velo.Serialization.Models
         {
             if (Type == JsonDataType.String)
             {
-                writer.Write('\"');
+                writer.Write('"');
                 writer.Write(Value);
-                writer.Write('\"');
+                writer.Write('"');
             }
             else
             {
