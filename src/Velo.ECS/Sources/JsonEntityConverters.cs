@@ -22,12 +22,16 @@ namespace Velo.ECS.Sources
         private readonly Description[] _components;
 
         private readonly IConvertersCollection _converters;
+        private readonly IComponentFactory _componentFactory;
 
         private readonly Func<int, IComponent[], Actor> _defaultActorBuilder;
         private readonly Func<int, IComponent[], Asset> _defaultAssetBuilder;
 
-        public JsonEntityConverters(IConvertersCollection? converters)
+        public JsonEntityConverters(
+            IComponentFactory componentFactory,
+            IConvertersCollection? converters = null)
         {
+            _componentFactory = componentFactory;
             _converters = converters ?? new ConvertersCollection(CultureInfo.InvariantCulture);
 
             var actors = new List<Description>();
@@ -61,14 +65,14 @@ namespace Velo.ECS.Sources
             _defaultAssetBuilder = (id, actorComponents) => new Asset(id, actorComponents);
         }
 
-        public Actor DeserializeActor(ref JsonTokenizer tokenizer)
+        public Actor DeserializeActor(JsonTokenizer tokenizer)
         {
-            return VisitEntity(ref tokenizer, _actors, _defaultActorBuilder);
+            return VisitEntity(tokenizer, _actors, _defaultActorBuilder);
         }
 
-        public Asset DeserializeAsset(ref JsonTokenizer tokenizer)
+        public Asset DeserializeAsset(JsonTokenizer tokenizer)
         {
-            return VisitEntity(ref tokenizer, _assets, _defaultAssetBuilder);
+            return VisitEntity(tokenizer, _assets, _defaultAssetBuilder);
         }
 
         private Description CreateDescription(Type type, string replace)
@@ -79,11 +83,15 @@ namespace Velo.ECS.Sources
             return new Description(converter, name, type);
         }
 
-        private IComponent DeserializeComponent(string componentName, ref JsonTokenizer tokenizer)
+        private IComponent DeserializeComponent(string componentName, JsonTokenizer tokenizer)
         {
-            return TryGetDescription(_components, componentName, out var description)
-                ? (IComponent) description.Converter.DeserializeObject(ref tokenizer)
-                : throw Error.NotFound($"Component implementation with name '{componentName}' not found");
+            if (!TryGetDescription(_components, componentName, out var description))
+            {
+                throw Error.NotFound($"Component implementation with name '{componentName}' not found");
+            }
+
+            var component = _componentFactory.Create(description.Type);
+            return (IComponent) description.Converter.FillObject(tokenizer, component);
         }
 
         private static bool TryGetDescription(Description[] descriptions, string name, out Description description)
@@ -101,7 +109,7 @@ namespace Velo.ECS.Sources
             return false;
         }
 
-        private IComponent[] VisitComponents(ref JsonTokenizer tokenizer)
+        private IComponent[] VisitComponents(JsonTokenizer tokenizer)
         {
             var result = new LocalList<IComponent>();
 
@@ -117,7 +125,7 @@ namespace Velo.ECS.Sources
 
                 tokenizer.MoveNext(); // to property value;
 
-                var component = DeserializeComponent(componentName, ref tokenizer);
+                var component = DeserializeComponent(componentName, tokenizer);
 
                 result.Add(component);
             }
@@ -125,7 +133,7 @@ namespace Velo.ECS.Sources
             return result.ToArray();
         }
 
-        private T VisitEntity<T>(ref JsonTokenizer tokenizer,
+        private T VisitEntity<T>(JsonTokenizer tokenizer,
             Description[] descriptions,
             Func<int, IComponent[], T> builder)
         {
@@ -144,16 +152,16 @@ namespace Velo.ECS.Sources
                 switch (propertyName)
                 {
                     case "id":
-                        entityId = VisitKnownProperty<int>(ref tokenizer);
+                        entityId = VisitKnownProperty<int>(tokenizer);
                         break;
                     case "components":
-                        components = VisitComponents(ref tokenizer);
+                        components = VisitComponents(tokenizer);
                         break;
                     case "_type":
-                        entityType = VisitKnownProperty<string>(ref tokenizer);
+                        entityType = VisitKnownProperty<string>(tokenizer);
                         break;
                     default:
-                        var propertyValue = JsonVisitor.VisitProperty(ref tokenizer);
+                        var propertyValue = JsonVisitor.VisitProperty(tokenizer);
                         otherProperties.Add(propertyName, propertyValue);
                         break;
                 }
@@ -165,17 +173,15 @@ namespace Velo.ECS.Sources
             {
                 throw Error.NotFound($"Entity implementation with name '{entityType}' not found");
             }
-                
+
             var instance = Activator.CreateInstance(description.Type, entityId, components);
-            description.Converter.FillObject(otherProperties, instance);
-            
-            return (T) instance;
+            return (T) description.Converter.FillObject(otherProperties, instance);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private TValue VisitKnownProperty<TValue>(ref JsonTokenizer tokenizer)
+        private TValue VisitKnownProperty<TValue>(JsonTokenizer tokenizer)
         {
-            var propertyValue = JsonVisitor.VisitProperty(ref tokenizer);
+            var propertyValue = JsonVisitor.VisitProperty(tokenizer);
             return _converters.Read<TValue>(propertyValue);
         }
 

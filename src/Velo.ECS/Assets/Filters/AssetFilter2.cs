@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Velo.Collections;
 using Velo.ECS.Components;
 
@@ -15,6 +16,8 @@ namespace Velo.ECS.Assets.Filters
             Func<Asset<TComponent1, TComponent2>, TArg, bool> filter, TArg arg);
     }
 
+    [DebuggerTypeProxy(typeof(DebuggerVisualizer<,>))]
+    [DebuggerDisplay("Length = {" + nameof(Length) + "}")]
     internal sealed class AssetFilter<TComponent1, TComponent2> : IAssetFilter<TComponent1, TComponent2>
         where TComponent1 : IComponent where TComponent2 : IComponent
     {

@@ -3,20 +3,23 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using Velo.Serialization.Converters;
-using Velo.Serialization.Tokenization;
 
 namespace Velo.Serialization.Models
 {
     [DebuggerDisplay("{Type} {Value}")]
     public sealed class JsonValue : JsonData, IEquatable<JsonValue>
     {
+        public const string FalseToken = "false";
+        public const string NullToken = "null";
+        public const string TrueToken = "true";
+        
         private static readonly CultureInfo Invariant = CultureInfo.InvariantCulture;
 
-        public static readonly JsonValue True = new JsonValue(JsonTokenizer.TokenTrueValue, JsonDataType.True);
+        public static readonly JsonValue True = new JsonValue(TrueToken, JsonDataType.True);
 
-        public static readonly JsonValue False = new JsonValue(JsonTokenizer.TokenFalseValue, JsonDataType.False);
+        public static readonly JsonValue False = new JsonValue(FalseToken, JsonDataType.False);
 
-        public static readonly JsonValue Null = new JsonValue(JsonTokenizer.TokenNullValue, JsonDataType.Null);
+        public static readonly JsonValue Null = new JsonValue(NullToken, JsonDataType.Null);
 
         public static readonly JsonValue StringEmpty = new JsonValue(string.Empty, JsonDataType.String);
 

@@ -10,7 +10,7 @@ namespace Velo.Serialization.Converters
 {
     internal readonly struct PropertyConverter<TObject>
     {
-        public readonly DeserializeMethod<TObject> Deserialize;
+        public readonly Action<TObject, JsonTokenizer> Deserialize;
         public readonly Action<TObject, JsonData> Read;
         public readonly Action<TObject, TextWriter> Serialize;
         public readonly Func<TObject, JsonData> Write;
@@ -26,18 +26,18 @@ namespace Velo.Serialization.Converters
             Write = BuildWriteMethod(instance, propertyInfo, converter);
         }
 
-        private static DeserializeMethod<TObject> BuildDeserializeMethod(ParameterExpression instance,
+        private static Action<TObject, JsonTokenizer> BuildDeserializeMethod(ParameterExpression instance,
             PropertyInfo property, Expression valueConverter)
         {
             const string deserializeMethodName = nameof(IJsonConverter<object>.Deserialize);
 
-            var tokenizer = Expression.Parameter(JsonTokenizer.ByRefType, "tokenizer");
+            var tokenizer = Expression.Parameter(typeof(JsonTokenizer), "tokenizer");
 
             var propertyValue = ExpressionUtils.Call(valueConverter, deserializeMethodName, tokenizer);
             var body = ExpressionUtils.SetProperty(instance, property, propertyValue);
 
             return Expression
-                .Lambda<DeserializeMethod<TObject>>(body, instance, tokenizer)
+                .Lambda<Action<TObject, JsonTokenizer>>(body, instance, tokenizer)
                 .Compile();
         }
 
@@ -84,6 +84,4 @@ namespace Velo.Serialization.Converters
                 .Compile();
         }
     }
-
-    internal delegate void DeserializeMethod<in TObject>(TObject obj, ref JsonTokenizer tokenizer);
 }

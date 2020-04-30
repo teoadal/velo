@@ -12,18 +12,14 @@ namespace Velo.ECS.Sources
         protected IEnumerable<TEntity> Visit(Stream stream)
         {
             using var jsonReader = new JsonReader(stream);
-            var tokenizer = new JsonTokenizer(jsonReader, new StringBuilder(200));
+            using var tokenizer = new JsonTokenizer(jsonReader, new StringBuilder(200));
 
-            var result = VisitArray(ref tokenizer);
-
-            tokenizer.Dispose();
-
-            return result;
+            return VisitArray(tokenizer);
         }
 
-        protected abstract TEntity VisitEntity(ref JsonTokenizer tokenizer);
+        protected abstract TEntity VisitEntity(JsonTokenizer tokenizer);
 
-        private IEnumerable<TEntity> VisitArray(ref JsonTokenizer tokenizer)
+        private IEnumerable<TEntity> VisitArray(JsonTokenizer tokenizer)
         {
             tokenizer.MoveNext(); // skip array start
 
@@ -37,7 +33,7 @@ namespace Velo.ECS.Sources
                     throw Error.Deserialization(JsonTokenType.ObjectStart, tokenType);
                 }
 
-                var entity = VisitEntity(ref tokenizer);
+                var entity = VisitEntity(tokenizer);
                 entities.Add(entity);
             }
 

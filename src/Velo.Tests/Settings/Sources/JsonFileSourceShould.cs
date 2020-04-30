@@ -21,7 +21,7 @@ namespace Velo.Tests.Settings.Sources
         [Fact]
         public void ReturnValues()
         {
-            var fileSource = new JsonFileSource("appsettings.json", true);
+            var fileSource = new JsonFileSource("Settings/appsettings.json", true);
             fileSource.TryGet(out _).Should().BeTrue();
         }
 

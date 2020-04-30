@@ -1,4 +1,5 @@
-using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -7,14 +8,8 @@ using Velo.Collections;
 namespace Velo.Serialization.Tokenization
 {
     [DebuggerDisplay("Current: {Current.TokenType} {Current.Value}")]
-    internal ref struct JsonTokenizer
+    internal sealed class JsonTokenizer : IEnumerator<JsonToken>
     {
-        public static readonly Type ByRefType = typeof(JsonTokenizer).MakeByRefType();
-
-        public const string TokenFalseValue = "false";
-        public const string TokenNullValue = "null";
-        public const string TokenTrueValue = "true";
-
         public JsonToken Current { get; private set; }
 
         private StringBuilder _builder;
@@ -84,7 +79,7 @@ namespace Velo.Serialization.Tokenization
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private readonly JsonToken MaybeProperty(string stringToken)
+        private JsonToken MaybeProperty(string stringToken)
         {
             var isProperty = _reader.Current == ':';
 
@@ -174,6 +169,12 @@ namespace Velo.Serialization.Tokenization
             _builder.Clear();
             return result;
         }
+
+        void IEnumerator.Reset()
+        {
+        }
+
+        object IEnumerator.Current => Current;
 
         public void Dispose()
         {

@@ -7,7 +7,7 @@ using Velo.Threading;
 
 namespace Velo.ECS.Actors
 {
-    public class Actor
+    public class Actor : IEquatable<Actor>
     {
         public readonly int Id;
 
@@ -71,6 +71,22 @@ namespace Velo.ECS.Actors
                 return _components.ContainsComponents<TComponent1, TComponent2>();
             }
         }
+
+        #region Equals
+
+        public bool Equals(Actor? other)
+        {
+            return other != null && other.Id == Id;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj != null && Equals(obj as Actor);
+        }
+
+        #endregion
+
+        public override int GetHashCode() => Id;
 
         public bool RemoveComponent<TComponent>() where TComponent : IComponent
         {

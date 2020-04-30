@@ -18,7 +18,7 @@ namespace Velo.Serialization.Converters
             _cultureInfo = cultureInfo;
         }
 
-        public float Deserialize(ref JsonTokenizer tokenizer)
+        public float Deserialize(JsonTokenizer tokenizer)
         {
             var token = tokenizer.Current;
             return float.Parse(token.Value, _cultureInfo);
@@ -40,7 +40,7 @@ namespace Velo.Serialization.Converters
             return new JsonValue(value.ToString(Pattern, _cultureInfo), JsonDataType.Number);
         }
 
-        object IJsonConverter.DeserializeObject(ref JsonTokenizer tokenizer) => Deserialize(ref tokenizer);
+        object IJsonConverter.DeserializeObject(JsonTokenizer tokenizer) => Deserialize(tokenizer);
         
         object IJsonConverter.ReadObject(JsonData data) => Read(data);
 

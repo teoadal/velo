@@ -8,7 +8,7 @@ namespace Velo.Serialization.Converters
     {
         bool IsPrimitive { get; }
 
-        object DeserializeObject(ref JsonTokenizer tokenizer);
+        object DeserializeObject(JsonTokenizer tokenizer);
         
         object ReadObject(JsonData jsonData);
 
@@ -19,7 +19,7 @@ namespace Velo.Serialization.Converters
 
     internal interface IJsonConverter<T> : IJsonConverter
     {
-        T Deserialize(ref JsonTokenizer tokenizer);
+        T Deserialize(JsonTokenizer tokenizer);
 
         T Read(JsonData jsonData);
 

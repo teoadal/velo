@@ -1,9 +1,12 @@
+using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Velo.ECS.Components;
 
 namespace Velo.ECS.Assets
 {
-    public class Asset
+    [DebuggerDisplay("{GetType().Name} {Id}")]
+    public class Asset : IEquatable<Asset>
     {
         public readonly int Id;
 
@@ -25,6 +28,22 @@ namespace Velo.ECS.Assets
         {
             return _components.ContainsComponents<TComponent1, TComponent2>();
         }
+
+        #region Equals
+
+        public bool Equals(Asset? other)
+        {
+            return other != null && other.Id == Id;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj != null && Equals(obj as Asset);
+        }
+
+        #endregion
+
+        public override int GetHashCode() => Id;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryGetComponent<TComponent>(out TComponent component) where TComponent : IComponent

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Velo.Collections;
 using Velo.ECS.Assets.Filters;
@@ -12,8 +13,12 @@ using Velo.Utils;
 
 namespace Velo.ECS.Assets.Context
 {
-    internal sealed class AssetContext : IAssetContext
+    [DebuggerTypeProxy(typeof(AssetContextDebugVisualizer))]
+    [DebuggerDisplay("Length = {" + nameof(Length) + "}")]
+    internal sealed partial class AssetContext : IAssetContext
     {
+        public int Length => _assets.Length;
+
         private readonly Asset[] _assets;
         private readonly Dictionary<int, IAssetFilter> _filters;
         private readonly Dictionary<int, IAssetGroup> _groups;
@@ -27,6 +32,11 @@ namespace Velo.ECS.Assets.Context
         public AssetContext(IEnumerable<Asset> assets)
         {
             _assets = assets.ToArray();
+
+            CollectionUtils.EnsureUnique(
+                _assets,
+                asset => throw Error.AlreadyExists($"Asset with id '{asset.Id}' already exists"));
+
             _filters = new Dictionary<int, IAssetFilter>(25);
             _groups = new Dictionary<int, IAssetGroup>(25);
             _singleAssets = new Dictionary<int, object>();

@@ -17,7 +17,7 @@ namespace Velo.Serialization.Converters
             _values = (TEnum[]) Enum.GetValues(typeof(TEnum));
         }
 
-        public TEnum Deserialize(ref JsonTokenizer tokenizer)
+        public TEnum Deserialize(JsonTokenizer tokenizer)
         {
             var token = tokenizer.Current;
             return _values[int.Parse(token.Value)];
@@ -41,7 +41,7 @@ namespace Velo.Serialization.Converters
             return new JsonValue(index.ToString(), JsonDataType.Number);
         }
 
-        object IJsonConverter.DeserializeObject(ref JsonTokenizer tokenizer) => Deserialize(ref tokenizer);
+        object IJsonConverter.DeserializeObject(JsonTokenizer tokenizer) => Deserialize(tokenizer);
         
         object IJsonConverter.ReadObject(JsonData data) => Read(data);
 

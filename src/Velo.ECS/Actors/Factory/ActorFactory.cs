@@ -98,7 +98,7 @@ namespace Velo.ECS.Actors.Factory
                 }
             }
 
-            throw Error.NotFound($"Actor builder for type {ReflectionUtils.GetName<TActor>()} isn't registered");
+            return new DefaultActorBuilder<TActor>();
         }
     }
 }

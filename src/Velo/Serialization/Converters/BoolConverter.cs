@@ -9,7 +9,7 @@ namespace Velo.Serialization.Converters
     {
         public bool IsPrimitive => true;
 
-        public bool Deserialize(ref JsonTokenizer tokenizer)
+        public bool Deserialize(JsonTokenizer tokenizer)
         {
             var token = tokenizer.Current;
 
@@ -32,7 +32,7 @@ namespace Velo.Serialization.Converters
 
         public void Serialize(bool value, TextWriter writer)
         {
-            writer.Write(value ? JsonTokenizer.TokenTrueValue : JsonTokenizer.TokenFalseValue);
+            writer.Write(value ? JsonValue.TrueToken : JsonValue.FalseToken);
         }
 
         public JsonData Write(bool value)
@@ -40,7 +40,7 @@ namespace Velo.Serialization.Converters
             return value ? JsonValue.True : JsonValue.False;
         }
 
-        object IJsonConverter.DeserializeObject(ref JsonTokenizer tokenizer) => Deserialize(ref tokenizer);
+        object IJsonConverter.DeserializeObject(JsonTokenizer tokenizer) => Deserialize(tokenizer);
 
         object IJsonConverter.ReadObject(JsonData data) => Read(data);
 

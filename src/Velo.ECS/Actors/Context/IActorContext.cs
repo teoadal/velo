@@ -13,6 +13,8 @@ namespace Velo.ECS.Actors.Context
         event Action<Actor, IComponent>? ComponentAdded;
 
         event Action<Actor>? Removed;
+        
+        int Length { get; }
 
         void Add(Actor actor);
 

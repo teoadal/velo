@@ -16,7 +16,7 @@ namespace Velo.Serialization.Converters
             _elementConverter = elementConverter;
         }
 
-        public TElement[] Deserialize(ref JsonTokenizer tokenizer)
+        public TElement[] Deserialize(JsonTokenizer tokenizer)
         {
             var buffer = new LocalList<TElement>();
 
@@ -30,7 +30,7 @@ namespace Velo.Serialization.Converters
                 if (tokenType == JsonTokenType.ArrayStart) continue;
                 if (tokenType == JsonTokenType.ArrayEnd) break;
 
-                var element = _elementConverter.Deserialize(ref tokenizer);
+                var element = _elementConverter.Deserialize(tokenizer);
                 buffer.Add(element);
             }
 
@@ -56,7 +56,7 @@ namespace Velo.Serialization.Converters
         {
             if (array == null)
             {
-                writer.Write(JsonTokenizer.TokenNullValue);
+                writer.Write(JsonValue.NullToken);
                 return;
             }
 
@@ -86,10 +86,10 @@ namespace Velo.Serialization.Converters
             return new JsonArray(jsonElements);
         }
 
-        object IJsonConverter.DeserializeObject(ref JsonTokenizer tokenizer) => Deserialize(ref tokenizer);
-        
+        object IJsonConverter.DeserializeObject(JsonTokenizer tokenizer) => Deserialize(tokenizer);
+
         object IJsonConverter.ReadObject(JsonData data) => Read(data);
-        
+
         void IJsonConverter.SerializeObject(object value, TextWriter writer) => Serialize((TElement[]) value, writer);
 
         JsonData IJsonConverter.WriteObject(object value) => Write((TElement[]) value);

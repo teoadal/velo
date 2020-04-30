@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Velo.Collections;
 using Velo.ECS.Components;
 
@@ -10,10 +11,12 @@ namespace Velo.ECS.Assets.Filters
         where TComponent : IComponent
     {
         bool TryGet(int assetId, out Asset<TComponent> asset);
-        
+
         IEnumerable<Asset<TComponent>> Where<TArg>(Func<Asset<TComponent>, TArg, bool> filter, TArg arg);
     }
 
+    [DebuggerTypeProxy(typeof(DebuggerVisualizer<>))]
+    [DebuggerDisplay("Length = {" + nameof(Length) + "}")]
     internal sealed class AssetFilter<TComponent> : IAssetFilter<TComponent>
         where TComponent : IComponent
     {
@@ -53,7 +56,7 @@ namespace Velo.ECS.Assets.Filters
 
         public IEnumerable<Asset<TComponent>> Where<TArg>(Func<Asset<TComponent>, TArg, bool> filter, TArg arg)
         {
-            return new ArrayWhereEnumerator<Asset<TComponent>,TArg>(_assets, filter, arg);
+            return new ArrayWhereEnumerator<Asset<TComponent>, TArg>(_assets, filter, arg);
         }
 
         public IEnumerator<Asset<TComponent>> GetEnumerator()

@@ -12,7 +12,17 @@ namespace Velo.Serialization.Converters
 {
     internal interface IObjectConverter : IJsonConverter
     {
+        /// <summary>
+        /// Fill present instance from json data 
+        /// </summary>
+        /// <returns>If token is <see cref="JsonTokenType.Null"/> - return null</returns>
         public object FillObject(JsonData jsonData, object instance);
+
+        /// <summary>
+        /// Fill present instance from tokenizer stream 
+        /// </summary>
+        /// <returns>If token is <see cref="JsonTokenType.Null"/> - return null</returns>
+        public object FillObject(JsonTokenizer tokenizer, object instance);
     }
 
     internal sealed class ObjectConverter<T> : IObjectConverter, IJsonConverter<T>
@@ -28,53 +38,22 @@ namespace Velo.Serialization.Converters
             _activator = ExpressionUtils.BuildActivator<T>(throwIfEmptyConstructorNotFound: false);
             _equalityComparer = EqualityComparer<T>.Default;
 
-            var converters =
-                new Dictionary<string, PropertyConverter<T>>(propertyConverters.Length, StringUtils.IgnoreCaseComparer);
+            var converters = new Dictionary<string, PropertyConverter<T>>(
+                propertyConverters.Length,
+                StringUtils.IgnoreCaseComparer);
+
             foreach (var (propertyInfo, converter) in propertyConverters)
             {
-                var propertyName = propertyInfo.Name;
-                var propertyConverter = new PropertyConverter<T>(propertyInfo, converter);
-
-                converters.Add(propertyName, propertyConverter);
+                converters.Add(propertyInfo.Name, new PropertyConverter<T>(propertyInfo, converter));
             }
 
             _propertyConverters = converters;
         }
 
-        public T Deserialize(ref JsonTokenizer tokenizer)
+        public T Deserialize(JsonTokenizer tokenizer)
         {
             var instance = _activator();
-
-            while (tokenizer.MoveNext())
-            {
-                var token = tokenizer.Current;
-                var tokenType = token.TokenType;
-
-                // ReSharper disable once ConvertIfStatementToSwitchStatement
-                if (tokenType == JsonTokenType.Null) return default!;
-                if (tokenType == JsonTokenType.ObjectStart) continue;
-                if (tokenType == JsonTokenType.ObjectEnd) break;
-
-                var propertyName = token.GetNotNullPropertyName();
-
-                tokenizer.MoveNext(); // to property value
-
-                if (tokenizer.Current.TokenType == JsonTokenType.Null) continue;
-                if (!_propertyConverters.TryGetValue(propertyName!, out PropertyConverter<T> converter)) continue;
-
-                converter.Deserialize(instance, ref tokenizer);
-            }
-
-            return instance;
-        }
-
-        public T Fill(JsonData jsonData, T instance)
-        {
-            if (jsonData.Type == JsonDataType.Null) return instance;
-
-            VisitProperties((JsonObject) jsonData, instance);
-
-            return instance;
+            return VisitProperties(tokenizer, instance);
         }
 
         public T Read(JsonData jsonData)
@@ -91,7 +70,7 @@ namespace Velo.Serialization.Converters
         {
             if (_equalityComparer.Equals(instance, default!))
             {
-                writer.Write(JsonTokenizer.TokenNullValue);
+                writer.Write(JsonValue.NullToken);
                 return;
             }
 
@@ -140,11 +119,48 @@ namespace Velo.Serialization.Converters
             }
         }
 
-        object IJsonConverter.DeserializeObject(ref JsonTokenizer tokenizer) => Deserialize(ref tokenizer)!;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private T VisitProperties(JsonTokenizer tokenizer, T instance)
+        {
+            while (tokenizer.MoveNext())
+            {
+                var token = tokenizer.Current;
+                var tokenType = token.TokenType;
+
+                // ReSharper disable once ConvertIfStatementToSwitchStatement
+                if (tokenType == JsonTokenType.ObjectStart) continue;
+                if (tokenType == JsonTokenType.ObjectEnd) break;
+                if (tokenType == JsonTokenType.Null) return default!;
+
+                var propertyName = token.GetNotNullPropertyName();
+
+                tokenizer.MoveNext(); // to property value
+
+                if (tokenizer.Current.TokenType == JsonTokenType.Null) continue;
+                if (!_propertyConverters.TryGetValue(propertyName!, out PropertyConverter<T> converter)) continue;
+
+                converter.Deserialize(instance, tokenizer);
+            }
+
+            return instance;
+        }
+
+        object IJsonConverter.DeserializeObject(JsonTokenizer tokenizer) => Deserialize(tokenizer)!;
 
         object IJsonConverter.ReadObject(JsonData data) => Read(data)!;
 
-        object IObjectConverter.FillObject(JsonData data, object instance) => Fill(data, (T) instance)!;
+        object IObjectConverter.FillObject(JsonData data, object instance)
+        {
+            if (data.Type == JsonDataType.Null) return default!;
+            VisitProperties((JsonObject) data, (T) instance);
+
+            return instance;
+        }
+
+        object IObjectConverter.FillObject(JsonTokenizer tokenizer, object instance)
+        {
+            return VisitProperties(tokenizer, (T) instance)!;
+        }
 
         void IJsonConverter.SerializeObject(object value, TextWriter writer) => Serialize((T) value, writer);
 

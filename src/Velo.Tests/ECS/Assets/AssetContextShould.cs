@@ -3,6 +3,7 @@ using System.Linq;
 using AutoFixture;
 using FluentAssertions;
 using Moq;
+using Velo.DependencyInjection;
 using Velo.ECS.Assets;
 using Velo.ECS.Assets.Context;
 using Velo.ECS.Assets.Filters;
@@ -18,6 +19,7 @@ namespace Velo.Tests.ECS.Assets
     {
         private readonly Asset _asset;
         private readonly IAssetContext _assetContext;
+        private readonly int _assetsCount;
 
         public AssetContextShould(ITestOutputHelper output) : base(output)
         {
@@ -26,6 +28,7 @@ namespace Velo.Tests.ECS.Assets
             var assets = Fixture.CreateMany<TestAsset>().ToArray();
             _asset = assets[0];
             _assetContext = new AssetContext(assets);
+            _assetsCount = assets.Length;
         }
 
         [Fact]
@@ -62,6 +65,20 @@ namespace Velo.Tests.ECS.Assets
         }
 
         [Fact]
+        public void CreateFromFileSource()
+        {
+            var provider = new DependencyCollection()
+                .AddECS()
+                .AddJsonAssets("ECS/assets.json")
+                .BuildProvider();
+
+            provider
+                .Invoking(p => p.GetRequiredService<IAssetContext>())
+                .Should().NotThrow()
+                .Which.Should().HaveCountGreaterThan(0);
+        }
+
+        [Fact]
         public void Enumerable()
         {
             _assetContext.Should().Contain(a => a.Id == _asset.Id);
@@ -75,6 +92,12 @@ namespace Velo.Tests.ECS.Assets
                 .Should().ContainSingle(a => a.Id == _asset.Id);
         }
 
+        [Fact]
+        public void HasLength()
+        {
+            _assetContext.Length.Should().Be(_assetsCount);
+        }
+        
         [Fact]
         public void Get()
         {

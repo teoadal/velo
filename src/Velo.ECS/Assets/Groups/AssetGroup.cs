@@ -1,10 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Velo.Collections;
 
 namespace Velo.ECS.Assets.Groups
 {
+    [DebuggerTypeProxy(typeof(DebuggerVisualizer<>))]
+    [DebuggerDisplay("Length = {" + nameof(Length) + "}")]
     internal sealed class AssetGroup<TAsset> : IAssetGroup<TAsset>
         where TAsset : Asset
     {

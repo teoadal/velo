@@ -9,7 +9,7 @@ namespace Velo.Serialization.Converters
     {
         public bool IsPrimitive => true;
 
-        public Guid Deserialize(ref JsonTokenizer tokenizer)
+        public Guid Deserialize(JsonTokenizer tokenizer)
         {
             var token = tokenizer.Current;
             return Guid.Parse(token.Value);
@@ -33,7 +33,7 @@ namespace Velo.Serialization.Converters
             return new JsonValue(value.ToString(), JsonDataType.String);
         }
 
-        object IJsonConverter.DeserializeObject(ref JsonTokenizer tokenizer) => Deserialize(ref tokenizer);
+        object IJsonConverter.DeserializeObject(JsonTokenizer tokenizer) => Deserialize(tokenizer);
 
         object IJsonConverter.ReadObject(JsonData data) => Read(data);
 

@@ -35,15 +35,11 @@ namespace Velo.Serialization.Models
         {
             _buffer ??= new StringBuilder(200);
 
-            var tokenizer = new JsonTokenizer(reader, _buffer);
+            using var tokenizer = new JsonTokenizer(reader, _buffer);
 
             tokenizer.MoveNext();
 
-            var result = JsonVisitor.Visit(ref tokenizer);
-
-            tokenizer.Dispose();
-
-            return result;
+            return JsonVisitor.Visit(tokenizer);
         }
     }
 }

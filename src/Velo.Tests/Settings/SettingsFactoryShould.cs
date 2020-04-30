@@ -58,7 +58,7 @@ namespace Velo.Tests.Settings
         {
             var settings = new DependencyCollection()
                 .AddSettings()
-                .AddJsonSettings()
+                .AddJsonSettings("Settings/appsettings.json")
                 .BuildProvider()
                 .GetRequiredService<LogLevelSettings>();
 

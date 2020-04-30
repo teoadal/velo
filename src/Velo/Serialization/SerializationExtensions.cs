@@ -31,15 +31,10 @@ namespace Velo.Serialization
         internal static T Deserialize<T>(this IJsonConverter<T> converter, string json, StringBuilder? sb = null)
         {
             using var reader = new JsonReader(json);
-
-            var tokenizer = new JsonTokenizer(reader, sb ?? new StringBuilder());
+            using var tokenizer = new JsonTokenizer(reader, sb ?? new StringBuilder());
 
             if (converter.IsPrimitive) tokenizer.MoveNext();
-            var result = converter.Deserialize(ref tokenizer);
-
-            tokenizer.Dispose();
-
-            return result;
+            return converter.Deserialize(tokenizer);
         }
 
         internal static T Read<T>(this IConvertersCollection converters, JsonData json)

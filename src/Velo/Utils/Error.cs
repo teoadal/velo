@@ -42,7 +42,7 @@ namespace Velo.Utils
         
         public static SerializationException Deserialization(JsonTokenType expected, JsonTokenType actual)
         {
-            return new SerializationException($"Expected {expected} json token, but found {actual}");
+            return new SerializationException($"Expected {expected} json token, but found {actual} token");
         }
         
         public static ObjectDisposedException Disposed(string objectName)

@@ -16,11 +16,11 @@ namespace Velo.Serialization.Converters
             _valueConverter = valueConverter;
         }
 
-        public TNullable? Deserialize(ref JsonTokenizer tokenizer)
+        public TNullable? Deserialize(JsonTokenizer tokenizer)
         {
             var token = tokenizer.Current;
             if (token.TokenType == JsonTokenType.Null) return null;
-            return _valueConverter.Deserialize(ref tokenizer);
+            return _valueConverter.Deserialize(tokenizer);
         }
 
         public TNullable? Read(JsonData jsonData)
@@ -32,7 +32,7 @@ namespace Velo.Serialization.Converters
 
         public void Serialize(TNullable? value, TextWriter writer)
         {
-            if (value == null) writer.Write(JsonTokenizer.TokenNullValue);
+            if (value == null) writer.Write(JsonValue.NullToken);
             else _valueConverter.Serialize(value.Value, writer);
         }
 
@@ -43,7 +43,7 @@ namespace Velo.Serialization.Converters
                 : _valueConverter.Write(value.Value);
         }
 
-        object IJsonConverter.DeserializeObject(ref JsonTokenizer tokenizer) => Deserialize(ref tokenizer)!;
+        object IJsonConverter.DeserializeObject(JsonTokenizer tokenizer) => Deserialize(tokenizer)!;
         
         object IJsonConverter.ReadObject(JsonData data) => Read(data)!;
 

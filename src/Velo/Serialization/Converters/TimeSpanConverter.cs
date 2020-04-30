@@ -19,7 +19,7 @@ namespace Velo.Serialization.Converters
             _cultureInfo = cultureInfo;
         }
 
-        public TimeSpan Deserialize(ref JsonTokenizer tokenizer)
+        public TimeSpan Deserialize(JsonTokenizer tokenizer)
         {
             var token = tokenizer.Current;
             return TimeSpan.Parse(token.Value, _cultureInfo);
@@ -43,7 +43,7 @@ namespace Velo.Serialization.Converters
             return new JsonValue(value.ToString(Pattern, _cultureInfo), JsonDataType.String);
         }
 
-        object IJsonConverter.DeserializeObject(ref JsonTokenizer tokenizer) => Deserialize(ref tokenizer);
+        object IJsonConverter.DeserializeObject(JsonTokenizer tokenizer) => Deserialize(tokenizer);
 
         object IJsonConverter.ReadObject(JsonData data) => Read(data);
 

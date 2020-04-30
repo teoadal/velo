@@ -2,6 +2,7 @@ namespace Velo.ECS.Components
 {
     public interface IComponentBuilder
     {
+        IComponent BuildComponent();
     }
 
     public interface IComponentBuilder<out TComponent> : IComponentBuilder
@@ -17,5 +18,7 @@ namespace Velo.ECS.Components
         {
             return new TComponent();
         }
+
+        public IComponent BuildComponent() => Build();
     }
 }

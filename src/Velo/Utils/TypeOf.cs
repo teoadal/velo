@@ -33,6 +33,6 @@ namespace Velo.Utils
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int GetNextTypeId() => Interlocked.Increment(ref _nextId);
+        internal static int GetNextTypeId() => Interlocked.Increment(ref _nextId);
     }
 }

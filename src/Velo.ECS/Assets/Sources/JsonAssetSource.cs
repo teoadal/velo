@@ -22,9 +22,9 @@ namespace Velo.ECS.Assets.Sources
             return Visit(fileStream);
         }
 
-        protected override Asset VisitEntity(ref JsonTokenizer tokenizer)
+        protected override Asset VisitEntity(JsonTokenizer tokenizer)
         {
-            return _converters.DeserializeAsset(ref tokenizer);
+            return _converters.DeserializeAsset(tokenizer);
         }
     }
 }

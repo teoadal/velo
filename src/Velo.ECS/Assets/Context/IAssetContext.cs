@@ -8,6 +8,8 @@ namespace Velo.ECS.Assets.Context
 {
     public interface IAssetContext : IEnumerable<Asset>, IDisposable
     {
+        int Length { get; }
+        
         void AddFilter<TComponent>(IAssetFilter<TComponent> assetFilter) where TComponent : IComponent;
 
         void AddFilter<TComponent1, TComponent2>(IAssetFilter<TComponent1, TComponent2> assetFilter)

@@ -8,7 +8,7 @@ namespace Velo.Serialization.Converters
     {
         public bool IsPrimitive => true;
 
-        public string Deserialize(ref JsonTokenizer tokenizer)
+        public string Deserialize(JsonTokenizer tokenizer)
         {
             var token = tokenizer.Current;
             return token.Value!;
@@ -26,7 +26,7 @@ namespace Velo.Serialization.Converters
         {
             if (value == null)
             {
-                writer.Write(JsonTokenizer.TokenNullValue);
+                writer.Write(JsonValue.NullToken);
             }
             else
             {
@@ -45,7 +45,7 @@ namespace Velo.Serialization.Converters
                 : new JsonValue(value, JsonDataType.String);
         }
 
-        object IJsonConverter.DeserializeObject(ref JsonTokenizer tokenizer) => Deserialize(ref tokenizer);
+        object IJsonConverter.DeserializeObject(JsonTokenizer tokenizer) => Deserialize(tokenizer);
 
         object IJsonConverter.ReadObject(JsonData data) => Read(data);
 

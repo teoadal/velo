@@ -6,21 +6,21 @@ namespace Velo.Serialization.Models
 {
     internal static class JsonVisitor
     {
-        public static JsonData Visit(ref JsonTokenizer tokenizer)
+        public static JsonData Visit(JsonTokenizer tokenizer)
         {
             var current = tokenizer.Current;
             switch (current.TokenType)
             {
                 case JsonTokenType.ArrayStart:
-                    return VisitArray(ref tokenizer);
+                    return VisitArray(tokenizer);
                 case JsonTokenType.ObjectStart:
-                    return VisitObject(ref tokenizer);
+                    return VisitObject(tokenizer);
                 default:
                     return VisitValue(current);
             }
         }
 
-        public static JsonArray VisitArray(ref JsonTokenizer tokenizer)
+        public static JsonArray VisitArray(JsonTokenizer tokenizer)
         {
             var elements = new LocalList<JsonData>();
 
@@ -29,7 +29,7 @@ namespace Velo.Serialization.Models
                 var current = tokenizer.Current;
                 if (current.TokenType == JsonTokenType.ArrayEnd) break;
 
-                var element = Visit(ref tokenizer);
+                var element = Visit(tokenizer);
                 elements.Add(element);
             }
 
@@ -38,7 +38,7 @@ namespace Velo.Serialization.Models
                 : new JsonArray(elements.ToArray());
         }
 
-        public static JsonObject VisitObject(ref JsonTokenizer tokenizer)
+        public static JsonObject VisitObject(JsonTokenizer tokenizer)
         {
             var instance = new JsonObject();
 
@@ -47,27 +47,27 @@ namespace Velo.Serialization.Models
                 var current = tokenizer.Current;
                 if (current.TokenType == JsonTokenType.ObjectEnd) break;
 
-                var propertyValue = VisitProperty(ref tokenizer, out var propertyName);
+                var propertyValue = VisitProperty(tokenizer, out var propertyName);
                 instance.Add(propertyName, propertyValue);
             }
 
             return instance;
         }
 
-        public static JsonData VisitProperty(ref JsonTokenizer tokenizer)
+        public static JsonData VisitProperty(JsonTokenizer tokenizer)
         {
             tokenizer.MoveNext();
-            return Visit(ref tokenizer);
+            return Visit(tokenizer);
         }
 
-        public static JsonData VisitProperty(ref JsonTokenizer tokenizer, out string propertyName)
+        public static JsonData VisitProperty(JsonTokenizer tokenizer, out string propertyName)
         {
             var property = tokenizer.Current.GetNotNullPropertyName();
 
             tokenizer.MoveNext();
 
             propertyName = property!;
-            return Visit(ref tokenizer);
+            return Visit(tokenizer);
         }
 
         public static JsonValue VisitValue(JsonToken token)

@@ -21,7 +21,7 @@ namespace Velo.Serialization.Converters
             _cultureInfo = cultureInfo;
         }
 
-        public DateTime Deserialize(ref JsonTokenizer tokenizer)
+        public DateTime Deserialize(JsonTokenizer tokenizer)
         {
             var value = tokenizer.Current.Value;
             return Parse(value ?? throw Error.Null("Null isn't convert to DateTime"));
@@ -53,7 +53,7 @@ namespace Velo.Serialization.Converters
                 : DateTime.Parse(value, _cultureInfo);
         }
         
-        object IJsonConverter.DeserializeObject(ref JsonTokenizer tokenizer) => Deserialize(ref tokenizer);
+        object IJsonConverter.DeserializeObject(JsonTokenizer tokenizer) => Deserialize(tokenizer);
         
         object IJsonConverter.ReadObject(JsonData data) => Read(data);
         

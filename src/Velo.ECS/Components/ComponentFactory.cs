@@ -18,6 +18,28 @@ namespace Velo.ECS.Components
             _lock = new object();
         }
 
+        public IComponent Create(Type componentType)
+        {
+            var typeId = Typeof.GetTypeId(componentType);
+
+            // ReSharper disable once InvertIf
+            if (!_resolvedBuilders.TryGetValue(typeId, out var componentBuilder))
+            {
+                var builderType = typeof(IComponentBuilder<>).MakeGenericType(componentType);
+                foreach (var builder in _builders)
+                {
+                    if (!builderType.IsAssignableFrom(builderType)) continue;
+
+                    componentBuilder = builder;
+                    break;
+                }
+
+                AddBuilder(typeId, componentBuilder ??= CreateBuilder(componentType));
+            }
+
+            return componentBuilder.BuildComponent();
+        }
+
         public TComponent Create<TComponent>() where TComponent : IComponent
         {
             var typeId = Typeof<TComponent>.Id;
@@ -25,29 +47,34 @@ namespace Velo.ECS.Components
             // ReSharper disable once InvertIf
             if (!_resolvedBuilders.TryGetValue(typeId, out var componentBuilder))
             {
-                componentBuilder = FindOrCreateBuilder<TComponent>();
-
-                using (Lock.Enter(_lock))
+                foreach (var builder in _builders)
                 {
-                    _resolvedBuilders[typeId] = componentBuilder;
+                    if (!(builder is IComponentBuilder<TComponent>)) continue;
+
+                    componentBuilder = builder;
+                    break;
                 }
+
+                AddBuilder(typeId, componentBuilder ??= CreateBuilder(Typeof<TComponent>.Raw));
             }
 
             return ((IComponentBuilder<TComponent>) componentBuilder).Build();
         }
 
-        private IComponentBuilder FindOrCreateBuilder<TComponent>() where TComponent : IComponent
+        private void AddBuilder(int typeId, IComponentBuilder builder)
         {
-            foreach (var builder in _builders)
+            using (Lock.Enter(_lock))
             {
-                if (builder is IComponentBuilder<TComponent>) return builder;
+                _resolvedBuilders[typeId] = builder;
             }
+        }
 
-            var componentType = Typeof<TComponent>.Raw;
+        private static IComponentBuilder CreateBuilder(Type componentType)
+        {
             if (!ReflectionUtils.HasEmptyConstructor(componentType))
             {
                 throw Error.InvalidOperation(
-                    $"Component {ReflectionUtils.GetName<TComponent>()} hasn't empty constructor");
+                    $"Component {ReflectionUtils.GetName(componentType)} hasn't empty constructor - create own builder");
             }
 
             var builderType = typeof(DefaultComponentBuilder<>).MakeGenericType(componentType);

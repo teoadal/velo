@@ -21,12 +21,15 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Update="appsettings.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Update="appsettings.develop.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <DependentUpon>appsettings.json</DependentUpon>
-        </None>
+      <None Update="Settings\appsettings.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Settings\appsettings.develop.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <DependentUpon>appsettings.json</DependentUpon>
+      </None>
+      <None Update="ECS\assets.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 </Project>

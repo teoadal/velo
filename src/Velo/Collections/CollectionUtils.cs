@@ -83,5 +83,17 @@ namespace Velo.Collections
                 Array.Resize(ref array, capacity);
             }
         }
+
+        public static void EnsureUnique<T>(T[] array, Action<T> notUniqueHandler)
+        {
+            var hashSet = new HashSet<T>();
+            foreach (var element in array)
+            {
+                if (!hashSet.Add(element))
+                {
+                    notUniqueHandler(element);
+                }
+            }
+        }
     }
 }

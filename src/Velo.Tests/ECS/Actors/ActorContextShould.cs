@@ -165,6 +165,13 @@ namespace Velo.Tests.ECS.Actors
         }
 
         [Fact]
+        public void HasLength()
+        {
+            _actorContext.Add(_actor);
+            _actorContext.Length.Should().BeGreaterOrEqualTo(1);
+        }
+        
+        [Fact]
         public void NotContains()
         {
             _actorContext.Contains(-_actor.Id).Should().BeFalse();

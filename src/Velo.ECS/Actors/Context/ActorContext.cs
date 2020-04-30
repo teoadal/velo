@@ -20,6 +20,17 @@ namespace Velo.ECS.Actors.Context
 
         public event Action<Actor>? Removed;
 
+        public int Length
+        {
+            get
+            {
+                using (ReadLock.Enter(_actorsLock))
+                {
+                    return _actors.Count;
+                }
+            }
+        }
+
         private readonly Dictionary<int, Actor> _actors;
         private readonly ReaderWriterLockSlim _actorsLock;
         private readonly Dictionary<int, IActorFilter> _filters;

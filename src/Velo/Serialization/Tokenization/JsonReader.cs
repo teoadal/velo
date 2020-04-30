@@ -1,9 +1,11 @@
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
 namespace Velo.Serialization.Tokenization
 {
-    internal ref struct JsonReader
+    internal struct JsonReader : IEnumerator<char>
     {
         public char Current { get; private set; }
 
@@ -43,6 +45,12 @@ namespace Velo.Serialization.Tokenization
         }
 
         public void Skip() => MoveNext();
+
+        void IEnumerator.Reset()
+        {
+        }
+
+        object IEnumerator.Current => Current;
 
         public void Dispose()
         {
