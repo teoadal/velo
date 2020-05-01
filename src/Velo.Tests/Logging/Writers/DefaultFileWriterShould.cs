@@ -37,9 +37,7 @@ namespace Velo.Tests.Logging.Writers
         [MemberData(nameof(Levels))]
         public void HasValidLevel(LogLevel level)
         {
-            var fileName = $"{nameof(HasValidLevel)}-{_fileName}";
-
-            var writer = new DefaultFileWriter(fileName, level);
+            using var writer = new DefaultFileWriter($"{nameof(HasValidLevel)}", level);
             writer.Level.Should().Be(level);
         }
 
@@ -96,8 +94,9 @@ namespace Velo.Tests.Logging.Writers
 
         private void CheckFileContains(string value)
         {
-            var fileData = File.ReadAllText(_fileName, Encoding.UTF8);
-            fileData.Should().Contain(value);
+            using var fileStream = File.Open(_fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            using var reader = new StreamReader(fileStream, Encoding.UTF8);
+            reader.ReadToEnd().Should().Contain(value);
         }
         
         public override void Dispose()

@@ -9,7 +9,7 @@ using Velo.TestsModels.ECS;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Tests.ECS.Assets
+namespace Velo.Tests.ECS.Assets.Filters
 {
     public class AssetFilter2Should : ECSTestClass
     {

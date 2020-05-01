@@ -213,25 +213,12 @@ namespace Velo.Tests.Serialization
 
         [Theory]
         [AutoData]
-        public void Deserialize_File(BigObject[] source)
+        public void DeserializeStream(BigObject[] source)
         {
             var json = JsonConvert.SerializeObject(source, Formatting.Indented);
+            using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
 
-            const string fileName = nameof(Deserialize_File) + ".json";
-
-            if (File.Exists(fileName)) File.Delete(fileName);
-            File.WriteAllText(fileName, json, Encoding.UTF8);
-
-            var fileStream = File.OpenRead(fileName);
-            BigObject[] deserialized;
-            try
-            {
-                deserialized = _converter.Deserialize<BigObject[]>(fileStream);
-            }
-            finally
-            {
-                fileStream.Dispose();
-            }
+            var deserialized = _converter.Deserialize<BigObject[]>(stream);
 
             for (var i = 0; i < source.Length; i++)
             {
