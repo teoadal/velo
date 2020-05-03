@@ -8,39 +8,37 @@ using Velo.Utils;
 
 namespace Velo.Serialization.Converters
 {
-    internal sealed class DateTimeConverter : IJsonConverter<DateTime>
+    internal sealed class DateTimeConverter : JsonConverter<DateTime>
     {
         public const string Pattern = "yyyy-MM-ddTHH:mm:ss.FFFFFFFK";
-        
-        public bool IsPrimitive => true;
 
         private readonly CultureInfo _cultureInfo;
 
-        public DateTimeConverter(CultureInfo cultureInfo)
+        public DateTimeConverter(CultureInfo cultureInfo) : base(true)
         {
             _cultureInfo = cultureInfo;
         }
 
-        public DateTime Deserialize(JsonTokenizer tokenizer)
+        public override DateTime Deserialize(JsonTokenizer tokenizer)
         {
             var value = tokenizer.Current.Value;
             return Parse(value ?? throw Error.Null("Null isn't convert to DateTime"));
         }
 
-        public DateTime Read(JsonData jsonData)
+        public override DateTime Read(JsonData jsonData)
         {
             var jsonValue = (JsonValue) jsonData;
             return Parse(jsonValue.Value);
         }
 
-        public void Serialize(DateTime value, TextWriter writer)
+        public override void Serialize(DateTime value, TextWriter writer)
         {
             writer.Write('"');
             writer.Write(value.ToString(Pattern, _cultureInfo));
             writer.Write('"');
         }
 
-        public JsonData Write(DateTime value)
+        public override JsonData Write(DateTime value)
         {
             return new JsonValue(value.ToString(Pattern, _cultureInfo), JsonDataType.String);
         }
@@ -52,13 +50,5 @@ namespace Velo.Serialization.Converters
                 ? DateTimeOffset.Parse(value, _cultureInfo).DateTime
                 : DateTime.Parse(value, _cultureInfo);
         }
-        
-        object IJsonConverter.DeserializeObject(JsonTokenizer tokenizer) => Deserialize(tokenizer);
-        
-        object IJsonConverter.ReadObject(JsonData data) => Read(data);
-        
-        void IJsonConverter.SerializeObject(object value, TextWriter writer) => Serialize((DateTime) value, writer);
-
-        JsonData IJsonConverter.WriteObject(object value) => Write((DateTime) value);
     }
 }

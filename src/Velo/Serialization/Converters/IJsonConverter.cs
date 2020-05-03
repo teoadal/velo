@@ -9,7 +9,7 @@ namespace Velo.Serialization.Converters
         bool IsPrimitive { get; }
 
         object DeserializeObject(JsonTokenizer tokenizer);
-        
+
         object ReadObject(JsonData jsonData);
 
         void SerializeObject(object value, TextWriter writer);
@@ -26,5 +26,31 @@ namespace Velo.Serialization.Converters
         void Serialize(T value, TextWriter writer);
 
         JsonData Write(T value);
+    }
+
+    internal abstract class JsonConverter<T> : IJsonConverter<T>
+    {
+        public bool IsPrimitive { get; }
+
+        protected JsonConverter(bool isPrimitive)
+        {
+            IsPrimitive = isPrimitive;
+        }
+
+        public abstract T Deserialize(JsonTokenizer tokenizer);
+
+        public abstract T Read(JsonData jsonData);
+
+        public abstract void Serialize(T value, TextWriter writer);
+
+        public abstract JsonData Write(T value);
+
+        object IJsonConverter.DeserializeObject(JsonTokenizer tokenizer) => Deserialize(tokenizer)!;
+
+        object IJsonConverter.ReadObject(JsonData jsonData) => Read(jsonData)!;
+
+        void IJsonConverter.SerializeObject(object value, TextWriter writer) => Serialize((T) value, writer);
+
+        JsonData IJsonConverter.WriteObject(object value) => Write((T) value);
     }
 }

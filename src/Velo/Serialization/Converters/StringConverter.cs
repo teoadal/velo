@@ -4,17 +4,19 @@ using Velo.Serialization.Tokenization;
 
 namespace Velo.Serialization.Converters
 {
-    internal sealed class StringConverter : IJsonConverter<string>
+    internal sealed class StringConverter : JsonConverter<string>
     {
-        public bool IsPrimitive => true;
+        public StringConverter() : base(true)
+        {
+        }
 
-        public string Deserialize(JsonTokenizer tokenizer)
+        public override string Deserialize(JsonTokenizer tokenizer)
         {
             var token = tokenizer.Current;
             return token.Value!;
         }
 
-        public string Read(JsonData jsonData)
+        public override string Read(JsonData jsonData)
         {
             var jsonValue = (JsonValue) jsonData;
             return jsonValue.Type == JsonDataType.Null
@@ -22,7 +24,7 @@ namespace Velo.Serialization.Converters
                 : jsonValue.Value;
         }
 
-        public void Serialize(string value, TextWriter writer)
+        public override void Serialize(string value, TextWriter writer)
         {
             if (value == null)
             {
@@ -36,7 +38,7 @@ namespace Velo.Serialization.Converters
             }
         }
 
-        public JsonData Write(string value)
+        public override JsonData Write(string value)
         {
             if (value == null) return JsonValue.Null;
 
@@ -44,13 +46,5 @@ namespace Velo.Serialization.Converters
                 ? JsonValue.StringEmpty
                 : new JsonValue(value, JsonDataType.String);
         }
-
-        object IJsonConverter.DeserializeObject(JsonTokenizer tokenizer) => Deserialize(tokenizer);
-
-        object IJsonConverter.ReadObject(JsonData data) => Read(data);
-
-        void IJsonConverter.SerializeObject(object value, TextWriter writer) => Serialize((string) value, writer);
-
-        JsonData IJsonConverter.WriteObject(object value) => Write((string) value);
     }
 }

@@ -5,11 +5,13 @@ using Velo.Utils;
 
 namespace Velo.Serialization.Converters
 {
-    internal sealed class BoolConverter : IJsonConverter<bool>
+    internal sealed class BoolConverter : JsonConverter<bool>
     {
-        public bool IsPrimitive => true;
+        public BoolConverter() : base(true)
+        {
+        }
 
-        public bool Deserialize(JsonTokenizer tokenizer)
+        public override bool Deserialize(JsonTokenizer tokenizer)
         {
             var token = tokenizer.Current;
 
@@ -24,28 +26,20 @@ namespace Velo.Serialization.Converters
             }
         }
 
-        public bool Read(JsonData jsonData)
+        public override bool Read(JsonData jsonData)
         {
             var jsonValue = (JsonValue) jsonData;
             return jsonValue.Type == JsonDataType.True;
         }
 
-        public void Serialize(bool value, TextWriter writer)
+        public override void Serialize(bool value, TextWriter writer)
         {
             writer.Write(value ? JsonValue.TrueToken : JsonValue.FalseToken);
         }
 
-        public JsonData Write(bool value)
+        public override JsonData Write(bool value)
         {
             return value ? JsonValue.True : JsonValue.False;
         }
-
-        object IJsonConverter.DeserializeObject(JsonTokenizer tokenizer) => Deserialize(tokenizer);
-
-        object IJsonConverter.ReadObject(JsonData data) => Read(data);
-
-        void IJsonConverter.SerializeObject(object value, TextWriter writer) => Serialize((bool) value, writer);
-
-        JsonData IJsonConverter.WriteObject(object value) => Write((bool) value);
     }
 }

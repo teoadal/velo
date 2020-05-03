@@ -5,18 +5,16 @@ using Velo.Serialization.Tokenization;
 
 namespace Velo.Serialization.Converters
 {
-    internal sealed class ArrayConverter<TElement> : IJsonConverter<TElement[]>
+    internal sealed class ArrayConverter<TElement> : JsonConverter<TElement[]>
     {
-        public bool IsPrimitive => false;
-
         private readonly IJsonConverter<TElement> _elementConverter;
 
-        public ArrayConverter(IJsonConverter<TElement> elementConverter)
+        public ArrayConverter(IJsonConverter<TElement> elementConverter) : base(false)
         {
             _elementConverter = elementConverter;
         }
 
-        public TElement[] Deserialize(JsonTokenizer tokenizer)
+        public override TElement[] Deserialize(JsonTokenizer tokenizer)
         {
             var buffer = new LocalList<TElement>();
 
@@ -37,7 +35,7 @@ namespace Velo.Serialization.Converters
             return buffer.ToArray();
         }
 
-        public TElement[] Read(JsonData jsonData)
+        public override TElement[] Read(JsonData jsonData)
         {
             if (jsonData.Type == JsonDataType.Null) return null!;
 
@@ -52,7 +50,7 @@ namespace Velo.Serialization.Converters
             return array;
         }
 
-        public void Serialize(TElement[] array, TextWriter writer)
+        public override void Serialize(TElement[] array, TextWriter writer)
         {
             if (array == null)
             {
@@ -71,7 +69,7 @@ namespace Velo.Serialization.Converters
             writer.Write(']');
         }
 
-        public JsonData Write(TElement[] array)
+        public override JsonData Write(TElement[] array)
         {
             if (array == null) return JsonValue.Null;
             if (array.Length == 0) return JsonArray.Empty;
@@ -85,13 +83,5 @@ namespace Velo.Serialization.Converters
 
             return new JsonArray(jsonElements);
         }
-
-        object IJsonConverter.DeserializeObject(JsonTokenizer tokenizer) => Deserialize(tokenizer);
-
-        object IJsonConverter.ReadObject(JsonData data) => Read(data);
-
-        void IJsonConverter.SerializeObject(object value, TextWriter writer) => Serialize((TElement[]) value, writer);
-
-        JsonData IJsonConverter.WriteObject(object value) => Write((TElement[]) value);
     }
 }

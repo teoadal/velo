@@ -4,40 +4,34 @@ using Velo.Serialization.Tokenization;
 
 namespace Velo.Serialization.Converters
 {
-    internal sealed class IntConverter : IJsonConverter<int>
+    internal sealed class IntConverter : JsonConverter<int>
     {
-        public bool IsPrimitive => true;
+        public IntConverter() : base(true)
+        {
+        }
 
-        public int Deserialize(JsonTokenizer tokenizer)
+        public override int Deserialize(JsonTokenizer tokenizer)
         {
             var token = tokenizer.Current;
             return int.Parse(token.Value);
         }
 
-        public int Read(JsonData jsonData)
+        public override int Read(JsonData jsonData)
         {
             var jsonValue = (JsonValue) jsonData;
             return int.Parse(jsonValue.Value);
         }
 
-        public void Serialize(int value, TextWriter writer)
+        public override void Serialize(int value, TextWriter writer)
         {
             writer.Write(value);
         }
 
-        public JsonData Write(int value)
+        public override JsonData Write(int value)
         {
             return value == 0
                 ? JsonValue.Zero
                 : new JsonValue(value.ToString(), JsonDataType.Number);
         }
-
-        object IJsonConverter.DeserializeObject(JsonTokenizer tokenizer) => Deserialize(tokenizer);
-
-        object IJsonConverter.ReadObject(JsonData data) => Read(data);
-
-        void IJsonConverter.SerializeObject(object value, TextWriter writer) => Serialize((int) value, writer);
-
-        JsonData IJsonConverter.WriteObject(object value) => Write((int) value);
     }
 }

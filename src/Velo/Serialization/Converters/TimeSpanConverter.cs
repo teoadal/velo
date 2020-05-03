@@ -6,49 +6,39 @@ using Velo.Serialization.Tokenization;
 
 namespace Velo.Serialization.Converters
 {
-    internal sealed class TimeSpanConverter : IJsonConverter<TimeSpan>
+    internal sealed class TimeSpanConverter : JsonConverter<TimeSpan>
     {
         public const string Pattern = "c";
 
-        public bool IsPrimitive => true;
-
         private readonly CultureInfo _cultureInfo;
 
-        public TimeSpanConverter(CultureInfo cultureInfo)
+        public TimeSpanConverter(CultureInfo cultureInfo) : base(true)
         {
             _cultureInfo = cultureInfo;
         }
 
-        public TimeSpan Deserialize(JsonTokenizer tokenizer)
+        public override TimeSpan Deserialize(JsonTokenizer tokenizer)
         {
             var token = tokenizer.Current;
             return TimeSpan.Parse(token.Value, _cultureInfo);
         }
 
-        public TimeSpan Read(JsonData jsonData)
+        public override TimeSpan Read(JsonData jsonData)
         {
             var jsonValue = (JsonValue) jsonData;
             return TimeSpan.Parse(jsonValue.Value, _cultureInfo);
         }
 
-        public void Serialize(TimeSpan value, TextWriter writer)
+        public override void Serialize(TimeSpan value, TextWriter writer)
         {
             writer.Write('"');
             writer.Write(value.ToString(Pattern, _cultureInfo));
             writer.Write('"');
         }
 
-        public JsonData Write(TimeSpan value)
+        public override JsonData Write(TimeSpan value)
         {
             return new JsonValue(value.ToString(Pattern, _cultureInfo), JsonDataType.String);
         }
-
-        object IJsonConverter.DeserializeObject(JsonTokenizer tokenizer) => Deserialize(tokenizer);
-
-        object IJsonConverter.ReadObject(JsonData data) => Read(data);
-
-        void IJsonConverter.SerializeObject(object value, TextWriter writer) => Serialize((TimeSpan) value, writer);
-
-        JsonData IJsonConverter.WriteObject(object value) => Write((TimeSpan) value);
     }
 }

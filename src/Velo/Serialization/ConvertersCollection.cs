@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
 using Velo.Collections;
+using Velo.Serialization.Attributes;
 using Velo.Serialization.Converters;
 using Velo.Utils;
 
@@ -10,36 +11,37 @@ namespace Velo.Serialization
 {
     internal sealed class ConvertersCollection : DangerousVector<Type, IJsonConverter>, IConvertersCollection
     {
-        private readonly Func<Type, IJsonConverter> _builder;
+        private readonly Func<Type, IJsonConverter> _converterBuilder;
+        private readonly DangerousVector<Type, IJsonConverter> _customConverters;
 
-        private readonly Type[] _arrayLikeGenericTypes;
-        private readonly Type[] _listGenericTypes;
+        private static readonly Type[] ArrayLikeGenericTypes =
+        {
+            typeof(ICollection<>),
+            typeof(IEnumerable<>),
+            typeof(IReadOnlyCollection<>),
+        };
+
+        private static readonly Type[] ListGenericTypes =
+        {
+            typeof(List<>),
+            typeof(IList<>)
+        };
 
         public ConvertersCollection(CultureInfo culture)
             : base(BuildDefaultConverters(culture))
         {
-            _builder = Build;
-            _arrayLikeGenericTypes = new[]
-            {
-                typeof(ICollection<>),
-                typeof(IEnumerable<>),
-                typeof(IReadOnlyCollection<>),
-            };
-            _listGenericTypes = new[]
-            {
-                typeof(List<>),
-                typeof(IList<>)
-            };
+            _converterBuilder = Build;
+            _customConverters = new DangerousVector<Type, IJsonConverter>();
         }
 
         public IJsonConverter Get(Type type)
         {
-            return GetOrAdd(type, _builder);
+            return GetOrAdd(type, _converterBuilder);
         }
 
         public IJsonConverter<T> Get<T>()
         {
-            return (IJsonConverter<T>) GetOrAdd(Typeof<T>.Raw, _builder);
+            return (IJsonConverter<T>) GetOrAdd(Typeof<T>.Raw, _converterBuilder);
         }
 
         private IJsonConverter Build(Type type)
@@ -51,12 +53,14 @@ namespace Velo.Serialization
 
             if (type.IsEnum) return BuildEnumConverter(type);
 
-            if (_arrayLikeGenericTypes.Contains((arrayLike, test) => ReflectionUtils.IsGenericTypeImplementation(test, arrayLike), type))
+            if (ArrayLikeGenericTypes.Contains(
+                (arrayLike, test) => ReflectionUtils.IsGenericTypeImplementation(test, arrayLike), type))
             {
                 return BuildArrayLikeConverter(type);
             }
 
-            return _listGenericTypes.Contains((arrayLike, test) => ReflectionUtils.IsGenericTypeImplementation(test, arrayLike), type)
+            return ListGenericTypes.Contains(
+                (arrayLike, test) => ReflectionUtils.IsGenericTypeImplementation(test, arrayLike), type)
                 ? BuildListConverter(type)
                 : BuildObjectConverter(type);
         }
@@ -78,7 +82,7 @@ namespace Velo.Serialization
             var converterType = typeof(ArrayConverter<>).MakeGenericType(elementType);
             return (IJsonConverter) Activator.CreateInstance(converterType, elementConverter);
         }
-        
+
         private static IJsonConverter BuildEnumConverter(Type type)
         {
             var converterType = typeof(EnumConverter<>).MakeGenericType(type);
@@ -109,7 +113,20 @@ namespace Velo.Serialization
             for (var i = 0; i < properties.Length; i++)
             {
                 var property = properties[i];
-                var propertyConverter = Get(property.PropertyType);
+
+                IJsonConverter propertyConverter;
+                if (ConverterAttribute.IsDefined(property))
+                {
+                    var customConverterType = property.GetCustomAttribute<ConverterAttribute>().ConverterType;
+                    propertyConverter = _customConverters.GetOrAdd(
+                        customConverterType,
+                        t => (IJsonConverter) Activator.CreateInstance(t));
+                }
+                else
+                {
+                    propertyConverter = Get(property.PropertyType);
+                }
+
                 propertyConverters[i] = (property, propertyConverter);
             }
 

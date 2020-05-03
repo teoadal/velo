@@ -6,18 +6,18 @@ using Velo.Serialization.Tokenization;
 
 namespace Velo.Serialization.Converters
 {
-    internal sealed class ListConverter<TElement> : IJsonConverter<List<TElement>>
+    internal sealed class ListConverter<TElement> : JsonConverter<List<TElement>>
     {
         public bool IsPrimitive => false;
 
         private readonly IJsonConverter<TElement> _elementConverter;
 
-        public ListConverter(IJsonConverter<TElement> elementConverter)
+        public ListConverter(IJsonConverter<TElement> elementConverter) : base(false)
         {
             _elementConverter = elementConverter;
         }
 
-        public List<TElement> Deserialize(JsonTokenizer tokenizer)
+        public override List<TElement> Deserialize(JsonTokenizer tokenizer)
         {
             var buffer = new LocalList<TElement>();
 
@@ -45,13 +45,13 @@ namespace Velo.Serialization.Converters
             return list;
         }
 
-        public List<TElement> Read(JsonData jsonData)
+        public override List<TElement> Read(JsonData jsonData)
         {
             if (jsonData.Type == JsonDataType.Null) return null!;
 
             var listData = (JsonArray) jsonData;
             var list = new List<TElement>(listData.Length);
-            
+
             // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
             foreach (var value in listData)
             {
@@ -61,7 +61,7 @@ namespace Velo.Serialization.Converters
             return list;
         }
 
-        public void Serialize(List<TElement> list, TextWriter writer)
+        public override void Serialize(List<TElement> list, TextWriter writer)
         {
             if (list == null)
             {
@@ -83,7 +83,7 @@ namespace Velo.Serialization.Converters
             writer.Write(']');
         }
 
-        public JsonData Write(List<TElement> list)
+        public override JsonData Write(List<TElement> list)
         {
             if (list == null) return JsonValue.Null;
             if (list.Count == 0) return JsonArray.Empty;
@@ -97,14 +97,5 @@ namespace Velo.Serialization.Converters
 
             return new JsonArray(jsonElements);
         }
-
-        object IJsonConverter.DeserializeObject(JsonTokenizer tokenizer) => Deserialize(tokenizer);
-        
-        object IJsonConverter.ReadObject(JsonData data) => Read(data);
-
-        void IJsonConverter.SerializeObject(object value, TextWriter writer) =>
-            Serialize((List<TElement>) value, writer);
-
-        JsonData IJsonConverter.WriteObject(object value) => Write((List<TElement>) value);
     }
 }

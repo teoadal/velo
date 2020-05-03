@@ -25,15 +25,13 @@ namespace Velo.Serialization.Converters
         public object FillObject(JsonTokenizer tokenizer, object instance);
     }
 
-    internal sealed class ObjectConverter<T> : IObjectConverter, IJsonConverter<T>
+    internal sealed class ObjectConverter<T> : JsonConverter<T>, IObjectConverter
     {
-        public bool IsPrimitive => false;
-
         private readonly Func<T> _activator;
         private readonly EqualityComparer<T> _equalityComparer;
         private readonly Dictionary<string, PropertyConverter<T>> _propertyConverters;
 
-        public ObjectConverter((PropertyInfo, IJsonConverter)[] propertyConverters)
+        public ObjectConverter((PropertyInfo, IJsonConverter)[] propertyConverters) : base(false)
         {
             _activator = ExpressionUtils.BuildActivator<T>(throwIfEmptyConstructorNotFound: false);
             _equalityComparer = EqualityComparer<T>.Default;
@@ -50,13 +48,13 @@ namespace Velo.Serialization.Converters
             _propertyConverters = converters;
         }
 
-        public T Deserialize(JsonTokenizer tokenizer)
+        public override T Deserialize(JsonTokenizer tokenizer)
         {
             var instance = _activator();
             return VisitProperties(tokenizer, instance);
         }
 
-        public T Read(JsonData jsonData)
+        public override T Read(JsonData jsonData)
         {
             if (jsonData.Type == JsonDataType.Null) return default!;
 
@@ -66,7 +64,7 @@ namespace Velo.Serialization.Converters
             return instance;
         }
 
-        public void Serialize(T instance, TextWriter writer)
+        public override void Serialize(T instance, TextWriter writer)
         {
             if (_equalityComparer.Equals(instance, default!))
             {
@@ -91,7 +89,7 @@ namespace Velo.Serialization.Converters
             writer.Write('}');
         }
 
-        public JsonData Write(T instance)
+        public override JsonData Write(T instance)
         {
             if (_equalityComparer.Equals(instance, default!))
             {
@@ -145,10 +143,6 @@ namespace Velo.Serialization.Converters
             return instance;
         }
 
-        object IJsonConverter.DeserializeObject(JsonTokenizer tokenizer) => Deserialize(tokenizer)!;
-
-        object IJsonConverter.ReadObject(JsonData data) => Read(data)!;
-
         object IObjectConverter.FillObject(JsonData data, object instance)
         {
             if (data.Type == JsonDataType.Null) return default!;
@@ -161,9 +155,5 @@ namespace Velo.Serialization.Converters
         {
             return VisitProperties(tokenizer, (T) instance)!;
         }
-
-        void IJsonConverter.SerializeObject(object value, TextWriter writer) => Serialize((T) value, writer);
-
-        JsonData IJsonConverter.WriteObject(object value) => Write((T) value);
     }
 }

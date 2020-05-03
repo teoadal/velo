@@ -8,6 +8,7 @@ using Velo.Serialization.Converters;
 using Velo.Serialization.Models;
 using Velo.TestsModels;
 using Velo.TestsModels.Boos;
+using Velo.TestsModels.Serialization;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -69,6 +70,31 @@ namespace Velo.Tests.Serialization.Converters
 
             var result = stringWriter.ToString();
             result.Should().Be(JsonConvert.SerializeObject(value));
+        }
+
+        [Fact]
+        public void UseCustomConverterForDeserialize()
+        {
+            var converters = new ConvertersCollection(CultureInfo.InvariantCulture);
+            var converter = (IJsonConverter) converters.Get<CustomConverterModel>();
+
+            var serialized = new JsonObject();
+            serialized.Add(nameof(CustomConverterModel.Value), JsonValue.String("one"));
+            var model = (CustomConverterModel) converter.ReadObject(serialized);
+
+            model.Value.Should().Be(1);
+        }
+
+        [Fact]
+        public void UseCustomConverterForSerialize()
+        {
+            var converters = new ConvertersCollection(CultureInfo.InvariantCulture);
+            var converter = (IJsonConverter) converters.Get<CustomConverterModel>();
+
+            var stringWriter = new StringWriter();
+            converter.SerializeObject(new CustomConverterModel(), stringWriter);
+
+            stringWriter.ToString().Should().Contain("one");
         }
 
         [Theory]
