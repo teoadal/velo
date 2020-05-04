@@ -1,15 +1,19 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using Velo.Collections;
+using Velo.Collections.Enumerators;
 using Velo.ECS.Components;
 using Velo.Threading;
 
 namespace Velo.ECS.Actors
 {
-    public class Actor : IEquatable<Actor>
+    public class Actor : IEntity, IEquatable<Actor>
     {
         public readonly int Id;
+
+        public IEnumerable<IComponent> Components => new ArrayLockEnumerator<IComponent>(_components, _lock);
 
         public event Action<Actor, IComponent>? ComponentAdded;
 
@@ -151,5 +155,7 @@ namespace Velo.ECS.Actors
             var evt = ComponentRemoved;
             evt?.Invoke(this, component);
         }
+
+        int IEntity.Id => Id;
     }
 }

@@ -43,32 +43,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Update="Collections\LocalList.Enumerator.cs">
-            <DependentUpon>LocalList.cs</DependentUpon>
-        </Compile>
-        <Compile Update="Collections\LocalList.WhereEnumerator.cs">
-            <DependentUpon>LocalList.cs</DependentUpon>
-        </Compile>
-        <Compile Update="Collections\LocalList.SelectEnumerator.cs">
-            <DependentUpon>LocalList.cs</DependentUpon>
-        </Compile>
-        <Compile Update="Collections\LocalList.JoinEnumerator.cs">
-            <DependentUpon>LocalList.cs</DependentUpon>
-        </Compile>
         <Compile Update="DependencyInjection\Factories\ArrayFactory.ArrayResolver.cs">
             <DependentUpon>ArrayFactory.cs</DependentUpon>
         </Compile>
         <Compile Update="DependencyInjection\Factories\ArrayFactory.EmptyArrayResolver.cs">
             <DependentUpon>ArrayFactory.cs</DependentUpon>
-        </Compile>
-        <Compile Update="Collections\LocalList.GroupEnumerator.cs">
-            <DependentUpon>LocalList.cs</DependentUpon>
-        </Compile>
-        <Compile Update="Collections\LocalList.DebugVisualizer.cs">
-            <DependentUpon>LocalList.cs</DependentUpon>
-        </Compile>
-        <Compile Update="Collections\LocalList.Row.cs">
-            <DependentUpon>LocalList.cs</DependentUpon>
         </Compile>
         <Compile Update="Settings\SettingsDependency.cs">
             <DependentUpon>SettingsFactory.cs</DependentUpon>
@@ -81,6 +60,27 @@
         </Compile>
         <Compile Update="DependencyInjection\Factories\ConfiguredFactory.cs">
             <DependentUpon>DependencyFactoryBuilder.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Collections\Local\LocalList.DebugVisualizer.cs">
+          <DependentUpon>LocalList.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Collections\Local\LocalList.Enumerator.cs">
+          <DependentUpon>LocalList.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Collections\Local\LocalList.GroupEnumerator.cs">
+          <DependentUpon>LocalList.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Collections\Local\LocalList.JoinEnumerator.cs">
+          <DependentUpon>LocalList.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Collections\Local\LocalList.Row.cs">
+          <DependentUpon>LocalList.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Collections\Local\LocalList.SelectEnumerator.cs">
+          <DependentUpon>LocalList.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Collections\Local\LocalList.WhereEnumerator.cs">
+          <DependentUpon>LocalList.cs</DependentUpon>
         </Compile>
     </ItemGroup>
 </Project>

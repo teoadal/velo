@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Velo.Collections;
+using Velo.Collections.Enumerators;
 using Velo.ECS.Assets.Filters;
 using Velo.ECS.Assets.Groups;
-using Velo.ECS.Assets.Sources;
 using Velo.ECS.Components;
+using Velo.ECS.Sources;
 using Velo.Threading;
 using Velo.Utils;
 
@@ -24,8 +25,8 @@ namespace Velo.ECS.Assets.Context
         private readonly Dictionary<int, IAssetGroup> _groups;
         private readonly Dictionary<int, object> _singleAssets;
 
-        public AssetContext(AssetSourceContext sourceContext)
-            : this(sourceContext.GetAssets())
+        public AssetContext(ISourceContext<Asset> sourceContext)
+            : this(sourceContext.GetEntities())
         {
         }
 

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Velo.Extensions;
+using Velo.Utils;
 
 namespace Velo.Serialization.Models
 {
@@ -10,7 +11,7 @@ namespace Velo.Serialization.Models
 
         public JsonObject() : base(JsonDataType.Object)
         {
-            _properties = new Dictionary<string, JsonData>();
+            _properties = new Dictionary<string, JsonData>(StringUtils.IgnoreCaseComparer);
         }
 
         public JsonObject(int capacity) : base(JsonDataType.Object)

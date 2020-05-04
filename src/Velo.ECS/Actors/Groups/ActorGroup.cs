@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
-using Velo.Collections;
+using Velo.Collections.Enumerators;
 using Velo.ECS.Actors.Context;
 using Velo.Threading;
 

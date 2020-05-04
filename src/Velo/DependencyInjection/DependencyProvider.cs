@@ -74,7 +74,13 @@ namespace Velo.DependencyInjection
             }
             catch (TargetInvocationException e)
             {
-                throw e.InnerException ?? e;
+                Exception exception = e;
+                while (exception.InnerException != null)
+                {
+                    exception = exception.InnerException;
+                }
+                
+                throw exception;
             }
         }
 

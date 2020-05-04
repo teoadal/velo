@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using Velo.Collections;
 using Velo.ECS.Actors.Context;
 using Velo.ECS.Components;
 using Velo.Threading;
@@ -8,14 +9,13 @@ using Velo.Utils;
 
 namespace Velo.ECS.Actors.Factory
 {
-    public sealed class ActorFactory : IActorFactory
+    internal sealed class ActorFactory : DangerousVector<int, IActorBuilder>, IActorFactory
     {
         private readonly IActorContext _actorContext;
+        private readonly IActorBuilder[] _builders;
         private readonly IComponentFactory _componentFactory;
 
-        private readonly IActorBuilder[] _builders;
-        private readonly Dictionary<int, IActorBuilder> _resolvedBuilders;
-        private readonly object _lock;
+        private readonly Func<int, Type, IActorBuilder> _findOrCreate;
 
         private readonly List<int> _freeIds;
         private int _nextId;
@@ -23,11 +23,11 @@ namespace Velo.ECS.Actors.Factory
         public ActorFactory(IActorContext actorContext, IComponentFactory componentFactory,
             IActorBuilder[]? actorBuilders = null)
         {
-            _builders = actorBuilders ?? Array.Empty<IActorBuilder>();
             _actorContext = actorContext;
+            _builders = actorBuilders ?? Array.Empty<IActorBuilder>();
             _componentFactory = componentFactory;
-            _resolvedBuilders = new Dictionary<int, IActorBuilder>();
-            _lock = new object();
+
+            _findOrCreate = FindOrCreateBuilder;
 
             _freeIds = new List<int>();
             _nextId = 0;
@@ -38,28 +38,28 @@ namespace Velo.ECS.Actors.Factory
             return new ActorConfigurator(this, _componentFactory);
         }
 
-        public Actor Create(IComponent[]? components = null, int? id = null)
+        public Actor Create(IComponent[]? components = null, int? actorId = null)
         {
-            var actorId = CreateOrCheckId(id);
-            return new Actor(actorId, components);
+            var id = CreateOrCheckId(actorId);
+            return new Actor(id, components);
         }
 
-        public TActor Create<TActor>(IComponent[]? components = null, int? id = null) where TActor : Actor
+        public Actor Create(Type actorType, IComponent[]? components = null, int? actorId = null)
+        {
+            var typeId = Typeof.GetTypeId(actorType);
+            var builder = GetOrAdd(typeId, _findOrCreate, actorType);
+
+            var id = CreateOrCheckId(actorId);
+            return builder.BuildActor(id, components);
+        }
+
+        public TActor Create<TActor>(IComponent[]? components = null, int? actorId = null) where TActor : Actor
         {
             var typeId = Typeof<TActor>.Id;
+            var builder = (IActorBuilder<TActor>) GetOrAdd(typeId, _findOrCreate, Typeof<TActor>.Raw);
 
-            if (!_resolvedBuilders.TryGetValue(typeId, out var actorBuilder))
-            {
-                actorBuilder = FindOrCreateBuilder<TActor>();
-
-                using (Lock.Enter(_lock))
-                {
-                    _resolvedBuilders[typeId] = actorBuilder;
-                }
-            }
-
-            var actorId = CreateOrCheckId(id);
-            return ((IActorBuilder<TActor>) actorBuilder).Build(actorId, components);
+            var id = CreateOrCheckId(actorId);
+            return builder.Build(id, components);
         }
 
         private int CreateOrCheckId(int? id)
@@ -88,17 +88,22 @@ namespace Velo.ECS.Actors.Factory
             return actorId;
         }
 
-        private IActorBuilder FindOrCreateBuilder<TActor>() where TActor : Actor
+        private IActorBuilder FindOrCreateBuilder(int _, Type actorType)
         {
+            var builderType = typeof(IActorBuilder<>).MakeGenericType(actorType);
+
             foreach (var builder in _builders)
             {
-                if (builder is IActorBuilder<TActor>)
+                if (builderType.IsInstanceOfType(builder))
                 {
                     return builder;
                 }
             }
 
-            return new DefaultActorBuilder<TActor>();
+            var instanceType = typeof(DefaultActorBuilder<>).MakeGenericType(actorType);
+            var instance = Activator.CreateInstance(instanceType);
+
+            return (IActorBuilder) instance;
         }
     }
 }

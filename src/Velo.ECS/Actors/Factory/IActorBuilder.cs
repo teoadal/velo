@@ -1,12 +1,11 @@
-using System;
-using System.Linq.Expressions;
 using Velo.ECS.Components;
-using Velo.Utils;
+using Velo.ECS.Factory;
 
 namespace Velo.ECS.Actors.Factory
 {
     public interface IActorBuilder
     {
+        Actor BuildActor(int actorId, IComponent[]? components);
     }
 
     public interface IActorBuilder<out TActor> : IActorBuilder
@@ -15,27 +14,12 @@ namespace Velo.ECS.Actors.Factory
         TActor Build(int actorId, IComponent[]? components);
     }
 
-    internal sealed class DefaultActorBuilder<TActor> : IActorBuilder<TActor>
+    internal sealed class DefaultActorBuilder<TActor> : DefaultEntityBuilder<TActor>, IActorBuilder<TActor>
         where TActor : Actor
     {
-        private readonly Func<int, IComponent[]?, TActor> _builder;
-
-        public DefaultActorBuilder()
+        public Actor BuildActor(int actorId, IComponent[]? components)
         {
-            var actorType = typeof(TActor);
-            var constructor = ReflectionUtils.GetConstructor(actorType);
-
-            var actorId = Expression.Parameter(typeof(int));
-            var components = Expression.Parameter(typeof(IComponent[]));
-
-            _builder = Expression
-                .Lambda<Func<int, IComponent[]?, TActor>>(Expression.New(constructor), actorId, components)
-                .Compile();
-        }
-
-        public TActor Build(int actorId, IComponent[]? components)
-        {
-            return _builder(actorId, components);
+            return Build(actorId, components);
         }
     }
 }

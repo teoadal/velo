@@ -14,16 +14,20 @@ namespace Velo.Serialization
 
         private readonly IConvertersCollection _converters;
 
-        public JConverter(CultureInfo? culture = null)
+        #region Constructors
+
+        internal JConverter(CultureInfo? culture = null, IConvertersCollection? converters = null)
         {
-            _converters = new ConvertersCollection(culture ?? CultureInfo.InvariantCulture);
+            _converters = converters ?? new ConvertersCollection(culture ?? CultureInfo.InvariantCulture);
         }
 
         internal JConverter(IConvertersCollection convertersCollection)
         {
             _converters = convertersCollection;
         }
-        
+
+        #endregion
+
         public TOut Deserialize<TOut>(string source)
         {
             using var reader = new JsonReader(source);
@@ -43,9 +47,9 @@ namespace Velo.Serialization
             _buffer ??= new StringBuilder(200);
 
             using var stringWriter = new StringWriter(_buffer);
-            
+
             Serialize(source, stringWriter);
-            
+
             var json = _buffer.ToString();
             _buffer.Clear();
             return json;
@@ -58,13 +62,13 @@ namespace Velo.Serialization
                 writer.Write(JsonValue.NullToken);
                 return;
             }
-            
+
             var type = source.GetType();
             var converter = _converters.Get(type);
-            
+
             converter.SerializeObject(source, writer);
         }
-        
+
         private TOut Deserialize<TOut>(JsonReader reader)
         {
             _buffer ??= new StringBuilder(200);

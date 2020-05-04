@@ -6,7 +6,7 @@ using Velo.Utils;
 namespace Velo.Serialization.Attributes
 {
     [AttributeUsage(AttributeTargets.Property)]
-    internal sealed class ConverterAttribute : Attribute
+    public class ConverterAttribute : Attribute
     {
         public static bool IsDefined(PropertyInfo property)
         {
@@ -15,6 +15,10 @@ namespace Velo.Serialization.Attributes
 
         public readonly Type ConverterType;
 
+        /// <summary>
+        /// Set a custom converter for property of <see cref="Object"/>
+        /// </summary>
+        /// <param name="converterType">A class inherited from generic <see cref="IJsonConverter"/></param>
         public ConverterAttribute(Type converterType)
         {
             if (converterType == null) throw Error.Null(nameof(converterType));

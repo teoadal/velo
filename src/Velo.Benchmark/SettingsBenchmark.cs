@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
@@ -149,7 +148,7 @@ namespace Velo.Benchmark
 
         private SettingsProvider BuildVeloConfiguration()
         {
-            var converters = new ConvertersCollection(CultureInfo.InvariantCulture);
+            var converters = new ConvertersCollection();
             return new SettingsProvider(new ISettingsSource[]
             {
                 new JsonFileSource("appsettings.json", true),

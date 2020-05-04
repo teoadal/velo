@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
-using Velo.Collections;
+using Velo.Collections.Local;
 using Velo.Serialization.Models;
 using Velo.Serialization.Tokenization;
 
@@ -8,8 +8,6 @@ namespace Velo.Serialization.Converters
 {
     internal sealed class ListConverter<TElement> : JsonConverter<List<TElement>>
     {
-        public bool IsPrimitive => false;
-
         private readonly IJsonConverter<TElement> _elementConverter;
 
         public ListConverter(IJsonConverter<TElement> elementConverter) : base(false)

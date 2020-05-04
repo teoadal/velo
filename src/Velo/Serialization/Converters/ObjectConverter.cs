@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Velo.Extensions;
+using Velo.Serialization.Attributes;
 using Velo.Serialization.Models;
 using Velo.Serialization.Tokenization;
 using Velo.Utils;
@@ -17,12 +18,6 @@ namespace Velo.Serialization.Converters
         /// </summary>
         /// <returns>If token is <see cref="JsonTokenType.Null"/> - return null</returns>
         public object FillObject(JsonData jsonData, object instance);
-
-        /// <summary>
-        /// Fill present instance from tokenizer stream 
-        /// </summary>
-        /// <returns>If token is <see cref="JsonTokenType.Null"/> - return null</returns>
-        public object FillObject(JsonTokenizer tokenizer, object instance);
     }
 
     internal sealed class ObjectConverter<T> : JsonConverter<T>, IObjectConverter
@@ -31,21 +26,28 @@ namespace Velo.Serialization.Converters
         private readonly EqualityComparer<T> _equalityComparer;
         private readonly Dictionary<string, PropertyConverter<T>> _propertyConverters;
 
-        public ObjectConverter((PropertyInfo, IJsonConverter)[] propertyConverters) : base(false)
+        public ObjectConverter(ConvertersCollection converters) : base(false)
         {
             _activator = ExpressionUtils.BuildActivator<T>(throwIfEmptyConstructorNotFound: false);
             _equalityComparer = EqualityComparer<T>.Default;
 
-            var converters = new Dictionary<string, PropertyConverter<T>>(
-                propertyConverters.Length,
+            var properties = typeof(T).GetProperties();
+            var propertyConverters = new Dictionary<string, PropertyConverter<T>>(
+                properties.Length,
                 StringUtils.IgnoreCaseComparer);
 
-            foreach (var (propertyInfo, converter) in propertyConverters)
+            foreach (var property in properties)
             {
-                converters.Add(propertyInfo.Name, new PropertyConverter<T>(propertyInfo, converter));
+                if (IgnoreAttribute.IsDefined(property)) continue;
+
+                var propertyConverter = ConverterAttribute.IsDefined(property)
+                    ? converters.GetCustomConverter(property.GetCustomAttribute<ConverterAttribute>().ConverterType)
+                    : converters.Get(property.PropertyType);
+
+                propertyConverters.Add(property.Name, new PropertyConverter<T>(property, propertyConverter));
             }
 
-            _propertyConverters = converters;
+            _propertyConverters = propertyConverters;
         }
 
         public override T Deserialize(JsonTokenizer tokenizer)
@@ -149,11 +151,6 @@ namespace Velo.Serialization.Converters
             VisitProperties((JsonObject) data, (T) instance);
 
             return instance;
-        }
-
-        object IObjectConverter.FillObject(JsonTokenizer tokenizer, object instance)
-        {
-            return VisitProperties(tokenizer, (T) instance)!;
         }
     }
 }

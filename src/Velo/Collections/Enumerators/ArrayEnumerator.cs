@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Velo.Collections
+namespace Velo.Collections.Enumerators
 {
     public struct ArrayEnumerator<T> : IEnumerator<T>, IEnumerable<T>
     {
@@ -10,7 +10,7 @@ namespace Velo.Collections
         private T[] _array;
         private int _position;
 
-        public ArrayEnumerator(T[] array)
+        internal ArrayEnumerator(T[] array)
         {
             _array = array;
             _position = -1;

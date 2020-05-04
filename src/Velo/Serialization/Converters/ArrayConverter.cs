@@ -1,5 +1,5 @@
 using System.IO;
-using Velo.Collections;
+using Velo.Collections.Local;
 using Velo.Serialization.Models;
 using Velo.Serialization.Tokenization;
 

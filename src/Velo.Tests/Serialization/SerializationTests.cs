@@ -81,7 +81,7 @@ namespace Velo.Tests.Serialization
             bool[] source = null;
             
             // ReSharper disable once ExpressionIsAlwaysNull
-            var json = _converter.Serialize(source);
+            var json = _converter.Serialize(source!);
             var deserialized = JsonConvert.DeserializeObject<bool[]>(json);
             
             Assert.Null(deserialized);

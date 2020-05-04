@@ -11,7 +11,7 @@ namespace Velo.DependencyInjection
         public static DependencyCollection AddMetrics(this DependencyCollection dependencies)
         {
             dependencies
-                .AddFactory<IMetricsProvider, MetricsProvider>(factory => factory
+                .AddFactory<IMetricsProvider, MetricsProvider>(metricsProvider => metricsProvider
                     .Lifetime(DependencyLifetime.Singleton)
                     .CreateIf<NullSettingsProvider>(engine => !engine.Contains(typeof(ICounter))));
             

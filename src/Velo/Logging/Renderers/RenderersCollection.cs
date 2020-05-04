@@ -1,6 +1,6 @@
 using System;
-using System.Globalization;
 using Velo.Collections;
+using Velo.Collections.Local;
 using Velo.Logging.Formatters;
 using Velo.Serialization;
 using Velo.Utils;
@@ -13,10 +13,10 @@ namespace Velo.Logging.Renderers
         private readonly IConvertersCollection _converters;
         private readonly Func<string, Type, Renderer> _rendererBuilder;
 
-        public RenderersCollection(IConvertersCollection? converters = null)
+        public RenderersCollection(IConvertersCollection converters)
         {
             _arrayRendererBuilder = BuildArrayRenderer;
-            _converters = converters ?? new ConvertersCollection(CultureInfo.InvariantCulture);
+            _converters = converters;
             _rendererBuilder = BuildRenderer;
         }
 

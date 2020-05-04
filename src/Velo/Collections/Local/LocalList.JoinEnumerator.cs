@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Velo.Collections
+namespace Velo.Collections.Local
 {
     public ref partial struct LocalList<T>
     {

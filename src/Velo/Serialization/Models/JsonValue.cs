@@ -9,11 +9,13 @@ namespace Velo.Serialization.Models
     [DebuggerDisplay("{Type} {Value}")]
     public sealed class JsonValue : JsonData, IEquatable<JsonValue>
     {
+        private static readonly CultureInfo Invariant = CultureInfo.InvariantCulture;
+
+        #region Values
+
         public const string FalseToken = "false";
         public const string NullToken = "null";
         public const string TrueToken = "true";
-
-        private static readonly CultureInfo Invariant = CultureInfo.InvariantCulture;
 
         public static readonly JsonValue True = new JsonValue(TrueToken, JsonDataType.True);
 
@@ -24,6 +26,10 @@ namespace Velo.Serialization.Models
         public static readonly JsonValue StringEmpty = new JsonValue(string.Empty, JsonDataType.String);
 
         public static readonly JsonValue Zero = new JsonValue("0", JsonDataType.Number);
+
+        #endregion
+
+        #region Builders
 
         public static JsonValue Boolean(bool value) => value ? True : False;
 
@@ -53,7 +59,7 @@ namespace Velo.Serialization.Models
         public static JsonValue Number(decimal value, CultureInfo? cultureInfo = null)
         {
             return new JsonValue(
-                value.ToString(cultureInfo ?? Invariant),
+                value.ToString(DecimalConverter.Pattern, cultureInfo ?? Invariant),
                 JsonDataType.Number);
         }
 
@@ -71,6 +77,8 @@ namespace Velo.Serialization.Models
                 value.ToString(TimeSpanConverter.Pattern, cultureInfo ?? Invariant),
                 JsonDataType.Number);
         }
+
+        #endregion
 
         public readonly string Value;
 

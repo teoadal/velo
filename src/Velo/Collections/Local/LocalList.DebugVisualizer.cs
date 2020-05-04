@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace Velo.Collections
+namespace Velo.Collections.Local
 {
     internal readonly ref struct LocalListDebugVisualizer<T>
     {

@@ -1,3 +1,4 @@
+using System;
 using Velo.ECS.Components;
 
 namespace Velo.ECS.Actors.Factory
@@ -7,6 +8,8 @@ namespace Velo.ECS.Actors.Factory
         ActorConfigurator Configure();
 
         Actor Create(IComponent[]? components = null, int? actorId = null);
+
+        Actor Create(Type actorType, IComponent[]? components = null, int? actorId = null);
 
         TActor Create<TActor>(IComponent[]? components = null, int? actorId = null) where TActor : Actor;
     }

@@ -22,15 +22,7 @@ namespace Velo.Tests.Extensions.DependencyInjection.Serialization
         {
             _services.Should().Contain(descriptor => 
                     descriptor.ServiceType == typeof(IConvertersCollection) &&
-                    descriptor.ImplementationInstance is ConvertersCollection);
-        }
-        
-        [Fact]
-        public void InstallSingletonConvertersCollection()
-        {
-            _services.Should().Contain(descriptor => 
-                descriptor.ServiceType == typeof(IConvertersCollection) &&
-                descriptor.Lifetime == ServiceLifetime.Singleton);
+                    descriptor.Lifetime == ServiceLifetime.Singleton);
         }
         
         [Fact]
@@ -38,7 +30,7 @@ namespace Velo.Tests.Extensions.DependencyInjection.Serialization
         {
             _services.Should().Contain(descriptor => 
                     descriptor.ServiceType == typeof(JConverter) &&
-                    descriptor.ImplementationInstance is JConverter);
+                    descriptor.Lifetime == ServiceLifetime.Singleton);
         }
 
         [Fact]

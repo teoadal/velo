@@ -26,6 +26,16 @@ namespace Velo.DependencyInjection
             return this;
         }
 
+        public DependencyCollection AddDependency(Func<DependencyBuilder, DependencyBuilder> build)
+        {
+            var builder = build(new DependencyBuilder());
+            var dependency = builder.Build(_engine);
+
+            AddDependency(dependency);
+
+            return this;
+        }
+
         public DependencyCollection AddDependency(Type contract, Type implementation, DependencyLifetime lifetime)
         {
             if (contract.IsGenericTypeDefinition)

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using AutoFixture.Xunit2;
 using FluentAssertions;
-using Velo.Collections;
+using Velo.Collections.Local;
 using Velo.DependencyInjection;
 using Velo.Mapping;
 using Velo.TestsModels;

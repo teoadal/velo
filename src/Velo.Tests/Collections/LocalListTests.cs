@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AutoFixture.Xunit2;
-using Velo.Collections;
+using Velo.Collections.Local;
 using Velo.TestsModels;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Foos;

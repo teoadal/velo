@@ -8,12 +8,13 @@ using Velo.ECS.Actors.Filters;
 using Velo.ECS.Actors.Groups;
 using Velo.ECS.Assets;
 using Velo.ECS.Assets.Context;
+using Velo.ECS.Assets.Factory;
 using Velo.ECS.Assets.Filters;
 using Velo.ECS.Assets.Groups;
-using Velo.ECS.Assets.Sources;
 using Velo.ECS.Components;
 using Velo.ECS.Injection;
 using Velo.ECS.Sources;
+using Velo.ECS.Sources.Json;
 using Velo.ECS.Systems;
 using Velo.ECS.Systems.Handlers;
 using Velo.Utils;
@@ -23,7 +24,7 @@ namespace Velo.DependencyInjection
 {
     public static class ECSInstaller
     {
-        private static readonly Type[] AssetSourceContracts = {Typeof<IAssetSource>.Raw};
+        private static readonly Type[] AssetSourceContracts = {Typeof<ISource<Asset>>.Raw};
 
         public static DependencyCollection AddECS(this DependencyCollection dependencies)
         {
@@ -41,7 +42,7 @@ namespace Velo.DependencyInjection
                 .AddFactory(new GroupFactory<IAssetContext>(typeof(IAssetGroup)))
                 .AddFactory(new SingleFactory<IAssetContext>(typeof(SingleAsset<>)))
                 .AddSingleton<IAssetContext, AssetContext>()
-                .AddSingleton<AssetSourceContext>();
+                .AddSingleton<AssetFactory>();
 
             // components
             dependencies
@@ -49,43 +50,65 @@ namespace Velo.DependencyInjection
 
             // systems
             dependencies
-                .AddFactory<ISystemService, SystemService>(factory => factory.DependedLifetime())
+                .AddFactory<ISystemService, SystemService>(systemService => systemService.DependedLifetime())
                 .AddFactory(new SystemHandlerFactory());
 
             // source
             dependencies
-                .AddSingleton<JsonEntityConverters>()
+                .AddInstance(new SourceDescriptions())
+                .AddTransient(typeof(ISourceContext<>), typeof(SourceContext<>))
+                .AddDependency(jsonEntityReader => jsonEntityReader
+                    .Contract<IJsonEntityReader<Actor>>()
+                    .Contract<IJsonEntityReader<Asset>>()
+                    .Implementation<JsonEntityReader>()
+                    .Singleton())
                 .EnsureJsonEnabled();
 
             return dependencies;
         }
 
-        public static DependencyCollection AddAssets(this DependencyCollection dependencies, IAssetSource assetSource)
+        public static DependencyCollection AddAssets(this DependencyCollection dependencies, ISource<Asset> assetSource)
         {
+            if (assetSource == null) throw Error.Null(nameof(assetSource));
+
             var dependency = new InstanceDependency(AssetSourceContracts, assetSource);
             dependencies.AddDependency(dependency);
 
             return dependencies;
         }
-        
-        public static DependencyCollection AddAssets(this DependencyCollection dependencies,
-            Func<IAssetSourceContext, IEnumerable<Asset>> assets)
+
+        public static DependencyCollection AddAssets(
+            this DependencyCollection dependencies,
+            Func<IDependencyScope, ISource<Asset>> sourceBuilder)
+        {
+            if (sourceBuilder == null) throw Error.Null(nameof(sourceBuilder));
+
+            dependencies.AddDependency(AssetSourceContracts, sourceBuilder, DependencyLifetime.Singleton);
+
+            return dependencies;
+        }
+
+        public static DependencyCollection AddAssets(
+            this DependencyCollection dependencies,
+            Func<ISourceContext<Asset>, IEnumerable<Asset>> assets)
         {
             if (assets == null) throw Error.Null(nameof(assets));
 
-            var dependency = new InstanceDependency(AssetSourceContracts, new AssetDelegateSource(assets));
+            var instance = new DelegateSource<Asset>(assets);
+            var dependency = new InstanceDependency(AssetSourceContracts, instance);
+
             dependencies.AddDependency(dependency);
 
             return dependencies;
         }
-        
+
         public static DependencyCollection AddJsonAssets(this DependencyCollection dependencies, string path)
         {
             if (string.IsNullOrWhiteSpace(path)) throw Error.Null(nameof(path));
 
             dependencies.AddDependency(
                 AssetSourceContracts,
-                scope => new AssetJsonFileSource(scope.GetRequiredService<JsonEntityConverters>(), path),
+                scope => new JsonFileSource<Asset>(scope.GetRequiredService<IJsonEntityReader<Asset>>(), path),
                 DependencyLifetime.Singleton);
 
             return dependencies;

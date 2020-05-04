@@ -1,5 +1,4 @@
 using System;
-using System.Globalization;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Moq;
@@ -26,7 +25,7 @@ namespace Velo.Tests.Logging.Enrichers
         
         public LogEnricherShould(ITestOutputHelper output) : base(output)
         {
-            _converters = new ConvertersCollection(CultureInfo.InvariantCulture);
+            _converters = new ConvertersCollection();
             _logEnricher = new Mock<ILogEnricher>();
 
             var logWriter = new Mock<ILogWriter>();

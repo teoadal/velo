@@ -1,5 +1,5 @@
 using System;
-using Velo.Collections;
+using Velo.Collections.Local;
 using Velo.Logging.Formatters;
 using Velo.Serialization;
 using Velo.Serialization.Converters;

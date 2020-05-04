@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Velo.ECS.Systems
 {
-    internal interface ISystemService
+    public interface ISystemService
     {
         Task Cleanup(CancellationToken cancellationToken);
 

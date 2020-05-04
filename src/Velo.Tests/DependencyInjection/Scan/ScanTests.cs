@@ -20,7 +20,7 @@ namespace Velo.Tests.DependencyInjection.Scan
         public ScanTests(ITestOutputHelper output) : base(output)
         {
             _dependencies = new DependencyCollection()
-                .AddSingleton<ISettingsProvider>(ctx => new SettingsProvider(Array.Empty<ISettingsSource>()))
+                .AddSingleton<ISettingsProvider>(ctx => new SettingsProvider(Array.Empty<ISettingsSource>(), new ConvertersCollection()))
                 .AddSingleton<JConverter>()
                 .AddSingleton<ISession, Session>();
         }

@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Velo.Collections
+namespace Velo.Collections.Enumerators
 {
     internal sealed class EmptyEnumerator<T> : IEnumerator<T>
     {

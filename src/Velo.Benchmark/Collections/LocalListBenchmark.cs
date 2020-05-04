@@ -4,7 +4,7 @@ using System.Linq;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Jobs;
-using Velo.Collections;
+using Velo.Collections.Local;
 using Velo.TestsModels.Boos;
 
 namespace Velo.Benchmark.Collections

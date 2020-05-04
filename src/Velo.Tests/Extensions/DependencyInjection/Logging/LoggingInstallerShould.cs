@@ -93,7 +93,7 @@ namespace Velo.Tests.Extensions.DependencyInjection.Logging
         public void ResolveProvider()
         {
             _services
-                .AddDefaultConsoleLogWriter()
+                .AddLogging()
                 .BuildServiceProvider()
                 .GetService<ILogProvider>()
                 .Should().NotBeNull();
@@ -112,6 +112,7 @@ namespace Velo.Tests.Extensions.DependencyInjection.Logging
         public void ResolveLogger()
         {
             _services
+                .AddLogging()
                 .AddDefaultConsoleLogWriter()
                 .BuildServiceProvider()
                 .GetService<ILogger<Boo>>()

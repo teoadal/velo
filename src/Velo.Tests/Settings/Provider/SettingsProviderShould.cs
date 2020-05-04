@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using AutoFixture;
 using FluentAssertions;
 using Moq;
@@ -29,8 +28,8 @@ namespace Velo.Tests.Settings.Provider
 
         public SettingsProviderShould(ITestOutputHelper output) : base(output)
         {
-            _converters = new ConvertersCollection(CultureInfo.InvariantCulture);
-            
+            _converters = new ConvertersCollection();
+
             _property = "property";
             _propertyValue = JsonValue.True;
             _nestedProperty = "nested";
@@ -42,7 +41,7 @@ namespace Velo.Tests.Settings.Provider
             };
 
             _source = BuildSource();
-            _settings = new SettingsProvider(new[] {_source.Object});
+            _settings = new SettingsProvider(new[] {_source.Object}, new ConvertersCollection());
         }
 
         [Fact]
@@ -57,22 +56,22 @@ namespace Velo.Tests.Settings.Provider
             const string property = nameof(BigObject.String);
             _settings.Contains($"{_nestedProperty}.{property}").Should().BeTrue();
         }
-        
+
         [Fact]
         public void ContainDeepNested()
         {
             const string boo = nameof(BigObject.Boo);
             const string booProperty = nameof(Boo.Type);
-            
+
             _settings.Contains($"{_nestedProperty}.{boo}.{booProperty}").Should().BeTrue();
         }
-        
+
         [Fact]
         public void ContainSource()
         {
-            ((SettingsProvider)_settings).Sources.Should().Contain(_source.Object);
+            ((SettingsProvider) _settings).Sources.Should().Contain(_source.Object);
         }
-        
+
         [Fact]
         public void GetValue()
         {
@@ -84,22 +83,22 @@ namespace Velo.Tests.Settings.Provider
         public void GetNestedValue()
         {
             const string property = nameof(BigObject.String);
-            
+
             var value = _settings.Get($"{_nestedProperty}.{property}");
             value.Should().Be(((JsonValue) _nestedValue[property]).Value);
         }
-        
+
         [Fact]
         public void GetDeepNestedValue()
         {
             const string boo = nameof(BigObject.Boo);
             const string booProperty = nameof(Boo.Type);
-            
+
             var value = _settings.Get($"{_nestedProperty}.{boo}.{booProperty}");
             var jsonValue = (JsonValue) ((JsonObject) _nestedValue[boo])[booProperty];
             value.Should().Be(jsonValue.Value);
         }
-        
+
         [Fact]
         public void GetValueTyped()
         {
@@ -111,17 +110,17 @@ namespace Velo.Tests.Settings.Provider
         public void GetNestedValueTyped()
         {
             const string property = nameof(BigObject.Array);
-            
+
             var value = _settings.Get<int[]>($"{_nestedProperty}.{property}");
             value.Should().Contain(_converters.Get<int[]>().Read(_nestedValue[property]));
         }
-        
+
         [Fact]
         public void GetDeepNestedValueTyped()
         {
             const string boo = nameof(BigObject.Boo);
             const string booProperty = nameof(Boo.Type);
-            
+
             var value = _settings.Get<ModelType>($"{_nestedProperty}.{boo}.{booProperty}");
             var expected = _converters.Get<ModelType>().Read(((JsonObject) _nestedValue[boo])[booProperty]);
             value.Should().Be(expected);
@@ -134,26 +133,26 @@ namespace Velo.Tests.Settings.Provider
             {
                 new JsonFileSource("Settings/appsettings.json", true),
                 new JsonFileSource("Settings/appsettings.develop.json", true),
-            });
+            }, new ConvertersCollection());
 
             var logLevelSettings = settings.Get<LogLevelSettings>("Logging.LogLevel");
             logLevelSettings.Default.Should().Be("Debug");
             logLevelSettings.System.Should().Be("Debug");
             logLevelSettings.Microsoft.Should().Be("Information");
         }
-        
+
         [Fact]
         public void NotContain()
         {
             _settings.Contains("abc").Should().BeFalse();
         }
-        
+
         [Fact]
         public void NotContainNested()
         {
             _settings.Contains("abc.abc").Should().BeFalse();
         }
-        
+
         [Fact]
         public void NotContainDeepNested()
         {
@@ -175,17 +174,17 @@ namespace Velo.Tests.Settings.Provider
             const string boo = nameof(BigObject.Boo);
 
             _settings.TryGet<Boo>($"{_nestedProperty}.{boo}", out var booValue).Should().BeTrue();
-            
+
             var expected = _converters.Get<Boo>().Read((JsonObject) _nestedValue[boo]);
             booValue.Should().BeEquivalentTo(expected);
         }
-        
+
         [Fact]
         public void TryGetValueFalse()
         {
             _settings.TryGet<Boo>($"{_nestedProperty}.abc", out _).Should().BeFalse();
         }
-        
+
         [Fact]
         public void ThrowPathNotFound()
         {
@@ -193,7 +192,7 @@ namespace Velo.Tests.Settings.Provider
                 .Invoking(settings => settings.Get("abc.abc"))
                 .Should().Throw<KeyNotFoundException>();
         }
-        
+
         [Fact]
         public void ThrowNestedPathNotFound()
         {
@@ -201,7 +200,7 @@ namespace Velo.Tests.Settings.Provider
                 .Invoking(settings => settings.Get($"{_nestedProperty}.abc"))
                 .Should().Throw<KeyNotFoundException>();
         }
-        
+
         [Fact]
         public void ThrowInvalidCast()
         {
@@ -209,7 +208,7 @@ namespace Velo.Tests.Settings.Provider
                 .Invoking(settings => settings.Get($"{_nestedProperty}.{nameof(BigObject.Array)}"))
                 .Should().Throw<InvalidCastException>();
         }
-        
+
         private Mock<ISettingsSource> BuildSource()
         {
             var source = new Mock<ISettingsSource>();

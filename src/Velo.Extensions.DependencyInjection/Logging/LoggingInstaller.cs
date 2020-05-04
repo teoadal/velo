@@ -16,7 +16,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services
                 .AddSingleton<IRenderersCollection, RenderersCollection>()
                 .AddScoped(ProviderFactory)
-                .AddScoped(typeof(ILogger<>), typeof(Logger<>));
+                .AddScoped(typeof(ILogger<>), typeof(Logger<>))
+                .EnsureJsonEnabled();
 
             return services;
         }

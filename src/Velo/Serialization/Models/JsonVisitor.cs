@@ -1,4 +1,4 @@
-using Velo.Collections;
+using Velo.Collections.Local;
 using Velo.Serialization.Tokenization;
 using Velo.Utils;
 

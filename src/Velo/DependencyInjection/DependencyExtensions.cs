@@ -1,7 +1,7 @@
 using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Velo.Collections;
+using Velo.Collections.Local;
 using Velo.DependencyInjection.Dependencies;
 using Velo.DependencyInjection.Factories;
 using Velo.Utils;

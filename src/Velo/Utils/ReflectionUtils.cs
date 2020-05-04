@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Velo.Collections;
+using Velo.Collections.Local;
 
 namespace Velo.Utils
 {
@@ -219,8 +219,15 @@ namespace Velo.Utils
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void CheckIsNotAbstractAndNotInterface(Type type)
         {
-            if (type.IsAbstract) throw Error.InvalidOperation($"'{GetName(type)}' is abstract or static");
-            if (type.IsInterface) throw Error.InvalidOperation($"'{GetName(type)}' is interface");
+            if (type.IsInterface)
+            {
+                throw Error.InvalidOperation($"Type '{GetName(type)}' is interface");
+            }
+
+            if (type.IsAbstract)
+            {
+                throw Error.InvalidOperation($"Type '{GetName(type)}' is abstract or static");
+            }
         }
 
         public static void WriteName(Type type, StringBuilder sb)

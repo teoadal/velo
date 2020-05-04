@@ -9,11 +9,9 @@ namespace Velo.DependencyInjection
         public static DependencyCollection AddJsonConverter(this DependencyCollection dependencies,
             CultureInfo? culture = null)
         {
-            var convertersCollection = new ConvertersCollection(culture ?? CultureInfo.InvariantCulture);
-
             dependencies
-                .AddInstance<IConvertersCollection>(convertersCollection)
-                .AddInstance(new JConverter(convertersCollection));
+                .AddSingleton<JConverter>()
+                .AddSingleton<IConvertersCollection>(scope => new ConvertersCollection(culture));
 
             return dependencies;
         }

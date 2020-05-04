@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using Velo.Collections;
 using Velo.Extensions;
 using Velo.Serialization;
@@ -20,10 +19,10 @@ namespace Velo.Settings.Provider
 
         private JsonObject _configuration;
 
-        public SettingsProvider(ISettingsSource[] sources, IConvertersCollection? converters = null)
+        public SettingsProvider(ISettingsSource[] sources, IConvertersCollection converters)
         {
             _configuration = new JsonObject();
-            _converters = converters ?? new ConvertersCollection(CultureInfo.InvariantCulture);
+            _converters = converters;
             _sectionBuilder = BuildSection;
             _sources = sources;
 

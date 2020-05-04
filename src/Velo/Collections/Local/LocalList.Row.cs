@@ -1,4 +1,4 @@
-namespace Velo.Collections
+namespace Velo.Collections.Local
 {
     // ReSharper disable once UnusedTypeParameter
     public ref partial struct LocalList<T>

@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Velo.Collections;
+using Velo.Collections.Enumerators;
 using Velo.ECS.Components;
 
 namespace Velo.ECS.Assets.Filters

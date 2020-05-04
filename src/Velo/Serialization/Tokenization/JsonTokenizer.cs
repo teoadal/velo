@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Velo.Collections;
+using Velo.Collections.Local;
 
 namespace Velo.Serialization.Tokenization
 {
@@ -17,14 +18,23 @@ namespace Velo.Serialization.Tokenization
 
         private bool _disposed;
 
-        public JsonTokenizer(JsonReader reader, StringBuilder stringBuilder)
+        #region Constructors
+
+        public JsonTokenizer(Stream stream, StringBuilder? stringBuilder = null)
+            : this(new JsonReader(stream), stringBuilder)
+        {
+        }
+
+        public JsonTokenizer(JsonReader reader, StringBuilder? stringBuilder = null)
         {
             _reader = reader;
-            _builder = stringBuilder;
+            _builder = stringBuilder ?? new StringBuilder(128);
             _disposed = false;
 
             Current = default;
         }
+
+        #endregion
 
         public bool MoveNext()
         {
@@ -183,9 +193,9 @@ namespace Velo.Serialization.Tokenization
             Current = default;
 
             _builder = null!;
-            
+
             _reader.Dispose();
-            
+
             _disposed = true;
         }
     }

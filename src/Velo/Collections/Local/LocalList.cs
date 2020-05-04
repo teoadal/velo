@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Velo.Utils;
 
-namespace Velo.Collections
+namespace Velo.Collections.Local
 {
     [DebuggerTypeProxy(typeof(LocalListDebugVisualizer<>))]
     [DebuggerDisplay("Length = {" + nameof(_length) + "}")]

@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Velo.Collections
+namespace Velo.Collections.Enumerators
 {
     internal struct ArrayWhereEnumerator<T, TArg> : IEnumerator<T>, IEnumerable<T>
     {

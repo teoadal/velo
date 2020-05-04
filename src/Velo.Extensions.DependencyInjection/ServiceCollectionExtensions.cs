@@ -25,6 +25,17 @@ namespace Microsoft.Extensions.DependencyInjection
             return dependencies.BuildProvider();
         }
 
+        public static bool Contains(this IServiceCollection services, Type contract)
+        {
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var service in services)
+            {
+                if (service.ServiceType == contract) return true;
+            }
+
+            return false;
+        }
+
         public static bool RemoveLessLifetimeService(this IServiceCollection services, Type serviceType,
             ServiceLifetime lifetime, bool notFoundResult = false)
         {

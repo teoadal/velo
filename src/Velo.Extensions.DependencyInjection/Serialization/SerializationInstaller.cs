@@ -8,11 +8,19 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static IServiceCollection AddJsonConverter(this IServiceCollection services, CultureInfo culture = null)
         {
-            var convertersCollection = new ConvertersCollection(culture ?? CultureInfo.InvariantCulture);
-
             services
-                .AddSingleton<IConvertersCollection>(convertersCollection)
-                .AddSingleton(new JConverter(convertersCollection));
+                .AddSingleton(provider => new JConverter(culture, provider.GetRequiredService<IConvertersCollection>()))
+                .AddSingleton<IConvertersCollection>(provider => new ConvertersCollection(culture));
+
+            return services;
+        }
+
+        internal static IServiceCollection EnsureJsonEnabled(this IServiceCollection services)
+        {
+            if (!services.Contains(typeof(IConvertersCollection)))
+            {
+                AddJsonConverter(services);
+            }
 
             return services;
         }

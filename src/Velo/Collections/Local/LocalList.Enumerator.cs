@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 
-namespace Velo.Collections
+namespace Velo.Collections.Local
 {
     public ref partial struct LocalList<T>
     {

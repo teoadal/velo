@@ -1,4 +1,4 @@
-namespace Velo.Collections
+namespace Velo.Collections.Local
 {
     public static class LocalVectorExtensions
     {

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace Velo.Collections
+namespace Velo.Collections.Enumerators
 {
     internal struct ReadLockWhereEnumerator<T, TArg> : IEnumerator<T>, IEnumerable<T>
     {

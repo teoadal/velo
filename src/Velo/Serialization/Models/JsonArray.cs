@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Velo.Collections;
+using Velo.Collections.Enumerators;
 
 namespace Velo.Serialization.Models
 {

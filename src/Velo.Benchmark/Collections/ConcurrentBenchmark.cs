@@ -6,6 +6,7 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Jobs;
 using Velo.Collections;
+using Velo.Collections.Local;
 
 namespace Velo.Benchmark.Collections
 {

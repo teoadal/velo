@@ -1,7 +1,7 @@
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Velo.Collections;
+using Velo.Collections.Local;
 using Velo.Extensions;
 using Velo.Serialization.Models;
 using Velo.Utils;

@@ -6,8 +6,9 @@ using Velo.DependencyInjection;
 using Velo.ECS.Actors.Context;
 using Velo.ECS.Actors.Factory;
 using Velo.ECS.Assets;
-using Velo.ECS.Assets.Sources;
 using Velo.ECS.Components;
+using Velo.ECS.Sources;
+using Velo.ECS.Sources.Json;
 using Velo.ECS.Systems;
 using Velo.Serialization;
 using Xunit;
@@ -49,10 +50,10 @@ namespace Velo.Tests.ECS
         public void InstallAssetSource()
         {
             var dependency = _dependencies
-                .AddAssets(Mock.Of<IAssetSource>())
-                .GetRequiredDependency<IAssetSource>();
+                .AddAssets(Mock.Of<ISource<Asset>>())
+                .GetRequiredDependency<ISource<Asset>>();
 
-            dependency.Contracts.Should().Contain(typeof(IAssetSource));
+            dependency.Contracts.Should().Contain(typeof(ISource<Asset>));
             dependency.Lifetime.Should().Be(DependencyLifetime.Singleton);
         }
 
@@ -61,11 +62,11 @@ namespace Velo.Tests.ECS
         {
             var dependency = _dependencies
                 .AddAssets(_ => new[] {new Asset(1, Array.Empty<IComponent>())})
-                .GetRequiredDependency<IAssetSource>();
+                .GetRequiredDependency<ISource<Asset>>();
 
-            dependency.Contracts.Should().Contain(typeof(IAssetSource));
+            dependency.Contracts.Should().Contain(typeof(ISource<Asset>));
             dependency.Lifetime.Should().Be(DependencyLifetime.Singleton);
-            dependency.Resolver.Implementation.Should().Be(typeof(AssetDelegateSource));
+            dependency.Resolver.Implementation.Should().Be(typeof(DelegateSource<Asset>));
         }
 
         [Fact]
@@ -73,11 +74,11 @@ namespace Velo.Tests.ECS
         {
             var dependency = _dependencies
                 .AddJsonAssets(Fixture.Create<string>())
-                .GetRequiredDependency<IAssetSource>();
+                .GetRequiredDependency<ISource<Asset>>();
 
-            dependency.Contracts.Should().Contain(typeof(IAssetSource));
+            dependency.Contracts.Should().Contain(typeof(ISource<Asset>));
             dependency.Lifetime.Should().Be(DependencyLifetime.Singleton);
-            dependency.Resolver.Implementation.Should().Be(typeof(AssetJsonFileSource));
+            dependency.Resolver.Implementation.Should().Be(typeof(JsonFileSource<Asset>));
         }
 
         [Fact]

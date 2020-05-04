@@ -5,23 +5,12 @@ using Velo.Utils;
 
 namespace Velo.Collections
 {
-    internal interface IVector<TKey, TValue>
-    {
-        void ClearSafe();
-
-        TValue GetOrAdd(TKey key, Func<TKey, TValue> factory);
-
-        TValue GetOrAdd<TArg>(TKey key, Func<TKey, TArg, TValue> factory, TArg arg);
-
-        void TryAdd(TKey key, TValue value);
-    }
-
     /// <summary>
     /// Avoid closure for GetOrAdd and basic dangerous concurrent (only add in lock).
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="TValue"></typeparam>
-    internal class DangerousVector<TKey, TValue> : Dictionary<TKey, TValue>, IVector<TKey, TValue>
+    internal class DangerousVector<TKey, TValue> : Dictionary<TKey, TValue>
     {
         private readonly object _lock;
 
@@ -29,12 +18,12 @@ namespace Velo.Collections
         {
         }
 
-        public DangerousVector(IDictionary<TKey, TValue> source) 
+        public DangerousVector(IDictionary<TKey, TValue> source)
             : base(source)
         {
             _lock = new object();
         }
-        
+
         public DangerousVector(int capacity)
             : base(capacity < 10 ? throw Error.InvalidOperation("Capacity less 10") : capacity)
         {

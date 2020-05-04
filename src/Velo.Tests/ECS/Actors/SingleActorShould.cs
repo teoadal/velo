@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using FluentAssertions;
 using Moq;
-using Velo.Collections;
+using Velo.Collections.Enumerators;
 using Velo.ECS.Actors;
 using Velo.ECS.Actors.Context;
 using Velo.TestsModels.ECS;

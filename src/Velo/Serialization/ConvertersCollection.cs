@@ -1,36 +1,28 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Reflection;
 using Velo.Collections;
-using Velo.Serialization.Attributes;
 using Velo.Serialization.Converters;
 using Velo.Utils;
 
 namespace Velo.Serialization
 {
+    internal interface IConvertersCollection
+    {
+        IJsonConverter Get(Type type);
+
+        IJsonConverter<T> Get<T>();
+    }
+
     internal sealed class ConvertersCollection : DangerousVector<Type, IJsonConverter>, IConvertersCollection
     {
         private readonly Func<Type, IJsonConverter> _converterBuilder;
         private readonly DangerousVector<Type, IJsonConverter> _customConverters;
 
-        private static readonly Type[] ArrayLikeGenericTypes =
+        public ConvertersCollection(CultureInfo? culture = null)
+            : base(DefaultConverters(culture ?? CultureInfo.InvariantCulture))
         {
-            typeof(ICollection<>),
-            typeof(IEnumerable<>),
-            typeof(IReadOnlyCollection<>),
-        };
-
-        private static readonly Type[] ListGenericTypes =
-        {
-            typeof(List<>),
-            typeof(IList<>)
-        };
-
-        public ConvertersCollection(CultureInfo culture)
-            : base(BuildDefaultConverters(culture))
-        {
-            _converterBuilder = Build;
+            _converterBuilder = BuildConverter;
             _customConverters = new DangerousVector<Type, IJsonConverter>();
         }
 
@@ -44,23 +36,36 @@ namespace Velo.Serialization
             return (IJsonConverter<T>) GetOrAdd(Typeof<T>.Raw, _converterBuilder);
         }
 
-        private IJsonConverter Build(Type type)
+        public IJsonConverter GetCustomConverter(Type customConverterType)
         {
-            if (type.IsArray) return BuildArrayConverter(type);
+            return _customConverters.GetOrAdd(customConverterType,
+                type => (IJsonConverter) Activator.CreateInstance(type));
+        }
+
+        private IJsonConverter BuildConverter(Type type)
+        {
+            if (type.IsArray)
+            {
+                return BuildArrayConverter(type);
+            }
 
             var underlyingType = Nullable.GetUnderlyingType(type);
-            if (underlyingType != null) return BuildNullableConverter(underlyingType);
+            if (underlyingType != null)
+            {
+                return BuildNullableConverter(underlyingType);
+            }
 
-            if (type.IsEnum) return BuildEnumConverter(type);
+            if (type.IsEnum)
+            {
+                return BuildEnumConverter(type);
+            }
 
-            if (ArrayLikeGenericTypes.Contains(
-                (arrayLike, test) => ReflectionUtils.IsGenericTypeImplementation(test, arrayLike), type))
+            if (IsGenericImplementation(type, ArrayLikeGenericTypes))
             {
                 return BuildArrayLikeConverter(type);
             }
 
-            return ListGenericTypes.Contains(
-                (arrayLike, test) => ReflectionUtils.IsGenericTypeImplementation(test, arrayLike), type)
+            return IsGenericImplementation(type, ListGenericTypes)
                 ? BuildListConverter(type)
                 : BuildObjectConverter(type);
         }
@@ -107,34 +112,11 @@ namespace Velo.Serialization
 
         private IJsonConverter BuildObjectConverter(Type type)
         {
-            var properties = type.GetProperties();
-            var propertyConverters = new (PropertyInfo, IJsonConverter)[properties.Length];
-
-            for (var i = 0; i < properties.Length; i++)
-            {
-                var property = properties[i];
-
-                IJsonConverter propertyConverter;
-                if (ConverterAttribute.IsDefined(property))
-                {
-                    var customConverterType = property.GetCustomAttribute<ConverterAttribute>().ConverterType;
-                    propertyConverter = _customConverters.GetOrAdd(
-                        customConverterType,
-                        t => (IJsonConverter) Activator.CreateInstance(t));
-                }
-                else
-                {
-                    propertyConverter = Get(property.PropertyType);
-                }
-
-                propertyConverters[i] = (property, propertyConverter);
-            }
-
             var converterType = typeof(ObjectConverter<>).MakeGenericType(type);
-            return (IJsonConverter) Activator.CreateInstance(converterType, propertyConverters);
+            return (IJsonConverter) Activator.CreateInstance(converterType, this);
         }
 
-        private static Dictionary<Type, IJsonConverter> BuildDefaultConverters(CultureInfo culture)
+        private static Dictionary<Type, IJsonConverter> DefaultConverters(CultureInfo culture)
         {
             return new Dictionary<Type, IJsonConverter>
             {
@@ -148,6 +130,33 @@ namespace Velo.Serialization
                 {typeof(string), new StringConverter()},
                 {typeof(TimeSpan), new TimeSpanConverter(culture)}
             };
+        }
+
+        private static readonly Type[] ArrayLikeGenericTypes =
+        {
+            typeof(ICollection<>),
+            typeof(IEnumerable<>),
+            typeof(IReadOnlyCollection<>),
+        };
+
+        private static readonly Type[] ListGenericTypes =
+        {
+            typeof(List<>),
+            typeof(IList<>)
+        };
+
+        private static bool IsGenericImplementation(Type type, Type[] genericTypes)
+        {
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var generic in genericTypes)
+            {
+                if (ReflectionUtils.IsGenericTypeImplementation(type, generic))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

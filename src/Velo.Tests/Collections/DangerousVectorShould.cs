@@ -8,14 +8,14 @@ using Xunit.Abstractions;
 
 namespace Velo.Tests.Collections
 {
-    public class VectorShould : TestClass
+    public class DangerousVectorShould : TestClass
     {
         private readonly string _arg;
-        private readonly IVector<Type, string> _vector;
+        private readonly DangerousVector<Type, string> _vector;
         
-        public VectorShould(ITestOutputHelper output) : base(output)
+        public DangerousVectorShould(ITestOutputHelper output) : base(output)
         {
-            _arg = nameof(VectorShould);
+            _arg = nameof(DangerousVectorShould);
             _vector = new DangerousVector<Type, string>();
         }
 

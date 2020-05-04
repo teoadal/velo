@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Velo.ECS.Components;
@@ -7,9 +8,11 @@ namespace Velo.ECS.Assets
 {
     [DebuggerTypeProxy(typeof(DebuggerVisualizer))]
     [DebuggerDisplay("{GetType().Name} {Id}")]
-    public class Asset : IEquatable<Asset>
+    public class Asset : IEntity, IEquatable<Asset>
     {
         public readonly int Id;
+
+        public IEnumerable<IComponent> Components => _components;
 
         private readonly IComponent[] _components;
 
@@ -66,6 +69,8 @@ namespace Velo.ECS.Assets
         {
             return _components.TryGetComponents(out component1, out component2);
         }
+
+        int IEntity.Id => Id;
 
         private sealed class DebuggerVisualizer
         {

@@ -1,6 +1,6 @@
-using System.Globalization;
 using System.IO;
 using AutoFixture;
+using AutoFixture.Xunit2;
 using FluentAssertions;
 using Newtonsoft.Json;
 using Velo.Serialization;
@@ -17,12 +17,28 @@ namespace Velo.Tests.Serialization.Converters
     public class ObjectConverterShould : TestClass
     {
         private readonly IJsonConverter<Boo> _converter;
+        private readonly IConvertersCollection _converters;
 
         public ObjectConverterShould(ITestOutputHelper output) : base(output)
         {
-            _converter = new ConvertersCollection(CultureInfo.InvariantCulture).Get<Boo>();
+            _converters = new ConvertersCollection();
+            _converter = _converters.Get<Boo>();
         }
 
+        [Theory]
+        [AutoData]
+        public void IgnorePropertyIfIgnoreAttributeExists(IgnoreModel model)
+        {
+            var converter = (IJsonConverter) _converters.Get<IgnoreModel>();
+
+            var stringWriter = new StringWriter();
+            converter.SerializeObject(model, stringWriter);
+
+            stringWriter.ToString().Should()
+                .NotContain(nameof(IgnoreModel.Ignored))
+                .And.Contain(nameof(IgnoreModel.Value));
+        }
+        
         [Fact]
         public void NotBePrimitive() => _converter.IsPrimitive.Should().BeFalse();
 
@@ -75,8 +91,7 @@ namespace Velo.Tests.Serialization.Converters
         [Fact]
         public void UseCustomConverterForDeserialize()
         {
-            var converters = new ConvertersCollection(CultureInfo.InvariantCulture);
-            var converter = (IJsonConverter) converters.Get<CustomConverterModel>();
+            var converter = (IJsonConverter) _converters.Get<CustomConverterModel>();
 
             var serialized = new JsonObject();
             serialized.Add(nameof(CustomConverterModel.Value), JsonValue.String("one"));
@@ -88,8 +103,7 @@ namespace Velo.Tests.Serialization.Converters
         [Fact]
         public void UseCustomConverterForSerialize()
         {
-            var converters = new ConvertersCollection(CultureInfo.InvariantCulture);
-            var converter = (IJsonConverter) converters.Get<CustomConverterModel>();
+            var converter = (IJsonConverter) _converters.Get<CustomConverterModel>();
 
             var stringWriter = new StringWriter();
             converter.SerializeObject(new CustomConverterModel(), stringWriter);

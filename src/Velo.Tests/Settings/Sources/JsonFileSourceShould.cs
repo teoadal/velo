@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.IO;
 using System.Text;
 using AutoFixture.Xunit2;
@@ -37,7 +36,7 @@ namespace Velo.Tests.Settings.Sources
                 var fileSource = new JsonFileSource(fileName, true);
                 fileSource.TryGet(out var jsonObject);
 
-                var converter = new ConvertersCollection(CultureInfo.InvariantCulture).Get<BigObject>();
+                var converter = new ConvertersCollection().Get<BigObject>();
                 converter.Read(jsonObject).Should().BeEquivalentTo(values);
             }
             catch

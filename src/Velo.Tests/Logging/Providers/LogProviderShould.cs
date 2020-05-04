@@ -1,5 +1,4 @@
 using System;
-using System.Globalization;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Moq;
@@ -28,7 +27,7 @@ namespace Velo.Tests.Logging.Providers
         
         public LogProviderShould(ITestOutputHelper output) : base(output)
         {
-            _converters = new ConvertersCollection(CultureInfo.InvariantCulture);
+            _converters = new ConvertersCollection();
 
             _logWriter = new Mock<ILogWriter>();
             _logWriter
