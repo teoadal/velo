@@ -1,9 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
+        <Title>Velo.ECS</Title>
+        <Description>Simple implementation ECS (entity-component-system)</Description>
+        <Version>0.3.11</Version>
         <LangVersion>8</LangVersion>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>git://github.com/teoadal/velo</RepositoryUrl>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <PackageId>Velo.ECS</PackageId>
+        <PackageTags>ecs;entity;component;system</PackageTags>
+        <PackageProjectUrl>https://github.com/teoadal/velo</PackageProjectUrl>
+        <Authors>teoadal</Authors>
+        <Company>teoadal</Company>
+        <Product>Velo.ECS</Product>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <Nullable>enable</Nullable>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <WarningsAsErrors>CS8600;CS8601;CS8602;CS8603;CS8604;CS8606;CS8613;CS8618;CS8620;CS8638;CS8625;CS8643;CS8644;CS8645;CS8653;CS8654;CS8655;CS8714</WarningsAsErrors>
     </PropertyGroup>
 
     <ItemGroup>

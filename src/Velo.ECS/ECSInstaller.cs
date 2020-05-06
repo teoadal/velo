@@ -58,8 +58,7 @@ namespace Velo.DependencyInjection
                 .AddInstance(new SourceDescriptions())
                 .AddTransient(typeof(ISourceContext<>), typeof(SourceContext<>))
                 .AddDependency(jsonEntityReader => jsonEntityReader
-                    .Contract<IJsonEntityReader<Actor>>()
-                    .Contract<IJsonEntityReader<Asset>>()
+                    .Contracts<IJsonEntityReader<Actor>, IJsonEntityReader<Asset>>()
                     .Implementation<JsonEntityReader>()
                     .Singleton())
                 .EnsureJsonEnabled();
