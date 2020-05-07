@@ -1,15 +1,15 @@
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
-using Velo.Serialization.Converters;
 using Velo.Serialization.Models;
 using Velo.Serialization.Tokenization;
 using Velo.Utils;
 
 namespace Velo.Serialization
 {
-    public static class SerializationExtensions
+    internal static class SerializationExtensions
     {
-        internal static string GetNotNullPropertyName(this JsonToken token)
+        public static string GetNotNullPropertyName(this JsonToken token)
         {
             var tokenType = token.TokenType;
 
@@ -28,16 +28,23 @@ namespace Velo.Serialization
             return propertyName!;
         }
 
-        internal static T Deserialize<T>(this IJsonConverter<T> converter, string json, StringBuilder? sb = null)
+        public static object Deserialize(this IJsonConverter converter, string json, StringBuilder? sb = null)
         {
-            using var reader = new JsonReader(json);
-            using var tokenizer = new JsonTokenizer(reader, sb ?? new StringBuilder());
+            using var tokenizer = new JsonTokenizer(json, sb ?? new StringBuilder());
+
+            if (converter.IsPrimitive) tokenizer.MoveNext();
+            return converter.DeserializeObject(tokenizer);
+        }
+
+        public static T Deserialize<T>(this IJsonConverter<T> converter, string json, StringBuilder? sb = null)
+        {
+            using var tokenizer = new JsonTokenizer(json, sb ?? new StringBuilder());
 
             if (converter.IsPrimitive) tokenizer.MoveNext();
             return converter.Deserialize(tokenizer);
         }
 
-        internal static T Read<T>(this IConvertersCollection converters, JsonData json)
+        public static T Read<T>(this IConvertersCollection converters, JsonData json)
         {
             return converters.Get<T>().Read(json);
         }
@@ -47,6 +54,35 @@ namespace Velo.Serialization
             var stringWriter = new StringWriter();
             data.Serialize(stringWriter);
             return stringWriter.ToString();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static TextWriter WriteProperty(this TextWriter writer, string propertyName)
+        {
+            writer.Write('"');
+            writer.Write(propertyName);
+            writer.Write("\":");
+
+            return writer;
+        }
+
+        public static TextWriter WriteProperty(this TextWriter writer, string propertyName, JsonData propertyValue)
+        {
+            WriteProperty(writer, propertyName);
+
+            propertyValue.Serialize(writer);
+
+            return writer;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static TextWriter WriteString(this TextWriter writer, string value)
+        {
+            writer.Write('"');
+            writer.Write(value);
+            writer.Write('"');
+
+            return writer;
         }
     }
 }

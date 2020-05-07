@@ -1,8 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Reflection;
 using Velo.Collections;
-using Velo.Serialization.Converters;
+using Velo.Collections.Local;
+using Velo.DependencyInjection;
+using Velo.Serialization.Attributes;
+using Velo.Serialization.Collections;
+using Velo.Serialization.Objects;
+using Velo.Serialization.Primitives;
 using Velo.Utils;
 
 namespace Velo.Serialization
@@ -17,13 +23,20 @@ namespace Velo.Serialization
     internal sealed class ConvertersCollection : DangerousVector<Type, IJsonConverter>, IConvertersCollection
     {
         private readonly Func<Type, IJsonConverter> _converterBuilder;
-        private readonly DangerousVector<Type, IJsonConverter> _customConverters;
+        private readonly IServiceProvider _serviceProvider;
+
+        public ConvertersCollection(IServiceProvider serviceProvider, CultureInfo? culture = null)
+            : base(DefaultConverters(culture ?? CultureInfo.InvariantCulture))
+        {
+            _converterBuilder = BuildConverter;
+            _serviceProvider = serviceProvider;
+        }
 
         public ConvertersCollection(CultureInfo? culture = null)
             : base(DefaultConverters(culture ?? CultureInfo.InvariantCulture))
         {
             _converterBuilder = BuildConverter;
-            _customConverters = new DangerousVector<Type, IJsonConverter>();
+            _serviceProvider = null!;
         }
 
         public IJsonConverter Get(Type type)
@@ -36,56 +49,33 @@ namespace Velo.Serialization
             return (IJsonConverter<T>) GetOrAdd(Typeof<T>.Raw, _converterBuilder);
         }
 
-        public IJsonConverter GetCustomConverter(Type customConverterType)
-        {
-            return _customConverters.GetOrAdd(customConverterType,
-                type => (IJsonConverter) Activator.CreateInstance(type));
-        }
-
         private IJsonConverter BuildConverter(Type type)
         {
-            if (type.IsArray)
+            if (ReflectionUtils.IsArrayLikeGenericType(type, out var elementType))
             {
-                return BuildArrayConverter(type);
+                return BuildArrayConverter(elementType);
             }
 
+            if (ReflectionUtils.IsListLikeGenericType(type, out elementType))
+            {
+                return BuildListConverter(elementType);
+            }
+            
             var underlyingType = Nullable.GetUnderlyingType(type);
             if (underlyingType != null)
             {
                 return BuildNullableConverter(underlyingType);
             }
 
-            if (type.IsEnum)
-            {
-                return BuildEnumConverter(type);
-            }
-
-            if (IsGenericImplementation(type, ArrayLikeGenericTypes))
-            {
-                return BuildArrayLikeConverter(type);
-            }
-
-            return IsGenericImplementation(type, ListGenericTypes)
-                ? BuildListConverter(type)
+            return type.IsEnum 
+                ? BuildEnumConverter(type) 
                 : BuildObjectConverter(type);
         }
 
-        private IJsonConverter BuildArrayConverter(Type type)
+        private IJsonConverter BuildArrayConverter(Type elementType)
         {
-            var elementType = ReflectionUtils.GetArrayElementType(type);
-            var elementConverter = Get(elementType);
-
             var converterType = typeof(ArrayConverter<>).MakeGenericType(elementType);
-            return (IJsonConverter) Activator.CreateInstance(converterType, elementConverter);
-        }
-
-        private IJsonConverter BuildArrayLikeConverter(Type type)
-        {
-            var elementType = type.GenericTypeArguments[0];
-            var elementConverter = Get(elementType);
-
-            var converterType = typeof(ArrayConverter<>).MakeGenericType(elementType);
-            return (IJsonConverter) Activator.CreateInstance(converterType, elementConverter);
+            return (IJsonConverter) Activator.CreateInstance(converterType, this);
         }
 
         private static IJsonConverter BuildEnumConverter(Type type)
@@ -94,13 +84,10 @@ namespace Velo.Serialization
             return (IJsonConverter) Activator.CreateInstance(converterType);
         }
 
-        private IJsonConverter BuildListConverter(Type type)
+        private IJsonConverter BuildListConverter(Type elementType)
         {
-            var elementType = type.GenericTypeArguments[0];
-            var elementConverter = Get(elementType);
-
             var converterType = typeof(ListConverter<>).MakeGenericType(elementType);
-            return (IJsonConverter) Activator.CreateInstance(converterType, elementConverter);
+            return (IJsonConverter) Activator.CreateInstance(converterType, this);
         }
 
         private IJsonConverter BuildNullableConverter(Type underlyingType)
@@ -112,8 +99,18 @@ namespace Velo.Serialization
 
         private IJsonConverter BuildObjectConverter(Type type)
         {
+            if (ConverterAttribute.IsDefined(type))
+            {
+                var customConverterType = type
+                    .GetCustomAttribute<ConverterAttribute>()
+                    .GetConverterType(type);
+
+                var injections = new LocalList<object>(type, this);
+                return (IJsonConverter) _serviceProvider.Activate(customConverterType, injections);
+            }
+
             var converterType = typeof(ObjectConverter<>).MakeGenericType(type);
-            return (IJsonConverter) Activator.CreateInstance(converterType, this);
+            return (IJsonConverter) Activator.CreateInstance(converterType, _serviceProvider, this);
         }
 
         private static Dictionary<Type, IJsonConverter> DefaultConverters(CultureInfo culture)
@@ -130,33 +127,6 @@ namespace Velo.Serialization
                 {typeof(string), new StringConverter()},
                 {typeof(TimeSpan), new TimeSpanConverter(culture)}
             };
-        }
-
-        private static readonly Type[] ArrayLikeGenericTypes =
-        {
-            typeof(ICollection<>),
-            typeof(IEnumerable<>),
-            typeof(IReadOnlyCollection<>),
-        };
-
-        private static readonly Type[] ListGenericTypes =
-        {
-            typeof(List<>),
-            typeof(IList<>)
-        };
-
-        private static bool IsGenericImplementation(Type type, Type[] genericTypes)
-        {
-            // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var generic in genericTypes)
-            {
-                if (ReflectionUtils.IsGenericTypeImplementation(type, generic))
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
     }
 }

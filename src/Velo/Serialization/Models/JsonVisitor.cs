@@ -45,6 +45,7 @@ namespace Velo.Serialization.Models
             while (tokenizer.MoveNext())
             {
                 var current = tokenizer.Current;
+                if (current.TokenType == JsonTokenType.ObjectStart) continue;
                 if (current.TokenType == JsonTokenType.ObjectEnd) break;
 
                 var propertyValue = VisitProperty(tokenizer, out var propertyName);

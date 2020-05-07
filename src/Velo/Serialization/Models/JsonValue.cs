@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using Velo.Serialization.Converters;
+using Velo.Serialization.Primitives;
 
 namespace Velo.Serialization.Models
 {
@@ -87,7 +87,7 @@ namespace Velo.Serialization.Models
             Value = value;
         }
 
-        public bool Equals(JsonValue other)
+        public bool Equals(JsonValue? other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -102,7 +102,7 @@ namespace Velo.Serialization.Models
 
         public override int GetHashCode()
         {
-            return Value != null ? Value.GetHashCode() : 0;
+            return Value.GetHashCode();
         }
 
         public override void Serialize(TextWriter writer)

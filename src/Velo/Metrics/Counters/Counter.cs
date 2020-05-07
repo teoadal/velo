@@ -14,7 +14,7 @@ namespace Velo.Metrics.Counters
 
         private readonly ICounterLabel[] _labels;
 
-        public Counter(string name, string description, ICounterLabel[] labels)
+        public Counter(string name, string description, ICounterLabel[]? labels)
         {
             if (string.IsNullOrWhiteSpace(name)) throw Error.Null(nameof(name));
             if (labels == null) throw Error.Null(nameof(labels));

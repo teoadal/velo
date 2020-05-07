@@ -84,12 +84,7 @@ namespace Velo.CQRS
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private T GetRequiredService<T>() where T : class
         {
-            var dependencyType = Typeof<T>.Raw;
-            var result = (T) _scope.GetService(dependencyType);
-
-            if (result == null) throw Error.DependencyNotRegistered(dependencyType);
-
-            return result;
+            return (T) _scope.GetService(Typeof<T>.Raw) ?? throw Error.DependencyNotRegistered(Typeof<T>.Raw);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

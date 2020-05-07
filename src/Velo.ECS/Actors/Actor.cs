@@ -13,8 +13,6 @@ namespace Velo.ECS.Actors
     {
         public readonly int Id;
 
-        public IEnumerable<IComponent> Components => new ArrayLockEnumerator<IComponent>(_components, _lock);
-
         public event Action<Actor, IComponent>? ComponentAdded;
 
         public event Action<Actor, IComponent>? ComponentRemoved;
@@ -38,7 +36,7 @@ namespace Velo.ECS.Actors
         {
             using (WriteLock.Enter(_lock))
             {
-                CollectionUtils.Add(ref _components, ref _componentsLength, component);
+                CollectionUtils.Insert(ref _components, ref _componentsLength, component);
             }
 
             OnComponentAdded(component);
@@ -52,7 +50,7 @@ namespace Velo.ECS.Actors
 
                 foreach (var component in components)
                 {
-                    CollectionUtils.Add(ref _components, ref _componentsLength, component);
+                    CollectionUtils.Insert(ref _components, ref _componentsLength, component);
                 }
             }
 
@@ -157,5 +155,6 @@ namespace Velo.ECS.Actors
         }
 
         int IEntity.Id => Id;
+        IEnumerable<IComponent> IEntity.Components => new ArrayLockEnumerator<IComponent>(_components, _lock);
     }
 }

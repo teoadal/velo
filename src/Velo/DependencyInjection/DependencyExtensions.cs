@@ -10,10 +10,53 @@ namespace Velo.DependencyInjection
 {
     public static class DependencyExtensions
     {
+        public static object Activate(
+            this IServiceProvider provider,
+            Type implementation,
+            LocalList<object> possibleInjections)
+        {
+            var constructor = ReflectionUtils.GetConstructor(implementation);
+            if (constructor == null) throw Error.DefaultConstructorNotFound(implementation);
+
+            var parameters = constructor.GetParameters();
+            if (parameters.Length == 0)
+            {
+                return constructor.Invoke(Array.Empty<object>());
+            }
+
+            var injections = possibleInjections.Select(injection => (injection.GetType(), injection));
+
+            var parameterValues = new object?[parameters.Length];
+            for (var i = parameters.Length - 1; i >= 0; i--)
+            {
+                var parameter = parameters[i];
+                var parameterType = parameter.ParameterType;
+
+                object? parameterValue = null;
+                foreach (var (injectionType, injectionValue) in injections)
+                {
+                    if (!parameterType.IsAssignableFrom(injectionType)) continue;
+
+                    parameterValue = injectionValue;
+                    break;
+                }
+
+                parameterValues[i] = parameterValue ?? provider.GetService(parameterType);
+            }
+
+            return ReflectionUtils.TryInvoke(constructor, parameterValues);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T Activate<T>(this IDependencyScope scope, ConstructorInfo? constructor = null)
         {
             return (T) scope.Activate(Typeof<T>.Raw, constructor);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T Activate<T>(this IServiceProvider provider, LocalList<object> possibleInjections)
+        {
+            return (T) Activate(provider, typeof(T), possibleInjections);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -220,7 +263,7 @@ namespace Velo.DependencyInjection
                 : DependencyLifetime.Transient;
         }
 
-        public static DependencyLifetime DefineLifetime(this IDependency[] dependencies)
+        public static DependencyLifetime DefineLifetime(this IDependency?[] dependencies)
         {
             var lifetimes = new LocalList<DependencyLifetime>();
 

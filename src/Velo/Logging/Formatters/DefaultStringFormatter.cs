@@ -4,7 +4,7 @@ using System.Text;
 using Velo.Collections.Local;
 using Velo.Extensions;
 using Velo.Serialization.Models;
-using Velo.Utils;
+using Velo.Text;
 
 namespace Velo.Logging.Formatters
 {

@@ -4,7 +4,6 @@ using AutoFixture.Xunit2;
 using FluentAssertions;
 using Newtonsoft.Json;
 using Velo.Serialization;
-using Velo.Serialization.Converters;
 using Xunit;
 using Xunit.Abstractions;
 

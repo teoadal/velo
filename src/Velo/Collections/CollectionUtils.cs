@@ -7,27 +7,6 @@ namespace Velo.Collections
 {
     internal static class CollectionUtils
     {
-        public static void Add<T>(ref T[] array, int index, T element)
-        {
-            var arrayLength = array.Length;
-            if ((uint) index < (uint) arrayLength)
-            {
-                array[index] = element;
-            }
-            else
-            {
-                var newLength = arrayLength == 0 ? 2 : arrayLength * 2;
-                Array.Resize(ref array, newLength);
-                array[index] = element;
-            }
-        }
-
-        public static void Add<T>(ref T[] array, ref int index, T element)
-        {
-            Add(ref array, index, element);
-            index++;
-        }
-
         public static void Cut<T>(ref T[] array, int index)
         {
             var length = array.Length - 1;
@@ -94,6 +73,34 @@ namespace Velo.Collections
                     notUniqueHandler(element);
                 }
             }
+        }
+
+        public static void Insert<T>(ref T[] array, int index, T element)
+        {
+            var arrayLength = array.Length;
+            if ((uint) index < (uint) arrayLength)
+            {
+                array[index] = element;
+            }
+            else
+            {
+                var newLength = arrayLength == 0 ? 2 : arrayLength * 2;
+                Array.Resize(ref array, newLength);
+                array[index] = element;
+            }
+        }
+
+        public static void Insert<T>(ref T[] array, ref int index, T element)
+        {
+            Insert(ref array, index, element);
+            index++;
+        }
+
+        public static void Put<T>(ref T[] array, T element)
+        {
+            var arrayLength = array.Length;
+            Array.Resize(ref array, arrayLength + 1);
+            array[arrayLength] = element;
         }
     }
 }

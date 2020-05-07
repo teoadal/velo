@@ -102,35 +102,6 @@ namespace Velo.Collections.Local
                     Key = key;
                     Values = values;
                 }
-
-                public T First() => Values[0];
-                
-                public Enumerator GetEnumerator() => Values.GetEnumerator();
-
-                public SelectEnumerator<TValue> Select<TValue>(Func<T, TValue> selector)
-                {
-                    return Values.Select(selector);
-                }
-
-                public SelectEnumerator<TValue, TArg> Select<TValue, TArg>(Func<T, TArg, TValue> selector, TArg arg)
-                {
-                    return Values.Select(selector, arg);
-                }
-
-                public int Sum(Func<T, int> selector)
-                {
-                    return Values.Sum(selector);
-                }
-                
-                public WhereEnumerator Where(Predicate<T> predicate)
-                {
-                    return Values.Where(predicate);
-                }
-
-                public WhereEnumerator<TArg> Where<TArg>(Func<T, TArg, bool> predicate, TArg arg)
-                {
-                    return Values.Where(predicate, arg);
-                }
             }
 
             public delegate TResult Selector<out TResult>(LocalGroup group);

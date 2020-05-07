@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using Velo.Collections.Local;
 using Velo.DependencyInjection.Dependencies;
 using Velo.ECS.Actors;
 using Velo.ECS.Actors.Context;
@@ -14,6 +16,7 @@ using Velo.ECS.Assets.Groups;
 using Velo.ECS.Components;
 using Velo.ECS.Injection;
 using Velo.ECS.Sources;
+using Velo.ECS.Sources.Context;
 using Velo.ECS.Sources.Json;
 using Velo.ECS.Systems;
 using Velo.ECS.Systems.Handlers;
@@ -24,7 +27,7 @@ namespace Velo.DependencyInjection
 {
     public static class ECSInstaller
     {
-        private static readonly Type[] AssetSourceContracts = {Typeof<ISource<Asset>>.Raw};
+        private static readonly Type[] AssetSourceContracts = {Typeof<IEntitySource<Asset>>.Raw};
 
         public static DependencyCollection AddECS(this DependencyCollection dependencies)
         {
@@ -55,18 +58,14 @@ namespace Velo.DependencyInjection
 
             // source
             dependencies
-                .AddInstance(new SourceDescriptions())
-                .AddTransient(typeof(ISourceContext<>), typeof(SourceContext<>))
-                .AddDependency(jsonEntityReader => jsonEntityReader
-                    .Contracts<IJsonEntityReader<Actor>, IJsonEntityReader<Asset>>()
-                    .Implementation<JsonEntityReader>()
-                    .Singleton())
+                .AddSingleton(typeof(IEntitySourceContext<>), typeof(EntitySourceContext<>))
                 .EnsureJsonEnabled();
 
             return dependencies;
         }
 
-        public static DependencyCollection AddAssets(this DependencyCollection dependencies, ISource<Asset> assetSource)
+        public static DependencyCollection AddAssets(this DependencyCollection dependencies,
+            IEntitySource<Asset> assetSource)
         {
             if (assetSource == null) throw Error.Null(nameof(assetSource));
 
@@ -78,7 +77,7 @@ namespace Velo.DependencyInjection
 
         public static DependencyCollection AddAssets(
             this DependencyCollection dependencies,
-            Func<IDependencyScope, ISource<Asset>> sourceBuilder)
+            Func<IDependencyScope, IEntitySource<Asset>> sourceBuilder)
         {
             if (sourceBuilder == null) throw Error.Null(nameof(sourceBuilder));
 
@@ -89,7 +88,7 @@ namespace Velo.DependencyInjection
 
         public static DependencyCollection AddAssets(
             this DependencyCollection dependencies,
-            Func<ISourceContext<Asset>, IEnumerable<Asset>> assets)
+            Func<IEntitySourceContext<Asset>, IEnumerable<Asset>> assets)
         {
             if (assets == null) throw Error.Null(nameof(assets));
 
@@ -101,13 +100,23 @@ namespace Velo.DependencyInjection
             return dependencies;
         }
 
-        public static DependencyCollection AddJsonAssets(this DependencyCollection dependencies, string path)
+        public static DependencyCollection AddJsonFileAssets(this DependencyCollection dependencies, string path)
         {
             if (string.IsNullOrWhiteSpace(path)) throw Error.Null(nameof(path));
 
-            dependencies.AddDependency(
-                AssetSourceContracts,
-                scope => new JsonFileSource<Asset>(scope.GetRequiredService<IJsonEntityReader<Asset>>(), path),
+            dependencies.AddDependency(AssetSourceContracts,
+                scope => scope.Activate<JsonFileSource<Asset>>(new LocalList<object>(path)),
+                DependencyLifetime.Singleton);
+
+            return dependencies;
+        }
+
+        public static DependencyCollection AddJsonStreamAssets(this DependencyCollection dependencies, Stream stream)
+        {
+            if (stream == null) throw Error.Null(nameof(stream));
+
+            dependencies.AddDependency<IEntitySource<Asset>>(AssetSourceContracts,
+                scope => scope.Activate<JsonStreamSource<Asset>>(new LocalList<object>(stream)),
                 DependencyLifetime.Singleton);
 
             return dependencies;

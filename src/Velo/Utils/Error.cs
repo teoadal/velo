@@ -95,6 +95,12 @@ namespace Velo.Utils
             return new AmbiguousMatchException(message);
         }
 
+        public static NotSupportedException NotSupported(string? message = null)
+        {
+            message ??= "Operation not supported in current context";
+            return new NotSupportedException(message);
+        }
+        
         public static ArgumentNullException Null(string argumentName)
         {
             return new ArgumentNullException(argumentName);

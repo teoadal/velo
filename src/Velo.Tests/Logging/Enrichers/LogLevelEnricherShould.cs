@@ -112,7 +112,7 @@ namespace Velo.Tests.Logging.Enrichers
         public void ThrowInvalidLogLevel()
         {
             Assert.Throws<IndexOutOfRangeException>(() => _enricher
-                .Enrich((LogLevel) 25, null, new JsonObject()));
+                .Enrich((LogLevel) 25, null!, new JsonObject()));
         }
     }
 }

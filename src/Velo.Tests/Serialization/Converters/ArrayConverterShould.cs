@@ -8,7 +8,6 @@ using AutoFixture.Xunit2;
 using FluentAssertions;
 using Newtonsoft.Json;
 using Velo.Serialization;
-using Velo.Serialization.Converters;
 using Velo.Serialization.Models;
 using Velo.TestsModels;
 using Velo.TestsModels.Boos;
@@ -89,7 +88,7 @@ namespace Velo.Tests.Serialization.Converters
                 deserialized[i].Should().BeEquivalentTo(array[i]);
             }
         }
-        
+
         [Fact]
         public void DeserializeNull()
         {
@@ -213,7 +212,8 @@ namespace Velo.Tests.Serialization.Converters
                 {
                     Array.Empty<Boo>(),
                     fixture.CreateMany<Boo>(1).ToArray(),
-                    fixture.CreateMany<Boo>(5).ToArray()
+                    fixture.CreateMany<Boo>(5).ToArray(),
+                    new[] {fixture.Create<Boo>(), null, fixture.Create<Boo>()}
                 };
             }
         }

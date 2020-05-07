@@ -2,7 +2,7 @@ using System.Diagnostics;
 
 namespace Velo.Serialization.Tokenization
 {
-    [DebuggerDisplay("{TokenType} '{Value}'")]
+    [DebuggerDisplay("{" + nameof(TokenType) + "}")]
     internal readonly struct JsonToken
     {
         public readonly JsonTokenType TokenType;

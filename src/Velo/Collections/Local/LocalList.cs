@@ -48,6 +48,14 @@ namespace Velo.Collections.Local
             _length = 0;
         }
 
+        public LocalList(T item0)
+            : this(1)
+        {
+            _element0 = item0;
+
+            _length = 1;
+        }
+
         public LocalList(T item0, T item1)
             : this(2)
         {
@@ -77,7 +85,7 @@ namespace Velo.Collections.Local
 
             _length = 4;
         }
-        
+
         public LocalList(T item0, T item1, T item2, T item3, T item4)
             : this(5)
         {
@@ -89,7 +97,7 @@ namespace Velo.Collections.Local
 
             _length = 5;
         }
-        
+
         public LocalList(T[] collection)
             : this(collection.Length)
         {
@@ -174,7 +182,7 @@ namespace Velo.Collections.Local
                     _array[0] = element;
                     break;
                 default:
-                    CollectionUtils.Add(ref _array!, _length - Capacity, element);
+                    CollectionUtils.Insert(ref _array!, _length - Capacity, element);
                     break;
             }
 
@@ -196,7 +204,7 @@ namespace Velo.Collections.Local
                 Add(element);
             }
         }
-        
+
         public readonly bool Any(Predicate<T> predicate)
         {
             for (var i = 0; i < _length; i++)
@@ -241,6 +249,12 @@ namespace Velo.Collections.Local
             }
 
             return false;
+        }
+
+        public readonly T First()
+        {
+            if (_length == 0) throw Error.InconsistentOperation("Collection length is 0");
+            return _element0;
         }
 
         public readonly T First(Predicate<T> predicate)
@@ -305,7 +319,7 @@ namespace Velo.Collections.Local
             return this;
         }
 
-        public readonly JoinEnumerator<TResult, TInner, TKey> Join<TResult, TInner, TKey>(
+        public readonly LocalList<TResult> Join<TResult, TInner, TKey>(
             LocalList<TInner> inner,
             Func<T, TKey> outerKeySelector,
             Func<TInner, TKey> innerKeySelector,
@@ -314,10 +328,26 @@ namespace Velo.Collections.Local
         {
             keyComparer ??= EqualityComparer<TKey>.Default;
 
-            return new JoinEnumerator<TResult, TInner, TKey>(keyComparer,
-                inner.GetEnumerator(), innerKeySelector,
-                GetEnumerator(), outerKeySelector,
-                resultBuilder);
+            var result = new LocalList<TResult>();
+            var innerLength = inner._length;
+
+            for (var outerIndex = 0; outerIndex < _length; outerIndex++)
+            {
+                var outerElement = Get(outerIndex);
+                var outerKey = outerKeySelector(outerElement);
+
+                for (var innerIndex = 0; innerIndex < innerLength; innerIndex++)
+                {
+                    var innerElement = inner.Get(innerIndex);
+                    var innerKey = innerKeySelector(innerElement);
+
+                    if (!keyComparer.Equals(outerKey, innerKey)) continue;
+
+                    result.Add(resultBuilder(outerElement, innerElement));
+                }
+            }
+
+            return result;
         }
 
         public bool Remove(T element, EqualityComparer<T>? comparer = null)
@@ -341,6 +371,18 @@ namespace Velo.Collections.Local
             }
 
             _length--;
+        }
+
+        public void Reverse()
+        {
+            for (var i = 0; i < _length / 2; i++)
+            {
+                var buffer = Get(i);
+
+                var lastIndex = _length - i - 1;
+                Set(i, Get(lastIndex));
+                Set(lastIndex, buffer);
+            }
         }
 
         public void Sort<TProperty>(Func<T, TProperty> property, Comparer<TProperty>? comparer = null)
@@ -368,14 +410,56 @@ namespace Velo.Collections.Local
             }
         }
 
-        public readonly SelectEnumerator<TValue> Select<TValue>(Func<T, TValue> selector)
+        public readonly LocalList<TValue> Select<TValue>(Func<T, TValue> selector)
         {
-            return new SelectEnumerator<TValue>(GetEnumerator(), selector);
+            var result = new LocalList<TValue>(_length);
+
+            for (var i = 0; i < _length; i++)
+            {
+                var element = Get(i);
+                result.Add(selector(element));
+            }
+
+            return result;
         }
 
-        public readonly SelectEnumerator<TValue, TArg> Select<TValue, TArg>(Func<T, TArg, TValue> selector, TArg arg)
+        public readonly LocalList<TValue> Select<TValue, TArg>(Func<T, TArg, TValue> selector, TArg arg)
         {
-            return new SelectEnumerator<TValue, TArg>(GetEnumerator(), selector, arg);
+            var result = new LocalList<TValue>(_length);
+
+            for (var i = 0; i < _length; i++)
+            {
+                var element = Get(i);
+                result.Add(selector(element, arg));
+            }
+
+            return result;
+        }
+
+        public readonly T[] ToArray()
+        {
+            if (_length == 0) return Array.Empty<T>();
+
+            var result = new T[_length];
+            for (var i = 0; i < result.Length; i++)
+            {
+                result[i] = Get(i);
+            }
+
+            return result;
+        }
+
+        public readonly List<T> ToList()
+        {
+            if (_length == 0) return new List<T>();
+
+            var result = new List<T>(_length);
+            for (var i = 0; i < _length; i++)
+            {
+                result.Add(Get(i));
+            }
+
+            return result;
         }
 
         public readonly int Sum(Func<T, int> selector)
@@ -391,24 +475,33 @@ namespace Velo.Collections.Local
             return sum;
         }
 
-        public readonly WhereEnumerator Where(Predicate<T> predicate)
+        public readonly LocalList<T> Where(Predicate<T> predicate)
         {
-            return new WhereEnumerator(GetEnumerator(), predicate);
-        }
+            var result = new LocalList<T>(_length);
 
-        public readonly WhereEnumerator<TArg> Where<TArg>(Func<T, TArg, bool> predicate, TArg arg)
-        {
-            return new WhereEnumerator<TArg>(GetEnumerator(), predicate, arg);
-        }
-
-        public readonly T[] ToArray()
-        {
-            if (_length == 0) return Array.Empty<T>();
-            
-            var result = new T[_length];
-            for (var i = 0; i < result.Length; i++)
+            for (var i = 0; i < _length; i++)
             {
-                result[i] = Get(i);
+                var element = Get(i);
+                if (predicate(element))
+                {
+                    result.Add(element);
+                }
+            }
+
+            return result;
+        }
+
+        public readonly LocalList<T> Where<TArg>(Func<T, TArg, bool> predicate, TArg arg)
+        {
+            var result = new LocalList<T>(_length);
+
+            for (var i = 0; i < _length; i++)
+            {
+                var element = Get(i);
+                if (predicate(element, arg))
+                {
+                    result.Add(element);
+                }
             }
 
             return result;

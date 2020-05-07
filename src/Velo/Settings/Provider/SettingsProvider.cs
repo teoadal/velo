@@ -107,7 +107,9 @@ namespace Velo.Settings.Provider
                 throw CastException(jsonDataType, ReflectionUtils.GetName(sectionType));
             }
 
-            return converter.ReadObject(jsonData);
+            var sectionData = converter.ReadObject(jsonData);
+            if (sectionData == null) throw Error.Cast($"Settings section '{path}' is null");
+            return sectionData;
         }
 
         private bool TryGetJsonData(string path, out JsonData data)

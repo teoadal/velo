@@ -43,8 +43,8 @@ namespace Velo.Tests
         {
             Array.Sort(_repositories, _comparer);
 
-            Assert.Equal(1, _repositories[0].GetType().GetCustomAttribute<OrderAttribute>().Order);
-            Assert.Equal(2, _repositories[1].GetType().GetCustomAttribute<OrderAttribute>().Order);
+            Assert.Equal(1, _repositories[0].GetType().GetCustomAttribute<OrderAttribute>()!.Order);
+            Assert.Equal(2, _repositories[1].GetType().GetCustomAttribute<OrderAttribute>()!.Order);
             Assert.Null(_repositories[2].GetType().GetCustomAttribute<OrderAttribute>());
         }
         

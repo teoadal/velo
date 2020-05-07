@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -11,6 +12,20 @@ namespace Velo.Utils
     internal static class ReflectionUtils
     {
         private static readonly Type DisposableInterfaceType = typeof(IDisposable);
+
+        private static readonly Type[] ArrayLikeGenericTypes =
+        {
+            typeof(ICollection<>),
+            typeof(IEnumerable<>),
+            typeof(IReadOnlyCollection<>),
+        };
+
+        private static readonly Type[] ListGenericTypes =
+        {
+            typeof(List<>),
+            typeof(IList<>)
+        };
+
 
         public static TDelegate BuildStaticMethodDelegate<TDelegate>(MethodInfo methodInfo)
             where TDelegate : Delegate
@@ -25,6 +40,14 @@ namespace Velo.Utils
             var elementType = arrayType.GetElementType();
             if (elementType == null) throw Error.InvalidData($"Type '{GetName(arrayType)}' is not array");
             return elementType;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Type GetCollectionElementType(Type collectionType)
+        {
+            return collectionType.IsArray
+                ? GetArrayElementType(collectionType)
+                : collectionType.GenericTypeArguments[0];
         }
 
         public static Assembly[] GetUserAssemblies()
@@ -168,6 +191,27 @@ namespace Velo.Utils
             return implementations;
         }
 
+        public static bool IsArrayLikeGenericType(Type type, out Type elementType)
+        {
+            if (type.IsArray)
+            {
+                elementType = GetArrayElementType(type);
+                return true;
+            }
+
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var generic in ArrayLikeGenericTypes)
+            {
+                if (!IsGenericTypeImplementation(type, generic)) continue;
+
+                elementType = type.GenericTypeArguments[0];
+                return true;
+            }
+
+            elementType = null!;
+            return false;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsDisposable<T>(T instance, out IDisposable disposable)
         {
@@ -194,6 +238,38 @@ namespace Velo.Utils
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsGenericInterfaceImplementation(Type type, Type genericInterface)
+        {
+            var interfaces = type.GetInterfaces();
+
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var @interface in interfaces)
+            {
+                if (@interface.IsGenericType && @interface.GetGenericTypeDefinition() == genericInterface)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public static bool IsListLikeGenericType(Type type, out Type elementType)
+        {
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var generic in ListGenericTypes)
+            {
+                if (!IsGenericTypeImplementation(type, generic)) continue;
+
+                elementType = type.GenericTypeArguments[0];
+                return true;
+            }
+
+            elementType = null!;
+            return false;
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasEmptyConstructor(Type type)
         {
             var availableConstructors = type.GetTypeInfo().DeclaredConstructors;
@@ -207,26 +283,21 @@ namespace Velo.Utils
             return attribute != null;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void CheckIsGenericInterfaceTypeDefinition(Type type)
+        public static object TryInvoke(ConstructorInfo constructor, object?[]? parameters = null)
         {
-            if (!type.IsInterface || !type.IsGenericTypeDefinition)
+            try
             {
-                throw Error.InvalidData($"'{GetName(type)}' is not generic interface definition");
+                return constructor.Invoke(parameters ?? Array.Empty<object>());
             }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void CheckIsNotAbstractAndNotInterface(Type type)
-        {
-            if (type.IsInterface)
+            catch (TargetInvocationException e)
             {
-                throw Error.InvalidOperation($"Type '{GetName(type)}' is interface");
-            }
+                Exception exception = e;
+                while (exception.InnerException != null)
+                {
+                    exception = exception.InnerException;
+                }
 
-            if (type.IsAbstract)
-            {
-                throw Error.InvalidOperation($"Type '{GetName(type)}' is abstract or static");
+                throw exception;
             }
         }
 
@@ -259,6 +330,29 @@ namespace Velo.Utils
                 writer.Write('>');
             }
             else writer.Write(type.Name);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void CheckIsGenericInterfaceTypeDefinition(Type type)
+        {
+            if (!type.IsInterface || !type.IsGenericTypeDefinition)
+            {
+                throw Error.InvalidData($"'{GetName(type)}' is not generic interface definition");
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void CheckIsNotAbstractAndNotInterface(Type type)
+        {
+            if (type.IsInterface)
+            {
+                throw Error.InvalidOperation($"Type '{GetName(type)}' is interface");
+            }
+
+            if (type.IsAbstract)
+            {
+                throw Error.InvalidOperation($"Type '{GetName(type)}' is abstract or static");
+            }
         }
     }
 }

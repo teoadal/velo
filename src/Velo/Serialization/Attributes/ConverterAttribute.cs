@@ -1,34 +1,64 @@
 using System;
 using System.Reflection;
-using Velo.Serialization.Converters;
+using Velo.Serialization.Objects;
 using Velo.Utils;
 
 namespace Velo.Serialization.Attributes
 {
-    [AttributeUsage(AttributeTargets.Property)]
+    /// <summary>
+    /// Custom property or class converter
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Class)]
     public class ConverterAttribute : Attribute
     {
+        public static bool IsDefined(Type type)
+        {
+            return Attribute.IsDefined(type, typeof(ConverterAttribute));
+        }
+
         public static bool IsDefined(PropertyInfo property)
         {
             return Attribute.IsDefined(property, typeof(ConverterAttribute));
         }
 
-        public readonly Type ConverterType;
+        private readonly Type? _converterType;
 
         /// <summary>
-        /// Set a custom converter for property of <see cref="Object"/>
+        /// Set a custom converter for property or class
         /// </summary>
-        /// <param name="converterType">A class inherited from generic <see cref="IJsonConverter"/></param>
         public ConverterAttribute(Type converterType)
         {
-            if (converterType == null) throw Error.Null(nameof(converterType));
-            if (!typeof(IJsonConverter).IsAssignableFrom(converterType))
+            _converterType = converterType;
+
+            if (ReflectionUtils.IsGenericInterfaceImplementation(converterType, typeof(IPropertyConverter<>)))
             {
-                throw Error.InvalidOperation(
-                    $"Type {ReflectionUtils.GetName(converterType)} must implement {nameof(IJsonConverter)}");
+                return;
             }
 
-            ConverterType = converterType;
+            if (ReflectionUtils.IsGenericInterfaceImplementation(converterType, typeof(IJsonConverter<>)))
+            {
+                return;
+            }
+
+            var typeName = ReflectionUtils.GetName(converterType);
+            throw Error.InvalidOperation($"Type {typeName} must implement object or property converter interface");
+        }
+
+        protected ConverterAttribute()
+        {
+            _converterType = null;
+        }
+
+        public virtual Type GetConverterType(Type owner, PropertyInfo? property = null)
+        {
+            if (_converterType == null)
+            {
+                throw Error.InvalidOperation($"Setup {nameof(ConverterAttribute)}.{nameof(GetConverterType)}");
+            }
+
+            return _converterType.IsGenericTypeDefinition
+                ? _converterType.MakeGenericType(owner)
+                : _converterType;
         }
     }
 }

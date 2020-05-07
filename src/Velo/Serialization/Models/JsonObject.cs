@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Velo.Extensions;
-using Velo.Utils;
+using Velo.Text;
 
 namespace Velo.Serialization.Models
 {
@@ -51,11 +51,7 @@ namespace Velo.Serialization.Models
                 if (first) first = false;
                 else writer.Write(',');
 
-                writer.Write('\"');
-                writer.Write(propertyName);
-                writer.Write("\":");
-
-                propertyValue.Serialize(writer);
+                writer.WriteProperty(propertyName, propertyValue);
             }
 
             writer.Write('}');

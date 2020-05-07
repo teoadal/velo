@@ -14,7 +14,7 @@ namespace Velo.Serialization.Tokenization
 
         private bool _canRead;
         private bool _disposed;
-        private readonly TextReader _streamReader;
+        private TextReader _streamReader;
 
         public JsonReader(Stream stream, Encoding? encoding = null)
         {
@@ -64,6 +64,7 @@ namespace Velo.Serialization.Tokenization
 
             _canRead = false;
             _streamReader.Dispose();
+            _streamReader = null!;
 
             _disposed = true;
         }

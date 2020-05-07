@@ -68,20 +68,7 @@ namespace Velo.DependencyInjection
                 }
             }
 
-            try
-            {
-                return constructor.Invoke(parameterInstances);
-            }
-            catch (TargetInvocationException e)
-            {
-                Exception exception = e;
-                while (exception.InnerException != null)
-                {
-                    exception = exception.InnerException;
-                }
-                
-                throw exception;
-            }
+            return ReflectionUtils.TryInvoke(constructor, parameterInstances);
         }
 
         public object GetRequiredService(Type contract)

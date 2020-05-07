@@ -1,5 +1,4 @@
 using System;
-using AutoFixture;
 using FluentAssertions;
 using Moq;
 using Velo.DependencyInjection;
@@ -8,7 +7,6 @@ using Velo.ECS.Actors.Factory;
 using Velo.ECS.Assets;
 using Velo.ECS.Components;
 using Velo.ECS.Sources;
-using Velo.ECS.Sources.Json;
 using Velo.ECS.Systems;
 using Velo.Serialization;
 using Xunit;
@@ -50,10 +48,10 @@ namespace Velo.Tests.ECS
         public void InstallAssetSource()
         {
             var dependency = _dependencies
-                .AddAssets(Mock.Of<ISource<Asset>>())
-                .GetRequiredDependency<ISource<Asset>>();
+                .AddAssets(Mock.Of<IEntitySource<Asset>>())
+                .GetRequiredDependency<IEntitySource<Asset>>();
 
-            dependency.Contracts.Should().Contain(typeof(ISource<Asset>));
+            dependency.Contracts.Should().Contain(typeof(IEntitySource<Asset>));
             dependency.Lifetime.Should().Be(DependencyLifetime.Singleton);
         }
 
@@ -62,23 +60,11 @@ namespace Velo.Tests.ECS
         {
             var dependency = _dependencies
                 .AddAssets(_ => new[] {new Asset(1, Array.Empty<IComponent>())})
-                .GetRequiredDependency<ISource<Asset>>();
+                .GetRequiredDependency<IEntitySource<Asset>>();
 
-            dependency.Contracts.Should().Contain(typeof(ISource<Asset>));
+            dependency.Contracts.Should().Contain(typeof(IEntitySource<Asset>));
             dependency.Lifetime.Should().Be(DependencyLifetime.Singleton);
             dependency.Resolver.Implementation.Should().Be(typeof(DelegateSource<Asset>));
-        }
-
-        [Fact]
-        public void InstallJsonAssets()
-        {
-            var dependency = _dependencies
-                .AddJsonAssets(Fixture.Create<string>())
-                .GetRequiredDependency<ISource<Asset>>();
-
-            dependency.Contracts.Should().Contain(typeof(ISource<Asset>));
-            dependency.Lifetime.Should().Be(DependencyLifetime.Singleton);
-            dependency.Resolver.Implementation.Should().Be(typeof(JsonFileSource<Asset>));
         }
 
         [Fact]

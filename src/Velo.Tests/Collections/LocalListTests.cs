@@ -198,7 +198,7 @@ namespace Velo.Tests.Collections
                 Assert.Equal(expectedGroup.Key, localListGroup.Key);
 
                 var expectedGroupEnumerator = expectedGroup.GetEnumerator();
-                foreach (var boo in localListGroup)
+                foreach (var boo in localListGroup.Values)
                 {
                     Assert.True(expectedGroupEnumerator.MoveNext());
                     var expectedBoo = expectedGroupEnumerator.Current;
@@ -225,7 +225,7 @@ namespace Velo.Tests.Collections
 
             foreach (var actual in new LocalList<Boo>(items)
                 .GroupBy(i => i.Id)
-                .Select(gr => gr.Sum(b => b.Id)))
+                .Select(gr => gr.Values.Sum(b => b.Id)))
             {
                 Assert.True(groupEnumerator.MoveNext());
                 var expected = groupEnumerator.Current;
@@ -254,7 +254,7 @@ namespace Velo.Tests.Collections
                 Assert.Equal(expectedGroup.Key, localListGroup.Key);
 
                 var expectedGroupEnumerator = expectedGroup.Where(b => b.Id > 1).GetEnumerator();
-                foreach (var boo in localListGroup.Where(b => b.Id > 1))
+                foreach (var boo in localListGroup.Values.Where(b => b.Id > 1))
                 {
                     Assert.True(expectedGroupEnumerator.MoveNext());
                     var expectedBoo = expectedGroupEnumerator.Current;
@@ -789,7 +789,7 @@ namespace Velo.Tests.Collections
                 vectorSum = outerLocalList
                     .Join(innerLocalList, o => o.Id, i => i.Id, (o, i) => i)
                     .GroupBy(boo => boo.Id)
-                    .Select(gr => gr.First())
+                    .Select(gr => gr.Values.First())
                     .Where((b, t) => b.Int > t, threshold)
                     .Select((b, m) => b.Id * m, modifier)
                     .OrderBy(id => id)

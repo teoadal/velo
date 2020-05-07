@@ -10,7 +10,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services
                 .AddSingleton(provider => new JConverter(culture, provider.GetRequiredService<IConvertersCollection>()))
-                .AddSingleton<IConvertersCollection>(provider => new ConvertersCollection(culture));
+                .AddSingleton<IConvertersCollection>(provider => new ConvertersCollection(provider, culture));
 
             return services;
         }

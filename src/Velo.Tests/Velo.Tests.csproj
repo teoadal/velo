@@ -28,12 +28,5 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <DependentUpon>appsettings.json</DependentUpon>
       </None>
-      <None Update="ECS\assets.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="ECS\Sources" />
     </ItemGroup>
 </Project>

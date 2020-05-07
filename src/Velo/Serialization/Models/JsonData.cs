@@ -12,14 +12,20 @@ namespace Velo.Serialization.Models
 
         public static JsonData Parse(Stream stream, Encoding? encoding = null)
         {
-            using var reader = new JsonReader(stream, encoding ?? Encoding.UTF8);
-            return Parse(reader);
+            _buffer ??= new StringBuilder(200);
+
+            using var tokenizer = new JsonTokenizer(new JsonReader(stream, encoding), _buffer);
+            tokenizer.MoveNext();
+            return JsonVisitor.Visit(tokenizer);
         }
 
-        public static JsonData Parse(string source)
+        public static JsonData Parse(string json)
         {
-            using var reader = new JsonReader(source);
-            return Parse(reader);
+            _buffer ??= new StringBuilder(200);
+
+            using var tokenizer = new JsonTokenizer(json, _buffer);
+            tokenizer.MoveNext();
+            return JsonVisitor.Visit(tokenizer);
         }
 
         public readonly JsonDataType Type;
@@ -30,16 +36,5 @@ namespace Velo.Serialization.Models
         }
 
         public abstract void Serialize(TextWriter writer);
-
-        private static JsonData Parse(JsonReader reader)
-        {
-            _buffer ??= new StringBuilder(200);
-
-            using var tokenizer = new JsonTokenizer(reader, _buffer);
-
-            tokenizer.MoveNext();
-
-            return JsonVisitor.Visit(tokenizer);
-        }
     }
 }

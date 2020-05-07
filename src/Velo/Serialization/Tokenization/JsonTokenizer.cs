@@ -5,10 +5,11 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Velo.Collections.Local;
+using Velo.Utils;
 
 namespace Velo.Serialization.Tokenization
 {
-    [DebuggerDisplay("Current: {Current.TokenType} {Current.Value}")]
+    [DebuggerDisplay("Current token: {Current.TokenType}")]
     internal sealed class JsonTokenizer : IEnumerator<JsonToken>
     {
         public JsonToken Current { get; private set; }
@@ -19,6 +20,11 @@ namespace Velo.Serialization.Tokenization
         private bool _disposed;
 
         #region Constructors
+
+        public JsonTokenizer(string source, StringBuilder? stringBuilder = null)
+            : this(new JsonReader(source), stringBuilder)
+        {
+        }
 
         public JsonTokenizer(Stream stream, StringBuilder? stringBuilder = null)
             : this(new JsonReader(stream), stringBuilder)
@@ -86,6 +92,16 @@ namespace Velo.Serialization.Tokenization
             } while (_reader.MoveNext());
 
             return false;
+        }
+
+        public void Skip(JsonTokenType expected)
+        {
+            MoveNext();
+
+            if (expected != Current.TokenType)
+            {
+                throw Error.Deserialization(expected, Current.TokenType);
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -4,32 +4,35 @@ using System.IO;
 using System.Text;
 using Velo.Serialization.Models;
 using Velo.Serialization.Tokenization;
+using Velo.Utils;
 
 namespace Velo.Serialization
 {
     public sealed class JConverter
     {
-        [ThreadStatic] 
-        private static StringBuilder? _buffer;
+        internal readonly IConvertersCollection Converters;
 
-        private readonly IConvertersCollection _converters;
+        [ThreadStatic]
+        private static StringBuilder? _buffer;
 
         #region Constructors
 
         internal JConverter(CultureInfo? culture = null, IConvertersCollection? converters = null)
         {
-            _converters = converters ?? new ConvertersCollection(culture ?? CultureInfo.InvariantCulture);
+            Converters = converters ?? new ConvertersCollection(culture ?? CultureInfo.InvariantCulture);
         }
 
         internal JConverter(IConvertersCollection convertersCollection)
         {
-            _converters = convertersCollection;
+            Converters = convertersCollection;
         }
 
         #endregion
 
-        public TOut Deserialize<TOut>(string source)
+        public TOut Deserialize<TOut>(string? source)
         {
+            if (source == null) throw Error.Null(nameof(source));
+
             using var reader = new JsonReader(source);
             return Deserialize<TOut>(reader);
         }
@@ -40,7 +43,7 @@ namespace Velo.Serialization
             return Deserialize<TOut>(reader);
         }
 
-        public string Serialize(object source)
+        public string Serialize(object? source)
         {
             if (source == null) return JsonValue.NullToken;
 
@@ -55,7 +58,7 @@ namespace Velo.Serialization
             return json;
         }
 
-        public void Serialize(object source, TextWriter writer)
+        public void Serialize(object? source, TextWriter writer)
         {
             if (source == null)
             {
@@ -64,7 +67,7 @@ namespace Velo.Serialization
             }
 
             var type = source.GetType();
-            var converter = _converters.Get(type);
+            var converter = Converters.Get(type);
 
             converter.SerializeObject(source, writer);
         }
@@ -73,7 +76,7 @@ namespace Velo.Serialization
         {
             _buffer ??= new StringBuilder(200);
 
-            var converter = _converters.Get<TOut>();
+            var converter = Converters.Get<TOut>();
 
             using var tokenizer = new JsonTokenizer(reader, _buffer);
             if (converter.IsPrimitive) tokenizer.MoveNext();

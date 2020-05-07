@@ -3,7 +3,6 @@ using System.IO;
 using FluentAssertions;
 using Newtonsoft.Json;
 using Velo.Serialization;
-using Velo.Serialization.Converters;
 using Velo.Serialization.Models;
 using Velo.TestsModels;
 using Xunit;

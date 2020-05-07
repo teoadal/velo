@@ -99,43 +99,30 @@ namespace Velo.Utils
 
         #endregion
 
-        public static Expression Call(Expression instance, string methodName, Expression arg1)
+        public static MethodCallExpression Call(Expression instance, string methodName, Expression arg1)
         {
             var method = instance.Type.GetMethod(methodName);
-            // ReSharper disable once AssignNullToNotNullAttribute
+            if (method == null) throw MethodNotFound(instance.Type, methodName);
+
             return Expression.Call(instance, method, arg1);
         }
 
-        public static Expression Call(Expression instance, string methodName, Expression arg1, Expression arg2)
+        public static MethodCallExpression Call(Expression instance, string methodName, Expression arg1, Expression arg2)
         {
             var method = instance.Type.GetMethod(methodName);
-            // ReSharper disable once AssignNullToNotNullAttribute
+            if (method == null) throw MethodNotFound(instance.Type, methodName);
+
             return Expression.Call(instance, method, arg1, arg2);
         }
 
-        public static Expression ConstantCall(object instance, string methodName, Expression arg1)
-        {
-            var instanceType = instance.GetType();
-            var constant = Expression.Constant(instance, instanceType);
-
-            var method = instanceType.GetMethod(methodName);
-            // ReSharper disable once AssignNullToNotNullAttribute
-            return Expression.Call(constant, method, arg1);
-        }
-
-        public static Expression ConstantCall(object instance, string methodName, Expression arg1, Expression arg2)
-        {
-            var instanceType = instance.GetType();
-            var constant = Expression.Constant(instance, instanceType);
-
-            var method = instanceType.GetMethod(methodName);
-            // ReSharper disable once AssignNullToNotNullAttribute
-            return Expression.Call(constant, method, arg1, arg2);
-        }
-
-        public static Expression SetProperty(Expression instance, PropertyInfo property, Expression propertyValue)
+        public static BinaryExpression SetProperty(Expression instance, PropertyInfo property, Expression propertyValue)
         {
             return Expression.Assign(Expression.Property(instance, property), propertyValue);
+        }
+
+        private static Exception MethodNotFound(Type owner, string methodName)
+        {
+            return Error.NotFound($"Method '{methodName}' not found in type '{ReflectionUtils.GetName(owner)}'");
         }
     }
 }

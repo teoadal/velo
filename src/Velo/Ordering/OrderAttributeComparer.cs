@@ -8,12 +8,13 @@ namespace Velo.Ordering
         where T : class
     {
         public new static readonly Comparer<T> Default = new OrderAttributeComparer<T>();
-        
+
         public static T[] Sort(T[] array, int defaultValue = OrderAttribute.DEFAULT_ORDER)
         {
             Array.Sort(array, defaultValue == OrderAttribute.DEFAULT_ORDER
                 ? Default
                 : new OrderAttributeComparer<T>(defaultValue));
+
             return array;
         }
 
@@ -24,7 +25,7 @@ namespace Velo.Ordering
             _defaultValue = defaultValue;
         }
 
-        public override int Compare(T first, T second)
+        public override int Compare(T? first, T? second)
         {
             var firstOrder = GetOrder(first);
             var secondOrder = GetOrder(second);
@@ -32,7 +33,7 @@ namespace Velo.Ordering
             return firstOrder.CompareTo(secondOrder);
         }
 
-        private int GetOrder(T instance)
+        private int GetOrder(T? instance)
         {
             if (instance == null) return _defaultValue;
 

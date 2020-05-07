@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using Velo.Serialization.Converters;
+using Velo.Serialization.Primitives;
 
 namespace Velo.Metrics.Counters
 {

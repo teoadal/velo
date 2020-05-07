@@ -147,7 +147,7 @@ namespace Velo.Benchmark.Collections
             var stub = 0;
             foreach (var group in localList.GroupBy(b => b.Id % 2 == 0))
             {
-                foreach (var boo in group)
+                foreach (var boo in group.Values)
                 {
                     stub += boo.Id;
                 }
@@ -207,7 +207,7 @@ namespace Velo.Benchmark.Collections
             return outer
                 .Join(inner, o => o.Id, i => i.Id, (o, i) => i)
                 .GroupBy(boo => boo.Id)
-                .Select(gr => gr.First())
+                .Select(gr => gr.Values.First())
                 .Where((b, threshold) => b.Int > threshold, _threshold)
                 .Select((b, modifier) => b.Id * modifier, _modifier)
                 .OrderBy(id => id)

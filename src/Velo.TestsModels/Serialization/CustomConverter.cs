@@ -1,34 +1,30 @@
 using System.IO;
-using Velo.Serialization.Converters;
 using Velo.Serialization.Models;
+using Velo.Serialization.Objects;
 using Velo.Serialization.Tokenization;
 
 namespace Velo.TestsModels.Serialization
 {
-    internal sealed class CustomConverter : JsonConverter<int>
+    internal sealed class CustomConverter : IPropertyConverter<CustomConverterModel>
     {
-        public CustomConverter() : base(true)
+        public void Deserialize(JsonTokenizer source, CustomConverterModel instance)
         {
+            instance.Value = 1;
         }
 
-        public override int Deserialize(JsonTokenizer tokenizer)
+        public void Read(JsonObject source, CustomConverterModel instance)
         {
-            return 1;
+            instance.Value = 1;
         }
 
-        public override int Read(JsonData jsonData)
+        public void Serialize(CustomConverterModel instance, TextWriter output)
         {
-            return 1;
+            output.Write("one");
         }
 
-        public override void Serialize(int value, TextWriter writer)
+        public void Write(CustomConverterModel instance, JsonObject output)
         {
-            writer.Write("one");
-        }
-
-        public override JsonData Write(int value)
-        {
-            return JsonValue.String("one");
+            output.Add("Value", JsonValue.String("one"));
         }
     }
 }

@@ -71,16 +71,7 @@
         <Compile Update="Collections\Local\LocalList.GroupEnumerator.cs">
           <DependentUpon>LocalList.cs</DependentUpon>
         </Compile>
-        <Compile Update="Collections\Local\LocalList.JoinEnumerator.cs">
-          <DependentUpon>LocalList.cs</DependentUpon>
-        </Compile>
         <Compile Update="Collections\Local\LocalList.Row.cs">
-          <DependentUpon>LocalList.cs</DependentUpon>
-        </Compile>
-        <Compile Update="Collections\Local\LocalList.SelectEnumerator.cs">
-          <DependentUpon>LocalList.cs</DependentUpon>
-        </Compile>
-        <Compile Update="Collections\Local\LocalList.WhereEnumerator.cs">
           <DependentUpon>LocalList.cs</DependentUpon>
         </Compile>
     </ItemGroup>

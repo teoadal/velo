@@ -1,8 +1,11 @@
+using System;
 using AutoFixture;
+using FluentAssertions;
 using Moq;
 using Velo.DependencyInjection;
 using Velo.ECS.Actors;
 using Velo.ECS.Actors.Context;
+using Velo.ECS.Assets;
 using Velo.ECS.Components;
 using Velo.TestsModels;
 using Velo.TestsModels.ECS;
@@ -18,6 +21,24 @@ namespace Velo.Tests.ECS
         {
         }
 
+        protected void CompareComponents<TComponent>(IComponent actual, IComponent expected)
+            where TComponent : class, IComponent
+        {
+            actual.Should().BeOfType<TComponent>();
+
+            actual.As<TComponent>().Should().BeEquivalentTo(expected.As<TComponent>());
+        }
+
+        protected Asset CreateAsset(IComponent[] components = null)
+        {
+            return new Asset(Fixture.Create<int>(), components ?? Array.Empty<IComponent>());
+        }
+
+        protected static Asset CreateAsset(int id, params IComponent[] components)
+        {
+            return new Asset(id, components);
+        }
+
         protected void InjectComponentsArray(IComponent[] array = null)
         {
             array ??= new IComponent[]
@@ -28,7 +49,7 @@ namespace Velo.Tests.ECS
 
             Fixture.Inject(array);
         }
-        
+
         protected void RaiseActorAdded(Mock<IActorContext> context, Actor actor)
         {
             context.Raise(ctx => ctx.Added += null, actor);
@@ -38,13 +59,12 @@ namespace Velo.Tests.ECS
         {
             context.Raise(ctx => ctx.Removed += null, actor);
         }
-        
+
         public static TheoryData<DependencyLifetime> Lifetimes => new TheoryData<DependencyLifetime>
         {
             DependencyLifetime.Scoped,
             DependencyLifetime.Singleton,
             DependencyLifetime.Transient
         };
-
     }
 }
