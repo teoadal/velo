@@ -1,7 +1,6 @@
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Velo.Serialization.Models;
-using Velo.TestsModels;
 using Xunit;
 using Xunit.Abstractions;
 

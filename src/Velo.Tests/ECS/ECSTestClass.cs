@@ -7,7 +7,6 @@ using Velo.ECS.Actors;
 using Velo.ECS.Actors.Context;
 using Velo.ECS.Assets;
 using Velo.ECS.Components;
-using Velo.TestsModels;
 using Velo.TestsModels.ECS;
 using Xunit;
 using Xunit.Abstractions;

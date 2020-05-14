@@ -9,7 +9,6 @@ using Velo.Logging.Provider;
 using Velo.Logging.Writers;
 using Velo.Serialization;
 using Velo.Serialization.Models;
-using Velo.TestsModels;
 using Xunit;
 using Xunit.Abstractions;
 

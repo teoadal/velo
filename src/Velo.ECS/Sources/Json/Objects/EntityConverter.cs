@@ -27,11 +27,11 @@ namespace Velo.ECS.Sources.Json.Objects
 
         protected EntityConverter(IServiceProvider services, bool isCustomType)
         {
-            _properties = PropertyConverter<TEntity>.CreateCollection(services);
-
             _customTypeName = isCustomType
                 ? SourceDescriptions.BuildTypeName(Typeof<TEntity>.Raw)
                 : null;
+
+            _properties = services.ActivatePropertyConverters<TEntity>();
 
             _idConverter = (IdConverter) _properties[nameof(IEntity.Id)];
             _componentsConverter = (ComponentsConverter) _properties[nameof(IEntity.Components)];
@@ -87,6 +87,23 @@ namespace Velo.ECS.Sources.Json.Objects
             output.Write('}');
         }
 
+        public JsonData Write(TEntity instance)
+        {
+            var result = new JsonObject(_properties.Count);
+
+            foreach (var propertyConverter in _properties.Values)
+            {
+                propertyConverter.Write(instance, result);
+            }
+
+            if (_customTypeName != null)
+            {
+                result.Add(TypeProperty, JsonValue.String(_customTypeName));
+            }
+
+            return result;
+        }
+
         protected abstract TEntity CreateEntity(Type? entityType, int id, IComponent[]? components);
 
         object IJsonConverter.ReadObject(JsonData jsonData) => Read(jsonData)!;
@@ -96,6 +113,5 @@ namespace Velo.ECS.Sources.Json.Objects
         TEntity IJsonConverter<TEntity>.Deserialize(JsonTokenizer _) => throw Error.NotSupported();
         object IJsonConverter.DeserializeObject(JsonTokenizer _) => throw Error.NotSupported();
         JsonData IJsonConverter.WriteObject(object value) => throw Error.NotSupported();
-        JsonData IJsonConverter<TEntity>.Write(TEntity value) => throw Error.NotSupported();
     }
 }

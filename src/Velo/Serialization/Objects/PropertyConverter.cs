@@ -1,14 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq.Expressions;
 using System.Reflection;
-using Velo.Collections.Local;
-using Velo.DependencyInjection;
-using Velo.Serialization.Attributes;
 using Velo.Serialization.Models;
 using Velo.Serialization.Tokenization;
-using Velo.Text;
 using Velo.Utils;
 
 namespace Velo.Serialization.Objects
@@ -20,7 +15,7 @@ namespace Velo.Serialization.Objects
         private readonly Action<TOwner, TextWriter> _serialize;
         private readonly Action<TOwner, JsonObject> _write;
 
-        private PropertyConverter(PropertyInfo propertyInfo, IJsonConverter valueConverter)
+        public PropertyConverter(PropertyInfo propertyInfo, IJsonConverter valueConverter)
         {
             var instance = Expression.Parameter(Typeof<TOwner>.Raw, "instance");
             var converter = Expression.Constant(valueConverter, valueConverter.GetType());
@@ -125,45 +120,6 @@ namespace Velo.Serialization.Objects
 
         private static void ReadonlyProperty(JsonData json, TOwner obj)
         {
-        }
-
-        public static Dictionary<string, IPropertyConverter<TOwner>> CreateCollection(
-            IServiceProvider services,
-            IConvertersCollection? converters = null)
-        {
-            var ownerType = Typeof<TOwner>.Raw;
-            var properties = ownerType.GetProperties();
-
-            var propertyConverters = new Dictionary<string, IPropertyConverter<TOwner>>(
-                properties.Length,
-                StringUtils.IgnoreCaseComparer);
-
-            converters ??= (IConvertersCollection) services.GetService(typeof(IConvertersCollection));
-
-            foreach (var property in properties)
-            {
-                if (IgnoreAttribute.IsDefined(property)) continue;
-
-                IPropertyConverter<TOwner> propertyConverter;
-                if (ConverterAttribute.IsDefined(property))
-                {
-                    var converterType = property
-                        .GetCustomAttribute<ConverterAttribute>()
-                        .GetConverterType(ownerType, property);
-
-                    var injections = new LocalList<object>(property, ownerType);
-                    propertyConverter = (IPropertyConverter<TOwner>) services.Activate(converterType, injections);
-                }
-                else
-                {
-                    var propertyValueConverter = converters.Get(property.PropertyType);
-                    propertyConverter = new PropertyConverter<TOwner>(property, propertyValueConverter);
-                }
-
-                propertyConverters.Add(property.Name, propertyConverter);
-            }
-
-            return propertyConverters;
         }
     }
 }

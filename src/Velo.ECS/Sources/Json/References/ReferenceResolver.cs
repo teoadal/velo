@@ -37,11 +37,13 @@ namespace Velo.ECS.Sources.Json.References
 
         public abstract void Serialize(TOwner instance, TextWriter output);
 
+        public abstract void Write(TOwner instance, JsonObject output);
+        
         protected TEntity? ReadEntity(JsonData idData)
         {
             var idValue = (JsonValue) idData;
 
-            if (idValue.Type == JsonDataType.Null) return null!;
+            if (idValue.Type == JsonDataType.Null) return null;
 
             var id = idValue.Type == JsonDataType.String
                 ? SourceDescriptions.GetOrAddAlias(idValue.Value)
@@ -67,6 +69,16 @@ namespace Velo.ECS.Sources.Json.References
             {
                 output.Write(entityId);
             }
+        }
+
+        protected JsonValue WriteEntity(TEntity? entity)
+        {
+            if (entity == null) return JsonValue.Null;
+
+            var entityId = entity.Id;
+            return SourceDescriptions.TryGetAlias(entityId, out var alias)
+                ? JsonValue.String(alias)
+                : JsonValue.Number(entityId);
         }
     }
 }

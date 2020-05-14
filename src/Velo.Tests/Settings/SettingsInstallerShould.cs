@@ -4,7 +4,6 @@ using Velo.DependencyInjection;
 using Velo.Serialization;
 using Velo.Settings.Provider;
 using Velo.Settings.Sources;
-using Velo.TestsModels;
 using Xunit;
 using Xunit.Abstractions;
 

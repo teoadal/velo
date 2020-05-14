@@ -1,5 +1,4 @@
 using Velo.Logging;
-using Velo.TestsModels;
 using Xunit;
 using Xunit.Abstractions;
 

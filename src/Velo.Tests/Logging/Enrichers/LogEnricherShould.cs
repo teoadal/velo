@@ -8,7 +8,6 @@ using Velo.Logging.Enrichers;
 using Velo.Logging.Writers;
 using Velo.Serialization;
 using Velo.Serialization.Models;
-using Velo.TestsModels;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -25,7 +24,7 @@ namespace Velo.Tests.Logging.Enrichers
         
         public LogEnricherShould(ITestOutputHelper output) : base(output)
         {
-            _converters = new ConvertersCollection();
+            _converters = BuildConvertersCollection();
             _logEnricher = new Mock<ILogEnricher>();
 
             var logWriter = new Mock<ILogWriter>();

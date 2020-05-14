@@ -5,7 +5,6 @@ using System.Threading;
 using AutoFixture;
 using FluentAssertions;
 using Velo.Collections.Enumerators;
-using Velo.TestsModels;
 using Xunit;
 using Xunit.Abstractions;
 

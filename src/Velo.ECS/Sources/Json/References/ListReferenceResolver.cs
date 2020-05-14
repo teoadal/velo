@@ -28,7 +28,6 @@ namespace Velo.ECS.Sources.Json.References
         public override void Read(JsonObject source, TOwner instance)
         {
             var ids = (JsonArray) source[_propertyName];
-
             var entities = new List<TEntity?>(ids.Length);
 
             // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
@@ -57,6 +56,20 @@ namespace Velo.ECS.Sources.Json.References
             }
 
             output.Write(']');
+        }
+
+        public override void Write(TOwner instance, JsonObject output)
+        {
+            var entities = _entityGetter(instance);
+            var ids = new List<JsonData>(entities.Count); 
+            
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var entity in entities)
+            {
+                ids.Add(WriteEntity(entity));
+            }
+            
+            output.Add(_propertyName, new JsonArray(ids.ToArray()));
         }
     }
 }

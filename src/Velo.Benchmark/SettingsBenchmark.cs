@@ -3,6 +3,7 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Jobs;
 using Microsoft.Extensions.Configuration;
+using Velo.DependencyInjection;
 using Velo.Serialization;
 using Velo.Settings.Provider;
 using Velo.Settings.Sources;
@@ -148,7 +149,9 @@ namespace Velo.Benchmark
 
         private SettingsProvider BuildVeloConfiguration()
         {
-            var converters = new ConvertersCollection();
+            var dependencyProvider = new DependencyCollection().BuildProvider();
+            var converters = new ConvertersCollection(dependencyProvider);
+
             return new SettingsProvider(new ISettingsSource[]
             {
                 new JsonFileSource("appsettings.json", true),

@@ -2,7 +2,6 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Velo.Extensions.DependencyInjection;
-using Velo.TestsModels;
 using Velo.TestsModels.Boos;
 using Xunit;
 using Xunit.Abstractions;

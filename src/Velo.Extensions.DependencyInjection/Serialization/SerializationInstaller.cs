@@ -9,8 +9,8 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddJsonConverter(this IServiceCollection services, CultureInfo culture = null)
         {
             services
-                .AddSingleton(provider => new JConverter(culture, provider.GetRequiredService<IConvertersCollection>()))
-                .AddSingleton<IConvertersCollection>(provider => new ConvertersCollection(provider, culture));
+                .AddSingleton<IConvertersCollection>(provider => new ConvertersCollection(provider, culture))
+                .AddSingleton(provider => new JConverter(provider.GetService<IConvertersCollection>()));
 
             return services;
         }

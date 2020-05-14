@@ -32,13 +32,6 @@ namespace Velo.Serialization
             _serviceProvider = serviceProvider;
         }
 
-        public ConvertersCollection(CultureInfo? culture = null)
-            : base(DefaultConverters(culture ?? CultureInfo.InvariantCulture))
-        {
-            _converterBuilder = BuildConverter;
-            _serviceProvider = null!;
-        }
-
         public IJsonConverter Get(Type type)
         {
             return GetOrAdd(type, _converterBuilder);
@@ -110,7 +103,7 @@ namespace Velo.Serialization
             }
 
             var converterType = typeof(ObjectConverter<>).MakeGenericType(type);
-            return (IJsonConverter) Activator.CreateInstance(converterType, _serviceProvider, this);
+            return (IJsonConverter) Activator.CreateInstance(converterType, _serviceProvider);
         }
 
         private static Dictionary<Type, IJsonConverter> DefaultConverters(CultureInfo culture)

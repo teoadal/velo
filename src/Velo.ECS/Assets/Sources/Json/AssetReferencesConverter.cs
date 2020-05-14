@@ -40,6 +40,11 @@ namespace Velo.ECS.Assets.Sources.Json
             _resolver.Serialize(instance, output);
         }
 
+        public void Write(TOwner instance, JsonObject output)
+        {
+            _resolver.Write(instance, output);
+        }
+
         private TAsset GetEntity(int id)
         {
             var asset = _sourceContext.IsStarted
@@ -50,6 +55,5 @@ namespace Velo.ECS.Assets.Sources.Json
         }
 
         void IPropertyConverter<TOwner>.Deserialize(JsonTokenizer _, TOwner instance) => throw Error.NotSupported();
-        void IPropertyConverter<TOwner>.Write(TOwner instance, JsonObject _) => throw Error.NotSupported();
     }
 }

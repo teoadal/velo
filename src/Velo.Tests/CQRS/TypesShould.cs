@@ -4,7 +4,6 @@ using Velo.CQRS;
 using Velo.CQRS.Commands.Pipeline;
 using Velo.CQRS.Notifications.Pipeline;
 using Velo.CQRS.Queries.Pipeline;
-using Velo.TestsModels;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting.Boos.Create;
 using Velo.TestsModels.Emitting.Boos.Get;

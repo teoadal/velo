@@ -2,7 +2,6 @@ using System;
 using System.Threading.Tasks;
 using AutoFixture.Xunit2;
 using Velo.Pools;
-using Velo.TestsModels;
 using Xunit;
 using Xunit.Abstractions;
 

@@ -3,7 +3,6 @@ using System.Text;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Newtonsoft.Json;
-using Velo.Serialization;
 using Velo.Settings.Sources;
 using Velo.TestsModels;
 using Xunit;
@@ -36,7 +35,7 @@ namespace Velo.Tests.Settings.Sources
                 var fileSource = new JsonFileSource(fileName, true);
                 fileSource.TryGet(out var jsonObject);
 
-                var converter = new ConvertersCollection().Get<BigObject>();
+                var converter = BuildConvertersCollection().Get<BigObject>();
                 converter.Read(jsonObject).Should().BeEquivalentTo(values);
             }
             catch

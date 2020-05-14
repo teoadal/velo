@@ -1,6 +1,5 @@
 using FluentAssertions;
 using Velo.Collections.Local;
-using Velo.TestsModels;
 using Xunit;
 using Xunit.Abstractions;
 

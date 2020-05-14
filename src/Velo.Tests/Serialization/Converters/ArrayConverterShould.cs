@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using AutoFixture;
@@ -9,7 +8,6 @@ using FluentAssertions;
 using Newtonsoft.Json;
 using Velo.Serialization;
 using Velo.Serialization.Models;
-using Velo.TestsModels;
 using Velo.TestsModels.Boos;
 using Xunit;
 using Xunit.Abstractions;
@@ -23,7 +21,7 @@ namespace Velo.Tests.Serialization.Converters
 
         public ArrayConverterShould(ITestOutputHelper output) : base(output)
         {
-            var converters = new ConvertersCollection(CultureInfo.InvariantCulture);
+            var converters = BuildConvertersCollection();
             _converter = converters.Get<Boo[]>();
             _elementConverter = converters.Get<Boo>();
         }

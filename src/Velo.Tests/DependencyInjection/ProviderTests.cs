@@ -7,7 +7,6 @@ using Velo.DependencyInjection;
 using Velo.Mapping;
 using Velo.Serialization;
 using Velo.Settings.Provider;
-using Velo.TestsModels;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Domain;
 using Velo.TestsModels.Foos;
@@ -25,7 +24,7 @@ namespace Velo.Tests.DependencyInjection
         public ProviderTests(ITestOutputHelper output) : base(output)
         {
             _dependencies = new DependencyCollection()
-                .AddSingleton<JConverter>()
+                .AddJsonConverter()
                 .AddSingleton<ISettingsProvider>(ctx => new NullSettingsProvider())
                 .AddSingleton<ISession, Session>();
         }

@@ -17,39 +17,36 @@ namespace Velo.Tests.Logging.Providers
 {
     public class LogProviderShould : LoggingTests
     {
-        private readonly ConvertersCollection _converters;
-        private readonly DependencyCollection _dependencies;
+        private readonly IConvertersCollection _converters;
         private readonly ILogger<LogProviderShould> _logger;
         private readonly Mock<ILogWriter> _logWriter;
         private readonly Type _sender;
-        
+
         private Action<LogContext, JsonObject> _logWriteCallback = (context, obj) => { };
-        
+
         public LogProviderShould(ITestOutputHelper output) : base(output)
         {
-            _converters = new ConvertersCollection();
-
             _logWriter = new Mock<ILogWriter>();
             _logWriter
                 .Setup(writer => writer.Write(It.IsAny<LogContext>(), It.IsAny<JsonObject>()))
                 .Callback(_logWriteCallback);
 
-            _dependencies = new DependencyCollection()
-                .AddLogging();
-
-            _logger = new DependencyCollection()
+            var dependencyProvider = new DependencyCollection()
                 .AddLogging()
                 .AddLogWriter(_logWriter.Object)
-                .BuildProvider()
-                .GetRequiredService<ILogger<LogProviderShould>>();
+                .BuildProvider();
 
+            _converters = dependencyProvider.GetRequiredService<IConvertersCollection>();
+            _logger = dependencyProvider.GetRequiredService<ILogger<LogProviderShould>>();
             _sender = typeof(LogProviderShould);
         }
 
         [Fact]
         public void BeNullIfNoWriters()
         {
-            var provider = _dependencies.BuildProvider();
+            var provider = new DependencyCollection()
+                .AddLogging()
+                .BuildProvider();
 
             var logProvider = provider.GetRequiredService<ILogProvider>();
             logProvider.Should().BeOfType<NullLogProvider>();
@@ -58,9 +55,11 @@ namespace Velo.Tests.Logging.Providers
         [Fact]
         public void BeScoped()
         {
-            _dependencies
-                .AddLogWriter(_logWriter.Object) // if not add any logWriter - static NullProvider
-                .GetLifetime<ILogProvider>().Should().Be(DependencyLifetime.Scoped);
+            var dependencies = new DependencyCollection()
+                .AddLogging()
+                .AddLogWriter(_logWriter.Object); // if not add any logWriter - static NullProvider
+
+            dependencies.GetLifetime<ILogProvider>().Should().Be(DependencyLifetime.Scoped);
         }
 
         [Theory]
@@ -80,8 +79,9 @@ namespace Velo.Tests.Logging.Providers
         public void UseEnricher(LogLevel level, string message)
         {
             var enricher = new Mock<ILogEnricher>();
-            
-            var logger = _dependencies
+
+            var logger = new DependencyCollection()
+                .AddLogging()
                 .AddLogWriter(Mock.Of<ILogWriter>())
                 .AddLogEnricher(enricher.Object)
                 .BuildProvider()
@@ -96,14 +96,15 @@ namespace Velo.Tests.Logging.Providers
         [MemberAutoData(nameof(Levels))]
         public void UseEnrichers(LogLevel level, string message)
         {
+            var dependencies = new DependencyCollection().AddLogging();
             var enrichers = Many(() => new Mock<ILogEnricher>());
-            
+
             foreach (var enricher in enrichers)
             {
-                _dependencies.AddLogEnricher(enricher.Object);
+                dependencies.AddLogEnricher(enricher.Object);
             }
 
-            _dependencies
+            dependencies
                 .AddLogWriter(Mock.Of<ILogWriter>())
                 .BuildProvider()
                 .GetRequiredService<ILogger<LogProviderShould>>()
@@ -150,14 +151,15 @@ namespace Velo.Tests.Logging.Providers
         [MemberAutoData(nameof(Levels))]
         public void WriteWriters(LogLevel level, string message)
         {
+            var dependencies = new DependencyCollection().AddLogging();
             var writers = Many(() => new Mock<ILogWriter>());
-            
+
             foreach (var writer in writers)
             {
-                _dependencies.AddLogWriter(writer.Object);
+                dependencies.AddLogWriter(writer.Object);
             }
 
-            _dependencies.BuildProvider()
+            dependencies.BuildProvider()
                 .GetRequiredService<ILogger<LogProviderShould>>()
                 .Log(level, message);
 

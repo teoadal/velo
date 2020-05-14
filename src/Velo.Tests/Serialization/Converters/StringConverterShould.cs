@@ -1,11 +1,9 @@
 using System;
-using System.Globalization;
 using System.IO;
 using FluentAssertions;
 using Newtonsoft.Json;
 using Velo.Serialization;
 using Velo.Serialization.Models;
-using Velo.TestsModels;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -17,7 +15,7 @@ namespace Velo.Tests.Serialization.Converters
 
         public StringConverterShould(ITestOutputHelper output) : base(output)
         {
-            _converter = new ConvertersCollection(CultureInfo.InvariantCulture).Get<string>();
+            _converter = BuildConvertersCollection().Get<string>();
         }
 
         [Fact]

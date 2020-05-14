@@ -5,7 +5,6 @@ using FluentAssertions;
 using Newtonsoft.Json;
 using Velo.Serialization;
 using Velo.Serialization.Models;
-using Velo.TestsModels;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Serialization;
 using Xunit;
@@ -20,7 +19,7 @@ namespace Velo.Tests.Serialization.Converters
 
         public ObjectConverterShould(ITestOutputHelper output) : base(output)
         {
-            _converters = new ConvertersCollection();
+            _converters = BuildConvertersCollection();
             _converter = _converters.Get<Boo>();
         }
 

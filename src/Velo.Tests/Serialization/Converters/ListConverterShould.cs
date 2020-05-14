@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Globalization;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Newtonsoft.Json;
@@ -15,7 +14,7 @@ namespace Velo.Tests.Serialization.Converters
         
         public ListConverterShould(ITestOutputHelper output) : base(output)
         {
-            var converters = new ConvertersCollection(CultureInfo.InvariantCulture);
+            var converters = BuildConvertersCollection();
             _converter = converters.Get<List<int>>();
         }
 

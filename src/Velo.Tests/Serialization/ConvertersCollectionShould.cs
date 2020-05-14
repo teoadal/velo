@@ -1,7 +1,6 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using AutoFixture;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,7 +19,7 @@ namespace Velo.Tests.Serialization
 
         public ConvertersCollectionShould(ITestOutputHelper output) : base(output)
         {
-            _converters = new ConvertersCollection(CultureInfo.InvariantCulture);
+            _converters = BuildConvertersCollection();
         }
 
         [Theory]

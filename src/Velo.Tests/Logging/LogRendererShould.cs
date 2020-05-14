@@ -7,7 +7,6 @@ using Velo.Logging;
 using Velo.Logging.Writers;
 using Velo.Serialization;
 using Velo.Serialization.Models;
-using Velo.TestsModels;
 using Velo.TestsModels.Boos;
 using Xunit;
 using Xunit.Abstractions;
@@ -28,7 +27,7 @@ namespace Velo.Tests.Logging
 
         public LogRendererShould(ITestOutputHelper output) : base(output)
         {
-            _converters = new ConvertersCollection();
+            _converters = BuildConvertersCollection();
 
             _logWriter = new Mock<ILogWriter>();
             _logWriter

@@ -1,5 +1,4 @@
 using System.IO;
-using System.Text;
 using Velo.Serialization;
 using Velo.Serialization.Tokenization;
 
@@ -13,11 +12,6 @@ namespace Velo.ECS.Sources.Json
         public JsonStreamSource(IConvertersCollection converters, Stream stream) : base(converters)
         {
             _stream = stream;
-        }
-
-        public JsonStreamSource(IConvertersCollection converters, string jsonData) : base(converters)
-        {
-            _stream = new MemoryStream(Encoding.UTF8.GetBytes(jsonData));
         }
 
         protected override JsonReader GetReader()

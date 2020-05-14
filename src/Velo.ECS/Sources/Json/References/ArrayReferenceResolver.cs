@@ -56,5 +56,19 @@ namespace Velo.ECS.Sources.Json.References
 
             output.Write(']');
         }
+
+        public override void Write(TOwner instance, JsonObject output)
+        {
+            var entities = _entityGetter(instance);
+            var ids = new List<JsonData>();
+
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var entity in entities)
+            {
+                ids.Add(WriteEntity(entity));
+            }
+
+            output.Add(_propertyName, new JsonArray(ids.ToArray()));
+        }
     }
 }

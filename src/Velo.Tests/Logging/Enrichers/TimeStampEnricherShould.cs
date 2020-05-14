@@ -6,7 +6,6 @@ using FluentAssertions;
 using Velo.Logging;
 using Velo.Logging.Enrichers;
 using Velo.Serialization.Models;
-using Velo.TestsModels;
 using Xunit;
 using Xunit.Abstractions;
 

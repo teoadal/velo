@@ -6,7 +6,6 @@ using FluentAssertions;
 using Velo.CQRS.Commands;
 using Velo.CQRS.Queries;
 using Velo.DependencyInjection.Dependencies;
-using Velo.TestsModels;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting.Boos.Get;
 using Velo.Utils;

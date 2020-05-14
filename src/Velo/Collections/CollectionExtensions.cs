@@ -15,7 +15,7 @@ namespace Velo.Collections
 
             return false;
         }
-        
+
         public static IEnumerable<T> Do<T>(this IEnumerable<T> collection, Action<T> action)
         {
             foreach (var element in collection)
@@ -24,7 +24,7 @@ namespace Velo.Collections
                 yield return element;
             }
         }
-        
+
         public static void Foreach<T>(this IEnumerable<T> collection, Action<T> action)
         {
             foreach (var element in collection)
@@ -32,7 +32,7 @@ namespace Velo.Collections
                 action(element);
             }
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool NullOrEmpty<T>(this T[] array)
         {

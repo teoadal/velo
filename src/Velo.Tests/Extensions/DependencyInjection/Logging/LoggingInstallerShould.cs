@@ -5,7 +5,6 @@ using Velo.Logging.Enrichers;
 using Velo.Logging.Provider;
 using Velo.Logging.Renderers;
 using Velo.Logging.Writers;
-using Velo.TestsModels;
 using Velo.TestsModels.Boos;
 using Xunit;
 using Xunit.Abstractions;

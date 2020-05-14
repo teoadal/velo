@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using AutoFixture.Xunit2;
@@ -6,7 +5,6 @@ using FluentAssertions;
 using Newtonsoft.Json;
 using Velo.Serialization;
 using Velo.Serialization.Models;
-using Velo.TestsModels;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -22,7 +20,7 @@ namespace Velo.Tests.Serialization.Models
         {
             _array = System.Linq.Enumerable.Range(0, 10).ToArray();
 
-            var converters = new ConvertersCollection(CultureInfo.InvariantCulture);
+            var converters = BuildConvertersCollection();
             _elementConverter = converters.Get<int>();
 
             _jsonArray = new JsonArray(_array.Select(_elementConverter.Write));

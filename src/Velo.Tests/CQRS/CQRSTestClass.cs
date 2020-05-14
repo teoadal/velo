@@ -5,7 +5,6 @@ using Velo.CQRS.Commands;
 using Velo.CQRS.Notifications;
 using Velo.CQRS.Queries;
 using Velo.DependencyInjection;
-using Velo.TestsModels;
 using Xunit;
 using Xunit.Abstractions;
 

@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using AutoFixture.Xunit2;
 using Velo.DependencyInjection;
 using Velo.Pools;
-using Velo.TestsModels;
 using Velo.TestsModels.Boos;
 using Xunit;
 using Xunit.Abstractions;

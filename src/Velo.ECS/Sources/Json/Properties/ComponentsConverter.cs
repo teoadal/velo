@@ -1,5 +1,4 @@
 using System.IO;
-using System.Reflection;
 using Velo.Collections.Local;
 using Velo.ECS.Components;
 using Velo.Extensions;
@@ -16,21 +15,15 @@ namespace Velo.ECS.Sources.Json.Properties
         private readonly IConvertersCollection _converters;
         private readonly IComponentFactory _componentFactory;
 
-        private readonly string _propertyName;
-
-        private ComponentsConverter(
-            PropertyInfo property,
-            IConvertersCollection converters,
-            IComponentFactory componentFactory)
+        public ComponentsConverter(IConvertersCollection converters, IComponentFactory componentFactory)
         {
             _converters = converters;
             _componentFactory = componentFactory;
-            _propertyName = property.Name;
         }
 
         public object? ReadValue(JsonObject source)
         {
-            var componentsData = (JsonObject) source[_propertyName];
+            var componentsData = (JsonObject) source[nameof(IEntity.Components)];
 
             var components = new LocalList<IComponent>();
             foreach (var (name, data) in componentsData)
@@ -72,8 +65,24 @@ namespace Velo.ECS.Sources.Json.Properties
             output.Write('}');
         }
 
+        public void Write(IEntity instance, JsonObject output)
+        {
+            var componentsData = new JsonObject();
+
+            foreach (var component in instance.Components)
+            {
+                var componentType = component.GetType();
+                var componentName = SourceDescriptions.GetComponentName(componentType);
+                var componentConverter = _converters.Get(componentType);
+
+                var componentData = componentConverter.WriteObject(component);
+                componentsData.Add(componentName, componentData);
+            }
+            
+            output.Add(nameof(IEntity.Components), componentsData);
+        }
+
         void IPropertyConverter<IEntity>.Deserialize(JsonTokenizer _, IEntity entity) => throw Error.NotSupported();
         void IPropertyConverter<IEntity>.Read(JsonObject _, IEntity entity) => throw Error.NotSupported();
-        void IPropertyConverter<IEntity>.Write(IEntity entity, JsonObject _) => throw Error.NotSupported();
     }
 }

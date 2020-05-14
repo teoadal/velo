@@ -3,9 +3,11 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using AutoFixture;
+using Velo.DependencyInjection;
+using Velo.Serialization;
 using Xunit.Abstractions;
 
-namespace Velo.TestsModels
+namespace Velo.Tests
 {
     public abstract class TestClass : IDisposable
     {
@@ -19,6 +21,15 @@ namespace Velo.TestsModels
         {
             _output = output;
             _stopwatch = Stopwatch.StartNew();
+        }
+
+        internal static ConvertersCollection BuildConvertersCollection(IServiceProvider serviceProvider = null)
+        {
+            serviceProvider ??= new DependencyCollection()
+                .AddJsonConverter()
+                .BuildProvider();
+
+            return (ConvertersCollection) serviceProvider.GetService(typeof(IConvertersCollection));
         }
 
         protected static int FixCount(int count)
@@ -39,7 +50,7 @@ namespace Velo.TestsModels
 
             return result;
         }
-        
+
         protected static T[] Many<T>(int count, Func<T> action)
         {
             var result = new T[count];
@@ -50,7 +61,7 @@ namespace Velo.TestsModels
 
             return result;
         }
-        
+
         protected static T[] Many<T>(int count, Func<int, T> action)
         {
             var result = new T[count];
@@ -61,7 +72,7 @@ namespace Velo.TestsModels
 
             return result;
         }
-        
+
         protected StopwatchScope Measure()
         {
             _stopwatch = Stopwatch.StartNew();

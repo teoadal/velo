@@ -3,7 +3,6 @@ using FluentAssertions;
 using Velo.DependencyInjection;
 using Velo.Metrics.Counters;
 using Velo.Metrics.Provider;
-using Velo.TestsModels;
 using Xunit;
 using Xunit.Abstractions;
 

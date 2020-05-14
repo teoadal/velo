@@ -1,5 +1,4 @@
 using System;
-using System.Globalization;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Newtonsoft.Json;
@@ -17,7 +16,7 @@ namespace Velo.Tests.Serialization.Models
 
         public JsonDataShould(ITestOutputHelper output) : base(output)
         {
-            _converters = new ConvertersCollection(CultureInfo.InvariantCulture);
+            _converters = BuildConvertersCollection();
         }
 
         [Theory]

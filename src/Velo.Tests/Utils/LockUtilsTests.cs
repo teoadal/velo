@@ -1,5 +1,4 @@
 using System.Threading;
-using Velo.TestsModels;
 using Velo.Threading;
 using Xunit;
 using Xunit.Abstractions;

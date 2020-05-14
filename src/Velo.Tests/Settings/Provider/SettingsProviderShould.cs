@@ -28,7 +28,7 @@ namespace Velo.Tests.Settings.Provider
 
         public SettingsProviderShould(ITestOutputHelper output) : base(output)
         {
-            _converters = new ConvertersCollection();
+            _converters = BuildConvertersCollection();
 
             _property = "property";
             _propertyValue = JsonValue.True;
@@ -41,7 +41,7 @@ namespace Velo.Tests.Settings.Provider
             };
 
             _source = BuildSource();
-            _settings = new SettingsProvider(new[] {_source.Object}, new ConvertersCollection());
+            _settings = new SettingsProvider(new[] {_source.Object}, _converters);
         }
 
         [Fact]
@@ -133,7 +133,7 @@ namespace Velo.Tests.Settings.Provider
             {
                 new JsonFileSource("Settings/appsettings.json", true),
                 new JsonFileSource("Settings/appsettings.develop.json", true),
-            }, new ConvertersCollection());
+            }, _converters);
 
             var logLevelSettings = settings.Get<LogLevelSettings>("Logging.LogLevel");
             logLevelSettings.Default.Should().Be("Debug");

@@ -1,7 +1,6 @@
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Velo.CQRS;
-using Velo.TestsModels;
 using Xunit;
 using Xunit.Abstractions;
 

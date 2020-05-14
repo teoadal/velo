@@ -2,7 +2,6 @@ using System;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Velo.Collections;
-using Velo.TestsModels;
 using Xunit;
 using Xunit.Abstractions;
 

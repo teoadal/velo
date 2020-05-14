@@ -4,7 +4,6 @@ using FluentAssertions;
 using Moq;
 using Velo.CQRS;
 using Velo.DependencyInjection;
-using Velo.TestsModels;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting.Boos.Create;
 using Xunit;

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using FluentAssertions;
 using Velo.Serialization.Models;
 using Velo.Settings.Sources;
-using Velo.TestsModels;
 using Xunit;
 using Xunit.Abstractions;
 

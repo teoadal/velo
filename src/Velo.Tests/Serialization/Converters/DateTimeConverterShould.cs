@@ -1,11 +1,9 @@
 using System;
-using System.Globalization;
 using System.IO;
 using FluentAssertions;
 using Newtonsoft.Json;
 using Velo.Serialization;
 using Velo.Serialization.Models;
-using Velo.TestsModels;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -17,7 +15,7 @@ namespace Velo.Tests.Serialization.Converters
 
         public DateTimeConverterShould(ITestOutputHelper output) : base(output)
         {
-            _converter = new ConvertersCollection(CultureInfo.InvariantCulture).Get<DateTime>();
+            _converter = BuildConvertersCollection().Get<DateTime>();
         }
 
         [Fact]

@@ -1,5 +1,4 @@
 using System;
-using System.Globalization;
 using System.IO;
 using System.Text;
 using Velo.Serialization.Models;
@@ -15,19 +14,10 @@ namespace Velo.Serialization
         [ThreadStatic]
         private static StringBuilder? _buffer;
 
-        #region Constructors
-
-        internal JConverter(CultureInfo? culture = null, IConvertersCollection? converters = null)
-        {
-            Converters = converters ?? new ConvertersCollection(culture ?? CultureInfo.InvariantCulture);
-        }
-
         internal JConverter(IConvertersCollection convertersCollection)
         {
             Converters = convertersCollection;
         }
-
-        #endregion
 
         public TOut Deserialize<TOut>(string? source)
         {

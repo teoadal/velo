@@ -3,7 +3,6 @@ using AutoFixture;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Velo.Metrics.Counters;
-using Velo.TestsModels;
 using Xunit;
 using Xunit.Abstractions;
 

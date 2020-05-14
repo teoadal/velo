@@ -15,12 +15,12 @@ namespace Velo.Serialization.Objects
         private readonly EqualityComparer<T> _equalityComparer;
         private readonly Dictionary<string, IPropertyConverter<T>> _properties;
 
-        public ObjectConverter(IServiceProvider services, IConvertersCollection converters)
+        public ObjectConverter(IServiceProvider services)
             : base(false)
         {
             _activator = ExpressionUtils.BuildActivator<T>(throwIfEmptyConstructorNotFound: false);
             _equalityComparer = EqualityComparer<T>.Default;
-            _properties = PropertyConverter<T>.CreateCollection(services, converters);
+            _properties = services.ActivatePropertyConverters<T>();
         }
 
         public override T Deserialize(JsonTokenizer tokenizer)
@@ -102,7 +102,7 @@ namespace Velo.Serialization.Objects
             // it's maybe different tokens
             if (tokenizer.Current.TokenType == JsonTokenType.None) tokenizer.MoveNext();
             if (tokenizer.Current.TokenType == JsonTokenType.Null) return default!;
-            
+
             while (tokenizer.MoveNext())
             {
                 var token = tokenizer.Current;
