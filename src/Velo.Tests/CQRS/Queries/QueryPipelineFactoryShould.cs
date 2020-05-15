@@ -5,7 +5,6 @@ using Velo.CQRS.Queries;
 using Velo.CQRS.Queries.Pipeline;
 using Velo.DependencyInjection;
 using Velo.DependencyInjection.Dependencies;
-using Velo.TestsModels;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting.Boos.Get;
 using Xunit;

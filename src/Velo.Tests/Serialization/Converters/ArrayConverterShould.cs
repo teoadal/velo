@@ -21,7 +21,7 @@ namespace Velo.Tests.Serialization.Converters
 
         public ArrayConverterShould(ITestOutputHelper output) : base(output)
         {
-            var converters = BuildConvertersCollection();
+            var converters = TestUtils.BuildConvertersCollection();
             _converter = converters.Get<Boo[]>();
             _elementConverter = converters.Get<Boo>();
         }

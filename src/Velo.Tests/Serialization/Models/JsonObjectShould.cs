@@ -14,7 +14,7 @@ namespace Velo.Tests.Serialization.Models
         
         public JsonObjectShould(ITestOutputHelper output) : base(output)
         {
-            _converters = BuildConvertersCollection();
+            _converters = TestUtils.BuildConvertersCollection();
         }
 
         [Theory]

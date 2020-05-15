@@ -7,18 +7,13 @@ namespace Velo.Collections
 {
     internal static class CollectionUtils
     {
-        public static void Cut<T>(ref T[] array, int index)
+        public static void Add<T>(ref T[] array, T element)
         {
-            var length = array.Length - 1;
-
-            if (index < length)
-            {
-                Array.Copy(array, index + 1, array, index, length - index);
-            }
-
-            array[length] = default!;
+            var arrayLength = array.Length;
+            Array.Resize(ref array, arrayLength + 1);
+            array[arrayLength] = element;
         }
-
+        
         public static void DisposeValuesIfDisposable<TKey, TValue>(ConcurrentDictionary<TKey, TValue> dictionary)
             where TValue : class
         {
@@ -90,17 +85,16 @@ namespace Velo.Collections
             }
         }
 
-        public static void Insert<T>(ref T[] array, ref int index, T element)
+        public static void RemoveAt<T>(ref T[] array, int index)
         {
-            Insert(ref array, index, element);
-            index++;
-        }
+            var length = array.Length - 1;
 
-        public static void Put<T>(ref T[] array, T element)
-        {
-            var arrayLength = array.Length;
-            Array.Resize(ref array, arrayLength + 1);
-            array[arrayLength] = element;
+            if (index < length)
+            {
+                Array.Copy(array, index + 1, array, index, length - index);
+            }
+
+            array[length] = default!;
         }
     }
 }

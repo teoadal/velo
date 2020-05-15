@@ -1,10 +1,12 @@
 using System;
+using System.Diagnostics;
 using System.Threading;
 using Velo.ECS.Actors.Context;
 using Velo.Utils;
 
 namespace Velo.ECS.Actors
 {
+    [DebuggerDisplay("{_instance.GetType().Name} {_instance.Id}")]
     public sealed class SingleActor<TActor> : IDisposable
         where TActor : Actor
     {

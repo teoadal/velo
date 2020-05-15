@@ -1,7 +1,9 @@
+using System.Diagnostics;
 using Velo.ECS.Components;
 
 namespace Velo.ECS.Actors.Filters
 {
+    [DebuggerDisplay("{Entity.GetType().Name} {Entity.Id}")]
     public readonly struct Actor<TComponent>
         where TComponent : IComponent
     {

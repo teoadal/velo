@@ -6,7 +6,6 @@ using Velo.CQRS.Notifications;
 using Velo.CQRS.Notifications.Pipeline;
 using Velo.DependencyInjection;
 using Velo.DependencyInjection.Dependencies;
-using Velo.TestsModels;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting.Boos.Create;
 using Velo.TestsModels.Emitting.Parallel;

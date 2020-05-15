@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using Velo.Collections.Enumerators;
 using Velo.ECS.Actors.Context;
@@ -22,6 +23,8 @@ namespace Velo.ECS.Actors.Filters
             Func<Actor<TComponent1, TComponent2>, TArg, bool> filter, TArg arg);
     }
 
+    [DebuggerTypeProxy(typeof(DebuggerVisualizer<>))]
+    [DebuggerDisplay("Length = {" + nameof(Length) + "}")]
     internal sealed class ActorFilter<TComponent1, TComponent2> : IActorFilter<TComponent1, TComponent2>, IDisposable
         where TComponent1 : IComponent where TComponent2 : IComponent
     {

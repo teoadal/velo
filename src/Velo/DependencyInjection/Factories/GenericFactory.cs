@@ -10,10 +10,10 @@ namespace Velo.DependencyInjection.Factories
     internal sealed class GenericFactory : IDependencyFactory
     {
         private readonly Type _genericContract;
-        private readonly Type _genericImplementation;
+        private readonly Type? _genericImplementation;
         private readonly DependencyLifetime _lifetime;
 
-        public GenericFactory(Type genericContract, Type genericImplementation, DependencyLifetime lifetime)
+        public GenericFactory(Type genericContract, Type? genericImplementation, DependencyLifetime lifetime)
         {
             _genericContract = genericContract;
             _genericImplementation = genericImplementation;

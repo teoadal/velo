@@ -7,14 +7,14 @@ using Velo.Utils;
 
 namespace Velo.ECS.Sources
 {
-    internal static class SourceDescriptions
+    internal sealed class SourceDescriptions
     {
-        private static readonly Description[] Components;
-        private static readonly Description[] Entities;
+        private readonly Description[] _components;
+        private readonly Description[] _entities;
 
-        private static readonly Dictionary<int, string> Aliases;
+        private readonly Dictionary<int, string> _aliases;
 
-        static SourceDescriptions()
+        public SourceDescriptions()
         {
             var components = new List<Description>();
             var entities = new List<Description>();
@@ -35,10 +35,10 @@ namespace Velo.ECS.Sources
                 }
             }
 
-            Components = components.ToArray();
-            Entities = entities.ToArray();
+            _components = components.ToArray();
+            _entities = entities.ToArray();
 
-            Aliases = new Dictionary<int, string>();
+            _aliases = new Dictionary<int, string>();
         }
 
         public static string BuildTypeName(Type type)
@@ -46,28 +46,28 @@ namespace Velo.ECS.Sources
             return type.Name.Cut("Component");
         }
 
-        public static string GetComponentName(Type componentType)
+        public string GetComponentName(Type componentType)
         {
-            return TryGetDescription(Components, componentType, out var description)
+            return TryGetDescription(_components, componentType, out var description)
                 ? description.Name
                 : throw Error.NotFound($"Description for '{ReflectionUtils.GetName(componentType)}' isn't found");
         }
 
-        public static Type GetComponentType(string name)
+        public Type GetComponentType(string name)
         {
-            return TryGetDescription(Components, name, out var description)
+            return TryGetDescription(_components, name, out var description)
                 ? description.Type
                 : throw Error.NotFound($"Implementation type for component with name '{name}' isn't found");
         }
 
-        public static Type GetEntityType(string name)
+        public Type GetEntityType(string name)
         {
-            return TryGetDescription(Entities, name, out var description)
+            return TryGetDescription(_entities, name, out var description)
                 ? description.Type
                 : throw Error.NotFound($"Implementation type for entity with name '{name}' isn't found");
         }
 
-        public static int GetOrAddAlias(string alias)
+        public int GetOrAddAlias(string alias)
         {
             if (string.IsNullOrWhiteSpace(alias))
             {
@@ -76,20 +76,20 @@ namespace Velo.ECS.Sources
 
             var id = alias.Sum(ch => ch.GetHashCode());
 
-            if (!Aliases.ContainsKey(id))
+            if (!_aliases.ContainsKey(id))
             {
-                Aliases.Add(id, alias);
+                _aliases.Add(id, alias);
             }
 
             return id;
         }
 
-        public static bool TryGetAlias(int entityId, out string alias)
+        public bool TryGetAlias(int entityId, out string alias)
         {
-            return Aliases.TryGetValue(entityId, out alias);
+            return _aliases.TryGetValue(entityId, out alias);
         }
 
-        private static bool TryGetDescription(Description[] descriptions, string name, out Description description)
+        private bool TryGetDescription(Description[] descriptions, string name, out Description description)
         {
             var comparer = StringUtils.IgnoreCaseComparer;
 
@@ -105,7 +105,7 @@ namespace Velo.ECS.Sources
             return false;
         }
 
-        private static bool TryGetDescription(Description[] descriptions, Type type, out Description description)
+        private bool TryGetDescription(Description[] descriptions, Type type, out Description description)
         {
             foreach (var element in descriptions)
             {

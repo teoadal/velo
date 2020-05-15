@@ -18,7 +18,7 @@ namespace Velo.Tests.Serialization
 
         public SerializationTests(ITestOutputHelper output) : base(output)
         {
-            _converter = new JConverter(BuildConvertersCollection());
+            _converter = new JConverter(TestUtils.BuildConvertersCollection());
         }
 
         [Theory]

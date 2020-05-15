@@ -9,11 +9,14 @@ namespace Velo.ECS.Sources.Json.Properties
 {
     internal sealed class IdConverter : IPropertyConverter<IEntity>
     {
+        private readonly SourceDescriptions _descriptions;
+
         private readonly IJsonConverter<int> _intConverter;
         private readonly IJsonConverter<string> _stringConverter;
 
-        public IdConverter(IConvertersCollection converters)
+        public IdConverter(IConvertersCollection converters, SourceDescriptions descriptions)
         {
+            _descriptions = descriptions;
             _intConverter = converters.Get<int>();
             _stringConverter = converters.Get<string>();
         }
@@ -27,14 +30,14 @@ namespace Velo.ECS.Sources.Json.Properties
             }
 
             var alias = _stringConverter.Read(value);
-            return SourceDescriptions.GetOrAddAlias(alias);
+            return _descriptions.GetOrAddAlias(alias);
         }
 
         public void Serialize(IEntity instance, TextWriter output)
         {
             var instanceId = instance.Id;
 
-            if (SourceDescriptions.TryGetAlias(instanceId, out var alias))
+            if (_descriptions.TryGetAlias(instanceId, out var alias))
             {
                 output.WriteString(alias);
             }
@@ -48,7 +51,7 @@ namespace Velo.ECS.Sources.Json.Properties
         {
             var instanceId = instance.Id;
 
-            var idValue = SourceDescriptions.TryGetAlias(instanceId, out var alias)
+            var idValue = _descriptions.TryGetAlias(instanceId, out var alias)
                 ? JsonValue.String(alias)
                 : JsonValue.Number(instanceId);
 

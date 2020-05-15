@@ -20,8 +20,7 @@ namespace Velo.Tests.ECS.Sources
     {
         private readonly IEntitySourceContext<Asset> _context;
         private readonly Mock<IEntitySource<Asset>> _source;
-        private readonly Type _sourceArray;
-        private readonly Mock<IServiceProvider> _serviceProvider;
+        private readonly Mock<IReference<IEntitySource<Asset>[]>> _sources;
 
         public EntitySourceContextShould(ITestOutputHelper output) : base(output)
         {
@@ -30,14 +29,12 @@ namespace Velo.Tests.ECS.Sources
                 .Setup(source => source.GetEntities(_context))
                 .Returns(Array.Empty<Asset>());
 
-            _sourceArray = typeof(IEntitySource<Asset>[]);
-
-            _serviceProvider = new Mock<IServiceProvider>();
-            _serviceProvider
-                .Setup(provider => provider.GetService(_sourceArray))
+            _sources = new Mock<IReference<IEntitySource<Asset>[]>>();
+            _sources
+                .SetupGet(reference => reference.Value)
                 .Returns(new[] {_source.Object});
 
-            _context = new EntitySourceContext<Asset>(_serviceProvider.Object);
+            _context = new EntitySourceContext<Asset>(_sources.Object);
         }
 
         [Fact]
@@ -54,8 +51,8 @@ namespace Velo.Tests.ECS.Sources
         [MemberData(nameof(EmptySources))]
         public void GetEmptyEnumeratorIfEventSourcesIsNotRegistered(IEntitySource<Asset>[] sources)
         {
-            _serviceProvider
-                .Setup(provider => provider.GetService(_sourceArray))
+            _sources
+                .SetupGet(reference => reference.Value)
                 .Returns(sources);
 
             _context.GetEntities().Should().BeOfType<EmptyEnumerator<Asset>>();
@@ -74,10 +71,10 @@ namespace Velo.Tests.ECS.Sources
                 testAsset = new TestAsset(testAssetId, Array.Empty<IComponent>()) {Reference = context.Get(90)};
                 return new[] {testAsset};
             });
-            CollectionUtils.Put(ref sources, delegateSource);
+            CollectionUtils.Add(ref sources, delegateSource);
 
-            _serviceProvider
-                .Setup(provider => provider.GetService(_sourceArray))
+            _sources
+                .SetupGet(reference => reference.Value)
                 .Returns(sources);
 
             _context.GetEntities(); // start enumeration
@@ -142,8 +139,8 @@ namespace Velo.Tests.ECS.Sources
             var assets = Many(100, i => CreateAsset(i));
             var sources = Many(10, i => CreateSource(assets.Skip(i * 10).Take(10)));
 
-            _serviceProvider
-                .Setup(provider => provider.GetService(_sourceArray))
+            _sources
+                .SetupGet(reference => reference.Value)
                 .Returns(sources);
 
             var actual = _context
@@ -161,7 +158,7 @@ namespace Velo.Tests.ECS.Sources
             var enumerator = _context.GetEntities();
             _context.GetEntities().Should().BeSameAs(enumerator);
         }
-        
+
         [Fact]
         public void SendContextAfterStartEnumeration()
         {

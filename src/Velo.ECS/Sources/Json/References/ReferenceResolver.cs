@@ -10,26 +10,28 @@ namespace Velo.ECS.Sources.Json.References
     internal abstract class ReferenceResolver<TOwner, TEntity>
         where TOwner : class where TEntity : class, IEntity
     {
-        public static ReferenceResolver<TOwner, TEntity> Build(PropertyInfo property, Func<int, TEntity> resolver)
+        public static ReferenceResolver<TOwner, TEntity> Build(PropertyInfo property, SourceDescriptions descriptions, Func<int, TEntity> resolver)
         {
             var propertyType = property.PropertyType;
             if (ReflectionUtils.IsListLikeGenericType(propertyType, out _))
             {
-                return new ListReferenceResolver<TOwner, TEntity>(property, resolver);
+                return new ListReferenceResolver<TOwner, TEntity>(property,descriptions, resolver);
             }
 
             if (ReflectionUtils.IsArrayLikeGenericType(propertyType, out _))
             {
-                return new ArrayReferenceResolver<TOwner, TEntity>(property, resolver);
+                return new ArrayReferenceResolver<TOwner, TEntity>(property, descriptions, resolver);
             }
 
-            return new EntityReferenceResolver<TOwner, TEntity>(property, resolver);
+            return new EntityReferenceResolver<TOwner, TEntity>(property, descriptions, resolver);
         }
 
+        private readonly SourceDescriptions _descriptions;
         private readonly Func<int, TEntity> _resolver;
 
-        protected ReferenceResolver(Func<int, TEntity> resolver)
+        protected ReferenceResolver(SourceDescriptions descriptions, Func<int, TEntity> resolver)
         {
+            _descriptions = descriptions;
             _resolver = resolver;
         }
 
@@ -46,7 +48,7 @@ namespace Velo.ECS.Sources.Json.References
             if (idValue.Type == JsonDataType.Null) return null;
 
             var id = idValue.Type == JsonDataType.String
-                ? SourceDescriptions.GetOrAddAlias(idValue.Value)
+                ? _descriptions.GetOrAddAlias(idValue.Value)
                 : int.Parse(idValue.Value);
 
             return _resolver(id);
@@ -61,7 +63,7 @@ namespace Velo.ECS.Sources.Json.References
             }
 
             var entityId = entity.Id;
-            if (SourceDescriptions.TryGetAlias(entityId, out var alias))
+            if (_descriptions.TryGetAlias(entityId, out var alias))
             {
                 output.WriteString(alias);
             }
@@ -76,7 +78,7 @@ namespace Velo.ECS.Sources.Json.References
             if (entity == null) return JsonValue.Null;
 
             var entityId = entity.Id;
-            return SourceDescriptions.TryGetAlias(entityId, out var alias)
+            return _descriptions.TryGetAlias(entityId, out var alias)
                 ? JsonValue.String(alias)
                 : JsonValue.Number(entityId);
         }

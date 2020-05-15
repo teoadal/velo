@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Velo.ECS.Assets;
 using Velo.ECS.Components;
-using Velo.ECS.Sources.Json.References;
+using Velo.ECS.Sources.Json;
 
 namespace Velo.TestsModels.ECS
 {

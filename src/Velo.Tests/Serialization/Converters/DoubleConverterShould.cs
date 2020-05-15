@@ -14,7 +14,7 @@ namespace Velo.Tests.Serialization.Converters
 
         public DoubleConverterShould(ITestOutputHelper output) : base(output)
         {
-            _converter = BuildConvertersCollection().Get<double>();
+            _converter = TestUtils.BuildConvertersCollection().Get<double>();
         }
 
         [Fact]

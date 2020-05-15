@@ -11,7 +11,7 @@ namespace Velo.Tests.Collections
     {
         private readonly string _arg;
         private readonly DangerousVector<Type, string> _vector;
-        
+
         public DangerousVectorShould(ITestOutputHelper output) : base(output)
         {
             _arg = nameof(DangerousVectorShould);
@@ -28,7 +28,7 @@ namespace Velo.Tests.Collections
                 name.Should().Be(type.Name);
             }
         }
-        
+
         [Fact]
         public void AddMultiThreading()
         {
@@ -39,7 +39,7 @@ namespace Velo.Tests.Collections
                 name.Should().Be(type.Name);
             });
         }
-        
+
         [Fact]
         public void AddWithArg()
         {
@@ -50,7 +50,7 @@ namespace Velo.Tests.Collections
                 name.Should().Be(type.Name + _arg);
             }
         }
-        
+
         [Fact]
         public void AddWithArgMultiThreading()
         {
@@ -60,6 +60,14 @@ namespace Velo.Tests.Collections
                 var name = _vector.GetOrAdd(type, (t, arg) => t.Name + arg, _arg);
                 name.Should().Be(type.Name + _arg);
             });
+        }
+
+        [Fact]
+        public void TryAdd()
+        {
+            _vector
+                .Invoking(vector => vector.TryAdd(typeof(object), string.Empty))
+                .Should().NotThrow();
         }
     }
 }

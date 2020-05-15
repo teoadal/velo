@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using Velo.Utils;
 
 namespace Velo.Collections.Enumerators
 {
@@ -12,29 +13,35 @@ namespace Velo.Collections.Enumerators
         private ReaderWriterLockSlim _lock;
         private int _position;
 
+        private bool _disposed;
+
         internal ArrayLockEnumerator(T[] array, ReaderWriterLockSlim lockObject)
         {
             _array = array;
+            _disposed = false;
 
             _lock = lockObject;
             _lock.EnterReadLock();
 
-            Current = default!;
+            _position = 0;
 
-            _position = -1;
+            Current = default!;
         }
 
-        public IEnumerator<T> GetEnumerator() => this;
+        public readonly ArrayLockEnumerator<T> GetEnumerator() => this;
 
         public bool MoveNext()
         {
-            _position++;
+            if (_disposed) throw Error.Disposed(GetType().Name);
 
-            if (_position == _array.Length) return false;
+            // ReSharper disable once InvertIf
+            if ((uint) _position < (uint) _array.Length)
+            {
+                Current = _array[_position++];
+                return true;
+            }
 
-            Current = _array[_position];
-
-            return true;
+            return false;
         }
 
         void IEnumerator.Reset()
@@ -43,15 +50,20 @@ namespace Velo.Collections.Enumerators
 
         object IEnumerator.Current => Current!;
         IEnumerator IEnumerable.GetEnumerator() => this;
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() => this;
 
         public void Dispose()
         {
+            if (_disposed) return;
+
             _lock.ExitReadLock();
 
             Current = default!;
 
             _array = null!;
             _lock = null!;
+
+            _disposed = true;
         }
     }
 }

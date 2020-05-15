@@ -118,30 +118,7 @@ namespace Velo.Collections.Local
             }
         }
 
-        public LocalList(IEnumerable<T> collection, int count)
-            : this(count)
-        {
-            foreach (var element in collection)
-            {
-                Set(_length, element);
-                _length++;
-            }
-        }
-
         #endregion
-
-        public readonly bool All(Predicate<T> predicate)
-        {
-            for (var i = 0; i < _length; i++)
-            {
-                if (!predicate(Get(i)))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
 
         public void Add(T element)
         {
@@ -191,8 +168,9 @@ namespace Velo.Collections.Local
 
         public void AddRange(LocalList<T> collection)
         {
-            foreach (var element in collection)
+            for (var i = 0; i < collection.Length; i++)
             {
+                var element = collection.Get(i);
                 Add(element);
             }
         }
@@ -205,6 +183,32 @@ namespace Velo.Collections.Local
             }
         }
 
+        public readonly bool All(Predicate<T> predicate)
+        {
+            for (var i = 0; i < _length; i++)
+            {
+                if (!predicate(Get(i)))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        
+        public readonly bool All<TArg>(Func<T, TArg, bool> predicate, TArg arg)
+        {
+            for (var i = 0; i < _length; i++)
+            {
+                if (!predicate(Get(i), arg))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        
         public readonly bool Any(Predicate<T> predicate)
         {
             for (var i = 0; i < _length; i++)
@@ -251,9 +255,11 @@ namespace Velo.Collections.Local
             return false;
         }
 
+        #region First
+
         public readonly T First()
         {
-            if (_length == 0) throw Error.InconsistentOperation("Collection length is 0");
+            if (_length == 0) throw Error.OutOfRange("Collection length is 0");
             return _element0;
         }
 
@@ -290,6 +296,8 @@ namespace Velo.Collections.Local
         {
             return new Enumerator(in this);
         }
+
+        #endregion
 
         public readonly GroupEnumerator<TKey> GroupBy<TKey>(Func<T, TKey> keySelector,
             EqualityComparer<TKey>? keyComparer = null)

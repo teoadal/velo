@@ -19,7 +19,7 @@ namespace Velo.Tests.Serialization.Converters
 
         public ObjectConverterShould(ITestOutputHelper output) : base(output)
         {
-            _converters = BuildConvertersCollection();
+            _converters = TestUtils.BuildConvertersCollection();
             _converter = _converters.Get<Boo>();
         }
 

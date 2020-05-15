@@ -19,9 +19,8 @@ namespace Velo.Tests.Serialization.Models
         public JsonArrayShould(ITestOutputHelper output) : base(output)
         {
             _array = System.Linq.Enumerable.Range(0, 10).ToArray();
-
-            var converters = BuildConvertersCollection();
-            _elementConverter = converters.Get<int>();
+            
+            _elementConverter = TestUtils.BuildConvertersCollection().Get<int>();
 
             _jsonArray = new JsonArray(_array.Select(_elementConverter.Write));
         }

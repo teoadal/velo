@@ -14,7 +14,7 @@ namespace Velo.Tests.Serialization.Converters
 
         public BoolConverterShould(ITestOutputHelper output) : base(output)
         {
-            _converter = BuildConvertersCollection().Get<bool>();
+            _converter = TestUtils.BuildConvertersCollection().Get<bool>();
         }
 
         [Fact]

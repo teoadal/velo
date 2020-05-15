@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Velo.Utils;
 
 namespace Velo.Collections.Enumerators
 {
@@ -10,38 +11,49 @@ namespace Velo.Collections.Enumerators
         private T[] _array;
         private int _position;
 
+        private bool _disposed;
+
         internal ArrayEnumerator(T[] array)
         {
             _array = array;
-            _position = -1;
+            _disposed = false;
+            _position = 0;
 
             Current = default!;
         }
 
         public bool MoveNext()
         {
-            _position++;
+            if (_disposed) throw Error.Disposed(GetType().Name);
 
-            if (_position == _array.Length) return false;
+            // ReSharper disable once InvertIf
+            if ((uint) _position < (uint) _array.Length)
+            {
+                Current = _array[_position++];
+                return true;
+            }
 
-            Current = _array[_position];
-
-            return true;
+            return false;
         }
 
-        public IEnumerator<T> GetEnumerator() => this;
+        public readonly IEnumerator<T> GetEnumerator() => this;
 
         public void Reset()
         {
-            _position = -1;
+            if (_disposed) throw Error.Disposed(GetType().Name);
+            _position = 0;
         }
 
         public void Dispose()
         {
+            if (_disposed) return;
+
             Current = default!;
 
             _array = null!;
             _position = -1;
+
+            _disposed = true;
         }
 
         object IEnumerator.Current => Current!;

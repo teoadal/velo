@@ -15,8 +15,8 @@ namespace Velo.ECS.Sources.Json.References
 
         private readonly string _propertyName;
 
-        public ListReferenceResolver(PropertyInfo property, Func<int, TEntity> resolver)
-            : base(resolver)
+        public ListReferenceResolver(PropertyInfo property, SourceDescriptions descriptions, Func<int, TEntity> resolver)
+            : base(descriptions, resolver)
         {
             _propertyName = property.Name;
 

@@ -6,7 +6,6 @@ using Velo.DependencyInjection;
 using Velo.DependencyInjection.Dependencies;
 using Velo.ECS.Systems;
 using Velo.ECS.Systems.Handlers;
-using Velo.TestsModels;
 using Velo.TestsModels.ECS;
 using Xunit;
 using Xunit.Abstractions;

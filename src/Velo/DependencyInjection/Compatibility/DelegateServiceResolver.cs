@@ -1,6 +1,6 @@
 using System;
 
-namespace Velo.DependencyInjection
+namespace Velo.DependencyInjection.Compatibility
 {
     internal sealed class DelegateServiceResolver : IServiceProvider
     {

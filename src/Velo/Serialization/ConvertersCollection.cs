@@ -5,6 +5,7 @@ using System.Reflection;
 using Velo.Collections;
 using Velo.Collections.Local;
 using Velo.DependencyInjection;
+using Velo.DependencyInjection.Compatibility;
 using Velo.Serialization.Attributes;
 using Velo.Serialization.Collections;
 using Velo.Serialization.Objects;
@@ -23,13 +24,13 @@ namespace Velo.Serialization
     internal sealed class ConvertersCollection : DangerousVector<Type, IJsonConverter>, IConvertersCollection
     {
         private readonly Func<Type, IJsonConverter> _converterBuilder;
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IServiceProvider _services;
 
-        public ConvertersCollection(IServiceProvider serviceProvider, CultureInfo? culture = null)
+        public ConvertersCollection(IServiceProvider services, CultureInfo? culture = null)
             : base(DefaultConverters(culture ?? CultureInfo.InvariantCulture))
         {
             _converterBuilder = BuildConverter;
-            _serviceProvider = serviceProvider;
+            _services = services;
         }
 
         public ConvertersCollection(Func<Type, object> serviceProvider, CultureInfo? culture = null)
@@ -104,11 +105,11 @@ namespace Velo.Serialization
                     .GetConverterType(type);
 
                 var injections = new LocalList<object>(type, this);
-                return (IJsonConverter) _serviceProvider.Activate(customConverterType, injections);
+                return (IJsonConverter) _services.Activate(customConverterType, injections);
             }
 
             var converterType = typeof(ObjectConverter<>).MakeGenericType(type);
-            return (IJsonConverter) Activator.CreateInstance(converterType, _serviceProvider);
+            return (IJsonConverter) Activator.CreateInstance(converterType, _services);
         }
 
         private static Dictionary<Type, IJsonConverter> DefaultConverters(CultureInfo culture)

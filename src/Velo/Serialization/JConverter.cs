@@ -14,9 +14,9 @@ namespace Velo.Serialization
         [ThreadStatic]
         private static StringBuilder? _buffer;
 
-        internal JConverter(IConvertersCollection convertersCollection)
+        internal JConverter(IConvertersCollection converters)
         {
-            Converters = convertersCollection;
+            Converters = converters;
         }
 
         public TOut Deserialize<TOut>(string? source)

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Velo.Utils;
 
 namespace Velo.Collections.Enumerators
 {
@@ -11,13 +12,16 @@ namespace Velo.Collections.Enumerators
         private TArg _arg;
         private T[] _array;
         private Func<T, TArg, bool> _filter;
+
+        private bool _disposed;
         private int _position;
 
         public ArrayWhereEnumerator(T[] array, Func<T, TArg, bool> filter, TArg arg)
         {
             _array = array;
-            _filter = filter;
             _arg = arg;
+            _disposed = false;
+            _filter = filter;
             _position = 0;
 
             Current = default!;
@@ -25,9 +29,11 @@ namespace Velo.Collections.Enumerators
 
         public bool MoveNext()
         {
-            for (var i = _position; i < _array.Length; i++)
+            if (_disposed) throw Error.Disposed(GetType().Name);
+            
+            for (; _position < _array.Length; _position++)
             {
-                var current = _array[i];
+                var current = _array[_position];
 
                 if (!_filter(current, _arg)) continue;
 
@@ -39,21 +45,24 @@ namespace Velo.Collections.Enumerators
             return false;
         }
 
-        public IEnumerator<T> GetEnumerator() => this;
+        public readonly IEnumerator<T> GetEnumerator() => this;
 
         public void Reset()
         {
-            _position = -1;
+            _position = 0;
         }
 
         public void Dispose()
         {
+            if (_disposed) return;
+            
             _arg = default!;
             _array = null!;
             _filter = null!;
-            _position = -1;
 
             Current = default!;
+
+            _disposed = true;
         }
 
         object IEnumerator.Current => Current!;

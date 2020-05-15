@@ -14,7 +14,7 @@ namespace Velo.Tests.Serialization.Converters
         
         public ListConverterShould(ITestOutputHelper output) : base(output)
         {
-            var converters = BuildConvertersCollection();
+            var converters = TestUtils.BuildConvertersCollection();
             _converter = converters.Get<List<int>>();
         }
 

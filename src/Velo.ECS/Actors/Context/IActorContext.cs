@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Velo.ECS.Actors.Filters;
 using Velo.ECS.Actors.Groups;
 using Velo.ECS.Components;
+using Velo.ECS.Sources;
 
 namespace Velo.ECS.Actors.Context
 {
@@ -42,6 +43,8 @@ namespace Velo.ECS.Actors.Context
 
         SingleActor<TActor> GetSingle<TActor>() where TActor : Actor;
 
+        void Load(params IEntitySource<Actor>[] actorSources);
+        
         bool Remove(Actor actor);
 
         bool TryGet(int actorId, out Actor actor);

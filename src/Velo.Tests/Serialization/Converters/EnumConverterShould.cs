@@ -17,7 +17,7 @@ namespace Velo.Tests.Serialization.Converters
 
         public EnumConverterShould(ITestOutputHelper output) : base(output)
         {
-            _converter = BuildConvertersCollection().Get<DependencyLifetime>();
+            _converter = TestUtils.BuildConvertersCollection().Get<DependencyLifetime>();
         }
 
         [Fact]

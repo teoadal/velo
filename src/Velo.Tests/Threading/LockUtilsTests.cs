@@ -3,7 +3,7 @@ using Velo.Threading;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Tests.Utils
+namespace Velo.Tests.Threading
 {
     public class LockUtilsTests : TestClass
     {

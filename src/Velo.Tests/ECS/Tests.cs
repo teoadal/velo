@@ -5,18 +5,22 @@ using AutoFixture;
 using FluentAssertions;
 using Velo.Collections.Local;
 using Velo.DependencyInjection;
+using Velo.ECS.Actors;
+using Velo.ECS.Actors.Context;
 using Velo.ECS.Assets;
 using Velo.ECS.Assets.Context;
 using Velo.ECS.Components;
+using Velo.ECS.Sources.Json;
 using Velo.Serialization;
 using Velo.TestsModels.ECS;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Tests.ECS.Sources
+namespace Velo.Tests.ECS
 {
     public class Tests : ECSTestClass
     {
+        private readonly Actor[] _actors;
         private readonly Asset[] _assets;
         private readonly TestAsset _asset;
 
@@ -29,6 +33,7 @@ namespace Velo.Tests.ECS.Sources
                 .AddECS()
                 .BuildProvider()
                 .GetRequiredService<JConverter>();
+
             _converter = _jsonConverter.Converters.Get(typeof(TestAsset));
 
             var reference = CreateAsset(6);
@@ -59,6 +64,12 @@ namespace Velo.Tests.ECS.Sources
             assets.Add(_asset);
             assets.Reverse();
             _assets = assets.ToArray();
+
+            _actors = new[]
+            {
+                new Actor(1), 
+                new TestActor(2) {Prototype = reference},
+            };
         }
 
         [Fact]
@@ -72,6 +83,25 @@ namespace Velo.Tests.ECS.Sources
         }
 
         [Fact]
+        public void CorrectConverter1()
+        {
+            var provider = new DependencyCollection()
+                .AddECS()
+                .AddAssets(ctx => _assets)
+                .BuildProvider();
+
+            var serialized = _jsonConverter.Serialize(_actors);
+            using var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(serialized));
+
+            var actors = provider.GetRequiredService<IActorContext>();
+            var actorsSource = provider.Activate<JsonStreamSource<Actor>>(new LocalList<object>(memoryStream));
+            
+            actors.Load(actorsSource);
+
+            actors.Should().Contain(_actors);
+        }
+
+        [Fact]
         public void CorrectConverter2()
         {
             var serialized = _jsonConverter.Serialize(_assets);
@@ -79,7 +109,7 @@ namespace Velo.Tests.ECS.Sources
 
             var provider = new DependencyCollection()
                 .AddECS()
-                .AddJsonStreamAssets(memoryStream)
+                .AddJsonAssets(memoryStream)
                 .BuildProvider();
 
             var assets = provider.GetRequiredService<IAssetContext>();

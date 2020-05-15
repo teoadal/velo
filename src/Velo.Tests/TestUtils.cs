@@ -3,11 +3,21 @@ using Moq;
 using Velo.DependencyInjection;
 using Velo.DependencyInjection.Dependencies;
 using Velo.DependencyInjection.Resolvers;
+using Velo.Serialization;
 
-namespace Velo.TestsModels
+namespace Velo.Tests
 {
     public static class TestUtils
     {
+        internal static ConvertersCollection BuildConvertersCollection(IServiceProvider serviceProvider = null)
+        {
+            serviceProvider ??= new DependencyCollection()
+                .AddJsonConverter()
+                .BuildProvider();
+
+            return (ConvertersCollection) serviceProvider.GetService(typeof(IConvertersCollection));
+        }
+        
         public static Mock<IDependency> MockDependency(DependencyLifetime lifetime = DependencyLifetime.Singleton,
             Type contract = null)
         {

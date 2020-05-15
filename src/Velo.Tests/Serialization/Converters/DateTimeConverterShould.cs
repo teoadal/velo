@@ -15,7 +15,7 @@ namespace Velo.Tests.Serialization.Converters
 
         public DateTimeConverterShould(ITestOutputHelper output) : base(output)
         {
-            _converter = BuildConvertersCollection().Get<DateTime>();
+            _converter = TestUtils.BuildConvertersCollection().Get<DateTime>();
         }
 
         [Fact]

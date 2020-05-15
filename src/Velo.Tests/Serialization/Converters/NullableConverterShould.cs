@@ -14,7 +14,7 @@ namespace Velo.Tests.Serialization.Converters
 
         public NullableConverterShould(ITestOutputHelper output) : base(output)
         {
-            _converter = BuildConvertersCollection().Get<int?>();
+            _converter = TestUtils.BuildConvertersCollection().Get<int?>();
         }
 
         [Fact]

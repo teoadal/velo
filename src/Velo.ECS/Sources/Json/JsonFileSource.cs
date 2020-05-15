@@ -10,7 +10,8 @@ namespace Velo.ECS.Sources.Json
     {
         private readonly string _path;
 
-        public JsonFileSource(IConvertersCollection converters, string path) : base(converters)
+        public JsonFileSource(IConvertersCollection converters, SourceDescriptions descriptions, string path)
+            : base(converters, descriptions)
         {
             if (!File.Exists(path)) throw Error.FileNotFound(path);
 

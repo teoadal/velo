@@ -35,7 +35,7 @@ namespace Velo.Tests.Settings.Sources
                 var fileSource = new JsonFileSource(fileName, true);
                 fileSource.TryGet(out var jsonObject);
 
-                var converter = BuildConvertersCollection().Get<BigObject>();
+                var converter = TestUtils.BuildConvertersCollection().Get<BigObject>();
                 converter.Read(jsonObject).Should().BeEquivalentTo(values);
             }
             catch

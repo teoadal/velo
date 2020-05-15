@@ -14,7 +14,7 @@ namespace Velo.Tests.Serialization.Converters
 
         public DecimalConverterShould(ITestOutputHelper output) : base(output)
         {
-            _converter = BuildConvertersCollection().Get<decimal>();
+            _converter = TestUtils.BuildConvertersCollection().Get<decimal>();
         }
 
         [Fact]

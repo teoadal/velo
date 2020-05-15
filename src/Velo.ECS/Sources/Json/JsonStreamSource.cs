@@ -9,7 +9,8 @@ namespace Velo.ECS.Sources.Json
     {
         private readonly Stream _stream;
 
-        public JsonStreamSource(IConvertersCollection converters, Stream stream) : base(converters)
+        public JsonStreamSource(IConvertersCollection converters, SourceDescriptions descriptions, Stream stream)
+            : base(converters, descriptions)
         {
             _stream = stream;
         }

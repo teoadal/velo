@@ -30,7 +30,7 @@ namespace Velo.Collections.Enumerators
             Current = default!;
         }
 
-        public IEnumerator<T> GetEnumerator() => this;
+        public readonly IEnumerator<T> GetEnumerator() => this;
 
         public bool MoveNext()
         {
@@ -94,7 +94,7 @@ namespace Velo.Collections.Enumerators
             Current = default!;
         }
 
-        public IEnumerator<TValue> GetEnumerator() => this;
+        public readonly IEnumerator<TValue> GetEnumerator() => this;
 
         public bool MoveNext()
         {

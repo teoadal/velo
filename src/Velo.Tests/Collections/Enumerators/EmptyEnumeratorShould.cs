@@ -2,7 +2,7 @@ using Velo.Collections.Enumerators;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Tests.Collections
+namespace Velo.Tests.Collections.Enumerators
 {
     public class EmptyEnumeratorShould : TestClass
     {
@@ -11,7 +11,7 @@ namespace Velo.Tests.Collections
         }
 
         [Fact]
-        public void BeEmpty()
+        public void Empty()
         {
             var instance = EmptyEnumerator<int>.Instance;
             

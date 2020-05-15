@@ -14,7 +14,7 @@ namespace Velo.Tests.Serialization.Converters
 
         public FloatConverterShould(ITestOutputHelper output) : base(output)
         {
-            _converter = BuildConvertersCollection().Get<float>();
+            _converter = TestUtils.BuildConvertersCollection().Get<float>();
         }
 
         [Fact]

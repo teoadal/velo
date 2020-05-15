@@ -15,7 +15,7 @@ namespace Velo.Tests.Serialization.Converters
 
         public TimeSpanConverterShould(ITestOutputHelper output) : base(output)
         {
-            _converter = BuildConvertersCollection().Get<TimeSpan>();
+            _converter = TestUtils.BuildConvertersCollection().Get<TimeSpan>();
         }
 
         [Fact]

@@ -8,6 +8,7 @@ namespace Velo.Collections
     {
         public static bool Contains<T, TArg>(this T[] array, Func<T, TArg, bool> predicate, TArg arg)
         {
+            // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var element in array)
             {
                 if (predicate(element, arg)) return true;
@@ -34,7 +35,7 @@ namespace Velo.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool NullOrEmpty<T>(this T[] array)
+        public static bool NullOrEmpty<T>(this T[]? array)
         {
             return array == null || array.Length == 0;
         }

@@ -1,19 +1,24 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using Velo.Collections;
 using Velo.Collections.Enumerators;
+using Velo.Collections.Local;
 using Velo.ECS.Actors.Filters;
 using Velo.ECS.Actors.Groups;
 using Velo.ECS.Components;
+using Velo.ECS.Sources;
+using Velo.ECS.Sources.Context;
 using Velo.Threading;
 using Velo.Utils;
 
 namespace Velo.ECS.Actors.Context
 {
-    internal sealed class ActorContext : IActorContext
+    [DebuggerTypeProxy(typeof(ActorContextDebugVisualizer))]
+    internal sealed partial class ActorContext : IActorContext
     {
         public event Action<Actor>? Added;
 
@@ -210,6 +215,25 @@ namespace Velo.ECS.Actors.Context
             return (SingleActor<TActor>) singleActor;
         }
 
+        public void Load(params IEntitySource<Actor>[] actorSources)
+        {
+            var context = new EntitySourceContext<Actor>(actorSources);
+
+            var buffer = new LocalList<Actor>();
+            foreach (var actor in context.GetEntities())
+            {
+                buffer.Add(actor);
+
+                if (buffer.Length != 10) continue;
+
+                AddActors(buffer);
+
+                buffer.Clear();
+            }
+
+            AddActors(buffer);
+        }
+
         public bool Remove(Actor actor)
         {
             bool removeResult;
@@ -242,6 +266,24 @@ namespace Velo.ECS.Actors.Context
             return new ReadLockWhereEnumerator<int, Actor, TArg>(_actors.Values, filter, arg, _actorsLock);
         }
 
+        private void AddActors(LocalList<Actor> actors)
+        {
+            if (actors.Length == 0) return;
+
+            using (WriteLock.Enter(_actorsLock))
+            {
+                foreach (var actor in actors)
+                {
+                    _actors.Add(actor.Id, actor);
+                }
+            }
+
+            foreach (var actor in actors)
+            {
+                Subscribe(actor);
+            }
+        }
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Subscribe(Actor actor)
         {

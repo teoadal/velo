@@ -27,7 +27,7 @@ namespace Velo.Tests.Logging
 
         public LogRendererShould(ITestOutputHelper output) : base(output)
         {
-            _converters = BuildConvertersCollection();
+            _converters = TestUtils.BuildConvertersCollection();
 
             _logWriter = new Mock<ILogWriter>();
             _logWriter

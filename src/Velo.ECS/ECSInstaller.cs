@@ -58,6 +58,7 @@ namespace Velo.DependencyInjection
 
             // source
             dependencies
+                .AddInstance(new SourceDescriptions())
                 .AddSingleton(typeof(IEntitySourceContext<>), typeof(EntitySourceContext<>))
                 .EnsureJsonEnabled();
 
@@ -100,18 +101,18 @@ namespace Velo.DependencyInjection
             return dependencies;
         }
 
-        public static DependencyCollection AddJsonFileAssets(this DependencyCollection dependencies, string path)
+        public static DependencyCollection AddJsonAssets(this DependencyCollection dependencies, string filePath)
         {
-            if (string.IsNullOrWhiteSpace(path)) throw Error.Null(nameof(path));
+            if (string.IsNullOrWhiteSpace(filePath)) throw Error.Null(nameof(filePath));
 
             dependencies.AddDependency(AssetSourceContracts,
-                scope => scope.Activate<JsonFileSource<Asset>>(new LocalList<object>(path)),
+                scope => scope.Activate<JsonFileSource<Asset>>(new LocalList<object>(filePath)),
                 DependencyLifetime.Singleton);
 
             return dependencies;
         }
 
-        public static DependencyCollection AddJsonStreamAssets(this DependencyCollection dependencies, Stream stream)
+        public static DependencyCollection AddJsonAssets(this DependencyCollection dependencies, Stream stream)
         {
             if (stream == null) throw Error.Null(nameof(stream));
 

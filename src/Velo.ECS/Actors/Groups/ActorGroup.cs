@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using Velo.Collections.Enumerators;
 using Velo.ECS.Actors.Context;
@@ -8,6 +9,8 @@ using Velo.Threading;
 
 namespace Velo.ECS.Actors.Groups
 {
+    [DebuggerTypeProxy(typeof(DebuggerVisualizer<>))]
+    [DebuggerDisplay("Length = {" + nameof(Length) + "}")]
     internal sealed class ActorGroup<TActor> : IActorGroup<TActor>, IDisposable
         where TActor : Actor
     {

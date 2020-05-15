@@ -1,8 +1,7 @@
-using System;
 using System.IO;
 using System.Reflection;
-using Velo.DependencyInjection;
 using Velo.ECS.Assets.Context;
+using Velo.ECS.Sources;
 using Velo.ECS.Sources.Context;
 using Velo.ECS.Sources.Json.References;
 using Velo.Serialization.Models;
@@ -15,19 +14,20 @@ namespace Velo.ECS.Assets.Sources.Json
     internal sealed class AssetReferencesConverter<TOwner, TAsset> : IPropertyConverter<TOwner>
         where TOwner : class where TAsset : Asset
     {
-        private readonly Lazy<IAssetContext> _assetContext;
-        private readonly IEntitySourceContext<Asset> _sourceContext;
+        private readonly IReference<IAssetContext> _assetContext;
+        private readonly IEntitySourceContext<Asset> _sources;
 
         private readonly ReferenceResolver<TOwner, TAsset> _resolver;
 
         public AssetReferencesConverter(
-            DependencyProvider serviceProvider,
-            IEntitySourceContext<Asset> sourceContext,
+            IReference<IAssetContext> assetContext,
+            SourceDescriptions descriptions,
+            IEntitySourceContext<Asset> sources,
             PropertyInfo property)
         {
-            _assetContext = new Lazy<IAssetContext>(serviceProvider.GetRequiredService<IAssetContext>);
-            _resolver = ReferenceResolver<TOwner, TAsset>.Build(property, GetEntity);
-            _sourceContext = sourceContext;
+            _assetContext = assetContext;
+            _resolver = ReferenceResolver<TOwner, TAsset>.Build(property, descriptions, GetEntity);
+            _sources = sources;
         }
 
         public void Read(JsonObject source, TOwner instance)
@@ -47,8 +47,8 @@ namespace Velo.ECS.Assets.Sources.Json
 
         private TAsset GetEntity(int id)
         {
-            var asset = _sourceContext.IsStarted
-                ? _sourceContext.Get(id)
+            var asset = _sources.IsStarted
+                ? _sources.Get(id)
                 : _assetContext.Value.Get(id);
 
             return (TAsset) asset;

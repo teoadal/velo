@@ -17,7 +17,13 @@ namespace Velo.DependencyInjection
         public DependencyEngine(int capacity)
         {
             _dependencies = new List<IDependency>(capacity);
-            _factories = new List<IDependencyFactory>(4) {new ArrayFactory()};
+
+            _factories = new List<IDependencyFactory>(4)
+            {
+                new ArrayFactory(),
+                new ReferenceFactory()
+            };
+
             _resolvedDependencies = new Dictionary<Type, IDependency>();
         }
 
@@ -104,12 +110,13 @@ namespace Velo.DependencyInjection
 
             if (dependency == null)
             {
-                throw Error.NotFound($"Dependency with contract '{ReflectionUtils.GetName(contract)}' isn't registered");
+                throw Error.NotFound(
+                    $"Dependency with contract '{ReflectionUtils.GetName(contract)}' isn't registered");
             }
-            
+
             return dependency;
         }
-        
+
         public bool Remove(Type contract)
         {
             _resolvedDependencies.Remove(contract);

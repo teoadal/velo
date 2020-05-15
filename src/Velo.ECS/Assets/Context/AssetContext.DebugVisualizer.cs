@@ -10,7 +10,7 @@ namespace Velo.ECS.Assets.Context
         {
             // ReSharper disable UnusedMember.Local
 
-            public Asset[] Assets => _context.ToArray();
+            public Asset[] Assets => _context._assets;
 
             public IAssetFilter[] Filters => _context._filters.Values.ToArray();
 

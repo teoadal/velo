@@ -1,17 +1,28 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using Velo.Collections;
 using Velo.Collections.Enumerators;
+using Velo.ECS.Actors.Sources.Json;
 using Velo.ECS.Components;
+using Velo.ECS.Sources.Json.Properties;
+using Velo.Serialization.Attributes;
 using Velo.Threading;
 
 namespace Velo.ECS.Actors
 {
+    [Converter(typeof(ActorConverter<>))]
+    [DebuggerTypeProxy(typeof(DebuggerVisualizer))]
+    [DebuggerDisplay("{GetType().Name} {Id}")]
     public class Actor : IEntity, IEquatable<Actor>
     {
-        public readonly int Id;
+        [Converter(typeof(IdConverter))] 
+        public int Id { get; }
+
+        [Converter(typeof(ComponentsConverter))]
+        public IEnumerable<IComponent> Components => new ArrayLockEnumerator<IComponent>(_components, _lock);
 
         public event Action<Actor, IComponent>? ComponentAdded;
 
@@ -36,7 +47,7 @@ namespace Velo.ECS.Actors
         {
             using (WriteLock.Enter(_lock))
             {
-                CollectionUtils.Insert(ref _components, ref _componentsLength, component);
+                CollectionUtils.Insert(ref _components, _componentsLength++, component);
             }
 
             OnComponentAdded(component);
@@ -50,7 +61,7 @@ namespace Velo.ECS.Actors
 
                 foreach (var component in components)
                 {
-                    CollectionUtils.Insert(ref _components, ref _componentsLength, component);
+                    CollectionUtils.Insert(ref _components, _componentsLength++, component);
                 }
             }
 
@@ -102,7 +113,7 @@ namespace Velo.ECS.Actors
                     var component = _components[i];
                     if (!(component is TComponent)) continue;
 
-                    CollectionUtils.Cut(ref _components, i);
+                    CollectionUtils.RemoveAt(ref _components, i);
                     _componentsLength--;
 
                     removedComponent = component;
@@ -154,7 +165,22 @@ namespace Velo.ECS.Actors
             evt?.Invoke(this, component);
         }
 
-        int IEntity.Id => Id;
-        IEnumerable<IComponent> IEntity.Components => new ArrayLockEnumerator<IComponent>(_components, _lock);
+        private sealed class DebuggerVisualizer
+        {
+            // ReSharper disable UnusedMember.Local
+
+            public int Id => _actor.Id;
+
+            public IComponent[] Components => _actor._components;
+
+            // ReSharper restore UnusedMember.Local
+
+            private readonly Actor _actor;
+
+            public DebuggerVisualizer(Actor actor)
+            {
+                _actor = actor;
+            }
+        }
     }
 }

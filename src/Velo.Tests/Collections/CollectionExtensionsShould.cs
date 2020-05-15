@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using AutoFixture;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Velo.Collections;
@@ -14,9 +16,17 @@ namespace Velo.Tests.Collections
         }
 
         [Fact]
+        public void Contains()
+        {
+            var array = Fixture.CreateMany<int>().ToArray();
+            array.Contains((element, i) => element == i, array.Max());
+        }
+        
+        [Fact]
         public void CatchNullArray()
         {
             int[] array = null;
+            // ReSharper disable once ExpressionIsAlwaysNull
             array.NullOrEmpty().Should().BeTrue();
         }
 

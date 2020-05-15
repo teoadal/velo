@@ -3,8 +3,6 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using AutoFixture;
-using Velo.DependencyInjection;
-using Velo.Serialization;
 using Xunit.Abstractions;
 
 namespace Velo.Tests
@@ -23,19 +21,10 @@ namespace Velo.Tests
             _stopwatch = Stopwatch.StartNew();
         }
 
-        internal static ConvertersCollection BuildConvertersCollection(IServiceProvider serviceProvider = null)
-        {
-            serviceProvider ??= new DependencyCollection()
-                .AddJsonConverter()
-                .BuildProvider();
-
-            return (ConvertersCollection) serviceProvider.GetService(typeof(IConvertersCollection));
-        }
-
-        protected static int FixCount(int count)
+        protected static int EnsureValid(int count, int maxValue = 10000)
         {
             count = Math.Abs(count);
-            if (count > 10000) count = 10000;
+            if (count > maxValue) count = maxValue;
 
             return count;
         }

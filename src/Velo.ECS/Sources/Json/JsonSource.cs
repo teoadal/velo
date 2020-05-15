@@ -12,10 +12,12 @@ namespace Velo.ECS.Sources.Json
         where TEntity : class, IEntity
     {
         private readonly IConvertersCollection _converters;
+        private readonly SourceDescriptions _descriptions;
 
-        protected JsonSource(IConvertersCollection converters)
+        protected JsonSource(IConvertersCollection converters, SourceDescriptions descriptions)
         {
             _converters = converters;
+            _descriptions = descriptions;
         }
 
         public IEnumerable<TEntity> GetEntities(IEntitySourceContext<TEntity> context)
@@ -24,7 +26,7 @@ namespace Velo.ECS.Sources.Json
 
             tokenizer.Skip(JsonTokenType.ArrayStart);
 
-            return new Enumerator(_converters, tokenizer);
+            return new Enumerator(_converters, _descriptions, tokenizer);
         }
 
         protected abstract JsonReader GetReader();
@@ -34,13 +36,16 @@ namespace Velo.ECS.Sources.Json
             public TEntity Current { get; private set; }
 
             private readonly IConvertersCollection _converters;
+            private readonly SourceDescriptions _descriptions;
             private JsonTokenizer _tokenizer;
 
             public Enumerator(
                 IConvertersCollection converters,
+                SourceDescriptions descriptions,
                 JsonTokenizer tokenizer)
             {
                 _converters = converters;
+                _descriptions = descriptions;
                 _tokenizer = tokenizer;
 
                 Current = null!;
@@ -62,7 +67,7 @@ namespace Velo.ECS.Sources.Json
 
                     var entityData = JsonVisitor.VisitObject(_tokenizer);
                     var entityType = entityData.TryGet("_type", out var typeData)
-                        ? SourceDescriptions.GetEntityType(_converters.Read<string>(typeData))
+                        ? _descriptions.GetEntityType(_converters.Read<string>(typeData))
                         : Typeof<TEntity>.Raw;
 
                     var entityConverter = _converters.Get(entityType);

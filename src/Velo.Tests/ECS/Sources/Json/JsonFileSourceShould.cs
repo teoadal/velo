@@ -2,6 +2,7 @@ using System.IO;
 using System.Linq;
 using FluentAssertions;
 using Moq;
+using Velo.Collections.Local;
 using Velo.DependencyInjection;
 using Velo.ECS.Assets;
 using Velo.ECS.Sources;
@@ -32,7 +33,7 @@ namespace Velo.Tests.ECS.Sources.Json
             var fileName = $"{nameof(JsonFileSourceShould)}.json";
             File.WriteAllText(fileName, serialized);
 
-            _source = new JsonFileSource<Asset>(provider.GetRequiredService<IConvertersCollection>(), fileName);
+            _source = provider.Activate<JsonFileSource<Asset>>(new LocalList<object>(fileName));
             _sourceContext = Mock.Of<IEntitySourceContext<Asset>>();
         }
 

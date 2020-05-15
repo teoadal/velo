@@ -8,7 +8,7 @@ using Velo.Collections.Enumerators;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Tests.Collections
+namespace Velo.Tests.Collections.Enumerators
 {
     public class ReadLockWhereEnumeratorShould : TestClass
     {

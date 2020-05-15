@@ -47,6 +47,24 @@
       <Compile Update="Assets\Groups\AssetGroup.DebuggerVisualizer.cs">
         <DependentUpon>AssetGroup.cs</DependentUpon>
       </Compile>
+      <Compile Update="Actors\Groups\ActorGroup.DebuggerVisualizer.cs">
+        <DependentUpon>ActorGroup.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Actors\Filters\ActorFilter1.DebuggerVisualizer.cs">
+        <DependentUpon>ActorFilter1.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Actors\Filters\ActorFilter2.DebuggerVisualizer.cs">
+        <DependentUpon>ActorFilter2.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Sources\Context\EntitySourceContext.Enumerator.cs">
+        <DependentUpon>EntitySourceContext.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Sources\Context\EntitySourceContext.MemorySources.cs">
+        <DependentUpon>EntitySourceContext.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Actors\Context\ActorContext.DebugVisualizer.cs">
+        <DependentUpon>ActorContext.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>

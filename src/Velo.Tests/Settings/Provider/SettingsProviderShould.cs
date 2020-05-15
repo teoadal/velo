@@ -28,7 +28,7 @@ namespace Velo.Tests.Settings.Provider
 
         public SettingsProviderShould(ITestOutputHelper output) : base(output)
         {
-            _converters = BuildConvertersCollection();
+            _converters = TestUtils.BuildConvertersCollection();
 
             _property = "property";
             _propertyValue = JsonValue.True;

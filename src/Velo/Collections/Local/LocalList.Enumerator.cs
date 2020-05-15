@@ -33,12 +33,6 @@ namespace Velo.Collections.Local
                 _position++;
                 return _position < Length;
             }
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void Reset()
-            {
-                _position = -1;
-            }
         }
     }
 }

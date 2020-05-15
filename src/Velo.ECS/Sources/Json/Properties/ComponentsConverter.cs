@@ -14,11 +14,16 @@ namespace Velo.ECS.Sources.Json.Properties
     {
         private readonly IConvertersCollection _converters;
         private readonly IComponentFactory _componentFactory;
+        private readonly SourceDescriptions _descriptions;
 
-        public ComponentsConverter(IConvertersCollection converters, IComponentFactory componentFactory)
+        public ComponentsConverter(
+            IConvertersCollection converters, 
+            IComponentFactory componentFactory,
+            SourceDescriptions descriptions)
         {
             _converters = converters;
             _componentFactory = componentFactory;
+            _descriptions = descriptions;
         }
 
         public object? ReadValue(JsonObject source)
@@ -28,7 +33,7 @@ namespace Velo.ECS.Sources.Json.Properties
             var components = new LocalList<IComponent>();
             foreach (var (name, data) in componentsData)
             {
-                var componentType = SourceDescriptions.GetComponentType(name);
+                var componentType = _descriptions.GetComponentType(name);
 
                 var component = _componentFactory.Create(componentType);
 
@@ -55,7 +60,7 @@ namespace Velo.ECS.Sources.Json.Properties
                 else output.Write(',');
 
                 var componentType = component.GetType();
-                var componentName = SourceDescriptions.GetComponentName(componentType);
+                var componentName = _descriptions.GetComponentName(componentType);
                 var componentConverter = _converters.Get(componentType);
 
                 output.WriteProperty(componentName);
@@ -72,7 +77,7 @@ namespace Velo.ECS.Sources.Json.Properties
             foreach (var component in instance.Components)
             {
                 var componentType = component.GetType();
-                var componentName = SourceDescriptions.GetComponentName(componentType);
+                var componentName = _descriptions.GetComponentName(componentType);
                 var componentConverter = _converters.Get(componentType);
 
                 var componentData = componentConverter.WriteObject(component);

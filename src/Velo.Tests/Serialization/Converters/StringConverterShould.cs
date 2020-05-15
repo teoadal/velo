@@ -15,7 +15,7 @@ namespace Velo.Tests.Serialization.Converters
 
         public StringConverterShould(ITestOutputHelper output) : base(output)
         {
-            _converter = BuildConvertersCollection().Get<string>();
+            _converter = TestUtils.BuildConvertersCollection().Get<string>();
         }
 
         [Fact]

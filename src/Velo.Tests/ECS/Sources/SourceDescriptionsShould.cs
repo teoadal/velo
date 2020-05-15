@@ -15,14 +15,17 @@ namespace Velo.Tests.ECS.Sources
 {
     public class SourceDescriptionsShould : ECSTestClass
     {
+        private readonly SourceDescriptions _sourceDescriptions;
+
         public SourceDescriptionsShould(ITestOutputHelper output) : base(output)
         {
+            _sourceDescriptions = new SourceDescriptions();
         }
 
         [Theory, AutoData]
         public void AddAliasIfNotExists(string alias)
         {
-            SourceDescriptions
+            _sourceDescriptions
                 .GetOrAddAlias(alias)
                 .Should().BeGreaterThan(0);
         }
@@ -30,8 +33,8 @@ namespace Velo.Tests.ECS.Sources
         [Theory, AutoData]
         public void GetAliasIfExists(string alias)
         {
-            var id = SourceDescriptions.GetOrAddAlias(alias);
-            SourceDescriptions.GetOrAddAlias(alias).Should().Be(id);
+            var id = _sourceDescriptions.GetOrAddAlias(alias);
+            _sourceDescriptions.GetOrAddAlias(alias).Should().Be(id);
         }
 
         [Fact]
@@ -39,7 +42,7 @@ namespace Velo.Tests.ECS.Sources
         {
             var componentType = typeof(TestComponent1);
 
-            SourceDescriptions
+            _sourceDescriptions
                 .GetComponentName(componentType)
                 .Should().Be(SourceDescriptions.BuildTypeName(componentType));
         }
@@ -49,7 +52,7 @@ namespace Velo.Tests.ECS.Sources
         {
             var entityType = typeof(TestAsset);
 
-            SourceDescriptions
+            _sourceDescriptions
                 .GetEntityType(SourceDescriptions.BuildTypeName(entityType))
                 .Should().Be(entityType);
         }
@@ -77,16 +80,16 @@ namespace Velo.Tests.ECS.Sources
         [Theory, AutoData]
         public void SuccessfulTryGetExistingAlias(string alias)
         {
-            var id = SourceDescriptions.GetOrAddAlias(alias);
+            var id = _sourceDescriptions.GetOrAddAlias(alias);
 
-            SourceDescriptions.TryGetAlias(id, out var actual).Should().BeTrue();
+            _sourceDescriptions.TryGetAlias(id, out var actual).Should().BeTrue();
             actual.Should().Be(alias);
         }
 
         [Fact]
         public void UnsuccessfulTryGetExistingAlias()
         {
-            SourceDescriptions.TryGetAlias(0, out _).Should().BeFalse();
+            _sourceDescriptions.TryGetAlias(0, out _).Should().BeFalse();
         }
 
         [Theory]
@@ -95,29 +98,33 @@ namespace Velo.Tests.ECS.Sources
         [InlineData(null)]
         public void ThrowIfAliasNullOrWhitespace(string alias)
         {
-            Assert.Throws<InvalidOperationException>(() =>
-                SourceDescriptions.GetOrAddAlias(alias));
+            _sourceDescriptions
+                .Invoking(descriptions => descriptions.GetOrAddAlias(alias))
+                .Should().Throw<InvalidOperationException>();
         }
 
         [Fact]
         public void ThrowIfComponentNameNotFound()
         {
-            Assert.Throws<KeyNotFoundException>(() =>
-                SourceDescriptions.GetComponentType(Fixture.Create<string>()));
+            _sourceDescriptions
+                .Invoking(descriptions => descriptions.GetComponentType(Fixture.Create<string>()))
+                .Should().Throw<KeyNotFoundException>();
         }
 
         [Fact]
         public void ThrowIfComponentTypeNotFound()
         {
-            Assert.Throws<KeyNotFoundException>(() =>
-                SourceDescriptions.GetComponentName(typeof(object)));
+            _sourceDescriptions
+                .Invoking(descriptions => descriptions.GetComponentName(typeof(object)))
+                .Should().Throw<KeyNotFoundException>();
         }
 
         [Fact]
         public void ThrowIfEntityNameNotFound()
         {
-            Assert.Throws<KeyNotFoundException>(() =>
-                SourceDescriptions.GetEntityType(Fixture.Create<string>()));
+            _sourceDescriptions
+                .Invoking(descriptions => descriptions.GetEntityType(Fixture.Create<string>()))
+                .Should().Throw<KeyNotFoundException>();
         }
     }
 }

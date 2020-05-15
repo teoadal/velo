@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text;
 using FluentAssertions;
 using Moq;
+using Velo.Collections.Local;
 using Velo.DependencyInjection;
 using Velo.ECS.Assets;
 using Velo.ECS.Sources;
@@ -31,7 +32,7 @@ namespace Velo.Tests.ECS.Sources.Json
             var serialized = provider.GetRequiredService<JConverter>().Serialize(_assets);
             var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(serialized));
 
-            _source = new JsonStreamSource<Asset>(provider.GetRequiredService<IConvertersCollection>(), memoryStream);
+            _source = provider.Activate<JsonStreamSource<Asset>>(new LocalList<object>(memoryStream));
             _sourceContext = Mock.Of<IEntitySourceContext<Asset>>();
         }
 
@@ -50,7 +51,7 @@ namespace Velo.Tests.ECS.Sources.Json
             _source
                 .Invoking(source => source.GetEntities(_sourceContext).ToArray())
                 .Should().NotThrow();
-            
+
             _source
                 .Invoking(source => source.Dispose())
                 .Should().NotThrow();

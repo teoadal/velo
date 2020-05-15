@@ -35,7 +35,7 @@ namespace Velo.Tests.ECS.Sources.Json.Properties
             _asset = new TestAsset(1, components) {Reference = CreateAsset(2)};
 
             var converters = provider.GetRequiredService<IConvertersCollection>();
-            _converter = new ComponentsConverter(converters, provider.GetRequiredService<IComponentFactory>());
+            _converter = provider.Activate<ComponentsConverter>();
 
             _assetData = (JsonObject) converters.Write(_asset);
 

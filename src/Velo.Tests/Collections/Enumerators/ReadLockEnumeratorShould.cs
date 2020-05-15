@@ -6,7 +6,7 @@ using Velo.Collections.Enumerators;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Velo.Tests.Collections
+namespace Velo.Tests.Collections.Enumerators
 {
     public class ReadLockEnumeratorShould : TestClass
     {
@@ -55,15 +55,14 @@ namespace Velo.Tests.Collections
         [Fact]
         public void EnumerateList()
         {
-            var exists = new HashSet<int>();
-
             var enumerator = new ReadLockEnumerator<int>(_list, _lock);
+            var counter = 0;
             while (enumerator.MoveNext())
             {
-                exists.Add(enumerator.Current).Should().BeTrue();
+                _list[counter++].Should().Be(enumerator.Current);
             }
 
-            exists.Count.Should().Be(_list.Count);
+            counter.Should().Be(_list.Count);
             enumerator.Dispose();
         }
 

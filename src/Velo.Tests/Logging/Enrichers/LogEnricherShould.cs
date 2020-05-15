@@ -24,7 +24,7 @@ namespace Velo.Tests.Logging.Enrichers
         
         public LogEnricherShould(ITestOutputHelper output) : base(output)
         {
-            _converters = BuildConvertersCollection();
+            _converters = TestUtils.BuildConvertersCollection();
             _logEnricher = new Mock<ILogEnricher>();
 
             var logWriter = new Mock<ILogWriter>();

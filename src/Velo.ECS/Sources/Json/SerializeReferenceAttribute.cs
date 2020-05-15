@@ -1,12 +1,13 @@
 using System;
 using System.Collections;
 using System.Reflection;
+using Velo.ECS.Actors.Sources.Json;
 using Velo.ECS.Assets;
 using Velo.ECS.Assets.Sources.Json;
 using Velo.Serialization.Attributes;
 using Velo.Utils;
 
-namespace Velo.ECS.Sources.Json.References
+namespace Velo.ECS.Sources.Json
 {
     /// <summary>
     /// Serialize <see cref="IEntity"/> as <see cref="IEntity.Id"/> (number)
@@ -25,7 +26,7 @@ namespace Velo.ECS.Sources.Json.References
 
             return typeof(Asset).IsAssignableFrom(entityType)
                 ? typeof(AssetReferencesConverter<,>).MakeGenericType(owner, entityType)
-                : throw new NotImplementedException();
+                : typeof(ActorReferencesConverter<,>).MakeGenericType(owner, entityType);
         }
     }
 }
