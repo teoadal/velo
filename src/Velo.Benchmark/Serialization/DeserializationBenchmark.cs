@@ -31,7 +31,7 @@ namespace Velo.Benchmark.Serialization
                 _dataset[i] = JsonConvert.SerializeObject(instance);
             }
 
-            _converter = new JConverter();
+            _converter = SerializationBuilder.BuildVeloJsonConverter();
         }
 
         [Benchmark(Baseline = true)]

@@ -32,6 +32,11 @@ namespace Velo.Serialization
             _serviceProvider = serviceProvider;
         }
 
+        public ConvertersCollection(Func<Type, object> serviceProvider, CultureInfo? culture = null)
+            : this(new DelegateServiceResolver(serviceProvider), culture)
+        {
+        }
+
         public IJsonConverter Get(Type type)
         {
             return GetOrAdd(type, _converterBuilder);
@@ -53,15 +58,15 @@ namespace Velo.Serialization
             {
                 return BuildListConverter(elementType);
             }
-            
+
             var underlyingType = Nullable.GetUnderlyingType(type);
             if (underlyingType != null)
             {
                 return BuildNullableConverter(underlyingType);
             }
 
-            return type.IsEnum 
-                ? BuildEnumConverter(type) 
+            return type.IsEnum
+                ? BuildEnumConverter(type)
                 : BuildObjectConverter(type);
         }
 

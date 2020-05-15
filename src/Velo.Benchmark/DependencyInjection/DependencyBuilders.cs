@@ -24,7 +24,10 @@ namespace Velo.Benchmark.DependencyInjection
         public static ContainerBuilder ForAutofac()
         {
             var builder = new ContainerBuilder();
+
+            builder.Register(ctx => new ConvertersCollection(ctx.Resolve)).As<IConvertersCollection>().SingleInstance();
             builder.RegisterType<JConverter>().SingleInstance();
+
             builder.RegisterType<Logger<SomethingController>>().As<ILogger<SomethingController>>().SingleInstance();
             builder.RegisterType<NullLogProvider>().As<ILogProvider>().SingleInstance();
             builder.RegisterType<CompiledMapper<Boo>>().As<IMapper<Boo>>().SingleInstance();
@@ -46,20 +49,18 @@ namespace Velo.Benchmark.DependencyInjection
         public static IWindsorContainer ForCastle()
         {
             return new WindsorContainer().Register(
+                Component.For<IConvertersCollection>().UsingFactoryMethod(kernel => new ConvertersCollection(kernel.Resolve)).LifeStyle.Singleton,
                 Component.For<JConverter>().LifeStyle.Singleton,
                 Component.For<ILogger<SomethingController>>().ImplementedBy<Logger<SomethingController>>().LifeStyle.Singleton,
                 Component.For<ILogProvider>().ImplementedBy<NullLogProvider>().LifeStyle.Singleton,
                 Component.For<IMapper<Boo>>().ImplementedBy<CompiledMapper<Boo>>().LifeStyle.Singleton,
                 Component.For<IMapper<Foo>>().ImplementedBy<CompiledMapper<Foo>>().LifeStyle.Singleton,
-                Component.For<ISettingsProvider>().UsingFactoryMethod(() => new NullSettingsProvider()).LifeStyle.Singleton, 
+                Component.For<ISettingsProvider>().UsingFactoryMethod(() => new NullSettingsProvider()).LifeStyle.Singleton,
                 Component.For<ISession>().ImplementedBy<Session>().LifeStyle.Singleton,
-                
                 Component.For<IFooService>().ImplementedBy<FooService>().LifeStyle.Singleton,
                 Component.For<IFooRepository>().ImplementedBy<FooRepository>().LifeStyle.Singleton,
-                
                 Component.For<IBooService>().ImplementedBy<BooService>().LifeStyle.Singleton,
                 Component.For<IBooRepository>().ImplementedBy<BooRepository>().LifeStyle.Singleton,
-                
                 Component.For<SomethingController>().LifeStyle.Singleton
             );
         }
@@ -67,6 +68,7 @@ namespace Velo.Benchmark.DependencyInjection
         public static IServiceCollection ForCore()
         {
             return new ServiceCollection()
+                .AddSingleton<IConvertersCollection>(ctx => new ConvertersCollection(ctx))
                 .AddSingleton<JConverter>()
                 .AddSingleton<ILogger<SomethingController>, Logger<SomethingController>>()
                 .AddSingleton<ILogProvider, NullLogProvider>()
@@ -74,19 +76,17 @@ namespace Velo.Benchmark.DependencyInjection
                 .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
                 .AddSingleton<ISettingsProvider>(ctx => new NullSettingsProvider())
                 .AddSingleton<ISession, Session>()
-                
                 .AddSingleton<IFooService, FooService>()
                 .AddSingleton<IFooRepository, FooRepository>()
-                
                 .AddSingleton<IBooService, BooService>()
                 .AddSingleton<IBooRepository, BooRepository>()
-                
                 .AddSingleton<SomethingController>();
         }
 
         public static IServiceCollection ForCore_Mixed()
         {
             return new ServiceCollection()
+                .AddSingleton<IConvertersCollection>(ctx => new ConvertersCollection(ctx))
                 .AddSingleton<JConverter>()
                 .AddSingleton<ILogger<SomethingController>, Logger<SomethingController>>()
                 .AddSingleton<ILogProvider, NullLogProvider>()
@@ -94,35 +94,30 @@ namespace Velo.Benchmark.DependencyInjection
                 .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
                 .AddSingleton<ISettingsProvider>(ctx => new NullSettingsProvider())
                 .AddTransient<ISession, Session>()
-                
                 .AddScoped<IFooService, FooService>()
                 .AddScoped<IFooRepository, FooRepository>()
-                
                 .AddScoped<IBooService, BooService>()
                 .AddScoped<IBooRepository, BooRepository>()
-                
                 .AddScoped<SomethingController>();
         }
-        
+
         public static ServiceContainer ForLightInject()
         {
             var container = new ServiceContainer();
-            
+
             container
-                .RegisterSingleton(provider => new JConverter())
+                .RegisterSingleton<IConvertersCollection>(ctx => new ConvertersCollection(ctx.Create))
+                .RegisterSingleton<JConverter>()
                 .RegisterSingleton<ILogger<SomethingController>, Logger<SomethingController>>()
                 .RegisterSingleton<ILogProvider, NullLogProvider>()
                 .RegisterSingleton<IMapper<Boo>, CompiledMapper<Boo>>()
                 .RegisterSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
                 .RegisterSingleton<ISettingsProvider>(provider => new NullSettingsProvider())
                 .RegisterSingleton<ISession, Session>()
-                
                 .RegisterSingleton<IFooService, FooService>()
                 .RegisterSingleton<IFooRepository, FooRepository>()
-                
                 .RegisterSingleton<IBooService, BooService>()
                 .RegisterSingleton<IBooRepository, BooRepository>()
-                
                 .RegisterSingleton<SomethingController>();
 
             return container;
@@ -131,8 +126,9 @@ namespace Velo.Benchmark.DependencyInjection
         public static Container ForSimpleInject()
         {
             var container = new Container();
-            
-            container.Register(typeof(JConverter), () => new JConverter(), Lifestyle.Singleton);
+
+            container.Register(typeof(IConvertersCollection), () => new ConvertersCollection(container.GetInstance), Lifestyle.Singleton);
+            container.RegisterSingleton<JConverter>();
             container.RegisterSingleton<ILogger<SomethingController>, Logger<SomethingController>>();
             container.RegisterSingleton<ILogProvider, NullLogProvider>();
             container.RegisterSingleton<IMapper<Boo>, CompiledMapper<Boo>>();
@@ -145,15 +141,16 @@ namespace Velo.Benchmark.DependencyInjection
 
             container.RegisterSingleton<IBooService, BooService>();
             container.RegisterSingleton<IBooRepository, BooRepository>();
-                
+
             container.RegisterSingleton<SomethingController>();
-            
+
             return container;
         }
-        
+
         public static DependencyCollection ForVelo()
         {
             return new DependencyCollection()
+                .AddSingleton<IConvertersCollection>(ctx => new ConvertersCollection(ctx))
                 .AddSingleton<JConverter>()
                 .AddSingleton<ILogger<SomethingController>, Logger<SomethingController>>()
                 .AddSingleton<ILogProvider, NullLogProvider>()
@@ -161,19 +158,17 @@ namespace Velo.Benchmark.DependencyInjection
                 .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
                 .AddSingleton<ISettingsProvider>(ctx => new NullSettingsProvider())
                 .AddSingleton<ISession, Session>()
-                
                 .AddSingleton<IFooService, FooService>()
                 .AddSingleton<IFooRepository, FooRepository>()
-                
                 .AddSingleton<IBooService, BooService>()
                 .AddSingleton<IBooRepository, BooRepository>()
-                
                 .AddSingleton<SomethingController>();
         }
-        
+
         public static DependencyCollection ForVelo_Mixed()
         {
             return new DependencyCollection()
+                .AddSingleton<IConvertersCollection>(ctx => new ConvertersCollection(ctx))
                 .AddSingleton<JConverter>()
                 .AddSingleton<ILogger<SomethingController>, Logger<SomethingController>>()
                 .AddSingleton<ILogProvider, NullLogProvider>()
@@ -181,19 +176,17 @@ namespace Velo.Benchmark.DependencyInjection
                 .AddSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
                 .AddSingleton<ISettingsProvider>(ctx => new NullSettingsProvider())
                 .AddTransient<ISession, Session>()
-                
                 .AddScoped<IFooService, FooService>()
                 .AddScoped<IFooRepository, FooRepository>()
-                
                 .AddScoped<IBooService, BooService>()
                 .AddScoped<IBooRepository, BooRepository>()
-                
                 .AddScoped<SomethingController>();
         }
-        
+
         public static IUnityContainer ForUnity()
         {
             return new UnityContainer()
+                .RegisterFactory<IConvertersCollection>(ctx => new ConvertersCollection(type => ctx.Resolve(type)), new SingletonLifetimeManager())
                 .RegisterSingleton<JConverter>()
                 .RegisterSingleton<ILogger<SomethingController>, Logger<SomethingController>>()
                 .RegisterSingleton<ILogProvider, NullLogProvider>()
@@ -201,13 +194,10 @@ namespace Velo.Benchmark.DependencyInjection
                 .RegisterSingleton<IMapper<Foo>, CompiledMapper<Foo>>()
                 .RegisterFactory<ISettingsProvider>(ctx => new NullSettingsProvider(), new SingletonLifetimeManager())
                 .RegisterSingleton<ISession, Session>()
-                
                 .RegisterSingleton<IFooService, FooService>()
                 .RegisterSingleton<IFooRepository, FooRepository>()
-                
                 .RegisterSingleton<IBooService, BooService>()
                 .RegisterSingleton<IBooRepository, BooRepository>()
-                
                 .RegisterSingleton<SomethingController>();
         }
     }

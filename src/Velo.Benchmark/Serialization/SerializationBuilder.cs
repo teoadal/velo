@@ -1,4 +1,6 @@
 using System;
+using Velo.DependencyInjection;
+using Velo.Serialization;
 using Velo.TestsModels;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Foos;
@@ -7,6 +9,14 @@ namespace Velo.Benchmark.Serialization
 {
     public static class SerializationBuilder
     {
+        public static JConverter BuildVeloJsonConverter()
+        {
+            return new DependencyCollection()
+                .AddJsonConverter()
+                .BuildProvider()
+                .GetRequiredService<JConverter>();
+        }
+        
         public static BigObject CreateBigObject(Random random)
         {
             var seed = random.Next(0, 1000);
