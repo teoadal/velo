@@ -121,7 +121,7 @@ namespace Velo.Tests.ECS.Systems.Handlers
             typeof(ISystemHandler<IUpdateSystem>),
             typeof(ISystemHandler<IAfterUpdateSystem>),
             
-            typeof(ISystemHandler<ICleanupSystem>),
+            typeof(ISystemHandler<ICleanupSystem>)
         };
     }
     

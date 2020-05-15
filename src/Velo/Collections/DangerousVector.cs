@@ -18,7 +18,7 @@ namespace Velo.Collections
         {
         }
 
-        public DangerousVector(IDictionary<TKey, TValue> source)
+        protected DangerousVector(IDictionary<TKey, TValue> source)
             : base(source)
         {
             _lock = new object();
@@ -30,7 +30,7 @@ namespace Velo.Collections
             _lock = new object();
         }
 
-        public void ClearSafe()
+        protected void ClearSafe()
         {
             var lockTaken = false;
             Monitor.Enter(_lock, ref lockTaken);

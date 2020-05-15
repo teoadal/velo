@@ -12,6 +12,6 @@ namespace Velo.Serialization.Tokenization
         ObjectEnd,
         Property,
         String,
-        True,
+        True
     }
 }

@@ -39,7 +39,7 @@ namespace Velo.Server
         public void Stop()
         {
             if (!_isStarted) throw Error.InvalidOperation("Server not started");
-            
+
             _httpListener?.Stop();
             _listenerTask?.Wait();
             _httpListener = null;
@@ -50,10 +50,10 @@ namespace Velo.Server
         private async Task Listen()
         {
             if (_httpListener == null) throw Error.InvalidOperation("HttpListener isn't created");
-            
+
             _httpListener.Start();
 
-            while (_httpListener.IsListening)
+            while (_httpListener != null && _httpListener.IsListening)
             {
                 HttpListenerContext context;
                 try

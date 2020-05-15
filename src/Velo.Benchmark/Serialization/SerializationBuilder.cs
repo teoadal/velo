@@ -19,13 +19,13 @@ namespace Velo.Benchmark.Serialization
                     Bool = seed % 5 == 0,
                     Double = seed + 1,
                     Float = seed + 2,
-                    Int = seed + 3,
+                    Int = seed + 3
                 },
                 Foo = new Foo
                 {
                     Bool = seed % 100 == 0,
                     Float = seed + 4,
-                    Int = seed + 5,
+                    Int = seed + 5
                 },
                 Float = seed + 6,
                 Int = seed + 7,

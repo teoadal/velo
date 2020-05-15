@@ -20,13 +20,13 @@ namespace Velo.Threading
             return locker;
         }
 
-        public void Dispose()
+        public readonly void Dispose()
         {
             if (_lockTaken) Monitor.Exit(_lockObject);
         }
     }
 
-    public ref struct ReadLock
+    public readonly ref struct ReadLock
     {
         private readonly ReaderWriterLockSlim _lockObject;
 
@@ -48,7 +48,7 @@ namespace Velo.Threading
         }
     }
 
-    public ref struct WriteLock
+    public readonly ref struct WriteLock
     {
         private readonly ReaderWriterLockSlim _lockObject;
 

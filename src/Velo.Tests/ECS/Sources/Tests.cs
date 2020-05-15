@@ -51,7 +51,7 @@ namespace Velo.Tests.ECS.Sources
                 {
                     Asset = (TestAsset) assets[0],
                     AssetsArray = assets.ToArray(),
-                    AssetsList = assets.ToList(),
+                    AssetsList = assets.ToList()
                 }
             };
             _asset = new TestAsset(1, components) {Array = Fixture.CreateMany<int>().ToArray()};

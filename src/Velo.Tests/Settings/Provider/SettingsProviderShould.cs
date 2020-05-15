@@ -132,7 +132,7 @@ namespace Velo.Tests.Settings.Provider
             var settings = new SettingsProvider(new ISettingsSource[]
             {
                 new JsonFileSource("Settings/appsettings.json", true),
-                new JsonFileSource("Settings/appsettings.develop.json", true),
+                new JsonFileSource("Settings/appsettings.develop.json", true)
             }, _converters);
 
             var logLevelSettings = settings.Get<LogLevelSettings>("Logging.LogLevel");

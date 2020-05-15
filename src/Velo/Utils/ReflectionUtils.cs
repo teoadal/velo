@@ -17,7 +17,7 @@ namespace Velo.Utils
         {
             typeof(ICollection<>),
             typeof(IEnumerable<>),
-            typeof(IReadOnlyCollection<>),
+            typeof(IReadOnlyCollection<>)
         };
 
         private static readonly Type[] ListGenericTypes =
@@ -50,6 +50,7 @@ namespace Velo.Utils
                 : collectionType.GenericTypeArguments[0];
         }
 
+        // ReSharper disable once ReturnTypeCanBeEnumerable.Global
         public static Assembly[] GetUserAssemblies()
         {
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
@@ -94,22 +95,6 @@ namespace Velo.Utils
 
             var availableConstructors = type.GetTypeInfo().DeclaredConstructors;
             return availableConstructors.FirstOrDefault(c => !c.IsStatic && c.GetParameters().Length == 0);
-        }
-
-        public static LocalList<Type> GetInterfaceImplementations(Type type, Type interfaceType)
-        {
-            var implementations = new LocalList<Type>();
-
-            var typeInterfaces = type.GetInterfaces();
-            foreach (var typeInterface in typeInterfaces)
-            {
-                if (typeInterface.IsAssignableFrom(interfaceType))
-                {
-                    implementations.Add(typeInterface);
-                }
-            }
-
-            return implementations;
         }
 
         public static string GetName<T>()
@@ -268,7 +253,7 @@ namespace Velo.Utils
             elementType = null!;
             return false;
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasEmptyConstructor(Type type)
         {
@@ -301,13 +286,7 @@ namespace Velo.Utils
             }
         }
 
-        public static void WriteName(Type type, StringBuilder sb)
-        {
-            var writer = new StringWriter(sb);
-            WriteName(type, writer);
-        }
-
-        public static void WriteName(Type type, TextWriter writer)
+        private static void WriteName(Type type, TextWriter writer)
         {
             if (type.IsArray)
             {

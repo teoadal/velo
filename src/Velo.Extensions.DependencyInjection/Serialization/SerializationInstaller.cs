@@ -6,7 +6,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class SerializationInstaller
     {
-        public static IServiceCollection AddJsonConverter(this IServiceCollection services, CultureInfo culture = null)
+        public static IServiceCollection AddJsonConverter(this IServiceCollection services, CultureInfo? culture = null)
         {
             services
                 .AddSingleton<IConvertersCollection>(provider => new ConvertersCollection(provider, culture))

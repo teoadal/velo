@@ -24,7 +24,7 @@ namespace Velo.Tests
             {
                 new OtherFooRepository(null, null),    // 2
                 new BooRepository(null, null),         // without order attribute
-                new FooRepository(null, null),         // 1 
+                new FooRepository(null, null) // 1 
             };
         }
 

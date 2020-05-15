@@ -91,7 +91,7 @@ namespace Velo.Tests.Serialization.Converters
             TimeSpan.FromMilliseconds(21),
             TimeSpan.FromDays(3),
             TimeSpan.FromMinutes(3),
-            -TimeSpan.FromHours(3),
+            -TimeSpan.FromHours(3)
         };
     }
 }

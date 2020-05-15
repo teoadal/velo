@@ -91,6 +91,7 @@ namespace Velo.Settings.Sources
                     : new JsonValue(value, JsonDataType.Number);
             }
 
+            // ReSharper disable once ConvertSwitchStatementToSwitchExpression
             switch (firstChar)
             {
                 case '"':

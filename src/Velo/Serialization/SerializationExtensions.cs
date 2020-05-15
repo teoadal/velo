@@ -72,14 +72,6 @@ namespace Velo.Serialization
             return propertyName!;
         }
 
-        public static object Deserialize(this IJsonConverter converter, string json, StringBuilder? sb = null)
-        {
-            using var tokenizer = new JsonTokenizer(json, sb ?? new StringBuilder());
-
-            if (converter.IsPrimitive) tokenizer.MoveNext();
-            return converter.DeserializeObject(tokenizer);
-        }
-
         public static T Deserialize<T>(this IJsonConverter<T> converter, string json, StringBuilder? sb = null)
         {
             using var tokenizer = new JsonTokenizer(json, sb ?? new StringBuilder());

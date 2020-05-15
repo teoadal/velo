@@ -57,7 +57,7 @@ namespace Velo.Server
             {
                 unchecked
                 {
-                    return (def.Method.GetHashCode() * 397) ^ def.GetHashCode();
+                    return (def.Method.GetHashCode() * 397) ^ def.Url.GetHashCode();
                 }
             }
         }

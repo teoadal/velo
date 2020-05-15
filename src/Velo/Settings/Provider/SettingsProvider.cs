@@ -11,6 +11,7 @@ namespace Velo.Settings.Provider
 {
     internal sealed class SettingsProvider : DangerousVector<string, object>, ISettingsProvider
     {
+        // ReSharper disable once ConvertToAutoPropertyWhenPossible
         public ISettingsSource[] Sources => _sources;
 
         private readonly IConvertersCollection _converters;
@@ -59,8 +60,16 @@ namespace Velo.Settings.Provider
 
         public bool TryGet<T>(string path, out T value)
         {
-            value = (T) GetOrAdd(path, _sectionBuilder, Typeof<T>.Raw);
-            return value != null;
+            var data = GetOrAdd(path, _sectionBuilder, Typeof<T>.Raw);
+
+            if (data == null)
+            {
+                value = default!;
+                return false;
+            }
+
+            value = (T) data;
+            return true;
         }
 
         public void Reload()

@@ -156,7 +156,7 @@ namespace Velo.Benchmark
             {
                 new JsonFileSource("appsettings.json", true),
                 new JsonFileSource("appsettings.develop.json", true),
-                new CommandLineSource(_commandLineArgs),
+                new CommandLineSource(_commandLineArgs)
             }, converters);
         }
     }
