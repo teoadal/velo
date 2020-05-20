@@ -9,17 +9,12 @@ using Velo.ECS.Assets;
 using Velo.ECS.Components;
 using Velo.TestsModels.ECS;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.ECS
 {
     // ReSharper disable once InconsistentNaming
     public abstract class ECSTestClass : TestClass
     {
-        protected ECSTestClass(ITestOutputHelper output) : base(output)
-        {
-        }
-
         protected void CompareComponents<TComponent>(IComponent actual, IComponent expected)
             where TComponent : class, IComponent
         {

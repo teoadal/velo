@@ -16,8 +16,6 @@ namespace Velo.Settings
 
             public DependencyLifetime Lifetime => DependencyLifetime.Singleton;
 
-            public DependencyResolver Resolver => this;
-
             private Type[]? _contracts;
             private readonly string _path;
 
@@ -31,13 +29,16 @@ namespace Velo.Settings
                 return Implementation == contract;
             }
 
-            protected override object ResolveInstance(Type contract, IDependencyScope scope)
+            protected override object ResolveInstance(Type contract, IServiceProvider services)
             {
-                var configuration = scope.GetRequiredService<ISettingsProvider>();
+                var configuration = services.GetRequired<ISettingsProvider>();
                 return configuration.Get<TSettings>(_path);
             }
 
-            object IDependency.GetInstance(Type contract, IDependencyScope scope) => ResolveInstance(contract, scope);
+            object IDependency.GetInstance(Type contract, IServiceProvider services)
+            {
+                return ResolveInstance(contract, services);
+            }
 
             public void Dispose()
             {

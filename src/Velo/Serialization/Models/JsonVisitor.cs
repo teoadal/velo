@@ -78,8 +78,8 @@ namespace Velo.Serialization.Models
                 case JsonTokenType.False:
                     return JsonValue.False;
                 case JsonTokenType.Number:
-                    var value = token.Value!;
-                    return value.Length == 1 && value[0] == '0'
+                    var value = token.Value;
+                    return value!.Length == 1 && value[0] == '0'
                         ? JsonValue.Zero
                         : new JsonValue(value, JsonDataType.Number);
                 case JsonTokenType.Null:

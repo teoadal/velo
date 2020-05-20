@@ -4,7 +4,6 @@ using Newtonsoft.Json;
 using Velo.Serialization;
 using Velo.Serialization.Models;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Serialization.Converters
 {
@@ -12,9 +11,9 @@ namespace Velo.Tests.Serialization.Converters
     {
         private readonly IJsonConverter<double> _converter;
 
-        public DoubleConverterShould(ITestOutputHelper output) : base(output)
+        public DoubleConverterShould()
         {
-            _converter = TestUtils.BuildConvertersCollection().Get<double>();
+            _converter = BuildConvertersCollection().Get<double>();
         }
 
         [Fact]

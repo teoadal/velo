@@ -1,11 +1,11 @@
 using System;
+using System.Collections;
 using System.Linq;
 using System.Threading;
 using AutoFixture;
 using FluentAssertions;
 using Velo.Collections.Enumerators;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Collections.Enumerators
 {
@@ -15,7 +15,7 @@ namespace Velo.Tests.Collections.Enumerators
         private ArrayLockEnumerator<int> _enumerator;
         private readonly ReaderWriterLockSlim _lock;
 
-        public ArrayLockEnumeratorShould(ITestOutputHelper output) : base(output)
+        public ArrayLockEnumeratorShould()
         {
             _array = Fixture.CreateMany<int>().ToArray();
             _lock = new ReaderWriterLockSlim();
@@ -40,6 +40,19 @@ namespace Velo.Tests.Collections.Enumerators
             counter.Should().Be(_array.Length);
         }
 
+        [Fact]
+        public void EnumerateAsEnumerator()
+        {
+            var counter = 0;
+            var enumerator = ((IEnumerable) _enumerator).GetEnumerator();
+            while (enumerator.MoveNext())
+            {
+                _array[counter++].Should().Be((int) enumerator.Current!);
+            }
+
+            counter.Should().Be(_array.Length);
+        }
+        
         [Fact]
         public void EnumerateAsEnumerable()
         {

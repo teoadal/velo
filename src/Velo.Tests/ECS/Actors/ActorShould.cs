@@ -2,7 +2,6 @@ using FluentAssertions;
 using Velo.ECS.Actors;
 using Velo.TestsModels.ECS;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.ECS.Actors
 {
@@ -10,7 +9,7 @@ namespace Velo.Tests.ECS.Actors
     {
         private readonly Actor _actor;
 
-        public ActorShould(ITestOutputHelper output) : base(output)
+        public ActorShould()
         {
             _actor = new Actor(1);
         }

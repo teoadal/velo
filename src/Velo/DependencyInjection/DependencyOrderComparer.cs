@@ -26,7 +26,7 @@ namespace Velo.DependencyInjection
 
         private int GetOrder(IDependency dependency)
         {
-            var implementationType = dependency.Resolver.Implementation;
+            var implementationType = dependency.Implementation;
 
             return ReflectionUtils.TryGetAttribute<OrderAttribute>(implementationType, out var attribute)
                 ? attribute.Order

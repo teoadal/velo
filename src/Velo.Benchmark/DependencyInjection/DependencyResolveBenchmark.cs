@@ -62,7 +62,7 @@ namespace Velo.Benchmark.DependencyInjection
         [Benchmark]
         public string Mixed_Velo()
         {
-            using (var scope = _veloContainerMixed.CreateScope())
+            using (var scope = _veloContainerMixed.StartScope())
             {
                 var controller = scope.GetService<SomethingController>();
                 var dataService = scope.GetService<IFooService>();

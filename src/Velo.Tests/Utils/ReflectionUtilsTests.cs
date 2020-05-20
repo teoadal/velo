@@ -10,16 +10,11 @@ using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting.Boos.Get;
 using Velo.Utils;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Utils
 {
     public class ReflectionUtilsTests : TestClass
     {
-        public ReflectionUtilsTests(ITestOutputHelper output) : base(output)
-        {
-        }
-
         [Theory]
         [AutoData]
         public void GetArrayElementType(Type elementType)
@@ -126,7 +121,7 @@ namespace Velo.Tests.Utils
         [Fact]
         public void IsDisposable()
         {
-            var disposable = new BooRepository(null, null);
+            var disposable = new BooRepository(null);
             Assert.True(ReflectionUtils.IsDisposable(disposable, out _));
             Assert.True(ReflectionUtils.IsDisposableType(disposable.GetType()));
         }

@@ -4,7 +4,6 @@ using Velo.Mapping;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Foos;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Extensions.DependencyInjection.Mapping
 {
@@ -12,7 +11,7 @@ namespace Velo.Tests.Extensions.DependencyInjection.Mapping
     {
         private readonly IServiceCollection _services;
         
-        public MappingInstallerShould(ITestOutputHelper output) : base(output)
+        public MappingInstallerShould()
         {
             _services = new ServiceCollection()
                 .AddMapper();

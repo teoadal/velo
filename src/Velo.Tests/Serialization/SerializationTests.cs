@@ -8,7 +8,6 @@ using Velo.Serialization;
 using Velo.TestsModels;
 using Velo.TestsModels.Boos;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Serialization
 {
@@ -16,9 +15,9 @@ namespace Velo.Tests.Serialization
     {
         private readonly JConverter _converter;
 
-        public SerializationTests(ITestOutputHelper output) : base(output)
+        public SerializationTests()
         {
-            _converter = new JConverter(TestUtils.BuildConvertersCollection());
+            _converter = new JConverter(BuildConvertersCollection());
         }
 
         [Theory]

@@ -10,30 +10,33 @@ namespace Velo.DependencyInjection.Resolvers
     [DebuggerDisplay("Implementation = {_constructor.DeclaringType}")]
     internal sealed class CompiledResolver : DependencyResolver
     {
-        private Func<IDependencyScope, object>? _builder;
+        private static readonly MethodInfo GetInstanceMethod =
+            typeof(IDependency).GetMethod(nameof(IDependency.GetInstance))!;
+
+        private Func<IServiceProvider, object>? _builder;
         private readonly ConstructorInfo _constructor;
         private readonly IDependencyEngine _dependencyEngine;
 
-        public CompiledResolver(Type implementation, IDependencyEngine dependencyEngine)
+        public CompiledResolver(Type implementation, IDependencyEngine engine)
             : base(implementation)
         {
             _constructor = ReflectionUtils.GetConstructor(implementation)
                            ?? throw Error.DefaultConstructorNotFound(implementation);
 
-            _dependencyEngine = dependencyEngine;
+            _dependencyEngine = engine;
         }
 
-        protected override object ResolveInstance(Type contract, IDependencyScope scope)
+        protected override object ResolveInstance(Type contract, IServiceProvider services)
         {
-            _builder ??= CreateBuilder(scope);
-            return _builder(scope);
+            _builder ??= CreateBuilder(services);
+            return _builder(services);
         }
 
-        private Func<IDependencyScope, object> CreateBuilder(IDependencyScope scope)
+        private Func<IServiceProvider, object> CreateBuilder(IServiceProvider services)
         {
+            var servicesArgument = Expression.Parameter(typeof(IServiceProvider), "services");
+
             var constructorParameters = _constructor.GetParameters();
-
-            var argument = Expression.Parameter(typeof(IDependencyScope), "scope");
             var parameters = new Expression[constructorParameters.Length];
             for (var i = constructorParameters.Length - 1; i >= 0; i--)
             {
@@ -41,48 +44,38 @@ namespace Velo.DependencyInjection.Resolvers
                 var parameterType = parameter.ParameterType;
                 var required = !parameter.HasDefaultValue;
 
-                var parameterDependency = required 
+                var parameterDependency = required
                     ? _dependencyEngine.GetRequiredDependency(parameterType)
                     : _dependencyEngine.GetDependency(parameterType);
 
-                parameters[i] = BuildParameter(parameterDependency, parameterType, argument, scope);
+                parameters[i] = parameterDependency == null
+                    ? Expression.Default(parameterType)
+                    : BuildParameter(parameterDependency, parameterType, services, servicesArgument);
             }
 
             var body = Expression.New(_constructor, parameters);
-            var result = Expression.Lambda<Func<IDependencyScope, object>>(body, argument).Compile();
-
-            return result;
+            return Expression.Lambda<Func<IServiceProvider, object>>(body, servicesArgument).Compile();
         }
 
         private static Expression BuildParameter(
-            IDependency? parameterDependency,
+            IDependency parameterDependency,
             Type parameterType,
-            Expression argument,
-            IDependencyScope scope)
+            IServiceProvider services,
+            Expression servicesArgument)
         {
-            if (parameterDependency == null) return Expression.Default(parameterType);
-
-            switch (parameterDependency.Lifetime)
+            if (parameterDependency.Lifetime == DependencyLifetime.Singleton)
             {
-                case DependencyLifetime.Scoped:
-                case DependencyLifetime.Transient:
-                    var dependencyConstant = Expression.Constant(parameterDependency);
-
-                    // ReSharper disable AssignNullToNotNullAttribute
-                    var getInstanceMethod = parameterDependency.GetType().GetMethod(nameof(IDependency.GetInstance));
-                    var parameterInstanceCall = Expression.Call(
-                        dependencyConstant, getInstanceMethod,
-                        Expression.Constant(parameterType), argument);
-                    // ReSharper restore AssignNullToNotNullAttribute
-
-                    return Expression.Convert(parameterInstanceCall, parameterType);
-
-                case DependencyLifetime.Singleton:
-                    var parameterConstant = parameterDependency.GetInstance(parameterType, scope);
-                    return Expression.Constant(parameterConstant);
-                default:
-                    throw Error.InvalidDependencyLifetime($"Unsupported lifetime '{parameterDependency.Lifetime}'");
+                var instance = parameterDependency.GetInstance(parameterType, services);
+                return Expression.Constant(instance);
             }
+
+            var dependency = Expression.Constant(parameterDependency);
+
+            var parameterCall = Expression.Call(dependency, GetInstanceMethod,
+                Expression.Constant(parameterType),
+                servicesArgument);
+
+            return Expression.Convert(parameterCall, parameterType);
         }
     }
 }

@@ -4,7 +4,6 @@ using FluentAssertions;
 using Velo.Serialization.Models;
 using Velo.Settings.Sources;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Settings.Sources
 {
@@ -12,7 +11,7 @@ namespace Velo.Tests.Settings.Sources
     {
         private readonly EnvironmentSource _source;
 
-        public EnvironmentSourceShould(ITestOutputHelper output) : base(output)
+        public EnvironmentSourceShould()
         {
             _source = new EnvironmentSource();
         }

@@ -4,7 +4,6 @@ using Velo.DependencyInjection;
 using Velo.Metrics.Counters;
 using Velo.Metrics.Provider;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Metrics
 {
@@ -12,7 +11,7 @@ namespace Velo.Tests.Metrics
     {
         private readonly DependencyCollection _dependencies;
 
-        public MetricsInstallerShould(ITestOutputHelper output) : base(output)
+        public MetricsInstallerShould()
         {
             _dependencies = new DependencyCollection();
         }

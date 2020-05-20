@@ -4,16 +4,11 @@ using FluentAssertions;
 using Velo.Serialization.Models;
 using Velo.Settings.Sources;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Settings.Sources
 {
     public class CommandLineSourceShould : TestClass
     {
-        public CommandLineSourceShould(ITestOutputHelper output) : base(output)
-        {
-        }
-
         [Fact]
         public void EvaluateNestedValues()
         {

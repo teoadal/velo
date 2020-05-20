@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Velo.Utils;
 
 namespace Velo.CQRS.Queries.Pipeline
 {
@@ -8,6 +9,8 @@ namespace Velo.CQRS.Queries.Pipeline
     {
         private IQueryProcessor<TQuery, TResult> _processor;
 
+        private bool _disposed;
+        
         public QuerySimplePipeline(IQueryProcessor<TQuery, TResult> processor)
         {
             _processor = processor;
@@ -15,6 +18,8 @@ namespace Velo.CQRS.Queries.Pipeline
 
         public Task<TResult> GetResponse(TQuery query, CancellationToken cancellationToken)
         {
+            if (_disposed) throw Error.Disposed(nameof(IQueryPipeline<TQuery, TResult>));
+            
             return _processor.Process(query, cancellationToken);
         }
 
@@ -26,6 +31,7 @@ namespace Velo.CQRS.Queries.Pipeline
         public void Dispose()
         {
             _processor = null!;
+            _disposed = true;
         }
     }
 }

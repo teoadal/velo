@@ -7,7 +7,6 @@ using Velo.Logging;
 using Velo.Logging.Enrichers;
 using Velo.Serialization.Models;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Logging.Enrichers
 {
@@ -17,7 +16,7 @@ namespace Velo.Tests.Logging.Enrichers
         private readonly JsonObject _message;
         private readonly Type _sender;
 
-        public SenderEnricherShould(ITestOutputHelper output) : base(output)
+        public SenderEnricherShould()
         {
             _enricher = new SenderEnricher();
             _message = new JsonObject();

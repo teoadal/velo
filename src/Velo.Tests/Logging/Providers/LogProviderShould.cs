@@ -11,7 +11,6 @@ using Velo.Serialization;
 using Velo.Serialization.Models;
 using Velo.TestsModels.Boos;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Logging.Providers
 {
@@ -24,7 +23,7 @@ namespace Velo.Tests.Logging.Providers
 
         private Action<LogContext, JsonObject> _logWriteCallback = (context, obj) => { };
 
-        public LogProviderShould(ITestOutputHelper output) : base(output)
+        public LogProviderShould()
         {
             _logWriter = new Mock<ILogWriter>();
             _logWriter
@@ -36,8 +35,8 @@ namespace Velo.Tests.Logging.Providers
                 .AddLogWriter(_logWriter.Object)
                 .BuildProvider();
 
-            _converters = dependencyProvider.GetRequiredService<IConvertersCollection>();
-            _logger = dependencyProvider.GetRequiredService<ILogger<LogProviderShould>>();
+            _converters = dependencyProvider.GetRequired<IConvertersCollection>();
+            _logger = dependencyProvider.GetRequired<ILogger<LogProviderShould>>();
             _sender = typeof(LogProviderShould);
         }
 
@@ -48,7 +47,7 @@ namespace Velo.Tests.Logging.Providers
                 .AddLogging()
                 .BuildProvider();
 
-            var logProvider = provider.GetRequiredService<ILogProvider>();
+            var logProvider = provider.GetRequired<ILogProvider>();
             logProvider.Should().BeOfType<NullLogProvider>();
         }
 
@@ -85,7 +84,7 @@ namespace Velo.Tests.Logging.Providers
                 .AddLogWriter(Mock.Of<ILogWriter>())
                 .AddLogEnricher(enricher.Object)
                 .BuildProvider()
-                .GetRequiredService<ILogger<LogProviderShould>>();
+                .GetRequired<ILogger<LogProviderShould>>();
 
             logger.Log(level, message);
 
@@ -107,7 +106,7 @@ namespace Velo.Tests.Logging.Providers
             dependencies
                 .AddLogWriter(Mock.Of<ILogWriter>())
                 .BuildProvider()
-                .GetRequiredService<ILogger<LogProviderShould>>()
+                .GetRequired<ILogger<LogProviderShould>>()
                 .Log(level, message);
 
             foreach (var enricher in enrichers)
@@ -160,7 +159,7 @@ namespace Velo.Tests.Logging.Providers
             }
 
             dependencies.BuildProvider()
-                .GetRequiredService<ILogger<LogProviderShould>>()
+                .GetRequired<ILogger<LogProviderShould>>()
                 .Log(level, message);
 
             foreach (var writer in writers)

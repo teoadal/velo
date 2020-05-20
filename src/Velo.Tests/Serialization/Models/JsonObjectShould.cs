@@ -4,7 +4,6 @@ using Velo.Serialization;
 using Velo.Serialization.Models;
 using Velo.TestsModels;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Serialization.Models
 {
@@ -12,9 +11,9 @@ namespace Velo.Tests.Serialization.Models
     {
         private readonly IConvertersCollection _converters;
         
-        public JsonObjectShould(ITestOutputHelper output) : base(output)
+        public JsonObjectShould()
         {
-            _converters = TestUtils.BuildConvertersCollection();
+            _converters = BuildConvertersCollection();
         }
 
         [Theory]

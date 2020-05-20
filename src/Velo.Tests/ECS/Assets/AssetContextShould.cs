@@ -10,7 +10,6 @@ using Velo.ECS.Assets.Groups;
 using Velo.ECS.Components;
 using Velo.TestsModels.ECS;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.ECS.Assets
 {
@@ -20,7 +19,7 @@ namespace Velo.Tests.ECS.Assets
         private readonly IAssetContext _assetContext;
         private readonly int _assetsCount;
 
-        public AssetContextShould(ITestOutputHelper output) : base(output)
+        public AssetContextShould()
         {
             InjectComponentsArray(new IComponent[] {new TestComponent1(), new TestComponent2()});
 

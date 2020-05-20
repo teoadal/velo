@@ -14,7 +14,7 @@ namespace Velo.Benchmark.Serialization
             return new DependencyCollection()
                 .AddJsonConverter()
                 .BuildProvider()
-                .GetRequiredService<JConverter>();
+                .GetRequired<JConverter>();
         }
         
         public static BigObject CreateBigObject(Random random)

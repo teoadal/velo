@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Velo.Utils;
 
 namespace Velo.CQRS.Notifications.Pipeline
 {
@@ -8,6 +9,8 @@ namespace Velo.CQRS.Notifications.Pipeline
     {
         private INotificationProcessor<TNotification>[] _processors;
 
+        private bool _disposed;
+
         public NotificationParallelPipeline(INotificationProcessor<TNotification>[] processors)
         {
             _processors = processors;
@@ -15,6 +18,8 @@ namespace Velo.CQRS.Notifications.Pipeline
 
         public Task Publish(TNotification notification, CancellationToken cancellationToken)
         {
+            if (_disposed) throw Error.Disposed(nameof(INotificationPipeline<TNotification>));
+
             cancellationToken.ThrowIfCancellationRequested();
 
             var tasks = new Task[_processors.Length];
@@ -34,6 +39,7 @@ namespace Velo.CQRS.Notifications.Pipeline
         public void Dispose()
         {
             _processors = null!;
+            _disposed = true;
         }
     }
 }

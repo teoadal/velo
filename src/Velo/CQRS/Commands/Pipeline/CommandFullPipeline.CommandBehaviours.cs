@@ -8,37 +8,48 @@ namespace Velo.CQRS.Commands.Pipeline
     {
         private sealed class BehaviourContext
         {
+            [ThreadStatic] 
+            private static Closure? _closure;
+
             private ICommandBehaviour<TCommand>[] _behaviours;
             private CommandFullPipeline<TCommand> _pipeline;
 
             public BehaviourContext(CommandFullPipeline<TCommand> pipeline, ICommandBehaviour<TCommand>[] behaviours)
             {
+                _closure = null;
                 _behaviours = behaviours;
                 _pipeline = pipeline;
             }
 
             public Task Execute(TCommand command, CancellationToken cancellationToken)
             {
-                var closure = new Closure(this, command, cancellationToken);
+                Closure closure = _closure ?? new Closure(this);
+                
+                _closure = null;
+
+                closure.CancellationToken = cancellationToken;
+                closure.Command = command;
+
                 return closure.Execute();
             }
 
-            private sealed class Closure
+            private sealed class Closure : IDisposable
             {
-                private readonly BehaviourContext _context;
-                private readonly TCommand _command;
-                private readonly CancellationToken _cancellationToken;
-                private readonly Func<Task> _next;
+                public CancellationToken CancellationToken;
+                public TCommand Command;
+
+                private BehaviourContext _context;
+                private Func<Task> _next;
 
                 private int _position;
 
-                public Closure(BehaviourContext context, TCommand command, CancellationToken cancellationToken)
+                public Closure(BehaviourContext context)
                 {
                     _context = context;
-                    _command = command;
-                    _cancellationToken = cancellationToken;
-
                     _next = Execute;
+
+                    Command = default!;
+                    CancellationToken = default;
 
                     _position = 0;
                 }
@@ -51,20 +62,44 @@ namespace Velo.CQRS.Commands.Pipeline
                     if ((uint) _position < (uint) behaviours.Length)
                     {
                         var behaviour = behaviours[_position++];
-                        return behaviour.Execute(_command, _next, _cancellationToken);
+                        return behaviour.Execute(Command, _next, CancellationToken);
                     }
 
-                    return _context._pipeline.RunProcessors(_command, _cancellationToken);
+                    var token = CancellationToken;
+                    var command = Command;
+                    var pipeline = _context._pipeline;
+                    
+                    Clear();
+                    
+                    return pipeline.RunProcessors(command, token);
+                }
+
+                private void Clear()
+                {
+                    CancellationToken = default;
+                    Command = default!;
+
+                    _position = 0;
+                    
+                    _closure = this;
+                }
+
+                public void Dispose()
+                {
+                    _context = null!;
+                    _next = null!;
                 }
             }
 
             public void Dispose()
             {
                 _behaviours = null!;
+
+                _closure?.Dispose();
+                _closure = null;
+
                 _pipeline = null!;
             }
         }
-        
     }
-    
 }

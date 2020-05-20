@@ -51,11 +51,11 @@ namespace Velo.DependencyInjection
         }
 
         public static DependencyCollection AddJsonSettings(this DependencyCollection dependencies,
-            Func<IDependencyScope, string> fileNameBuilder, bool required = false)
+            Func<IServiceProvider, string> fileNameBuilder, bool required = false)
         {
             dependencies.AddDependency(
                 SettingsSourceContract,
-                scope => new JsonFileSource(fileNameBuilder(scope), required),
+                provider => new JsonFileSource(fileNameBuilder(provider), required),
                 DependencyLifetime.Singleton);
 
             return dependencies;

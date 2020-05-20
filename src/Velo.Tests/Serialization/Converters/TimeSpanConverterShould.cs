@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 using Velo.Serialization;
 using Velo.Serialization.Models;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Serialization.Converters
 {
@@ -13,9 +12,9 @@ namespace Velo.Tests.Serialization.Converters
     {
         private readonly IJsonConverter<TimeSpan> _converter;
 
-        public TimeSpanConverterShould(ITestOutputHelper output) : base(output)
+        public TimeSpanConverterShould()
         {
-            _converter = TestUtils.BuildConvertersCollection().Get<TimeSpan>();
+            _converter = BuildConvertersCollection().Get<TimeSpan>();
         }
 
         [Fact]

@@ -6,7 +6,6 @@ using Velo.DependencyInjection.Dependencies;
 using Velo.DependencyInjection.Resolvers;
 using Velo.TestsModels.Boos;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.DependencyInjection.Dependencies
 {
@@ -16,7 +15,7 @@ namespace Velo.Tests.DependencyInjection.Dependencies
         private readonly InstanceDependency _dependency;
         private readonly Mock<IBooRepository> _instance;
 
-        public InstanceDependencyShould(ITestOutputHelper output) : base(output)
+        public InstanceDependencyShould()
         {
             _instance = new Mock<IDisposable>().As<IBooRepository>();
 
@@ -50,7 +49,7 @@ namespace Velo.Tests.DependencyInjection.Dependencies
         public void GetInstance()
         {
             _dependency
-                .GetInstance(It.IsAny<Type>(), It.IsAny<IDependencyScope>())
+                .GetInstance(It.IsAny<Type>(), It.IsAny<IServiceProvider>())
                 .Should().Be(_instance.Object);
         }
 
@@ -73,10 +72,16 @@ namespace Velo.Tests.DependencyInjection.Dependencies
             var resolver = (DependencyResolver) _dependency;
 
             resolver
-                .Resolve(It.IsAny<Type>(), It.IsNotNull<IDependencyScope>())
+                .Resolve(It.IsAny<Type>(), It.IsNotNull<IServiceProvider>())
                 .Should().Be(_instance.Object);
         }
 
+        [Fact]
+        public void SameResolver()
+        {
+            _dependency.Implementation.Should().Be(_instance.Object.GetType());
+        }
+        
         [Fact]
         public void Singleton()
         {

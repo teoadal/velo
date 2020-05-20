@@ -7,6 +7,17 @@ using Velo.Utils;
 
 namespace Velo.DependencyInjection
 {
+    public interface IDependencyEngine : IDisposable
+    {
+        bool Contains(Type type);
+
+        IDependency[] GetApplicable(Type contract);
+
+        IDependency? GetDependency(Type contract);
+
+        IDependency GetRequiredDependency(Type contract);
+    }
+
     internal sealed class DependencyEngine : IDependencyEngine
     {
         private readonly List<IDependency> _dependencies;
@@ -39,11 +50,13 @@ namespace Velo.DependencyInjection
 
         public bool Contains(Type type)
         {
+            // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
             foreach (var dependency in _dependencies)
             {
                 if (dependency.Applicable(type)) return true;
             }
 
+            // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
             foreach (var factory in _factories)
             {
                 if (factory.Applicable(type)) return true;
@@ -56,6 +69,7 @@ namespace Velo.DependencyInjection
         {
             var localList = new LocalList<IDependency>();
 
+            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
             foreach (var dependency in _dependencies)
             {
                 if (dependency.Applicable(contract))
@@ -64,6 +78,7 @@ namespace Velo.DependencyInjection
                 }
             }
 
+            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
             foreach (var factory in _factories)
             {
                 if (!factory.Applicable(contract)) continue;
@@ -83,6 +98,7 @@ namespace Velo.DependencyInjection
                 return existsDependency;
             }
 
+            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
             foreach (var dependency in _dependencies)
             {
                 if (!dependency.Applicable(contract)) continue;
@@ -91,6 +107,7 @@ namespace Velo.DependencyInjection
                 return dependency;
             }
 
+            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
             foreach (var factory in _factories)
             {
                 if (!factory.Applicable(contract)) continue;
@@ -121,6 +138,7 @@ namespace Velo.DependencyInjection
         {
             _resolvedDependencies.Remove(contract);
 
+            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
             foreach (var dependency in _dependencies)
             {
                 if (!dependency.Applicable(contract)) continue;
@@ -129,6 +147,7 @@ namespace Velo.DependencyInjection
                 return true;
             }
 
+            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
             foreach (var factory in _factories)
             {
                 if (!factory.Applicable(contract)) continue;

@@ -10,7 +10,6 @@ using Velo.ECS.Sources;
 using Velo.ECS.Systems;
 using Velo.Serialization;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.ECS
 {
@@ -19,7 +18,7 @@ namespace Velo.Tests.ECS
     {
         private readonly DependencyCollection _dependencies;
 
-        public ECSInstallerShould(ITestOutputHelper output) : base(output)
+        public ECSInstallerShould()
         {
             _dependencies = new DependencyCollection()
                 .AddECS();
@@ -64,7 +63,7 @@ namespace Velo.Tests.ECS
 
             dependency.Contracts.Should().Contain(typeof(IEntitySource<Asset>));
             dependency.Lifetime.Should().Be(DependencyLifetime.Singleton);
-            dependency.Resolver.Implementation.Should().Be(typeof(DelegateSource<Asset>));
+            dependency.Implementation.Should().Be(typeof(DelegateSource<Asset>));
         }
 
         [Fact]

@@ -5,7 +5,10 @@ namespace Velo.DependencyInjection.Resolvers
 {
     public abstract class DependencyResolver
     {
-        public static DependencyResolver Build(DependencyLifetime lifetime, Type implementation, IDependencyEngine engine)
+        public static DependencyResolver Build(
+            DependencyLifetime lifetime,
+            Type implementation,
+            IDependencyEngine engine)
         {
             switch (lifetime)
             {
@@ -18,9 +21,9 @@ namespace Velo.DependencyInjection.Resolvers
                     throw Error.InvalidDependencyLifetime();
             }
         }
-        
+
         public Type Implementation { get; }
-        
+
         private bool _resolveInProgress;
 
         protected DependencyResolver(Type implementation)
@@ -28,19 +31,19 @@ namespace Velo.DependencyInjection.Resolvers
             Implementation = implementation;
         }
 
-        public object Resolve(Type contract, IDependencyScope scope)
+        public object Resolve(Type contract, IServiceProvider services)
         {
             if (_resolveInProgress) throw Error.CircularDependency(contract);
 
             _resolveInProgress = true;
 
-            var instance = ResolveInstance(contract, scope);
+            var instance = ResolveInstance(contract, services);
 
             _resolveInProgress = false;
 
             return instance;
         }
 
-        protected abstract object ResolveInstance(Type contract, IDependencyScope scope);
+        protected abstract object ResolveInstance(Type contract, IServiceProvider services);
     }
 }

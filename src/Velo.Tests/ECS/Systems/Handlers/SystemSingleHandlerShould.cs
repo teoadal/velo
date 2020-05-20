@@ -1,23 +1,19 @@
-using System.Threading;
 using FluentAssertions;
 using Moq;
 using Velo.ECS.Systems;
 using Velo.ECS.Systems.Handlers;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.ECS.Systems.Handlers
 {
     public class SystemSingleHandlerShould : ECSTestClass
     {
-        private readonly CancellationToken _ct;
         private readonly Mock<IBeforeUpdateSystem> _system;
 
         private readonly SystemSingleHandler<IBeforeUpdateSystem> _handler;
 
-        public SystemSingleHandlerShould(ITestOutputHelper output) : base(output)
+        public SystemSingleHandlerShould()
         {
-            _ct = CancellationToken.None;
             _system = new Mock<IBeforeUpdateSystem>();
 
             _handler = new SystemSingleHandler<IBeforeUpdateSystem>(
@@ -29,10 +25,10 @@ namespace Velo.Tests.ECS.Systems.Handlers
         public void Execute()
         {
             _handler
-                .Awaiting(handler => handler.Execute(_ct))
+                .Awaiting(handler => handler.Execute(CancellationToken))
                 .Should().NotThrow();
 
-            _system.Verify(s => s.BeforeUpdate(_ct));
+            _system.Verify(s => s.BeforeUpdate(CancellationToken));
         }
     }
 }

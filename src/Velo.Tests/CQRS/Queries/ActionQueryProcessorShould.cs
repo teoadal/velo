@@ -1,58 +1,45 @@
 using System;
-using AutoFixture.Xunit2;
+using AutoFixture;
 using FluentAssertions;
 using Moq;
-using Velo.CQRS;
-using Velo.DependencyInjection;
+using Velo.CQRS.Queries;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting.Boos.Get;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.CQRS.Queries
 {
-    public class ActionQueryProcessorShould : TestClass
+    public class ActionQueryProcessorShould : CQRSTestClass
     {
-        private readonly DependencyCollection _dependencyCollection;
+        private readonly Mock<Func<Query, Boo>> _action;
+        private readonly Query _query;
+        private readonly ActionQueryProcessor<Query, Boo> _processor;
 
-        public ActionQueryProcessorShould(ITestOutputHelper output) : base(output)
+        public ActionQueryProcessorShould()
         {
-            _dependencyCollection = new DependencyCollection()
-                .AddEmitter();
+            _action = new Mock<Func<Query, Boo>>();
+            _query = Fixture.Create<Query>();
+            _processor = new ActionQueryProcessor<Query, Boo>(_action.Object);
         }
 
-        [Theory]
-        [AutoData]
-        public void Executed(Query query)
+        [Fact]
+        public void ProcessQuery()
         {
-            var processor = new Mock<Func<Query, Boo>>();
+            _processor
+                .Awaiting(processor => processor.Process(_query, CancellationToken))
+                .Should().NotThrow();
 
-            var emitter = _dependencyCollection
-                .CreateQueryProcessor(processor.Object)
-                .BuildProvider()
-                .GetRequiredService<IEmitter>();
-
-            emitter.Awaiting(e => e.Ask(query)).Should().NotThrow();
-
-            processor.Verify(p => p.Invoke(query));
+            _action.Verify(func => func.Invoke(_query));
         }
-
-        [Theory]
-        [AutoData]
-        public void ExecutedWithContext(Query query)
+        
+        [Fact]
+        public void ThrowIfDisposed()
         {
-            var repository = Mock.Of<IBooRepository>();
-            var processor = new Mock<Func<Query, IBooRepository, Boo>>();
+            _processor.Dispose();
 
-            var emitter = _dependencyCollection
-                .AddInstance(repository)
-                .CreateQueryProcessor(processor.Object)
-                .BuildProvider()
-                .GetRequiredService<IEmitter>();
-
-            emitter.Awaiting(e => e.Ask(query)).Should().NotThrow();
-
-            processor.Verify(p => p.Invoke(query, repository));
+            _processor
+                .Awaiting(processor => processor.Process(_query, CancellationToken))
+                .Should().Throw<ObjectDisposedException>();
         }
     }
 }

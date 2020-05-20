@@ -5,7 +5,6 @@ using FluentAssertions;
 using Velo.Metrics.Counters;
 using Velo.Serialization.Primitives;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Metrics
 {
@@ -15,7 +14,7 @@ namespace Velo.Tests.Metrics
         private readonly ICounterLabel _counterLabel;
         private readonly double _value;
 
-        public CounterExtensionsShould(ITestOutputHelper output) : base(output)
+        public CounterExtensionsShould()
         {
             _value = 100d;
             _counterLabel = new CounterLabel("abc");

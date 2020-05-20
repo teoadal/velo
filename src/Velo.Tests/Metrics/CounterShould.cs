@@ -5,7 +5,6 @@ using FluentAssertions;
 using Moq;
 using Velo.Metrics.Counters;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Metrics
 {
@@ -14,7 +13,7 @@ namespace Velo.Tests.Metrics
         private readonly ICounter _counter;
         private readonly Mock<ICounterLabel> _counterLabel;
 
-        public CounterShould(ITestOutputHelper output) : base(output)
+        public CounterShould()
         {
             _counterLabel = new Mock<ICounterLabel>();
             _counterLabel

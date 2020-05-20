@@ -8,16 +8,11 @@ using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting.Boos.Create;
 using Velo.TestsModels.Emitting.Boos.Get;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.CQRS
 {
-    public class TypesShould : TestClass
+    public class TypesShould : CQRSTestClass
     {
-        public TypesShould(ITestOutputHelper output) : base(output)
-        {
-        }
-
         [Fact]
         public void GetCommandPipelineType()
         {

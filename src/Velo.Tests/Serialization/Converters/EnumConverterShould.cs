@@ -7,7 +7,6 @@ using Velo.DependencyInjection;
 using Velo.Serialization;
 using Velo.Serialization.Models;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Serialization.Converters
 {
@@ -15,9 +14,9 @@ namespace Velo.Tests.Serialization.Converters
     {
         private readonly IJsonConverter<DependencyLifetime> _converter;
 
-        public EnumConverterShould(ITestOutputHelper output) : base(output)
+        public EnumConverterShould()
         {
-            _converter = TestUtils.BuildConvertersCollection().Get<DependencyLifetime>();
+            _converter = BuildConvertersCollection().Get<DependencyLifetime>();
         }
 
         [Fact]

@@ -4,7 +4,6 @@ using AutoFixture.Xunit2;
 using FluentAssertions;
 using Velo.Metrics.Counters;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Metrics
 {
@@ -12,7 +11,7 @@ namespace Velo.Tests.Metrics
     {
         private readonly ICounterLabel _label;
 
-        public CounterLabelShould(ITestOutputHelper output) : base(output)
+        public CounterLabelShould()
         {
             _label = new CounterLabel(Fixture.Create<string>());
         }

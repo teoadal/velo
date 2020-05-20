@@ -7,7 +7,6 @@ using Velo.ECS.Actors.Filters;
 using Velo.ECS.Injection;
 using Velo.TestsModels.ECS;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.ECS.Injection
 {
@@ -15,7 +14,7 @@ namespace Velo.Tests.ECS.Injection
     {
         private readonly FilterFactory<IActorContext> _actorFilterFactory;
 
-        public FilterFactoryShould(ITestOutputHelper output) : base(output)
+        public FilterFactoryShould()
         {
             _actorFilterFactory = new FilterFactory<IActorContext>(typeof(IActorFilter));
         }
@@ -42,11 +41,11 @@ namespace Velo.Tests.ECS.Injection
                 .AddECS()
                 .BuildProvider();
 
-            provider.Invoking(p => p.GetRequiredService<IActorFilter<TestComponent1>>())
+            provider.Invoking(p => p.GetRequired<IActorFilter<TestComponent1>>())
                 .Should().NotThrow()
                 .Which.Should().BeOfType<ActorFilter<TestComponent1>>();
 
-            provider.Invoking(p => p.GetRequiredService<IActorFilter<TestComponent1, TestComponent2>>())
+            provider.Invoking(p => p.GetRequired<IActorFilter<TestComponent1, TestComponent2>>())
                 .Should().NotThrow()
                 .Which.Should().BeOfType<ActorFilter<TestComponent1, TestComponent2>>();
         }

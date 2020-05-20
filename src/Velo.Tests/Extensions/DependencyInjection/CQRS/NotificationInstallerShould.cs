@@ -7,7 +7,6 @@ using Velo.CQRS.Notifications.Pipeline;
 using Velo.TestsModels.Emitting.Boos.Create;
 using Velo.TestsModels.Emitting.Parallel;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Extensions.DependencyInjection.CQRS
 {
@@ -16,7 +15,7 @@ namespace Velo.Tests.Extensions.DependencyInjection.CQRS
         private readonly INotificationProcessor<Notification> _processor;
         private readonly IServiceCollection _services;
 
-        public NotificationInstallerShould(ITestOutputHelper output) : base(output)
+        public NotificationInstallerShould()
         {
             _processor = BuildProcessor<Notification>();
             _services = new ServiceCollection()

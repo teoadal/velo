@@ -14,9 +14,9 @@ namespace Velo.TestsModels.Boos
 
         public bool Disposed { get; private set; }
         
-        private Dictionary<int, Boo> _storage;
+        private readonly Dictionary<int, Boo> _storage;
         
-        public BooRepository(ISettingsProvider settings, ISession session)
+        public BooRepository(ISettingsProvider settings, ISession session = null)
         {
             Settings = settings;
             Session = session;

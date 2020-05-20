@@ -11,7 +11,6 @@ using Velo.TestsModels;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Settings;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Settings.Provider
 {
@@ -26,9 +25,9 @@ namespace Velo.Tests.Settings.Provider
         private readonly ISettingsProvider _settings;
         private readonly Mock<ISettingsSource> _source;
 
-        public SettingsProviderShould(ITestOutputHelper output) : base(output)
+        public SettingsProviderShould()
         {
-            _converters = TestUtils.BuildConvertersCollection();
+            _converters = BuildConvertersCollection();
 
             _property = "property";
             _propertyValue = JsonValue.True;

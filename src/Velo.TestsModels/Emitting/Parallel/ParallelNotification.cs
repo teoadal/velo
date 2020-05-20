@@ -7,7 +7,7 @@ namespace Velo.TestsModels.Emitting.Parallel
     [Parallel]
     public class ParallelNotification : INotification
     {
-        public ConcurrentBag<int> ExecutedOn;
+        public readonly ConcurrentBag<int> ExecutedOn;
 
         public bool StopPropagation { get; set; }
         

@@ -13,7 +13,6 @@ using Velo.TestsModels.Foos;
 using Velo.TestsModels.Infrastructure;
 using Velo.Utils;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.DependencyInjection
 {
@@ -21,7 +20,7 @@ namespace Velo.Tests.DependencyInjection
     {
         private readonly DependencyCollection _dependencies;
 
-        public ProviderTests(ITestOutputHelper output) : base(output)
+        public ProviderTests()
         {
             _dependencies = new DependencyCollection()
                 .AddJsonConverter()
@@ -34,43 +33,44 @@ namespace Velo.Tests.DependencyInjection
         {
             var provider = _dependencies.BuildProvider();
             var repository = provider.Activate(typeof(FooRepository));
-            
+
             Assert.NotNull(repository);
             Assert.IsType<FooRepository>(repository);
         }
-        
+
         [Fact]
         public void ActivateGeneric()
         {
             var provider = _dependencies.BuildProvider();
             var repository = provider.Activate<FooRepository>();
-            
+
             Assert.NotNull(repository);
             Assert.IsType<FooRepository>(repository);
         }
-        
+
         [Fact]
         public void ActivateGenericWithConstructor()
         {
             var provider = _dependencies.BuildProvider();
             var repositoryConstructor = ReflectionUtils.GetConstructor(typeof(FooRepository));
             var repository = provider.Activate<FooRepository>(repositoryConstructor);
-            
+
             Assert.NotNull(repository);
             Assert.IsType<FooRepository>(repository);
         }
-        
+
         [Fact]
         public void Destroy()
         {
             var provider = _dependencies
                 .AddSingleton<IMapper<Boo>, CompiledMapper<Boo>>()
-                .AddSingleton<IBooRepository>(ctx => new BooRepository(ctx.GetService<ISettingsProvider>(), ctx.GetService<ISession>()))
+                .AddSingleton<IBooRepository>(ctx =>
+                    new BooRepository(ctx.Get<ISettingsProvider>(), ctx.Get<ISession>()))
                 .AddSingleton<BooService>()
                 .BuildProvider();
 
-            var repository = (BooRepository) provider.GetRequiredService<IBooRepository>();
-            var service = provider.GetRequiredService<BooService>();
+            var repository = (BooRepository) provider.GetRequired<IBooRepository>();
+            var service = provider.GetRequired<BooService>();
 
             provider.Dispose();
 
@@ -95,7 +95,7 @@ namespace Velo.Tests.DependencyInjection
                 .AddLogging()
                 .BuildProvider();
 
-            var controller = provider.GetService<SomethingController>();
+            var controller = provider.Get<SomethingController>();
             Assert.NotNull(controller);
         }
 
@@ -104,8 +104,8 @@ namespace Velo.Tests.DependencyInjection
         {
             var provider = _dependencies.BuildProvider();
 
-            Assert.Equal(provider, provider.GetRequiredService<DependencyProvider>());
-            Assert.Equal(provider, provider.GetRequiredService<IServiceProvider>());
+            Assert.Equal(provider, provider.GetRequired<DependencyProvider>());
+            Assert.Equal(provider, provider.GetRequired<IServiceProvider>());
         }
 
         [Fact]
@@ -117,7 +117,7 @@ namespace Velo.Tests.DependencyInjection
                 .AddSingleton<IRepository, OtherFooRepository>()
                 .BuildProvider();
 
-            var array = provider.GetService<IRepository[]>();
+            var array = provider.GetRequiredArray<IRepository>();
 
             Assert.Equal(3, array.Length);
         }
@@ -126,10 +126,10 @@ namespace Velo.Tests.DependencyInjection
         public void Resolve_Array_Empty()
         {
             var provider = _dependencies.BuildProvider();
-            var emptyArray = provider.GetRequiredService<IRepository[]>();
+            var emptyArray = provider.GetRequiredArray<IRepository>();
             Assert.Empty(emptyArray);
         }
-        
+
         [Fact]
         public void Resolve_FirstFromAssignable()
         {
@@ -138,13 +138,13 @@ namespace Velo.Tests.DependencyInjection
                 .AddSingleton<IRepository, FooRepository>()
                 .BuildProvider();
 
-            var firstAdded = provider.GetRequiredService<IRepository>();
+            var firstAdded = provider.GetRequired<IRepository>();
             Assert.IsType<BooRepository>(firstAdded);
-            
-            var notFound = provider.GetService<BooRepository>();
+
+            var notFound = provider.Get<BooRepository>();
             Assert.Null(notFound);
         }
-        
+
         [Fact]
         public void Resolve_Enumerable()
         {
@@ -154,10 +154,10 @@ namespace Velo.Tests.DependencyInjection
                 .AddSingleton<IRepository, OtherFooRepository>()
                 .BuildProvider();
 
-            var array = provider.GetService<IEnumerable<IRepository>>();
+            var array = provider.GetRequired<IEnumerable<IRepository>>();
             Assert.Equal(3, array.Count());
         }
-        
+
         [Fact]
         public async Task Resolve_Array_MultiThreading()
         {
@@ -170,11 +170,11 @@ namespace Velo.Tests.DependencyInjection
 
             await RunTasks(10, () =>
             {
-                var array = provider.GetService<IRepository[]>();
+                var array = provider.GetRequiredArray<IRepository>();
                 Assert.Equal(3, array.Length);
             });
         }
-        
+
         [Fact]
         public void Resolve_Array_WithOneElement()
         {
@@ -182,7 +182,7 @@ namespace Velo.Tests.DependencyInjection
                 .AddSingleton<IRepository, BooRepository>()
                 .BuildProvider();
 
-            var array = provider.GetService<IRepository[]>();
+            var array = provider.GetRequiredArray<IRepository>();
 
             Assert.Single(array);
             Assert.IsType<BooRepository>(array[0]);
@@ -205,10 +205,10 @@ namespace Velo.Tests.DependencyInjection
 
             await RunTasks(10, () =>
             {
-                var controller = provider.GetService<SomethingController>();
+                var controller = provider.Get<SomethingController>();
                 resolvedControllers.Add(controller);
             });
-            
+
             foreach (var controller in resolvedControllers)
             {
                 foreach (var otherController in resolvedControllers)
@@ -230,18 +230,18 @@ namespace Velo.Tests.DependencyInjection
             var provider = _dependencies
                 .AddSingleton<CircularDependencyService>()
                 .BuildProvider();
-            
-            Assert.Throws<TypeAccessException>(() => provider.GetService<CircularDependencyService>());
+
+            Assert.Throws<TypeAccessException>(() => provider.Get<CircularDependencyService>());
         }
-        
+
         [Fact]
         public void Throw_CircularDependency_Required()
         {
             var provider = _dependencies
                 .AddSingleton<CircularDependencyService>()
                 .BuildProvider();
-            
-            Assert.Throws<TypeAccessException>(() => provider.GetRequiredService<CircularDependencyService>());
+
+            Assert.Throws<TypeAccessException>(() => provider.GetRequired<CircularDependencyService>());
         }
 
         [Fact]
@@ -253,7 +253,7 @@ namespace Velo.Tests.DependencyInjection
 
             provider.Dispose();
 
-            Assert.Throws<ObjectDisposedException>(() => provider.GetRequiredService<JConverter>());
+            Assert.Throws<ObjectDisposedException>(() => provider.GetRequired<JConverter>());
         }
 
         [Fact]
@@ -262,19 +262,19 @@ namespace Velo.Tests.DependencyInjection
             var provider = new DependencyCollection().BuildProvider();
             Assert.Throws<InvalidOperationException>(() => provider.Activate<ISession>());
         }
-        
+
         [Fact]
         public void Throw_Activate_NotRegistered()
         {
             var provider = new DependencyCollection().BuildProvider();
             Assert.Throws<KeyNotFoundException>(() => provider.Activate<FooRepository>());
         }
-        
+
         [Fact]
         public void Throw_Resolve_NotRegistered()
         {
             var provider = _dependencies.BuildProvider();
-            Assert.Throws<KeyNotFoundException>(() => provider.GetRequiredService(typeof(IManager<>)));
+            Assert.Throws<KeyNotFoundException>(() => provider.GetRequired(typeof(IManager<>)));
         }
     }
 }

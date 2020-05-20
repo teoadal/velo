@@ -2,10 +2,8 @@ using System;
 using System.Runtime.CompilerServices;
 using Velo.CQRS;
 using Velo.CQRS.Commands;
-using Velo.CQRS.Commands.Pipeline;
-using Velo.CQRS.Notifications.Pipeline;
+using Velo.CQRS.Notifications;
 using Velo.CQRS.Queries;
-using Velo.CQRS.Queries.Pipeline;
 using Velo.DependencyInjection.Scan;
 using Velo.Utils;
 
@@ -20,10 +18,12 @@ namespace Velo.DependencyInjection
                 .AddFactory(new CommandPipelineFactory())
                 .AddFactory(new NotificationPipelineFactory())
                 .AddFactory(new QueryPipelineFactory())
-                .AddScoped<IEmitter>(scope => new Emitter(scope));
+                .AddScoped<IEmitter>(provider => new Emitter(provider));
 
             return dependencies;
         }
+
+        #region Commands
 
         public static DependencyCollection AddCommandBehaviour<TBehaviour>(this DependencyCollection dependencies,
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
@@ -66,6 +66,10 @@ namespace Velo.DependencyInjection
             return dependencies;
         }
 
+        #endregion
+
+        #region Notifications
+
         public static DependencyCollection AddNotificationProcessor<TProcessor>(this DependencyCollection dependencies,
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
         {
@@ -93,6 +97,10 @@ namespace Velo.DependencyInjection
 
             return dependencies;
         }
+
+        #endregion
+
+        #region Queries
 
         public static DependencyCollection AddQueryBehaviour<TBehaviour>(this DependencyCollection dependencies,
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
@@ -135,45 +143,33 @@ namespace Velo.DependencyInjection
             return dependencies;
         }
 
+        #endregion
+
         public static DependencyScanner AddEmitterProcessors(this DependencyScanner scanner,
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
         {
             return scanner.UseAllover(new ProcessorsAllover(lifetime));
         }
 
+        #region CreateProcessors
+
         public static DependencyCollection CreateCommandProcessor<TCommand>(this DependencyCollection dependencies,
             Action<TCommand> processor)
             where TCommand : ICommand
         {
-            return dependencies.AddInstance(new ActionCommandProcessor<TCommand>(processor));
-        }
-
-        public static DependencyCollection CreateCommandProcessor<TCommand, TContext>(
-            this DependencyCollection dependencies, Action<TCommand, TContext> processor)
-            where TCommand : ICommand
-            where TContext : class
-        {
-            return dependencies.AddSingleton<ICommandProcessor<TCommand>>(scope =>
-                new ActionCommandProcessor<TCommand, TContext>(processor,
-                    scope.GetRequiredService<DependencyProvider>()));
+            var instance = new ActionCommandProcessor<TCommand>(processor);
+            return dependencies.AddInstance<ICommandProcessor<TCommand>>(instance);
         }
 
         public static DependencyCollection CreateQueryProcessor<TQuery, TResult>(this DependencyCollection dependencies,
             Func<TQuery, TResult> processor)
             where TQuery : IQuery<TResult>
         {
-            return dependencies.AddInstance(new ActionQueryProcessor<TQuery, TResult>(processor));
+            var instance = new ActionQueryProcessor<TQuery, TResult>(processor);
+            return dependencies.AddInstance<IQueryProcessor<TQuery, TResult>>(instance);
         }
 
-        public static DependencyCollection CreateQueryProcessor<TQuery, TContext, TResult>(
-            this DependencyCollection dependencies, Func<TQuery, TContext, TResult> processor)
-            where TQuery : IQuery<TResult>
-            where TContext : class
-        {
-            return dependencies.AddSingleton<IQueryProcessor<TQuery, TResult>>(scope =>
-                new ActionQueryProcessor<TQuery, TContext, TResult>(processor,
-                    scope.GetRequiredService<DependencyProvider>()));
-        }
+        #endregion
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool AddDependencies(

@@ -2,7 +2,6 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Velo.CQRS;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Extensions.DependencyInjection.CQRS
 {
@@ -10,7 +9,7 @@ namespace Velo.Tests.Extensions.DependencyInjection.CQRS
     {
         private readonly IServiceCollection _services;
 
-        public EmitterInstallerShould(ITestOutputHelper output) : base(output)
+        public EmitterInstallerShould()
         {
             _services = new ServiceCollection()
                 .AddEmitter();

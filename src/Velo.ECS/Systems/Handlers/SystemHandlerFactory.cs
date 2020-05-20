@@ -55,7 +55,7 @@ namespace Velo.ECS.Systems.Handlers
 
             foreach (var dependency in dependencies)
             {
-                if (ParallelAttribute.IsDefined(dependency.Resolver.Implementation))
+                if (ParallelAttribute.IsDefined(dependency.Implementation))
                 {
                     hasParallels = true;
                 }

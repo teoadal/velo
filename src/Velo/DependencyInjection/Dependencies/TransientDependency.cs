@@ -12,11 +12,7 @@ namespace Velo.DependencyInjection.Dependencies
         {
         }
 
-        public TransientDependency(Type contract, DependencyResolver resolver) : this(new[] {contract}, resolver)
-        {
-        }
-
-        public override object GetInstance(Type contract, IDependencyScope scope) => Resolve(contract, scope);
+        public override object GetInstance(Type contract, IServiceProvider services) => Resolve(contract, services);
 
         public override void Dispose()
         {

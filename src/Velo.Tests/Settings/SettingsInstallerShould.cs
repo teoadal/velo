@@ -5,7 +5,6 @@ using Velo.Serialization;
 using Velo.Settings.Provider;
 using Velo.Settings.Sources;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Settings
 {
@@ -13,7 +12,7 @@ namespace Velo.Tests.Settings
     {
         private readonly DependencyCollection _dependencies;
 
-        public SettingsInstallerShould(ITestOutputHelper output) : base(output)
+        public SettingsInstallerShould()
         {
             _dependencies = new DependencyCollection()
                 .AddSettings();
@@ -52,7 +51,7 @@ namespace Velo.Tests.Settings
         {
             _dependencies
                 .BuildProvider()
-                .GetRequiredService<ISettingsProvider>()
+                .GetRequired<ISettingsProvider>()
                 .Should().NotBeNull();
         }
 

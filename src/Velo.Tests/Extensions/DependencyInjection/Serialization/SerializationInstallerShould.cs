@@ -2,7 +2,6 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Velo.Serialization;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Extensions.DependencyInjection.Serialization
 {
@@ -10,7 +9,7 @@ namespace Velo.Tests.Extensions.DependencyInjection.Serialization
     {
         private readonly IServiceCollection _services;
 
-        public SerializationInstallerShould(ITestOutputHelper output) : base(output)
+        public SerializationInstallerShould()
         {
             _services = new ServiceCollection()
                 .AddJsonConverter();

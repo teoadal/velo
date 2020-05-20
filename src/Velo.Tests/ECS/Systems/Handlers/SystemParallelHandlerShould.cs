@@ -1,25 +1,21 @@
 using System.Linq;
-using System.Threading;
 using FluentAssertions;
 using Moq;
 using Velo.ECS.Systems;
 using Velo.ECS.Systems.Handlers;
 using Velo.TestsModels.ECS;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.ECS.Systems.Handlers
 {
     public class SystemParallelHandlerShould : ECSTestClass
     {
-        private readonly CancellationToken _ct;
         private readonly Mock<ParallelSystem>[] _systems;
         
         private readonly SystemParallelHandler<IUpdateSystem> _handler;
         
-        public SystemParallelHandlerShould(ITestOutputHelper output) : base(output)
+        public SystemParallelHandlerShould()
         {
-            _ct = CancellationToken.None;
             _systems = Many(() => new Mock<ParallelSystem>());
             
             _handler = new SystemParallelHandler<IUpdateSystem>(
@@ -31,12 +27,12 @@ namespace Velo.Tests.ECS.Systems.Handlers
         public void Execute()
         {
             _handler
-                .Awaiting(handler => handler.Execute(_ct))
+                .Awaiting(handler => handler.Execute(CancellationToken))
                 .Should().NotThrow();
 
             foreach (var system in _systems)
             {
-                system.Verify(s => s.Update(_ct));
+                system.Verify(s => s.Update(CancellationToken));
             }
         }
     }

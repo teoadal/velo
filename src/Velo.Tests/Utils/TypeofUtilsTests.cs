@@ -5,7 +5,6 @@ using Velo.TestsModels.Boos;
 using Velo.TestsModels.Foos;
 using Velo.Utils;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Utils
 {
@@ -13,7 +12,7 @@ namespace Velo.Tests.Utils
     {
         private readonly Type[] _types;
 
-        public TypeofUtilsTests(ITestOutputHelper output) : base(output)
+        public TypeofUtilsTests()
         {
             _types = new[] {typeof(Boo), typeof(BooRepository), typeof(Foo), typeof(FooRepository)};
         }

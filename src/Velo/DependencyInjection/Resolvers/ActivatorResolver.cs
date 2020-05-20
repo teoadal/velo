@@ -17,9 +17,9 @@ namespace Velo.DependencyInjection.Resolvers
                            ?? throw Error.DefaultConstructorNotFound(implementation);
         }
 
-        protected override object ResolveInstance(Type contract, IDependencyScope scope)
+        protected override object ResolveInstance(Type contract, IServiceProvider services)
         {
-            return scope.Activate(Implementation, _constructor);
+            return services.Activate(Implementation, _constructor);
         }
     }
 }

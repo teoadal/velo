@@ -5,7 +5,6 @@ using Moq;
 using Velo.Metrics.Counters;
 using Velo.Metrics.Provider;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Metrics
 {
@@ -14,7 +13,7 @@ namespace Velo.Tests.Metrics
         private readonly Mock<ICounter> _counter;
         private readonly IMetricsProvider _metrics;
 
-        public MetricsServiceShould(ITestOutputHelper output) : base(output)
+        public MetricsServiceShould()
         {
             _counter = new Mock<ICounter>();
             _counter

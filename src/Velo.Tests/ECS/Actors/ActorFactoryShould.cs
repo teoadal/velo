@@ -9,7 +9,6 @@ using Velo.ECS.Actors.Factory;
 using Velo.ECS.Components;
 using Velo.TestsModels.ECS;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.ECS.Actors
 {
@@ -18,7 +17,7 @@ namespace Velo.Tests.ECS.Actors
         private readonly Mock<IActorBuilder<TestActor>> _actorBuilder;
         private readonly IActorFactory _actorFactory;
 
-        public ActorFactoryShould(ITestOutputHelper output) : base(output)
+        public ActorFactoryShould()
         {
             _actorBuilder = new Mock<IActorBuilder<TestActor>>();
             _actorBuilder

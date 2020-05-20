@@ -7,7 +7,6 @@ using Velo.Logging.Renderers;
 using Velo.Logging.Writers;
 using Velo.TestsModels.Boos;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Extensions.DependencyInjection.Logging
 {
@@ -15,7 +14,7 @@ namespace Velo.Tests.Extensions.DependencyInjection.Logging
     {
         private readonly IServiceCollection _services;
 
-        public LoggingInstallerShould(ITestOutputHelper output) : base(output)
+        public LoggingInstallerShould()
         {
             _services = new ServiceCollection()
                 .AddLogging();

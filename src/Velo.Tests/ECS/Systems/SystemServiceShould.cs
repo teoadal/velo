@@ -1,17 +1,13 @@
-using System.Threading;
 using FluentAssertions;
 using Moq;
 using Velo.ECS.Systems;
 using Velo.ECS.Systems.Handlers;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.ECS.Systems
 {
     public class SystemServiceShould : ECSTestClass
     {
-        private readonly CancellationToken _ct;
-
         private readonly Mock<ISystemHandler<IInitSystem>> _init;
         private readonly Mock<ISystemHandler<IBeforeUpdateSystem>> _beforeUpdate;
         private readonly Mock<ISystemHandler<IUpdateSystem>> _update;
@@ -20,10 +16,8 @@ namespace Velo.Tests.ECS.Systems
 
         private readonly ISystemService _systemService;
 
-        public SystemServiceShould(ITestOutputHelper output) : base(output)
+        public SystemServiceShould()
         {
-            _ct = CancellationToken.None;
-
             _init = new Mock<ISystemHandler<IInitSystem>>();
             _beforeUpdate = new Mock<ISystemHandler<IBeforeUpdateSystem>>();
             _update = new Mock<ISystemHandler<IUpdateSystem>>();
@@ -42,32 +36,32 @@ namespace Velo.Tests.ECS.Systems
         public void RunInitSystems()
         {
             _systemService
-                .Awaiting(service => service.Init(_ct))
+                .Awaiting(service => service.Init(CancellationToken))
                 .Should().NotThrow();
             
-            _init.Verify(init => init.Execute(_ct));
+            _init.Verify(init => init.Execute(CancellationToken));
         }
 
         [Fact]
         public void RunUpdateSystems()
         {
             _systemService
-                .Awaiting(service => service.Update(_ct))
+                .Awaiting(service => service.Update(CancellationToken))
                 .Should().NotThrow();
             
-            _beforeUpdate.Verify(before => before.Execute(_ct));
-            _update.Verify(update => update.Execute(_ct));
-            _afterUpdate.Verify(after => after.Execute(_ct));
+            _beforeUpdate.Verify(before => before.Execute(CancellationToken));
+            _update.Verify(update => update.Execute(CancellationToken));
+            _afterUpdate.Verify(after => after.Execute(CancellationToken));
         }
 
         [Fact]
         public void RunCleanupSystems()
         {
             _systemService
-                .Awaiting(service => service.Cleanup(_ct))
+                .Awaiting(service => service.Cleanup(CancellationToken))
                 .Should().NotThrow();
             
-            _cleanup.Verify(cleanup => cleanup.Execute(_ct));
+            _cleanup.Verify(cleanup => cleanup.Execute(CancellationToken));
         }
     }
 }

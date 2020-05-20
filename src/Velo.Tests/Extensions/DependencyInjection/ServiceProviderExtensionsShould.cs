@@ -4,16 +4,11 @@ using Moq;
 using Velo.Extensions.DependencyInjection;
 using Velo.TestsModels.Boos;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Extensions.DependencyInjection
 {
     public class ServiceProviderExtensionsShould : TestClass
     {
-        public ServiceProviderExtensionsShould(ITestOutputHelper output) : base(output)
-        {
-        }
-
         [Fact]
         public void GetArray()
         {

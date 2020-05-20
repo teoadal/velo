@@ -8,16 +8,11 @@ using Velo.Collections;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Domain;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Collections
 {
     public class CollectionUtilsShould : TestClass
     {
-        public CollectionUtilsShould(ITestOutputHelper output) : base(output)
-        {
-        }
-
         [Theory, AutoData]
         public void AddToEnd(int value)
         {
@@ -33,7 +28,7 @@ namespace Velo.Tests.Collections
         public void DisposeValuesIfDisposable_ConcurrentDictionary()
         {
             var collection = new ConcurrentDictionary<int, IRepository>();
-            var booRepository = new BooRepository(null, null);
+            var booRepository = new BooRepository(null);
             collection.TryAdd(1, booRepository);
             
             CollectionUtils.DisposeValuesIfDisposable(collection);
@@ -45,7 +40,7 @@ namespace Velo.Tests.Collections
         public void DisposeValuesIfDisposable_Dictionary()
         {
             var collection = new Dictionary<int, IRepository>();
-            var booRepository = new BooRepository(null, null);
+            var booRepository = new BooRepository(null);
             collection.Add(1, booRepository);
             
             CollectionUtils.DisposeValuesIfDisposable(collection);
@@ -57,7 +52,7 @@ namespace Velo.Tests.Collections
         public void DisposeValuesIfDisposable_Array()
         {
             var collection = new IRepository[1];
-            var booRepository = new BooRepository(null, null);
+            var booRepository = new BooRepository(null);
             collection[0] = booRepository;
             
             CollectionUtils.DisposeValuesIfDisposable(collection);
@@ -103,6 +98,31 @@ namespace Velo.Tests.Collections
             
             CollectionUtils.Insert(ref array, 1, value);
             array[1].Should().Be(value);
+        }
+
+        [Fact]
+        public void RemoveAt()
+        {
+            var array = Fixture.CreateMany<Boo>().ToArray();
+
+            for (var i = 0; i < array.Length; i++)
+            {
+                var element = array[0];
+                CollectionUtils.RemoveAt(ref array, 0);
+                array.Should().NotContain(element);
+            }
+        }
+        
+        [Fact]
+        public void RemoveAtLast()
+        {
+            var array = Fixture.CreateMany<Boo>().ToArray();
+
+            var lastIndex = array.Length - 1;
+            
+            var element = array[lastIndex];
+            CollectionUtils.RemoveAt(ref array, lastIndex);
+            array.Should().NotContain(element);
         }
     }
 }

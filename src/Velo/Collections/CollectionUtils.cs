@@ -13,7 +13,7 @@ namespace Velo.Collections
             Array.Resize(ref array, arrayLength + 1);
             array[arrayLength] = element;
         }
-        
+
         public static void DisposeValuesIfDisposable<TKey, TValue>(ConcurrentDictionary<TKey, TValue> dictionary)
             where TValue : class
         {

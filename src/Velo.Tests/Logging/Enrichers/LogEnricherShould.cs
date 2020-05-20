@@ -9,7 +9,6 @@ using Velo.Logging.Writers;
 using Velo.Serialization;
 using Velo.Serialization.Models;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Logging.Enrichers
 {
@@ -22,9 +21,9 @@ namespace Velo.Tests.Logging.Enrichers
         
         private Action<LogContext, JsonObject> _logWriteCallback = (context, obj) => { };
         
-        public LogEnricherShould(ITestOutputHelper output) : base(output)
+        public LogEnricherShould()
         {
-            _converters = TestUtils.BuildConvertersCollection();
+            _converters = BuildConvertersCollection();
             _logEnricher = new Mock<ILogEnricher>();
 
             var logWriter = new Mock<ILogWriter>();
@@ -37,7 +36,7 @@ namespace Velo.Tests.Logging.Enrichers
                 .AddLogWriter(logWriter.Object)
                 .AddLogEnricher(_logEnricher.Object)
                 .BuildProvider()
-                .GetRequiredService<ILogger<LogEnricherShould>>();
+                .GetRequired<ILogger<LogEnricherShould>>();
 
             _sender = typeof(LogEnricherShould);
         }

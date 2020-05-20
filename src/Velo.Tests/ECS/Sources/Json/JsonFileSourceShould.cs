@@ -10,7 +10,6 @@ using Velo.ECS.Sources.Context;
 using Velo.ECS.Sources.Json;
 using Velo.Serialization;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.ECS.Sources.Json
 {
@@ -20,7 +19,7 @@ namespace Velo.Tests.ECS.Sources.Json
         private readonly IEntitySource<Asset> _source;
         private readonly IEntitySourceContext<Asset> _sourceContext;
 
-        public JsonFileSourceShould(ITestOutputHelper output) : base(output)
+        public JsonFileSourceShould()
         {
             var provider = new DependencyCollection()
                 .AddECS()
@@ -28,7 +27,7 @@ namespace Velo.Tests.ECS.Sources.Json
 
             _assets = Many(10, i => CreateAsset(i));
 
-            var serialized = provider.GetRequiredService<JConverter>().Serialize(_assets);
+            var serialized = provider.GetRequired<JConverter>().Serialize(_assets);
 
             var fileName = $"{nameof(JsonFileSourceShould)}.json";
             File.WriteAllText(fileName, serialized);

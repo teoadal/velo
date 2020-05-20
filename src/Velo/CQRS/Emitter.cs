@@ -8,6 +8,7 @@ using Velo.CQRS.Notifications;
 using Velo.CQRS.Notifications.Pipeline;
 using Velo.CQRS.Queries;
 using Velo.CQRS.Queries.Pipeline;
+using Velo.DependencyInjection;
 using Velo.Threading;
 using Velo.Utils;
 
@@ -15,12 +16,13 @@ namespace Velo.CQRS
 {
     internal sealed class Emitter : IEmitter, IDisposable
     {
+        private IServiceProvider _services;
+        
         private bool _disposed;
-        private IServiceProvider _scope;
 
-        internal Emitter(IServiceProvider scope)
+        internal Emitter(IServiceProvider services)
         {
-            _scope = scope;
+            _services = services;
         }
 
         public Task<TResult> Ask<TResult>(IQuery<TResult> query, CancellationToken cancellationToken = default)
@@ -28,7 +30,7 @@ namespace Velo.CQRS
             EnsureNotDisposed();
 
             var handlerType = Types.GetQueryPipelineType(query.GetType());
-            var handler = (IQueryPipeline<TResult>) _scope.GetService(handlerType);
+            var handler = (IQueryPipeline<TResult>) _services.GetRequired(handlerType);
 
             return handler.GetResponse(query, cancellationToken);
         }
@@ -38,7 +40,7 @@ namespace Velo.CQRS
         {
             EnsureNotDisposed();
 
-            var handler = GetRequiredService<IQueryPipeline<TQuery, TResult>>();
+            var handler = _services.GetRequired<IQueryPipeline<TQuery, TResult>>();
             return handler.GetResponse(query, cancellationToken);
         }
 
@@ -47,7 +49,7 @@ namespace Velo.CQRS
         {
             EnsureNotDisposed();
 
-            var executor = GetRequiredService<ICommandPipeline<TCommand>>();
+            var executor = _services.GetRequired<ICommandPipeline<TCommand>>();
             return executor.Execute(command, cancellationToken);
         }
 
@@ -57,7 +59,7 @@ namespace Velo.CQRS
             EnsureNotDisposed();
 
             var publisherType = Typeof<INotificationPipeline<TNotification>>.Raw;
-            var publisher = (INotificationPipeline<TNotification>) _scope.GetService(publisherType);
+            var publisher = (INotificationPipeline<TNotification>) _services.GetService(publisherType);
             return publisher?.Publish(notification, cancellationToken) ?? TaskUtils.CompletedTask;
         }
 
@@ -66,7 +68,7 @@ namespace Velo.CQRS
             EnsureNotDisposed();
 
             var executorType = Types.GetCommandPipelineType(command.GetType());
-            var executor = (ICommandPipeline) _scope.GetService(executorType);
+            var executor = (ICommandPipeline) _services.GetService(executorType);
 
             return executor.Send(command, cancellationToken);
         }
@@ -76,15 +78,9 @@ namespace Velo.CQRS
             EnsureNotDisposed();
 
             var publisherType = Types.GetNotificationPipelineType(notification.GetType());
-            var publisher = (INotificationPipeline) _scope.GetService(publisherType);
+            var publisher = (INotificationPipeline) _services.GetService(publisherType);
 
             return publisher?.Publish(notification, cancellationToken) ?? TaskUtils.CompletedTask;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private T GetRequiredService<T>() where T : class
-        {
-            return (T) _scope.GetService(Typeof<T>.Raw) ?? throw Error.DependencyNotRegistered(Typeof<T>.Raw);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -95,7 +91,7 @@ namespace Velo.CQRS
 
         public void Dispose()
         {
-            _scope = null!;
+            _services = null!;
             _disposed = true;
         }
     }

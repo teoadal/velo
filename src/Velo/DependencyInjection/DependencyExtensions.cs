@@ -10,12 +10,48 @@ namespace Velo.DependencyInjection
 {
     public static class DependencyExtensions
     {
+        #region Activate
+
         public static object Activate(
-            this IServiceProvider provider,
+            this IServiceProvider services,
+            Type implementation,
+            ConstructorInfo? constructor = null)
+        {
+            EnsureCanActivated(implementation);
+
+            constructor ??= ReflectionUtils.GetConstructor(implementation);
+
+            if (constructor == null) throw Error.DefaultConstructorNotFound(implementation);
+
+            var parameters = constructor.GetParameters();
+            if (parameters.Length == 0)
+            {
+                return constructor.Invoke(Array.Empty<object>());
+            }
+
+            var parameterValues = new object?[parameters.Length];
+            for (var i = parameters.Length - 1; i >= 0; i--)
+            {
+                var parameter = parameters[i];
+                var parameterType = parameter.ParameterType;
+
+                parameterValues[i] = !parameter.HasDefaultValue // required
+                    ? GetRequired(services, parameterType)
+                    : services.GetService(parameterType);
+            }
+
+            return ReflectionUtils.TryInvoke(constructor, parameterValues);
+        }
+
+        public static object Activate(
+            this IServiceProvider services,
             Type implementation,
             LocalList<object> possibleInjections)
         {
+            EnsureCanActivated(implementation);
+
             var constructor = ReflectionUtils.GetConstructor(implementation);
+
             if (constructor == null) throw Error.DefaultConstructorNotFound(implementation);
 
             var parameters = constructor.GetParameters();
@@ -41,23 +77,31 @@ namespace Velo.DependencyInjection
                     break;
                 }
 
-                parameterValues[i] = parameterValue ?? provider.GetService(parameterType);
+                if (parameterValue != null) parameterValues[i] = parameterValue;
+                else
+                {
+                    parameterValues[i] = !parameter.HasDefaultValue // required
+                        ? GetRequired(services, parameterType)
+                        : services.GetService(parameterType);
+                }
             }
 
             return ReflectionUtils.TryInvoke(constructor, parameterValues);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T Activate<T>(this IDependencyScope scope, ConstructorInfo? constructor = null)
+        public static T Activate<T>(this IServiceProvider services, ConstructorInfo? constructor = null)
         {
-            return (T) scope.Activate(Typeof<T>.Raw, constructor);
+            return (T) Activate(services, Typeof<T>.Raw, constructor);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T Activate<T>(this IServiceProvider provider, LocalList<object> possibleInjections)
+        public static T Activate<T>(this IServiceProvider services, LocalList<object> possibleInjections)
         {
-            return (T) Activate(provider, typeof(T), possibleInjections);
+            return (T) Activate(services, typeof(T), possibleInjections);
         }
+
+        #endregion
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static DependencyCollection AddInstance(
@@ -108,7 +152,7 @@ namespace Velo.DependencyInjection
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static DependencyCollection AddScoped<TContract>(
             this DependencyCollection dependencies,
-            Func<IDependencyScope, TContract> builder)
+            Func<IServiceProvider, TContract> builder)
             where TContract : class
         {
             var contracts = new[] {typeof(TContract)};
@@ -129,8 +173,7 @@ namespace Velo.DependencyInjection
 
         #region AddSingleton
 
-        public static DependencyCollection AddSingleton(
-            this DependencyCollection dependencies, Type implementation)
+        public static DependencyCollection AddSingleton(this DependencyCollection dependencies, Type implementation)
         {
             if (implementation.IsGenericTypeDefinition)
             {
@@ -164,7 +207,7 @@ namespace Velo.DependencyInjection
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static DependencyCollection AddSingleton<TContract>(
             this DependencyCollection dependencies,
-            Func<IDependencyScope, TContract> builder)
+            Func<IServiceProvider, TContract> builder)
             where TContract : class
         {
             var contracts = new[] {typeof(TContract)};
@@ -212,7 +255,7 @@ namespace Velo.DependencyInjection
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static DependencyCollection AddTransient<TContract>(
             this DependencyCollection dependencies,
-            Func<IDependencyScope, TContract> builder)
+            Func<IServiceProvider, TContract> builder)
             where TContract : class
         {
             var contracts = new[] {typeof(TContract)};
@@ -303,6 +346,47 @@ namespace Velo.DependencyInjection
 
         #endregion
 
+        #region Get service
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static object? Get(this IServiceProvider services, Type contract)
+        {
+            return services.GetService(contract);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T? Get<T>(this IServiceProvider services) where T : class
+        {
+            return (T?) services.GetService(Typeof<T>.Raw);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T[]? GetArray<T>(this IServiceProvider services)
+        {
+            return (T[]?) services.GetService(Typeof<T[]>.Raw);
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static object GetRequired(this IServiceProvider services, Type contract)
+        {
+            return services.GetService(contract) ?? throw Error.DependencyNotRegistered(contract);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T GetRequired<T>(this IServiceProvider services) where T : class
+        {
+            return (T) services.GetService(Typeof<T>.Raw) ?? throw Error.DependencyNotRegistered(Typeof<T>.Raw);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T[] GetRequiredArray<T>(this IServiceProvider services)
+        {
+            var contract = Typeof<T[]>.Raw;
+            return (T[]) services.GetService(contract) ?? throw Error.DependencyNotRegistered(contract);
+        }
+        
+        #endregion
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IDependency[] GetApplicable<TContract>(this DependencyCollection dependencies)
             where TContract : class
@@ -331,22 +415,12 @@ namespace Velo.DependencyInjection
             return dependencies.GetLifetime(Typeof<TContract>.Raw);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T GetRequiredService<T>(this IDependencyScope scope) where T : class
+        private static void EnsureCanActivated(Type implementation)
         {
-            return (T) scope.GetRequiredService(Typeof<T>.Raw);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T? GetService<T>(this IDependencyScope scope) where T : class
-        {
-            return (T?) scope.GetService(Typeof<T>.Raw);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T[]? GetServices<T>(this IDependencyScope scope) where T : class
-        {
-            return (T[]?) scope.GetService(Typeof<T[]>.Raw);
+            if (implementation.IsInterface || implementation.IsGenericTypeDefinition)
+            {
+                throw Error.InvalidOperation($"Type {ReflectionUtils.GetName(implementation)} can't be activated");
+            }
         }
     }
 }

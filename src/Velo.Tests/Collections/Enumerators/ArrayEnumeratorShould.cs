@@ -1,10 +1,10 @@
 using System;
+using System.Collections;
 using System.Linq;
 using AutoFixture;
 using FluentAssertions;
 using Velo.Collections.Enumerators;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Collections.Enumerators
 {
@@ -13,7 +13,7 @@ namespace Velo.Tests.Collections.Enumerators
         private readonly int[] _array;
         private ArrayEnumerator<int> _enumerator;
 
-        public ArrayEnumeratorShould(ITestOutputHelper output) : base(output)
+        public ArrayEnumeratorShould()
         {
             _array = Fixture.CreateMany<int>().ToArray();
             _enumerator = new ArrayEnumerator<int>(_array);
@@ -31,6 +31,19 @@ namespace Velo.Tests.Collections.Enumerators
             counter.Should().Be(_array.Length);
         }
 
+        [Fact]
+        public void EnumerateAsEnumerator()
+        {
+            var counter = 0;
+            var enumerator = ((IEnumerable) _enumerator).GetEnumerator();
+            while (enumerator.MoveNext())
+            {
+                _array[counter++].Should().Be((int) enumerator.Current!);
+            }
+
+            counter.Should().Be(_array.Length);
+        }
+        
         [Fact]
         public void EnumerateAsEnumerable()
         {

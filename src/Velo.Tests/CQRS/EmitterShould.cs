@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Moq;
@@ -16,20 +15,16 @@ using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting.Boos.Create;
 using Velo.TestsModels.Emitting.Boos.Get;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.CQRS
 {
-    public class EmitterShould : TestClass
+    public class EmitterShould : CQRSTestClass
     {
-        private readonly CancellationToken _ct;
         private readonly IEmitter _emitter;
         private Func<Type, object> _serviceResolver;
 
-        public EmitterShould(ITestOutputHelper output) : base(output)
+        public EmitterShould()
         {
-            _ct = CancellationToken.None;
-
             var scope = new Mock<IServiceProvider>();
             scope
                 .Setup(s => s.GetService(It.IsNotNull<Type>()))
@@ -46,10 +41,11 @@ namespace Velo.Tests.CQRS
 
             _serviceResolver = _ => pipeline.Object;
 
-            _emitter.Awaiting(e => e.Ask(query, _ct))
+            _emitter
+                .Awaiting(e => e.Ask(query, CancellationToken))
                 .Should().NotThrow();
 
-            pipeline.Verify(p => p.GetResponse(query, _ct));
+            pipeline.Verify(p => p.GetResponse(query, CancellationToken));
         }
 
         [Theory]
@@ -60,10 +56,11 @@ namespace Velo.Tests.CQRS
 
             _serviceResolver = _ => new QuerySimplePipeline<Query, Boo>(processor.Object);
 
-            _emitter.Awaiting(e => e.Ask<Query, Boo>(query, _ct))
+            _emitter
+                .Awaiting(e => e.Ask<Query, Boo>(query, CancellationToken))
                 .Should().NotThrow();
 
-            processor.Verify(p => p.Process(query, _ct));
+            processor.Verify(p => p.Process(query, CancellationToken));
         }
 
         [Theory]
@@ -74,10 +71,11 @@ namespace Velo.Tests.CQRS
 
             _serviceResolver = _ => new CommandSimplePipeline<Command>(processor.Object);
 
-            _emitter.Awaiting(e => e.Execute(command, _ct))
+            _emitter
+                .Awaiting(e => e.Execute(command, CancellationToken))
                 .Should().NotThrow();
 
-            processor.Verify(p => p.Process(command, _ct));
+            processor.Verify(p => p.Process(command, CancellationToken));
         }
 
         [Fact]
@@ -88,11 +86,11 @@ namespace Velo.Tests.CQRS
             _serviceResolver = _ => null;
 
             _emitter
-                .Awaiting(e => e.Publish(notification, _ct))
+                .Awaiting(e => e.Publish(notification, CancellationToken))
                 .Should().NotThrow();
             
             _emitter
-                .Awaiting(e => e.Send(notification, _ct))
+                .Awaiting(e => e.Send(notification, CancellationToken))
                 .Should().NotThrow();
         }
 
@@ -104,10 +102,11 @@ namespace Velo.Tests.CQRS
 
             _serviceResolver = _ => new NotificationSimplePipeline<Notification>(processor.Object);
 
-            _emitter.Awaiting(e => e.Publish(notification, _ct))
+            _emitter
+                .Awaiting(e => e.Publish(notification, CancellationToken))
                 .Should().NotThrow();
 
-            processor.Verify(p => p.Process(notification, _ct));
+            processor.Verify(p => p.Process(notification, CancellationToken));
         }
 
         [Theory]
@@ -118,10 +117,11 @@ namespace Velo.Tests.CQRS
 
             _serviceResolver = _ => new CommandSimplePipeline<Command>(processor.Object);
 
-            _emitter.Awaiting(e => e.Send(command, _ct))
+            _emitter
+                .Awaiting(e => e.Send(command, CancellationToken))
                 .Should().NotThrow();
 
-            processor.Verify(p => p.Process(command, _ct));
+            processor.Verify(p => p.Process(command, CancellationToken));
         }
 
         [Fact]
@@ -132,10 +132,11 @@ namespace Velo.Tests.CQRS
 
             _serviceResolver = _ => new NotificationSimplePipeline<Notification>(processor.Object);
 
-            _emitter.Awaiting(e => e.Send(notification, _ct))
+            _emitter
+                .Awaiting(e => e.Send(notification, CancellationToken))
                 .Should().NotThrow();
 
-            processor.Verify(p => p.Process(notification, _ct));
+            processor.Verify(p => p.Process(notification, CancellationToken));
         }
 
         [Theory]
@@ -145,12 +146,12 @@ namespace Velo.Tests.CQRS
             var emitter = new DependencyCollection()
                 .AddEmitter()
                 .BuildProvider()
-                .GetRequiredService<IEmitter>();
+                .GetRequired<IEmitter>();
 
-            emitter.Awaiting(e => e.Execute(command, _ct))
+            emitter.Awaiting(e => e.Execute(command, CancellationToken))
                 .Should().Throw<KeyNotFoundException>();
 
-            emitter.Awaiting(e => e.Send(command, _ct))
+            emitter.Awaiting(e => e.Send(command, CancellationToken))
                 .Should().Throw<KeyNotFoundException>();
         }
 
@@ -161,12 +162,12 @@ namespace Velo.Tests.CQRS
             var emitter = new DependencyCollection()
                 .AddEmitter()
                 .BuildProvider()
-                .GetRequiredService<IEmitter>();
+                .GetRequired<IEmitter>();
 
-            emitter.Awaiting(e => e.Ask(query, _ct))
+            emitter.Awaiting(e => e.Ask(query, CancellationToken))
                 .Should().Throw<KeyNotFoundException>();
 
-            emitter.Awaiting(e => e.Ask<Query, Boo>(query, _ct))
+            emitter.Awaiting(e => e.Ask<Query, Boo>(query, CancellationToken))
                 .Should().Throw<KeyNotFoundException>();
         }
 
@@ -176,7 +177,7 @@ namespace Velo.Tests.CQRS
             ((Emitter) _emitter).Dispose();
 
             _emitter
-                .Awaiting(e => e.Ask(It.IsAny<Query>(), _ct))
+                .Awaiting(e => e.Ask(It.IsAny<Query>(), CancellationToken))
                 .Should().Throw<ObjectDisposedException>();
         }
     }

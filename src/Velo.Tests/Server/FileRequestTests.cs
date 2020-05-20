@@ -3,7 +3,6 @@ using System.IO;
 using System.Net;
 using System.Text;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Server
 {
@@ -11,7 +10,7 @@ namespace Velo.Tests.Server
     {
         private readonly ServerFixture _fixture;
 
-        public FileRequestTests(ServerFixture fixture, ITestOutputHelper output) : base(output)
+        public FileRequestTests(ServerFixture fixture)
         {
             _fixture = fixture;
         }
@@ -24,7 +23,7 @@ namespace Velo.Tests.Server
             const string expectedFileData = "TEST";
             CreateFile(fileName, expectedFileData);
 
-            var response = Measure(() => CreateRequest(fileName));
+            var response = CreateRequest(fileName);
             Assert.Equal(expectedFileData, response);
 
             File.Delete(fileName);
@@ -40,7 +39,7 @@ namespace Velo.Tests.Server
             const string expectedFileData = "TEST";
             CreateFile(filePath, expectedFileData);
             
-            var response = Measure(() => CreateRequest("web/" + fileName));
+            var response = CreateRequest("web/" + fileName);
             Assert.Equal(expectedFileData, response);
 
             File.Delete(filePath);

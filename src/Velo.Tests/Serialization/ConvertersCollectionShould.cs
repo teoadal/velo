@@ -9,7 +9,6 @@ using Velo.Serialization.Collections;
 using Velo.Serialization.Objects;
 using Velo.TestsModels.Boos;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Serialization
 {
@@ -17,9 +16,9 @@ namespace Velo.Tests.Serialization
     {
         private readonly IConvertersCollection _converters;
 
-        public ConvertersCollectionShould(ITestOutputHelper output) : base(output)
+        public ConvertersCollectionShould()
         {
-            _converters = TestUtils.BuildConvertersCollection();
+            _converters = BuildConvertersCollection();
         }
 
         [Theory]

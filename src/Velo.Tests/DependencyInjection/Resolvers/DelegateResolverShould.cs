@@ -2,57 +2,61 @@ using System;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
-using Velo.DependencyInjection;
 using Velo.DependencyInjection.Resolvers;
 using Velo.TestsModels.Boos;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.DependencyInjection.Resolvers
 {
     public class DelegateResolverShould : DITestClass
     {
         private readonly Type _contract;
-        private readonly IDependencyScope _scope;
+        private readonly IBooRepository _instance;
+        private readonly IServiceProvider _services;
 
-        public DelegateResolverShould(ITestOutputHelper output) : base(output)
+        public DelegateResolverShould()
         {
             _contract = typeof(IBooRepository);
-            _scope = MockScope().Object;
+            _instance = Mock.Of<IBooRepository>();
+            _services = Mock.Of<IServiceProvider>();
         }
 
         [Fact]
         public void ResolveInstance()
         {
-            var instance = new Mock<IBooRepository>();
             var builder = new Mock<Func<IServiceProvider, object>>();
             builder
-                .Setup(b => b.Invoke(_scope))
-                .Returns(instance.Object);
+                .Setup(b => b.Invoke(_services))
+                .Returns(_instance);
 
             var resolver = new DelegateResolver(_contract, builder.Object);
 
-            resolver.Resolve(_contract, _scope).Should().Be(instance.Object);
+            resolver
+                .Invoking(r => r.Resolve(_contract, _services))
+                .Should().NotThrow()
+                .Which.Should().Be(_instance);
         }
 
         [Fact]
-        public void ResolveInstanceParallel()
+        public void ResolveParallel()
         {
             Parallel.For(0, 10, _ => ResolveInstance());
         }
-        
+
         [Fact]
         public void ResolveTypedInstance()
         {
-            var instance = new BooRepository(null, null);
-            var builder = new Mock<Func<IDependencyScope, BooRepository>>();
+            var builder = new Mock<Func<IServiceProvider, IBooRepository>>();
             builder
-                .Setup(b => b.Invoke(_scope))
-                .Returns(instance);
+                .Setup(b => b.Invoke(_services))
+                .Returns(_instance);
 
-            var resolver = new DelegateResolver<BooRepository>(builder.Object);
+            var resolver = new DelegateResolver<IBooRepository>(builder.Object);
 
-            resolver.Resolve(_contract, _scope).Should().Be(instance);
+            resolver
+                .Invoking(r => r.Resolve(_contract, _services))
+                .Should().NotThrow()
+                .Which.Should().Be(_instance);
         }
     }
 }

@@ -36,7 +36,7 @@ namespace Velo.DependencyInjection
         }
 
         public static DependencyCollection AddHttpHandler(this DependencyCollection dependencies,
-            Func<IDependencyScope, IHttpRequestHandler> builder,
+            Func<IServiceProvider, IHttpRequestHandler> builder,
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
         {
             var contracts = new[] {typeof(IHttpRequestHandler)};

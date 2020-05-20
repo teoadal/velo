@@ -1,79 +1,95 @@
 using System;
 using System.Collections.Generic;
+using AutoFixture.Xunit2;
 using FluentAssertions;
 using Moq;
 using Velo.DependencyInjection;
-using Velo.DependencyInjection.Dependencies;
 using Velo.DependencyInjection.Resolvers;
+using Velo.Settings.Provider;
 using Velo.TestsModels.Boos;
+using Velo.TestsModels.DependencyInjection;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.DependencyInjection.Resolvers
 {
     public class CompiledResolverShould : DITestClass
     {
         private readonly Type _contract;
-        private readonly Mock<IDependencyScope> _scope;
+        private readonly Mock<IDependencyEngine> _engine;
         private readonly Type _implementation;
+        private readonly IServiceProvider _services;
+
         private readonly CompiledResolver _resolver;
 
-        private readonly Dictionary<Type, Mock<IDependency>> _dependencies;
-        private DependencyLifetime _dependenciesLifetime;
-
-        public CompiledResolverShould(ITestOutputHelper output) : base(output)
+        public CompiledResolverShould()
         {
             _contract = typeof(IBooRepository);
-            _dependencies = new Dictionary<Type, Mock<IDependency>>();
             _implementation = typeof(BooRepository);
-            _scope = MockScope();
 
-            var engine = new Mock<IDependencyEngine>();
-            engine
-                .Setup(e => e.GetRequiredDependency(_contract))
-                .Returns<Type>(DependencyBuilder);
+            _engine = new Mock<IDependencyEngine>();
+            _services = Mock.Of<IServiceProvider>();
 
-            _resolver = new CompiledResolver(_implementation, engine.Object);
+            _resolver = new CompiledResolver(_implementation, _engine.Object);
         }
 
-        [Theory]
-        [MemberData(nameof(Lifetimes))]
-        public void CallCollectedDependencies(DependencyLifetime lifetime)
+        [Theory, AutoData]
+        public void CreateBuilderOnce(int count)
         {
-            _dependenciesLifetime = lifetime;
+            Act();
 
-            _resolver.Resolve(_contract, _scope.Object);
+            _engine.Verify(engine => engine.GetDependency(It.IsNotNull<Type>()));
+            _engine.Verify(engine => engine.GetRequiredDependency(It.IsNotNull<Type>()));
 
-            foreach (var (type, dependency) in _dependencies)
+            for (var i = 0; i < EnsureValid(count); i++)
             {
-                dependency.Verify(d => d.GetInstance(type, _scope.Object));
+                Act();
             }
+
+            _engine.VerifyNoOtherCalls();
         }
 
         [Fact]
+        public void CallDependencyEngine()
+        {
+            Act();
+
+            _engine.Verify(engine => engine.GetRequiredDependency(It.IsNotNull<Type>()));
+        }
+
+        [Theory, MemberData(nameof(Lifetimes))]
+        public void CallDependencyInstanceOnBuildOrOnResolve(DependencyLifetime lifetime)
+        {
+            var contract = typeof(ISettingsProvider);
+            var dependency = MockDependency<ISettingsProvider>(_services, lifetime);
+
+            _engine
+                .Setup(engine => engine.GetRequiredDependency(contract))
+                .Returns(dependency.Object);
+
+            Act();
+
+            dependency.Verify(d => d.GetInstance(contract, _services));
+        }
+        
+        [Fact]
         public void ResolveInstance()
         {
-            var instance = _resolver.Resolve(_contract, _scope.Object);
+            var instance = Act();
             instance.Should().BeOfType(_implementation);
         }
 
-        private IDependency DependencyBuilder(Type contract)
+        [Fact]
+        public void ThrowIfPublicConstructorNotFound()
         {
-            var dependency = new Mock<IDependency>();
-            dependency
-                .SetupGet(d => d.Lifetime)
-                .Returns(_dependenciesLifetime);
+            var implementation = typeof(PrivateConstructorClass);
+            Assert.Throws<KeyNotFoundException>(() => new CompiledResolver(implementation, _engine.Object));
+        }
 
-            var mockObjectType = typeof(Mock<>).MakeGenericType(contract);
-            var mock = (Mock) Activator.CreateInstance(mockObjectType);
-
-            dependency
-                .Setup(d => d.GetInstance(contract, _scope.Object))
-                .Returns(mock!.Object);
-
-            _dependencies.Add(contract, dependency);
-
-            return dependency.Object;
+        private object Act()
+        {
+            return _resolver
+                .Invoking(resolver => resolver.Resolve(_contract, _services))
+                .Should().NotThrow().Which;
         }
     }
 }

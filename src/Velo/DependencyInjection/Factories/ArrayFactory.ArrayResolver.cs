@@ -20,13 +20,13 @@ namespace Velo.DependencyInjection.Factories
                 _elementType = typeof(T);
             }
 
-            protected override object ResolveInstance(Type contract, IDependencyScope scope)
+            protected override object ResolveInstance(Type contract, IServiceProvider services)
             {
                 var array = new T[_dependencies.Length];
                 for (var index = 0; index < _dependencies.Length; index++)
                 {
                     var dependency = _dependencies[index];
-                    var instance = dependency.GetInstance(_elementType, scope);
+                    var instance = dependency.GetInstance(_elementType, services);
                     array[index] = (T) instance;
                 }
 

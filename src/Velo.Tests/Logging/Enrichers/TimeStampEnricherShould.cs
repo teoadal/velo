@@ -7,7 +7,6 @@ using Velo.Logging;
 using Velo.Logging.Enrichers;
 using Velo.Serialization.Models;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Logging.Enrichers
 {
@@ -16,7 +15,7 @@ namespace Velo.Tests.Logging.Enrichers
         private readonly TimeStampEnricher _enricher;
         private readonly JsonObject _message;
         
-        public TimeStampEnricherShould(ITestOutputHelper output) : base(output)
+        public TimeStampEnricherShould()
         {
             _enricher = new TimeStampEnricher();
             _message = new JsonObject();

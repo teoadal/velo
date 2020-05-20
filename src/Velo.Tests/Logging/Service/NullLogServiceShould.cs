@@ -4,7 +4,6 @@ using Velo.Logging;
 using Velo.Logging.Provider;
 using Velo.TestsModels.Boos;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Logging.Service
 {
@@ -12,7 +11,7 @@ namespace Velo.Tests.Logging.Service
     {
         private readonly NullLogProvider _provider;
         
-        public NullProviderShould(ITestOutputHelper output) : base(output)
+        public NullProviderShould()
         {
             _provider = new NullLogProvider();
         }

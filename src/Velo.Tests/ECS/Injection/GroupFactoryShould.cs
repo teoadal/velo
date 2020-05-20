@@ -7,7 +7,6 @@ using Velo.ECS.Actors.Groups;
 using Velo.ECS.Injection;
 using Velo.TestsModels.ECS;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.ECS.Injection
 {
@@ -16,7 +15,7 @@ namespace Velo.Tests.ECS.Injection
         private readonly GroupFactory<IActorContext> _actorGroupFactory;
         private readonly Type _contract;
 
-        public GroupFactoryShould(ITestOutputHelper output) : base(output)
+        public GroupFactoryShould()
         {
             _actorGroupFactory = new GroupFactory<IActorContext>(typeof(IActorGroup));
             _contract = typeof(IActorGroup<TestActor>);
@@ -42,7 +41,7 @@ namespace Velo.Tests.ECS.Injection
                 .AddECS()
                 .BuildProvider();
 
-            provider.Invoking(p => p.GetRequiredService<IActorGroup<TestActor>>())
+            provider.Invoking(p => p.GetRequired<IActorGroup<TestActor>>())
                 .Should().NotThrow()
                 .Which.Should().BeOfType<ActorGroup<TestActor>>();
         }

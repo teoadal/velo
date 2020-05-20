@@ -77,7 +77,7 @@ namespace Velo.Utils
         }
 
         /// <summary>
-        /// Get first declared not static constructor
+        /// Get first declared non private or static constructor
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ConstructorInfo? GetConstructor(Type type)
@@ -85,9 +85,21 @@ namespace Velo.Utils
             CheckIsNotAbstractAndNotInterface(type);
 
             var availableConstructors = type.GetTypeInfo().DeclaredConstructors;
-            return availableConstructors.FirstOrDefault(constructor => !constructor.IsStatic);
+            return availableConstructors.FirstOrDefault(constructor => !constructor.IsStatic && !constructor.IsPrivate);
         }
 
+        public static ParameterInfo[] GetConstructorParameters(Type implementation)
+        {
+            var constructor = GetConstructor(implementation);
+
+            if (constructor == null)
+            {
+                throw Error.DefaultConstructorNotFound(implementation);
+            }
+            
+            return constructor.GetParameters();
+        }
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ConstructorInfo? GetEmptyConstructor(Type type)
         {

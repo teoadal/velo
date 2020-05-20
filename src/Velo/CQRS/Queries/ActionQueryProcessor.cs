@@ -1,14 +1,16 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Velo.DependencyInjection;
+using Velo.Utils;
 
 namespace Velo.CQRS.Queries
 {
-    internal sealed class ActionQueryProcessor<TQuery, TResult> : IQueryProcessor<TQuery, TResult>
+    internal sealed class ActionQueryProcessor<TQuery, TResult> : IQueryProcessor<TQuery, TResult>, IDisposable
         where TQuery : IQuery<TResult>
     {
-        private readonly Func<TQuery, TResult> _processor;
+        private Func<TQuery, TResult> _processor;
+
+        private bool _disposed;
 
         public ActionQueryProcessor(Func<TQuery, TResult> processor)
         {
@@ -17,29 +19,16 @@ namespace Velo.CQRS.Queries
 
         public Task<TResult> Process(TQuery query, CancellationToken cancellationToken)
         {
+            if (_disposed) throw Error.Disposed(nameof(IQueryProcessor<TQuery, TResult>));
+            
             var result = _processor(query);
             return Task.FromResult(result);
         }
-    }
-    
-    internal sealed class ActionQueryProcessor<TQuery, TContext, TResult> : IQueryProcessor<TQuery, TResult>
-        where TQuery : IQuery<TResult>
-        where TContext: class
-    {
-        private readonly Func<TQuery, TContext, TResult> _processor;
-        private readonly IDependencyScope _scope;
 
-        public ActionQueryProcessor(Func<TQuery, TContext, TResult> processor, IDependencyScope scope)
+        public void Dispose()
         {
-            _processor = processor;
-            _scope = scope;
-        }
-
-        public Task<TResult> Process(TQuery query, CancellationToken cancellationToken)
-        {
-            var context = _scope.GetRequiredService<TContext>();
-            var result = _processor(query, context);
-            return Task.FromResult(result);
+            _processor = null!;
+            _disposed = true;
         }
     }
 }

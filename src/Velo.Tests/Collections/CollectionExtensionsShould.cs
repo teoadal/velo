@@ -5,16 +5,11 @@ using AutoFixture.Xunit2;
 using FluentAssertions;
 using Velo.Collections;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Collections
 {
     public class CollectionExtensionsShould : TestClass
     {
-        public CollectionExtensionsShould(ITestOutputHelper output) : base(output)
-        {
-        }
-
         [Fact]
         public void Contains()
         {
@@ -61,6 +56,13 @@ namespace Velo.Tests.Collections
             {
                 item.Should().Be(values[counter++]);
             }
+        }
+        
+        [Fact]
+        public void NotContains()
+        {
+            var array = Fixture.CreateMany<int>().ToArray();
+            array.Contains((element, i) => element == i, int.MinValue);
         }
 
     }

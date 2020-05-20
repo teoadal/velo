@@ -7,7 +7,6 @@ using Velo.TestsModels.Domain;
 using Velo.TestsModels.Foos;
 using Velo.TestsModels.Infrastructure;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests
 {
@@ -16,14 +15,14 @@ namespace Velo.Tests
         private readonly IComparer<IRepository> _comparer;
         private readonly IRepository[] _repositories;
         
-        public OrderingTests(ITestOutputHelper output) : base(output)
+        public OrderingTests()
         {
             _comparer = new OrderAttributeComparer<IRepository>();
 
             _repositories = new IRepository[]
             {
                 new OtherFooRepository(null, null),    // 2
-                new BooRepository(null, null),         // without order attribute
+                new BooRepository(null),         // without order attribute
                 new FooRepository(null, null) // 1 
             };
         }
@@ -77,8 +76,8 @@ namespace Velo.Tests
         {
             OrderAttributeComparer<IRepository>.Sort(_repositories);
             
-            Assert.Equal(1, _repositories[0].GetType().GetCustomAttribute<OrderAttribute>().Order);
-            Assert.Equal(2, _repositories[1].GetType().GetCustomAttribute<OrderAttribute>().Order);
+            Assert.Equal(1, _repositories[0].GetType().GetCustomAttribute<OrderAttribute>()!.Order);
+            Assert.Equal(2, _repositories[1].GetType().GetCustomAttribute<OrderAttribute>()!.Order);
             Assert.Null(_repositories[2].GetType().GetCustomAttribute<OrderAttribute>());
         }
     }

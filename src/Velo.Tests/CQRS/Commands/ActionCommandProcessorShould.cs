@@ -1,58 +1,44 @@
 using System;
-using AutoFixture.Xunit2;
+using AutoFixture;
 using FluentAssertions;
 using Moq;
-using Velo.CQRS;
-using Velo.DependencyInjection;
-using Velo.TestsModels.Boos;
+using Velo.CQRS.Commands;
 using Velo.TestsModels.Emitting.Boos.Create;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.CQRS.Commands
 {
-    public class ActionCommandProcessorShould : TestClass
+    public class ActionCommandProcessorShould : CQRSTestClass
     {
-        private readonly DependencyCollection _dependencyCollection;
+        private readonly Mock<Action<Command>> _action;
+        private readonly Command _command;
+        private readonly ActionCommandProcessor<Command> _processor;
 
-        public ActionCommandProcessorShould(ITestOutputHelper output) : base(output)
+        public ActionCommandProcessorShould()
         {
-            _dependencyCollection = new DependencyCollection()
-                .AddEmitter();
+            _action = new Mock<Action<Command>>();
+            _command = Fixture.Create<Command>();
+            _processor = new ActionCommandProcessor<Command>(_action.Object);
         }
 
-        [Theory]
-        [AutoData]
-        public void Executed(Command command)
+        [Fact]
+        public void ProcessCommand()
         {
-            var processor = new Mock<Action<Command>>();
+            _processor
+                .Awaiting(processor => processor.Process(_command, CancellationToken))
+                .Should().NotThrow();
 
-            var emitter = _dependencyCollection
-                .CreateCommandProcessor(processor.Object)
-                .BuildProvider()
-                .GetRequiredService<IEmitter>();
-
-            emitter.Awaiting(e => e.Execute(command)).Should().NotThrow();
-
-            processor.Verify(p => p.Invoke(command));
+            _action.Verify(action => action.Invoke(_command));
         }
 
-        [Theory]
-        [AutoData]
-        public void ExecutedWithContext(Command command)
+        [Fact]
+        public void ThrowIfDisposed()
         {
-            var repository = Mock.Of<IBooRepository>();
-            var processor = new Mock<Action<Command, IBooRepository>>();
+            _processor.Dispose();
 
-            var emitter = _dependencyCollection
-                .AddInstance(repository)
-                .CreateCommandProcessor(processor.Object)
-                .BuildProvider()
-                .GetRequiredService<IEmitter>();
-
-            emitter.Awaiting(e => e.Execute(command)).Should().NotThrow();
-
-            processor.Verify(p => p.Invoke(command, repository));
+            _processor
+                .Awaiting(processor => processor.Process(_command, CancellationToken))
+                .Should().Throw<ObjectDisposedException>();
         }
     }
 }

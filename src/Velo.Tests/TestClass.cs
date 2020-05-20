@@ -1,24 +1,89 @@
 using System;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
-using Xunit.Abstractions;
+using Moq;
+using Velo.Collections;
+using Velo.DependencyInjection;
+using Velo.DependencyInjection.Dependencies;
+using Velo.Serialization;
 
 namespace Velo.Tests
 {
     public abstract class TestClass : IDisposable
     {
+        protected static readonly CancellationToken CancellationToken = CancellationToken.None;
+
         protected Fixture Fixture => _fixture ??= new Fixture();
 
         private Fixture _fixture;
-        private readonly ITestOutputHelper _output;
-        private Stopwatch _stopwatch;
 
-        protected TestClass(ITestOutputHelper output)
+        internal static ConvertersCollection BuildConvertersCollection(IServiceProvider serviceProvider = null)
         {
-            _output = output;
-            _stopwatch = Stopwatch.StartNew();
+            serviceProvider ??= new DependencyCollection()
+                .AddJsonConverter()
+                .BuildProvider();
+
+            return (ConvertersCollection) serviceProvider.GetService(typeof(IConvertersCollection));
+        }
+
+        protected static Mock<IDependency> MockDependency(
+            DependencyLifetime lifetime = DependencyLifetime.Singleton,
+            Type contract = null)
+        {
+            var dependency = new Mock<IDependency>();
+            dependency
+                .SetupGet(d => d.Lifetime)
+                .Returns(lifetime);
+
+            // ReSharper disable once InvertIf
+            if (contract != null)
+            {
+                dependency
+                    .SetupGet(d => d.Contracts)
+                    .Returns(new[] {contract});
+
+                dependency
+                    .SetupGet(d => d.Implementation)
+                    .Returns(contract);
+            }
+
+            return dependency;
+        }
+
+        protected static Mock<IDependency> MockDependency<T>(
+            IServiceProvider serviceProvider,
+            DependencyLifetime lifetime = DependencyLifetime.Singleton) where T : class
+        {
+            var contract = typeof(T);
+
+            var dependency = new Mock<IDependency>();
+            dependency
+                .SetupGet(d => d.Lifetime)
+                .Returns(lifetime);
+
+            dependency
+                .SetupGet(d => d.Contracts)
+                .Returns(new[] {contract});
+
+            dependency
+                .SetupGet(d => d.Implementation)
+                .Returns(contract);
+
+            dependency
+                .Setup(d => d.GetInstance(contract, serviceProvider))
+                .Returns(Mock.Of<T>());
+
+            return dependency;
+        }
+
+        protected static void SetupApplicable(Mock<IDependencyEngine> engine, Type contract,
+            params IDependency[] result)
+        {
+            engine
+                .Setup(e => e.GetApplicable(contract))
+                .Returns(result);
         }
 
         protected static int EnsureValid(int count, int maxValue = 10000)
@@ -40,17 +105,6 @@ namespace Velo.Tests
             return result;
         }
 
-        protected static T[] Many<T>(int count, Func<T> action)
-        {
-            var result = new T[count];
-            for (var i = 0; i < count; i++)
-            {
-                result[i] = action();
-            }
-
-            return result;
-        }
-
         protected static T[] Many<T>(int count, Func<int, T> action)
         {
             var result = new T[count];
@@ -62,51 +116,15 @@ namespace Velo.Tests
             return result;
         }
 
-        protected StopwatchScope Measure()
+        protected static object MockOf(Type contract)
         {
-            _stopwatch = Stopwatch.StartNew();
-            return new StopwatchScope(_stopwatch);
+            return MockType(contract).Object;
         }
 
-        protected async Task Measure(ValueTask task)
+        protected static Mock MockType(Type contract)
         {
-            _stopwatch = Stopwatch.StartNew();
-            await task;
-            _stopwatch.Stop();
-        }
-
-        protected async Task Measure(Func<Task> action)
-        {
-            _stopwatch = Stopwatch.StartNew();
-            await action();
-            _stopwatch.Stop();
-        }
-
-        protected TResult Measure<TResult>(Func<TResult> action)
-        {
-            _stopwatch = Stopwatch.StartNew();
-            var result = action();
-            _stopwatch.Stop();
-
-            return result;
-        }
-
-        protected void Measure(Action action)
-        {
-            _stopwatch = Stopwatch.StartNew();
-            action();
-            _stopwatch.Stop();
-        }
-
-        protected static Task RunTasks(int count, Func<Task> action)
-        {
-            var tasks = new Task[count];
-            for (var i = 0; i < count; i++)
-            {
-                tasks[i] = action();
-            }
-
-            return Task.WhenAll(tasks);
+            var mockObjectType = typeof(Mock<>).MakeGenericType(contract);
+            return (Mock) Activator.CreateInstance(mockObjectType);
         }
 
         protected static Task RunTasks(int count, Action action)
@@ -120,56 +138,51 @@ namespace Velo.Tests
             return Task.WhenAll(tasks);
         }
 
-        protected static Task RunTasks<T>(T[] array, Func<T, Task> action)
+        protected static Mock<IDependency>[] SetupApplicableDependencies(
+            Mock<IDependencyEngine> dependencyEngine,
+            Type type,
+            DependencyLifetime lifetime = DependencyLifetime.Singleton,
+            int count = 10)
         {
-            var tasks = new Task[array.Length];
-            for (var i = 0; i < array.Length; i++)
-            {
-                tasks[i] = action(array[i]);
-            }
+            var dependencies = Enumerable
+                .Range(0, count)
+                .Select(_ => new Mock<IDependency>())
+                .Do(dependency => dependency.SetupGet(d => d.Lifetime).Returns(lifetime))
+                .Do(dependency => dependency.SetupGet(d => d.Implementation).Returns(type))
+                .ToArray();
+            
+            dependencyEngine.Setup(engine => engine.Contains(type)).Returns(true);
+            dependencyEngine
+                .Setup(engine => engine.GetApplicable(type))
+                .Returns(dependencies.Select(d => d.Object).ToArray());
 
-            return Task.WhenAll(tasks);
+            return dependencies;
         }
 
-        protected static Task<TResult[]> RunTasks<T, TResult>(T[] array, Func<T, Task<TResult>> action)
+        protected static void SetupRequiredDependency(
+            Mock<IDependencyEngine> dependencyEngine,
+            Type type,
+            DependencyLifetime lifetime = DependencyLifetime.Singleton)
         {
-            var tasks = new Task<TResult>[array.Length];
-            for (var i = 0; i < array.Length; i++)
-            {
-                tasks[i] = action(array[i]);
-            }
-
-            return Task.WhenAll(tasks);
+            dependencyEngine.Setup(engine => engine.Contains(type)).Returns(true);
+            dependencyEngine
+                .Setup(engine => engine.GetRequiredDependency(type))
+                .Returns(Mock.Of<IDependency>(d => d.Lifetime == lifetime));
         }
 
-        protected void WriteLine(string text, [CallerMemberName] string from = null)
+        protected static void SetupRequiredDependencies(
+            Mock<IDependencyEngine> dependencyEngine,
+            Type type,
+            DependencyLifetime lifetime = DependencyLifetime.Singleton)
         {
-            _output.WriteLine(string.IsNullOrWhiteSpace(from)
-                ? text
-                : $"{from}: {text}");
+            dependencyEngine.Setup(engine => engine.Contains(type)).Returns(true);
+            dependencyEngine
+                .Setup(engine => engine.GetRequiredDependency(type.MakeArrayType()))
+                .Returns(Mock.Of<IDependency>(d => d.Lifetime == lifetime));
         }
 
         public virtual void Dispose()
         {
-            _stopwatch.Stop();
-            _output.WriteLine(_stopwatch.ElapsedMilliseconds > 0
-                ? $"Elapsed {_stopwatch.ElapsedMilliseconds} ms"
-                : "Elapsed < 1 ms");
-        }
-
-        protected readonly struct StopwatchScope : IDisposable
-        {
-            private readonly Stopwatch _stopwatch;
-
-            public StopwatchScope(Stopwatch stopwatch)
-            {
-                _stopwatch = stopwatch;
-            }
-
-            public void Dispose()
-            {
-                _stopwatch.Stop();
-            }
         }
     }
 }

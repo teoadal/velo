@@ -10,7 +10,6 @@ using Velo.ECS.Actors.Groups;
 using Velo.ECS.Components;
 using Velo.TestsModels.ECS;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.ECS.Actors
 {
@@ -20,7 +19,7 @@ namespace Velo.Tests.ECS.Actors
         private readonly Mock<IActorContext> _actorContext;
         private readonly IActorGroup<TestActor> _actorGroup;
 
-        public ActorGroupShould(ITestOutputHelper output) : base(output)
+        public ActorGroupShould()
         {
             _actor = new TestActor(1);
             _actorContext = new Mock<IActorContext>();

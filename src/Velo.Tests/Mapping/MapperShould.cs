@@ -8,7 +8,6 @@ using Velo.Mapping;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Foos;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Mapping
 {
@@ -16,7 +15,7 @@ namespace Velo.Tests.Mapping
     {
         private readonly CompiledMapper<Foo> _mapper;
 
-        public MapperShould(ITestOutputHelper output) : base(output)
+        public MapperShould()
         {
             _mapper = new CompiledMapper<Foo>();
         }
@@ -28,8 +27,8 @@ namespace Velo.Tests.Mapping
                 .AddMapper()
                 .BuildProvider();
 
-            provider.GetRequiredService<IMapper<Foo>>();
-            provider.GetRequiredService<IMapper<Boo>>();
+            provider.GetRequired<IMapper<Foo>>();
+            provider.GetRequired<IMapper<Boo>>();
         }
 
         [Theory]

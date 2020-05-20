@@ -1,11 +1,9 @@
 using System;
 using FluentAssertions;
 using Moq;
-using Velo.DependencyInjection;
 using Velo.DependencyInjection.Dependencies;
 using Velo.TestsModels.Boos;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.DependencyInjection.Dependencies
 {
@@ -13,11 +11,11 @@ namespace Velo.Tests.DependencyInjection.Dependencies
     {
         private readonly Type _contract;
         private readonly TransientDependency _dependency;
-        private readonly IDependencyScope _scope;
+        private readonly IServiceProvider _services;
 
         private Mock<IBooRepository> _instance;
 
-        public TransientDependencyShould(ITestOutputHelper output) : base(output)
+        public TransientDependencyShould()
         {
             _contract = typeof(IBooRepository);
 
@@ -29,21 +27,21 @@ namespace Velo.Tests.DependencyInjection.Dependencies
 
             _dependency = new TransientDependency(new[] {_contract}, resolver.Object);
 
-            _scope = MockScope().Object;
+            _services = Mock.Of<IServiceProvider>();
         }
 
         [Fact]
         public void GetInstance()
         {
-            var instance = _dependency.GetInstance(_contract, _scope);
+            var instance = _dependency.GetInstance(_contract, _services);
             instance.Should().Be(_instance.Object);
         }
 
         [Fact]
         public void GetManyInstances()
         {
-            var first = _dependency.GetInstance(_contract, _scope);
-            var second = _dependency.GetInstance(_contract, _scope);
+            var first = _dependency.GetInstance(_contract, _services);
+            var second = _dependency.GetInstance(_contract, _services);
 
             first.Should().NotBe(second);
         }
@@ -51,7 +49,7 @@ namespace Velo.Tests.DependencyInjection.Dependencies
         [Fact]
         public void NotDisposeInstance()
         {
-            _dependency.GetInstance(_contract, _scope);
+            _dependency.GetInstance(_contract, _services);
 
             _dependency.Dispose();
 

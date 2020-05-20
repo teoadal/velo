@@ -27,15 +27,15 @@ namespace Velo.ECS.Injection
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public object GetInstance(Type contract, IDependencyScope scope)
+        public object GetInstance(Type contract, IServiceProvider services)
         {
-            var actorContext = scope.GetRequiredService<TContext>();
+            var actorContext = services.GetRequired<TContext>();
             return _resolver(actorContext);
         }
 
-        protected override object ResolveInstance(Type contract, IDependencyScope scope)
+        protected override object ResolveInstance(Type contract, IServiceProvider services)
         {
-            return GetInstance(contract, scope);
+            return GetInstance(contract, services);
         }
 
         public void Dispose()

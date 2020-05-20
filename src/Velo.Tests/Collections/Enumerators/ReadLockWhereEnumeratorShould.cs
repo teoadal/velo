@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -6,7 +7,6 @@ using AutoFixture;
 using FluentAssertions;
 using Velo.Collections.Enumerators;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Collections.Enumerators
 {
@@ -18,7 +18,7 @@ namespace Velo.Tests.Collections.Enumerators
         private readonly List<int> _list;
         private readonly Func<int, int, bool> _stub;
 
-        public ReadLockWhereEnumeratorShould(ITestOutputHelper output) : base(output)
+        public ReadLockWhereEnumeratorShould()
         {
             _lock = new ReaderWriterLockSlim();
 
@@ -53,8 +53,24 @@ namespace Velo.Tests.Collections.Enumerators
                 exists.Add(enumerator.Current).Should().BeTrue();
             }
 
-            exists.Count.Should().Be(_list.Count);
+            exists.Count.Should().Be(_dictionary.Count);
             enumerator.Dispose();
+        }
+
+        [Fact]
+        public void EnumerateDictionaryAsEnumerator()
+        {
+            var exists = new HashSet<int>();
+
+            var lockEnumerator = new ReadLockWhereEnumerator<int, int, int>(_dictionary.Values, _stub, 0, _lock);
+            var enumerator = ((IEnumerable) lockEnumerator).GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                exists.Add((int) enumerator.Current!).Should().BeTrue();
+            }
+
+            exists.Count.Should().Be(_dictionary.Count);
         }
 
         [Fact]
@@ -70,6 +86,22 @@ namespace Velo.Tests.Collections.Enumerators
 
             exists.Count.Should().Be(_list.Count);
             enumerator.Dispose();
+        }
+
+        [Fact]
+        public void EnumerateListAsEnumerator()
+        {
+            var exists = new HashSet<int>();
+
+            var lockEnumerator = new ReadLockWhereEnumerator<int, int>(_list, _stub, 0, _lock);
+            var enumerator = ((IEnumerable) lockEnumerator).GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                exists.Add((int) enumerator.Current!).Should().BeTrue();
+            }
+
+            exists.Count.Should().Be(_list.Count);
         }
 
         [Fact]

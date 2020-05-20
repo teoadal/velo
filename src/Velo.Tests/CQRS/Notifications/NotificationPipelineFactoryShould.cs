@@ -1,40 +1,32 @@
 using System;
-using System.Linq;
 using FluentAssertions;
 using Moq;
 using Velo.CQRS.Notifications;
 using Velo.CQRS.Notifications.Pipeline;
 using Velo.DependencyInjection;
-using Velo.DependencyInjection.Dependencies;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting.Boos.Create;
 using Velo.TestsModels.Emitting.Parallel;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.CQRS.Notifications
 {
     public class NotificationPipelineFactoryShould : CQRSTestClass
     {
-        private readonly Mock<IDependencyEngine> _dependencyEngine;
-        private readonly NotificationPipelineFactory _factory;
+        private readonly Mock<IDependencyEngine> _engine;
+
         private readonly Type _pipelineType;
+        private readonly Type _processorType;
 
-        private int _processorsCount;
-        private DependencyLifetime _processorsLifetime;
+        private readonly NotificationPipelineFactory _factory;
 
-        public NotificationPipelineFactoryShould(ITestOutputHelper output) : base(output)
+        public NotificationPipelineFactoryShould()
         {
-            _dependencyEngine = new Mock<IDependencyEngine>();
-            _dependencyEngine
-                .Setup(e => e.GetApplicable(It.IsNotNull<Type>()))
-                .Returns<Type>(ProcessorsDependencyBuilder);
-
+            _engine = new Mock<IDependencyEngine>();
             _factory = new NotificationPipelineFactory();
-            _pipelineType = typeof(INotificationPipeline<Notification>);
 
-            _processorsCount = 1;
-            _processorsLifetime = DependencyLifetime.Scoped;
+            _pipelineType = typeof(INotificationPipeline<Notification>);
+            _processorType = typeof(INotificationProcessor<Notification>);
         }
 
         [Fact]
@@ -42,54 +34,45 @@ namespace Velo.Tests.CQRS.Notifications
         {
             _factory.Applicable(_pipelineType).Should().BeTrue();
         }
-        
-        [Fact]
-        public void CreateDependency()
-        {
-            var dependency = _factory.BuildDependency(_pipelineType, _dependencyEngine.Object);
-
-            dependency.Contracts.Should().Contain(_pipelineType);
-            dependency.Resolver.Implementation.Should().Implement(_pipelineType);
-        }
 
         [Fact]
         public void CreateParallelPipeline()
         {
-            _processorsCount = 5;
+            SetupApplicableDependencies(_engine, typeof(INotificationProcessor<ParallelNotification>));
 
             var pipelineType = typeof(INotificationPipeline<ParallelNotification>);
-            var dependency = _factory.BuildDependency(pipelineType, _dependencyEngine.Object);
+            var dependency = _factory.BuildDependency(pipelineType, _engine.Object);
             
-            dependency.Resolver.Implementation.Should().Be<NotificationParallelPipeline<ParallelNotification>>();
+            dependency.Implementation.Should().Be<NotificationParallelPipeline<ParallelNotification>>();
         }
         
         [Fact]
         public void CreateSequentialPipeline()
         {
-            _processorsCount = 5;
+            SetupApplicableDependencies(_engine, _processorType, count: 10);
             
-            var dependency = _factory.BuildDependency(_pipelineType, _dependencyEngine.Object);
+            var dependency = _factory.BuildDependency(_pipelineType, _engine.Object);
             
-            dependency.Resolver.Implementation.Should().Be<NotificationSequentialPipeline<Notification>>();
+            dependency.Implementation.Should().Be<NotificationSequentialPipeline<Notification>>();
         }
         
         [Fact]
         public void CreateSimplePipeline()
         {
-            _processorsCount = 1;
+            SetupApplicableDependencies(_engine, _processorType, count: 1);
 
-            var dependency = _factory.BuildDependency(_pipelineType, _dependencyEngine.Object);
+            var dependency = _factory.BuildDependency(_pipelineType, _engine.Object);
             
-            dependency.Resolver.Implementation.Should().Be<NotificationSimplePipeline<Notification>>();
+            dependency.Implementation.Should().Be<NotificationSimplePipeline<Notification>>();
         }
 
         [Theory]
         [MemberData(nameof(Lifetimes))]
         public void CreateWithValidLifetime(DependencyLifetime lifetime)
         {
-            _processorsLifetime = lifetime;
+            SetupApplicableDependencies(_engine, _processorType, lifetime);
 
-            var dependency = _factory.BuildDependency(_pipelineType, _dependencyEngine.Object);
+            var dependency = _factory.BuildDependency(_pipelineType, _engine.Object);
 
             dependency.Lifetime.Should().Be(lifetime);
         }
@@ -97,9 +80,11 @@ namespace Velo.Tests.CQRS.Notifications
         [Fact]
         public void CheckProcessorsCount()
         {
-            _factory.BuildDependency(_pipelineType, _dependencyEngine.Object);
+            SetupApplicableDependencies(_engine, _processorType);
+            
+            _factory.BuildDependency(_pipelineType, _engine.Object);
 
-            _dependencyEngine
+            _engine
                 .Verify(engine => engine
                     .GetApplicable(typeof(INotificationProcessor<Notification>)));
         }
@@ -108,13 +93,6 @@ namespace Velo.Tests.CQRS.Notifications
         public void NotApplicable()
         {
             _factory.Applicable(typeof(Boo)).Should().BeFalse();
-        }
-        
-        private IDependency[] ProcessorsDependencyBuilder(Type processorType)
-        {
-            return Many(_processorsCount, () => TestUtils.MockDependency(_processorsLifetime, processorType))
-                .Select(d => d.Object)
-                .ToArray();
         }
     }
 }

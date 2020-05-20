@@ -4,7 +4,6 @@ using Velo.ECS.Systems;
 using Velo.ECS.Systems.Handlers;
 using Velo.Threading;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.ECS.Systems.Handlers
 {
@@ -12,7 +11,7 @@ namespace Velo.Tests.ECS.Systems.Handlers
     {
         private readonly SystemNullHandler<ICleanupSystem> _handler;
         
-        public SystemNullHandlerShould(ITestOutputHelper output) : base(output)
+        public SystemNullHandlerShould()
         {
             _handler = new SystemNullHandler<ICleanupSystem>();
         }

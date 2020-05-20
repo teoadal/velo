@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Velo.CQRS.Commands;
 using Velo.TestsModels.Emitting.Boos.Create;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Extensions.DependencyInjection.CQRS
 {
@@ -11,7 +10,7 @@ namespace Velo.Tests.Extensions.DependencyInjection.CQRS
     {
         private readonly IServiceCollection _services;
 
-        public CommandInstallerShould(ITestOutputHelper output) : base(output)
+        public CommandInstallerShould()
         {
             _services = new ServiceCollection()
                 .AddEmitter();

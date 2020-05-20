@@ -7,11 +7,6 @@ using Velo.CQRS.Queries.Pipeline;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting.Boos.Get;
 using Xunit;
-using Xunit.Abstractions;
-using Behaviour = Velo.TestsModels.Emitting.Boos.Get.Behaviour;
-using PostProcessor = Velo.TestsModels.Emitting.Boos.Get.PostProcessor;
-using PreProcessor = Velo.TestsModels.Emitting.Boos.Get.PreProcessor;
-using Processor = Velo.TestsModels.Emitting.Boos.Get.Processor;
 
 namespace Velo.Tests.Extensions.DependencyInjection.CQRS
 {
@@ -19,7 +14,7 @@ namespace Velo.Tests.Extensions.DependencyInjection.CQRS
     {
         private readonly IServiceCollection _services;
 
-        public QueryInstallerShould(ITestOutputHelper output) : base(output)
+        public QueryInstallerShould()
         {
             _services = new ServiceCollection()
                 .AddEmitter();

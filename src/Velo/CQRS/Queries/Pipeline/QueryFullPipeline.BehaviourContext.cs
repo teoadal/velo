@@ -24,35 +24,31 @@ namespace Velo.CQRS.Queries.Pipeline
 
             public Task<TResult> GetResponse(TQuery query, CancellationToken cancellationToken)
             {
-                Closure closure;
-                if (_closure == null) closure = new Closure(this, query, cancellationToken);
-                else
-                {
-                    closure = _closure;
+                Closure closure = _closure ??= new Closure(this);
 
-                    closure.Context = this;
-                    closure.Query = query;
-                    closure.CancellationToken = cancellationToken;
-                }
+                _closure = null;
+
+                closure.CancellationToken = cancellationToken;
+                closure.Query = query;
 
                 return closure.GetResponse();
             }
 
-            private sealed class Closure
+            private sealed class Closure : IDisposable
             {
                 public CancellationToken CancellationToken;
-                public BehaviourContext Context;
                 public TQuery Query;
 
-                private readonly Func<Task<TResult>> _next;
+                private BehaviourContext _context;
+                private Func<Task<TResult>> _next;
+
                 private int _position;
 
-                public Closure(BehaviourContext context, TQuery query,
-                    CancellationToken cancellationToken)
+                public Closure(BehaviourContext context)
                 {
-                    Context = context;
-                    Query = query;
-                    CancellationToken = cancellationToken;
+                    _context = context;
+                    Query = default!;
+                    CancellationToken = default;
 
                     _next = GetResponse;
                     _position = 0;
@@ -60,7 +56,7 @@ namespace Velo.CQRS.Queries.Pipeline
 
                 public Task<TResult> GetResponse()
                 {
-                    var behaviours = Context._behaviours;
+                    var behaviours = _context._behaviours;
 
                     // ReSharper disable once InvertIf
                     if ((uint) _position < (uint) behaviours.Length)
@@ -69,28 +65,39 @@ namespace Velo.CQRS.Queries.Pipeline
                         return behaviour.Execute(Query, _next, CancellationToken);
                     }
 
-                    var pipelines = Context._pipeline;
+                    var pipeline = _context._pipeline;
                     var query = Query;
                     var token = CancellationToken;
 
                     Clear();
 
-                    return pipelines.RunProcessors(query, token);
+                    return pipeline.RunProcessors(query, token);
                 }
 
                 private void Clear()
                 {
-                    Context = null!;
                     CancellationToken = default;
                     Query = default!;
 
                     _position = 0;
+
+                    _closure = this;
+                }
+
+                public void Dispose()
+                {
+                    _context = null!;
+                    _next = null!;
                 }
             }
 
             public void Dispose()
             {
                 _behaviours = null!;
+
+                _closure?.Dispose();
+                _closure = null;
+
                 _pipeline = null!;
             }
         }

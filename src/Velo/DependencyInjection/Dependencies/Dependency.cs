@@ -9,13 +9,13 @@ namespace Velo.DependencyInjection.Dependencies
     {
         Type[] Contracts { get; }
 
+        Type Implementation { get; }
+
         DependencyLifetime Lifetime { get; }
 
-        DependencyResolver Resolver { get; }
-        
         bool Applicable(Type contract);
 
-        object GetInstance(Type contract, IDependencyScope scope);
+        object GetInstance(Type contract, IServiceProvider services);
     }
 
     public abstract class Dependency : IDependency
@@ -35,14 +35,18 @@ namespace Velo.DependencyInjection.Dependencies
             }
         }
 
+        // ReSharper disable once ConvertToAutoPropertyWhenPossible
         public Type[] Contracts => _contracts;
+
+        public Type Implementation => _resolver.Implementation;
 
         public DependencyLifetime Lifetime { get; }
 
-        public DependencyResolver Resolver => _resolver;
-
+        // ReSharper disable FieldCanBeMadeReadOnly.Local
         private Type[] _contracts;
+
         private DependencyResolver _resolver;
+        // ReSharper restore FieldCanBeMadeReadOnly.Local
 
         protected Dependency(Type[] contracts, DependencyResolver resolver, DependencyLifetime lifetime)
         {
@@ -53,8 +57,10 @@ namespace Velo.DependencyInjection.Dependencies
 
         public bool Applicable(Type request)
         {
+            // ReSharper disable once InvertIf
             if (request.IsInterface)
             {
+                // ReSharper disable once LoopCanBeConvertedToQuery
                 foreach (var contract in _contracts)
                 {
                     if (request.IsAssignableFrom(contract)) return true;
@@ -64,11 +70,11 @@ namespace Velo.DependencyInjection.Dependencies
             return Array.IndexOf(_contracts, request) != -1;
         }
 
-        public abstract object GetInstance(Type contract, IDependencyScope scope);
+        public abstract object GetInstance(Type contract, IServiceProvider services);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected object Resolve(Type contract, IDependencyScope scope) => _resolver.Resolve(contract, scope);
-        
+        protected object Resolve(Type contract, IServiceProvider services) => _resolver.Resolve(contract, services);
+
         public abstract void Dispose();
     }
 }

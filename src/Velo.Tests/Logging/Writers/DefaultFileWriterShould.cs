@@ -8,7 +8,6 @@ using Velo.Logging;
 using Velo.Logging.Writers;
 using Velo.Serialization.Models;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Logging.Writers
 {
@@ -18,7 +17,7 @@ namespace Velo.Tests.Logging.Writers
         private readonly Type _sender;
         private readonly DefaultFileWriter _writer;
 
-        public DefaultFileWriterShould(ITestOutputHelper output) : base(output)
+        public DefaultFileWriterShould()
         {
             _fileName = $"{nameof(DefaultFileWriterShould)}.log";
             _sender = typeof(DefaultFileWriterShould);

@@ -8,7 +8,6 @@ using Velo.Logging.Formatters;
 using Velo.Logging.Writers;
 using Velo.Serialization.Models;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Logging
 {
@@ -17,7 +16,7 @@ namespace Velo.Tests.Logging
         private readonly Mock<ILogFormatter> _formatter;
         private readonly Type _sender;
 
-        public LogContextShould(ITestOutputHelper output) : base(output)
+        public LogContextShould()
         {
             _formatter = new Mock<ILogFormatter>();
             _sender = typeof(LogContextShould);

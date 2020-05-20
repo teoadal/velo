@@ -1,7 +1,6 @@
 using System.Threading;
 using Velo.Threading;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Threading
 {
@@ -9,7 +8,7 @@ namespace Velo.Tests.Threading
     {
         private readonly object _lock;
         
-        public LockUtilsTests(ITestOutputHelper output) : base(output)
+        public LockUtilsTests()
         {
             _lock = new object();
         }

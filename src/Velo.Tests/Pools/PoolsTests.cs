@@ -5,16 +5,11 @@ using Velo.DependencyInjection;
 using Velo.Pools;
 using Velo.TestsModels.Boos;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Pools
 {
     public class PoolsTests : TestClass
     {
-        public PoolsTests(ITestOutputHelper output) : base(output)
-        {
-        }
-
         [Theory]
         [AutoData]
         public void GetReturn_Array(int capacity)
@@ -85,7 +80,7 @@ namespace Velo.Tests.Pools
                 .AddPool(() => new Boo())
                 .BuildProvider();
 
-            var pool = provider.GetRequiredService<IPool<Boo>>();
+            var pool = provider.GetRequired<IPool<Boo>>();
 
             Assert.NotNull(pool);
             Assert.IsType<Pool<Boo>>(pool);

@@ -9,7 +9,6 @@ using Velo.Serialization;
 using Velo.Serialization.Models;
 using Velo.TestsModels.ECS;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.ECS.Sources.Json.Properties
 {
@@ -20,7 +19,7 @@ namespace Velo.Tests.ECS.Sources.Json.Properties
 
         private readonly IdConverter _converter;
 
-        public IdConverterShould(ITestOutputHelper output) : base(output)
+        public IdConverterShould()
         {
             var provider = new DependencyCollection()
                 .AddECS()
@@ -29,7 +28,7 @@ namespace Velo.Tests.ECS.Sources.Json.Properties
             var components = new IComponent[] {Fixture.Create<TestComponent1>(), Fixture.Create<TestComponent2>()};
             _asset = new TestAsset(1, components) {Reference = CreateAsset(2)};
 
-            var converters = provider.GetRequiredService<IConvertersCollection>();
+            var converters = provider.GetRequired<IConvertersCollection>();
             _converter = provider.Activate<IdConverter>();
 
             _assetData = (JsonObject) converters.Write(_asset);

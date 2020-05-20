@@ -15,9 +15,9 @@ namespace Velo.DependencyInjection.Dependencies
         {
         }
 
-        public override object GetInstance(Type contract, IDependencyScope scope)
+        public override object GetInstance(Type contract, IServiceProvider services)
         {
-            return _instance ??= Resolve(contract, scope);
+            return _instance ??= Resolve(contract, services);
         }
 
         public override void Dispose()

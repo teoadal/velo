@@ -6,7 +6,6 @@ using Velo.DependencyInjection;
 using Velo.Serialization;
 using Velo.TestsModels;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Serialization
 {
@@ -14,9 +13,9 @@ namespace Velo.Tests.Serialization
     {
         private readonly JConverter _converter;
         
-        public JConverterShould(ITestOutputHelper output) : base(output)
+        public JConverterShould()
         {
-            _converter = new JConverter(TestUtils.BuildConvertersCollection());
+            _converter = new JConverter(BuildConvertersCollection());
         }
 
         [Fact]
@@ -26,8 +25,8 @@ namespace Velo.Tests.Serialization
                 .AddJsonConverter()
                 .BuildProvider();
             
-            Assert.NotNull(provider.GetService<JConverter>());
-            Assert.NotNull(provider.GetService<IConvertersCollection>());
+            Assert.NotNull(provider.GetRequired<JConverter>());
+            Assert.NotNull(provider.GetRequired<IConvertersCollection>());
         }
 
         [Theory]

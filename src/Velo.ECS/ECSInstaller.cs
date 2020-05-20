@@ -78,7 +78,7 @@ namespace Velo.DependencyInjection
 
         public static DependencyCollection AddAssets(
             this DependencyCollection dependencies,
-            Func<IDependencyScope, IEntitySource<Asset>> sourceBuilder)
+            Func<IServiceProvider, IEntitySource<Asset>> sourceBuilder)
         {
             if (sourceBuilder == null) throw Error.Null(nameof(sourceBuilder));
 
@@ -106,7 +106,7 @@ namespace Velo.DependencyInjection
             if (string.IsNullOrWhiteSpace(filePath)) throw Error.Null(nameof(filePath));
 
             dependencies.AddDependency(AssetSourceContracts,
-                scope => scope.Activate<JsonFileSource<Asset>>(new LocalList<object>(filePath)),
+                provider => provider.Activate<JsonFileSource<Asset>>(new LocalList<object>(filePath)),
                 DependencyLifetime.Singleton);
 
             return dependencies;
@@ -117,7 +117,7 @@ namespace Velo.DependencyInjection
             if (stream == null) throw Error.Null(nameof(stream));
 
             dependencies.AddDependency<IEntitySource<Asset>>(AssetSourceContracts,
-                scope => scope.Activate<JsonStreamSource<Asset>>(new LocalList<object>(stream)),
+                provider => provider.Activate<JsonStreamSource<Asset>>(new LocalList<object>(stream)),
                 DependencyLifetime.Singleton);
 
             return dependencies;

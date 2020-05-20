@@ -12,7 +12,6 @@ using Velo.TestsModels.Emitting.Parallel;
 using Velo.TestsModels.Emitting.PingPong;
 using Velo.TestsModels.Emitting.Plus;
 using Xunit;
-using Xunit.Abstractions;
 using BoosCreate = Velo.TestsModels.Emitting.Boos.Create;
 using BoosGet = Velo.TestsModels.Emitting.Boos.Get;
 
@@ -23,7 +22,7 @@ namespace Velo.Tests.Extensions.DependencyInjection.CQRS
         private readonly Mock<IBooRepository> _repository;
         private readonly IServiceCollection _serviceCollection;
 
-        public ServiceCollectionShould(ITestOutputHelper output) : base(output)
+        public ServiceCollectionShould()
         {
             _repository = new Mock<IBooRepository>();
 

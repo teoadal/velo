@@ -9,7 +9,6 @@ using Velo.Serialization;
 using Velo.Serialization.Models;
 using Velo.TestsModels.Boos;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Logging
 {
@@ -25,9 +24,9 @@ namespace Velo.Tests.Logging
         private readonly Mock<ILogWriter> _logWriter;
         private Action<LogContext, JsonObject> _logWriteCallback = (context, obj) => { };
 
-        public LogRendererShould(ITestOutputHelper output) : base(output)
+        public LogRendererShould()
         {
-            _converters = TestUtils.BuildConvertersCollection();
+            _converters = BuildConvertersCollection();
 
             _logWriter = new Mock<ILogWriter>();
             _logWriter
@@ -39,7 +38,7 @@ namespace Velo.Tests.Logging
                 .AddLogWriter(_logWriter.Object)
                 .BuildProvider();
 
-            _logger = provider.GetRequiredService<ILogger<LogRendererShould>>();
+            _logger = provider.GetRequired<ILogger<LogRendererShould>>();
         }
 
         [Theory]

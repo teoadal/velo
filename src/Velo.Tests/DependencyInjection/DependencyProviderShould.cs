@@ -6,7 +6,6 @@ using Velo.Mapping;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Foos;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.DependencyInjection
 {
@@ -14,7 +13,7 @@ namespace Velo.Tests.DependencyInjection
     {
         private readonly DependencyProvider _provider;
 
-        public DependencyProviderShould(ITestOutputHelper output) : base(output)
+        public DependencyProviderShould()
         {
             _provider = new DependencyCollection()
                 .AddScoped(ctx => new Boo())
@@ -24,31 +23,39 @@ namespace Velo.Tests.DependencyInjection
         }
 
         [Fact]
-        public void ActivateInstance()
+        public void CreateScope()
         {
-            
+            using var firstScope = _provider.StartScope();
+            var firstBoo = firstScope.Get<Boo>();
+            firstBoo.Should().Be(firstScope.GetService(typeof(Boo)));
+
+            using var secondScope = _provider.StartScope();
+            var secondBoo = secondScope.Get<Boo>();
+            secondBoo.Should().Be(secondScope.GetService(typeof(Boo)));
+
+            firstBoo.Should().NotBe(secondBoo);
         }
-        
+
         [Fact]
         public void GetService()
         {
-            using (var scope = _provider.CreateScope())
+            using (var scope = _provider.StartScope())
             {
-                var scoped = scope.GetService(typeof(Boo));
+                var scoped = scope.Get(typeof(Boo));
                 scoped.Should().NotBeNull();
             }
 
-            var singleton = _provider.GetService(typeof(Foo));
+            var singleton = _provider.Get(typeof(Foo));
             singleton.Should().NotBeNull();
 
-            var transient = _provider.GetService(typeof(object));
+            var transient = _provider.Get(typeof(object));
             transient.Should().NotBeNull();
         }
 
         [Fact]
         public void GetNotRequiredService()
         {
-            var transient = _provider.GetService(typeof(PropertyInfo));
+            var transient = _provider.Get(typeof(PropertyInfo));
             transient.Should().BeNull();
         }
 
@@ -65,8 +72,7 @@ namespace Velo.Tests.DependencyInjection
         {
             _provider.Dispose();
 
-            Assert.Throws<ObjectDisposedException>(() => _provider.Activate(typeof(Boo)));
-            Assert.Throws<ObjectDisposedException>(() => _provider.GetService<Boo>());
+            Assert.Throws<ObjectDisposedException>(() => _provider.Get<IBooRepository>());
         }
     }
 }

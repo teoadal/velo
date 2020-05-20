@@ -4,42 +4,32 @@ using Moq;
 using Velo.CQRS.Queries;
 using Velo.CQRS.Queries.Pipeline;
 using Velo.DependencyInjection;
-using Velo.DependencyInjection.Dependencies;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting.Boos.Get;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.CQRS.Queries
 {
     public class QueryPipelineFactoryShould : CQRSTestClass
     {
-        private readonly Type _behaviourType;
         private readonly Mock<IDependencyEngine> _engine;
-        private readonly QueryPipelineFactory _factory;
-        private readonly Mock<IDependency> _processorDependency;
+
+        private readonly Type _behaviourType;
         private readonly Type _pipelineType;
         private readonly Type _preProcessorType;
         private readonly Type _postProcessorType;
 
-        private DependencyLifetime _processorLifetime;
+        private readonly QueryPipelineFactory _factory;
 
-        public QueryPipelineFactoryShould(ITestOutputHelper output) : base(output)
+        public QueryPipelineFactoryShould()
         {
+            _engine = new Mock<IDependencyEngine>();
             _factory = new QueryPipelineFactory();
-            _pipelineType = typeof(IQueryPipeline<Query, Boo>);
 
             _behaviourType = typeof(IQueryBehaviour<Query, Boo>);
+            _pipelineType = typeof(IQueryPipeline<Query, Boo>);
             _preProcessorType = typeof(IQueryPreProcessor<Query, Boo>);
-
             _postProcessorType = typeof(IQueryPostProcessor<Query, Boo>);
-
-            _processorDependency = new Mock<IDependency>();
-            _processorDependency
-                .SetupGet(dependency => dependency.Lifetime)
-                .Returns(() => _processorLifetime);
-            
-            _engine = TestUtils.MockDependencyEngine(typeof(IQueryProcessor<Query, Boo>), _processorDependency.Object);
         }
 
         [Fact]
@@ -52,7 +42,7 @@ namespace Velo.Tests.CQRS.Queries
         [MemberData(nameof(Lifetimes))]
         public void CreateWithValidLifetime(DependencyLifetime lifetime)
         {
-            _processorLifetime = lifetime;
+            SetupRequiredDependency(_engine, typeof(IQueryProcessor<Query, Boo>), lifetime);
 
             var dependency = _factory.BuildDependency(_pipelineType, _engine.Object);
 
@@ -62,56 +52,56 @@ namespace Velo.Tests.CQRS.Queries
         [Fact]
         public void CreateFullPipeline()
         {
-            SetupBehaviourProcessors();
-            SetupPreProcessors();
-            SetupPostProcessors();
+            SetupRequiredDependencies(_engine, _behaviourType);
+            SetupRequiredDependencies(_engine, _preProcessorType);
+            SetupRequiredDependencies(_engine, _postProcessorType);
 
             var dependency = _factory.BuildDependency(_pipelineType, _engine.Object);
-            dependency.Resolver.Implementation.Should().Be<QueryFullPipeline<Query, Boo>>();
+            dependency.Implementation.Should().Be<QueryFullPipeline<Query, Boo>>();
         }
 
         [Fact]
         public void CreateFullPipelineWithBehavioursOnly()
         {
-            SetupBehaviourProcessors();
+            SetupRequiredDependencies(_engine, _behaviourType);
 
             var dependency = _factory.BuildDependency(_pipelineType, _engine.Object);
-            dependency.Resolver.Implementation.Should().Be<QueryFullPipeline<Query, Boo>>();
+            dependency.Implementation.Should().Be<QueryFullPipeline<Query, Boo>>();
         }
 
         [Fact]
         public void CreateSimplePipeline()
         {
             var dependency = _factory.BuildDependency(_pipelineType, _engine.Object);
-            dependency.Resolver.Implementation.Should().Be<QuerySimplePipeline<Query, Boo>>();
+            dependency.Implementation.Should().Be<QuerySimplePipeline<Query, Boo>>();
         }
 
         [Fact]
         public void CreateSequentialPipeline()
         {
-            SetupPreProcessors();
-            SetupPostProcessors();
+            SetupRequiredDependencies(_engine, _preProcessorType);
+            SetupRequiredDependencies(_engine, _postProcessorType);
 
             var dependency = _factory.BuildDependency(_pipelineType, _engine.Object);
-            dependency.Resolver.Implementation.Should().Be<QuerySequentialPipeline<Query, Boo>>();
+            dependency.Implementation.Should().Be<QuerySequentialPipeline<Query, Boo>>();
         }
 
         [Fact]
         public void CreateSequentialPipelineWithPreProcessorsOnly()
         {
-            SetupPreProcessors();
+            SetupRequiredDependencies(_engine, _preProcessorType);
 
             var dependency = _factory.BuildDependency(_pipelineType, _engine.Object);
-            dependency.Resolver.Implementation.Should().Be<QuerySequentialPipeline<Query, Boo>>();
+            dependency.Implementation.Should().Be<QuerySequentialPipeline<Query, Boo>>();
         }
 
         [Fact]
         public void CreateSequentialPipelineWithPostProcessorsOnly()
         {
-            SetupPostProcessors();
+            SetupRequiredDependencies(_engine, _postProcessorType);
 
             var dependency = _factory.BuildDependency(_pipelineType, _engine.Object);
-            dependency.Resolver.Implementation.Should().Be<QuerySequentialPipeline<Query, Boo>>();
+            dependency.Implementation.Should().Be<QuerySequentialPipeline<Query, Boo>>();
         }
 
         [Fact]
@@ -128,30 +118,6 @@ namespace Velo.Tests.CQRS.Queries
         public void NotApplicable()
         {
             _factory.Applicable(typeof(Boo)).Should().BeFalse();
-        }
-
-        private void SetupBehaviourProcessors()
-        {
-            _engine.Setup(engine => engine.Contains(_behaviourType)).Returns(true);
-            _engine
-                .Setup(engine => engine.GetRequiredDependency(_behaviourType.MakeArrayType()))
-                .Returns(_processorDependency.Object);
-        }
-
-        private void SetupPreProcessors()
-        {
-            _engine.Setup(engine => engine.Contains(_preProcessorType)).Returns(true);
-            _engine
-                .Setup(engine => engine.GetRequiredDependency(_preProcessorType.MakeArrayType()))
-                .Returns(_processorDependency.Object);
-        }
-
-        private void SetupPostProcessors()
-        {
-            _engine.Setup(engine => engine.Contains(_postProcessorType)).Returns(true);
-            _engine
-                .Setup(engine => engine.GetRequiredDependency(_postProcessorType.MakeArrayType()))
-                .Returns(_processorDependency.Object);
         }
     }
 }

@@ -8,7 +8,6 @@ using Velo.Collections.Local;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Foos;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Collections.Local
 {
@@ -16,7 +15,7 @@ namespace Velo.Tests.Collections.Local
     {
         private readonly Boo[] _items;
 
-        public LocalListShould(ITestOutputHelper output) : base(output)
+        public LocalListShould()
         {
             _items = Fixture.CreateMany<Boo>(10).ToArray();
         }
@@ -370,7 +369,7 @@ namespace Velo.Tests.Collections.Local
             var localList = new LocalList<int>();
             localList.Remove(1).Should().BeFalse();
         }
-        
+
         [Fact]
         public void Remove()
         {
@@ -501,18 +500,14 @@ namespace Velo.Tests.Collections.Local
             var outerLocalList = new LocalList<Boo>(outer);
             var innerLocalList = new LocalList<Boo>(inner);
 
-            int localListSum;
-            using (Measure())
-            {
-                localListSum = outerLocalList
-                    .Join(innerLocalList, o => o.Id, i => i.Id, (o, i) => i)
-                    .GroupBy(boo => boo.Id)
-                    .Select(gr => gr.Values.First())
-                    .Where((b, t) => b.Int > t, threshold)
-                    .Select((b, m) => b.Id * m, modifier)
-                    .OrderBy(id => id)
-                    .Sum();
-            }
+            var localListSum = outerLocalList
+                .Join(innerLocalList, o => o.Id, i => i.Id, (o, i) => i)
+                .GroupBy(boo => boo.Id)
+                .Select(gr => gr.Values.First())
+                .Where((b, t) => b.Int > t, threshold)
+                .Select((b, m) => b.Id * m, modifier)
+                .OrderBy(id => id)
+                .Sum();
 
             localListSum.Should().Be(sum);
         }
@@ -564,7 +559,7 @@ namespace Velo.Tests.Collections.Local
             var list = new LocalList<Boo>().ToList();
             list.Should().BeEmpty();
         }
-        
+
         [Fact]
         public void Where()
         {
@@ -605,7 +600,7 @@ namespace Velo.Tests.Collections.Local
                 localList.First();
             });
         }
-        
+
         [Fact]
         public void Throw_First_NotFound()
         {
@@ -635,7 +630,7 @@ namespace Velo.Tests.Collections.Local
                 localList.RemoveAt(1);
             });
         }
-        
+
         [Fact]
         public void Throw_IndexOutOfRange()
         {

@@ -4,7 +4,6 @@ using Velo.ECS.Assets;
 using Velo.ECS.Components;
 using Velo.TestsModels.ECS;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.ECS.Assets
 {
@@ -14,7 +13,7 @@ namespace Velo.Tests.ECS.Assets
         private readonly TestComponent1 _component1;
         private readonly TestComponent2 _component2;
 
-        public AssetShould(ITestOutputHelper output) : base(output)
+        public AssetShould()
         {
             _component1 = new TestComponent1();
             _component2 = new TestComponent2();

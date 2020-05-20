@@ -7,7 +7,6 @@ using Velo.ECS.Assets;
 using Velo.ECS.Sources;
 using Velo.ECS.Sources.Context;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.ECS.Sources
 {
@@ -17,7 +16,7 @@ namespace Velo.Tests.ECS.Sources
         private readonly IEntitySourceContext<Asset> _context;
         private readonly DelegateSource<Asset> _source;
 
-        public DelegateSourceShould(ITestOutputHelper output) : base(output)
+        public DelegateSourceShould()
         {
             _context = Mock.Of<IEntitySourceContext<Asset>>();
 

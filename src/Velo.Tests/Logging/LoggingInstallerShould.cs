@@ -10,7 +10,6 @@ using Velo.Logging.Writers;
 using Velo.Serialization;
 using Velo.Serialization.Models;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Logging
 {
@@ -18,7 +17,7 @@ namespace Velo.Tests.Logging
     {
         private readonly DependencyCollection _dependencies;
 
-        public LoggingInstallerShould(ITestOutputHelper output) : base(output)
+        public LoggingInstallerShould()
         {
             _dependencies = new DependencyCollection()
                 .AddLogWriter(Mock.Of<ILogWriter>());
@@ -61,7 +60,7 @@ namespace Velo.Tests.Logging
             _dependencies
                 .AddLogging()
                 .BuildProvider()
-                .GetService<ILogger<LoggingInstallerShould>>().Should().NotBeNull();
+                .Get<ILogger<LoggingInstallerShould>>().Should().NotBeNull();
         }
 
         [Fact]

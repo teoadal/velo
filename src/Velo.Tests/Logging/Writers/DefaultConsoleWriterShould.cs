@@ -7,7 +7,6 @@ using Velo.Logging;
 using Velo.Logging.Writers;
 using Velo.Serialization.Models;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Logging.Writers
 {
@@ -17,7 +16,7 @@ namespace Velo.Tests.Logging.Writers
         private readonly Type _sender;
         private readonly DefaultConsoleWriter _writer;
 
-        public DefaultConsoleWriterShould(ITestOutputHelper output) : base(output)
+        public DefaultConsoleWriterShould()
         {
             _output = new StringWriter();
             Console.SetOut(_output);

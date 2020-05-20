@@ -1,15 +1,14 @@
 using FluentAssertions;
 using Velo.DependencyInjection;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.CQRS
 {
-    public class ProcessorsAlloverShould : TestClass
+    public class ProcessorsAlloverShould : CQRSTestClass
     {
         private readonly DependencyCollection _dependencies;
 
-        public ProcessorsAlloverShould(ITestOutputHelper output) : base(output)
+        public ProcessorsAlloverShould()
         {
             _dependencies = new DependencyCollection()
                 .Scan(scanner => scanner

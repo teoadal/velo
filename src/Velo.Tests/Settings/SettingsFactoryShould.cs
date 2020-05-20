@@ -5,7 +5,6 @@ using Velo.DependencyInjection;
 using Velo.Settings;
 using Velo.TestsModels.Settings;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Settings
 {
@@ -15,7 +14,7 @@ namespace Velo.Tests.Settings
         private readonly SettingsFactory _factory;
         private readonly Type _settingsType;
 
-        public SettingsFactoryShould(ITestOutputHelper output) : base(output)
+        public SettingsFactoryShould()
         {
             _engine = Mock.Of<IDependencyEngine>();
             _factory = new SettingsFactory();
@@ -59,7 +58,7 @@ namespace Velo.Tests.Settings
                 .AddSettings()
                 .AddJsonSettings("Settings/appsettings.json")
                 .BuildProvider()
-                .GetRequiredService<LogLevelSettings>();
+                .GetRequired<LogLevelSettings>();
 
             settings.Default.Should().NotBeNullOrWhiteSpace();
             settings.Microsoft.Should().NotBeNullOrWhiteSpace();

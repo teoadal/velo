@@ -6,7 +6,6 @@ using Newtonsoft.Json;
 using Velo.Serialization;
 using Velo.Serialization.Models;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Serialization.Models
 {
@@ -16,11 +15,11 @@ namespace Velo.Tests.Serialization.Models
         private readonly IJsonConverter<int> _elementConverter;
         private readonly JsonArray _jsonArray;
 
-        public JsonArrayShould(ITestOutputHelper output) : base(output)
+        public JsonArrayShould()
         {
             _array = System.Linq.Enumerable.Range(0, 10).ToArray();
             
-            _elementConverter = TestUtils.BuildConvertersCollection().Get<int>();
+            _elementConverter = BuildConvertersCollection().Get<int>();
 
             _jsonArray = new JsonArray(_array.Select(_elementConverter.Write));
         }

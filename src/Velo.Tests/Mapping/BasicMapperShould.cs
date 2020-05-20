@@ -4,7 +4,6 @@ using Velo.Mapping;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Foos;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Mapping
 {
@@ -12,7 +11,7 @@ namespace Velo.Tests.Mapping
     {
         private readonly BasicMapper<Foo> _mapper;
 
-        public BasicMapperShould(ITestOutputHelper output) : base(output)
+        public BasicMapperShould()
         {
             _mapper = new BasicMapper<Foo>();
         }

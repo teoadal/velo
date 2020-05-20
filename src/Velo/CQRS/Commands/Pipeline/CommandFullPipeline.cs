@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Velo.Utils;
 
 namespace Velo.CQRS.Commands.Pipeline
 {
@@ -11,6 +12,8 @@ namespace Velo.CQRS.Commands.Pipeline
         private ICommandProcessor<TCommand> _processor;
         private ICommandPostProcessor<TCommand>[] _postProcessors;
 
+        private bool _disposed;
+
         public CommandFullPipeline(
             ICommandBehaviour<TCommand>[] behaviours,
             ICommandPreProcessor<TCommand>[] preProcessors,
@@ -21,10 +24,14 @@ namespace Velo.CQRS.Commands.Pipeline
             _preProcessors = preProcessors;
             _processor = processor;
             _postProcessors = postProcessors;
+
+            _disposed = false;
         }
 
         public Task Execute(TCommand command, CancellationToken cancellationToken)
         {
+            if (_disposed) throw Error.Disposed(nameof(ICommandPipeline<TCommand>));
+
             return _behaviours.Execute(command, cancellationToken);
         }
 
@@ -52,12 +59,16 @@ namespace Velo.CQRS.Commands.Pipeline
 
         public void Dispose()
         {
+            if (_disposed) return;
+            
             _behaviours.Dispose();
 
             _behaviours = null!;
             _preProcessors = null!;
             _processor = null!;
             _postProcessors = null!;
+
+            _disposed = true;
         }
     }
 }

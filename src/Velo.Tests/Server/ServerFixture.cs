@@ -16,7 +16,7 @@ namespace Velo.Tests.Server
                 .AddFileServer()
                 .BuildProvider();
 
-            Server = provider.GetService<HttpServer>();
+            Server = provider.GetRequired<HttpServer>();
             Server.Start(Port);
         }
         

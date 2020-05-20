@@ -1,10 +1,10 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using AutoFixture;
 using FluentAssertions;
 using Velo.Collections.Enumerators;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Collections.Enumerators
 {
@@ -15,7 +15,7 @@ namespace Velo.Tests.Collections.Enumerators
         private readonly List<int> _list;
         private readonly Dictionary<int, int> _dictionary;
 
-        public ReadLockEnumeratorShould(ITestOutputHelper output) : base(output)
+        public ReadLockEnumeratorShould()
         {
             _lock = new ReaderWriterLockSlim();
 
@@ -48,10 +48,24 @@ namespace Velo.Tests.Collections.Enumerators
                 exists.Add(enumerator.Current).Should().BeTrue();
             }
 
-            exists.Count.Should().Be(_list.Count);
+            exists.Count.Should().Be(_dictionary.Count);
             enumerator.Dispose();
         }
 
+        [Fact]
+        public void EnumerateDictionaryAsEnumerator()
+        {
+            var exists = new HashSet<int>();
+
+            var enumerator = (IEnumerator) new ReadLockEnumerator<int, int>(_dictionary.Values, _lock);
+            while (enumerator.MoveNext())
+            {
+                exists.Add((int) enumerator.Current!).Should().BeTrue();
+            }
+
+            exists.Count.Should().Be(_dictionary.Count);
+        }
+        
         [Fact]
         public void EnumerateList()
         {
@@ -66,6 +80,19 @@ namespace Velo.Tests.Collections.Enumerators
             enumerator.Dispose();
         }
 
+        [Fact]
+        public void EnumerateListAsEnumerator()
+        {
+            var counter = 0;
+            var enumerator = (IEnumerator) new ReadLockEnumerator<int>(_list, _lock);
+            while (enumerator.MoveNext())
+            {
+                _list[counter++].Should().Be((int) enumerator.Current!);
+            }
+
+            counter.Should().Be(_list.Count);
+        }
+        
         [Fact]
         public void ExitDictionaryLock()
         {

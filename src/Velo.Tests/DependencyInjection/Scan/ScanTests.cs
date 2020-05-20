@@ -8,7 +8,6 @@ using Velo.TestsModels.Domain;
 using Velo.TestsModels.Foos;
 using Velo.TestsModels.Infrastructure;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.DependencyInjection.Scan
 {
@@ -16,13 +15,13 @@ namespace Velo.Tests.DependencyInjection.Scan
     {
         private readonly DependencyCollection _dependencies;
         
-        public ScanTests(ITestOutputHelper output) : base(output)
+        public ScanTests()
         {
             _dependencies = new DependencyCollection()
                 .AddSingleton<ISettingsProvider>(ctx => 
                     new SettingsProvider(
                         Array.Empty<ISettingsSource>(), 
-                        ctx.GetRequiredService<IConvertersCollection>()))
+                        ctx.GetRequired<IConvertersCollection>()))
                 .AddJsonConverter()
                 .AddSingleton<ISession, Session>();
         }
@@ -36,11 +35,11 @@ namespace Velo.Tests.DependencyInjection.Scan
                     .ScopedOf<IRepository>())
                 .BuildProvider();
             
-            var repositories1 = provider.GetRequiredService<IRepository[]>();
+            var repositories1 = provider.GetRequired<IRepository[]>();
 
-            using (var scope = provider.CreateScope())
+            using (var scope = provider.StartScope())
             {
-                var repositories2 = scope.GetRequiredService<IRepository[]>();
+                var repositories2 = scope.GetRequired<IRepository[]>();
                 for (var i = 0; i < repositories1.Length; i++)
                 {
                     Assert.NotEqual(repositories1[i], repositories2[i]);
@@ -57,22 +56,22 @@ namespace Velo.Tests.DependencyInjection.Scan
                     .ScopedOf(typeof(IRepository<>)))
                 .BuildProvider();
             
-            var booRepository = provider.GetRequiredService<IRepository<Boo>>();
+            var booRepository = provider.GetRequired<IRepository<Boo>>();
             Assert.NotNull(booRepository);
-            Assert.Same(booRepository, provider.GetRequiredService<IRepository<Boo>>());
+            Assert.Same(booRepository, provider.GetRequired<IRepository<Boo>>());
 
-            using (var scope = provider.CreateScope())
+            using (var scope = provider.StartScope())
             {
-                Assert.NotSame(booRepository, scope.GetRequiredService<IRepository<Boo>>());
+                Assert.NotSame(booRepository, scope.GetRequired<IRepository<Boo>>());
             }
             
-            var fooRepository = provider.GetRequiredService<IRepository<Foo>>();
+            var fooRepository = provider.GetRequired<IRepository<Foo>>();
             Assert.NotNull(fooRepository);
-            Assert.Same(fooRepository, provider.GetRequiredService<IRepository<Foo>>());
+            Assert.Same(fooRepository, provider.GetRequired<IRepository<Foo>>());
             
-            using (var scope = provider.CreateScope())
+            using (var scope = provider.StartScope())
             {
-                Assert.NotSame(fooRepository, scope.GetRequiredService<IRepository<Foo>>());
+                Assert.NotSame(fooRepository, scope.GetRequired<IRepository<Foo>>());
             }
         }
         
@@ -85,8 +84,8 @@ namespace Velo.Tests.DependencyInjection.Scan
                     .SingletonOf<IRepository>())
                 .BuildProvider();
             
-            var repositories1 = provider.GetRequiredService<IRepository[]>();
-            var repositories2 = provider.GetRequiredService<IRepository[]>();
+            var repositories1 = provider.GetRequired<IRepository[]>();
+            var repositories2 = provider.GetRequired<IRepository[]>();
 
             for (var i = 0; i < repositories1.Length; i++)
             {
@@ -103,13 +102,13 @@ namespace Velo.Tests.DependencyInjection.Scan
                     .SingletonOf(typeof(IRepository<>)))
                 .BuildProvider();
             
-            var booRepository = provider.GetRequiredService<IRepository<Boo>>();
+            var booRepository = provider.GetRequired<IRepository<Boo>>();
             Assert.NotNull(booRepository);
-            Assert.Same(booRepository, provider.GetRequiredService<IRepository<Boo>>());
+            Assert.Same(booRepository, provider.GetRequired<IRepository<Boo>>());
             
-            var fooRepository = provider.GetRequiredService<IRepository<Foo>>();
+            var fooRepository = provider.GetRequired<IRepository<Foo>>();
             Assert.NotNull(fooRepository);
-            Assert.Same(fooRepository, provider.GetRequiredService<IRepository<Foo>>());
+            Assert.Same(fooRepository, provider.GetRequired<IRepository<Foo>>());
         }
         
         [Fact]
@@ -121,8 +120,8 @@ namespace Velo.Tests.DependencyInjection.Scan
                     .TransientOf<IRepository>())
                 .BuildProvider();
             
-            var repositories1 = provider.GetRequiredService<IRepository[]>();
-            var repositories2 = provider.GetRequiredService<IRepository[]>();
+            var repositories1 = provider.GetRequired<IRepository[]>();
+            var repositories2 = provider.GetRequired<IRepository[]>();
 
             for (var i = 0; i < repositories1.Length; i++)
             {
@@ -139,13 +138,13 @@ namespace Velo.Tests.DependencyInjection.Scan
                     .TransientOf(typeof(IRepository<>)))
                 .BuildProvider();
             
-            var booRepository = provider.GetRequiredService<IRepository<Boo>>();
+            var booRepository = provider.GetRequired<IRepository<Boo>>();
             Assert.NotNull(booRepository);
-            Assert.NotSame(booRepository, provider.GetRequiredService<IRepository<Boo>>());
+            Assert.NotSame(booRepository, provider.GetRequired<IRepository<Boo>>());
             
-            var fooRepository = provider.GetRequiredService<IRepository<Foo>>();
+            var fooRepository = provider.GetRequired<IRepository<Foo>>();
             Assert.NotNull(fooRepository);
-            Assert.NotSame(fooRepository, provider.GetRequiredService<IRepository<Foo>>());
+            Assert.NotSame(fooRepository, provider.GetRequired<IRepository<Foo>>());
         }
     }
 }

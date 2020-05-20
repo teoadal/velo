@@ -5,7 +5,6 @@ using FluentAssertions;
 using Velo.Logging.Formatters;
 using Velo.Serialization.Models;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Logging.Formatters
 {
@@ -14,7 +13,7 @@ namespace Velo.Tests.Logging.Formatters
         private const string Template = "Template {arg1} and {arg2}";
         private readonly ILogFormatter _formatter;
 
-        public DefaultStringFormatterShould(ITestOutputHelper output) : base(output)
+        public DefaultStringFormatterShould()
         {
             _formatter = new DefaultStringFormatter(Template);
         }

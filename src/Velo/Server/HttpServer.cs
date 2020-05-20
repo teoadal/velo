@@ -85,7 +85,7 @@ namespace Velo.Server
         private async Task HandleRequest(HttpListenerContext context, IHttpRequestHandler handler)
         {
             using var cancellationSource = new CancellationTokenSource();
-            using var dependencyScope = _dependencyProvider.CreateScope();
+            using var dependencyScope = _dependencyProvider.StartScope();
 
             try
             {

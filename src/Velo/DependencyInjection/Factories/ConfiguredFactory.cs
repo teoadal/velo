@@ -11,14 +11,14 @@ namespace Velo.DependencyInjection.Factories
         private readonly Type _implementation;
 
         private readonly Type _nullService;
-        private readonly Predicate<IDependencyEngine> _nullServicePredicate;
+        private readonly Predicate<IDependencyEngine>? _nullServicePredicate;
 
         public ConfiguredFactory(
             Type contract,
             DependencyLifetime? lifetime,
             Type implementation,
             Type nullService,
-            Predicate<IDependencyEngine> nullServicePredicate)
+            Predicate<IDependencyEngine>? nullServicePredicate)
         {
             _contract = contract;
             _lifetime = lifetime;

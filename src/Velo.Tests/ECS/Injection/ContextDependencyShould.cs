@@ -7,7 +7,6 @@ using Velo.ECS.Actors.Filters;
 using Velo.ECS.Injection;
 using Velo.TestsModels.ECS;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.ECS.Injection
 {
@@ -15,17 +14,17 @@ namespace Velo.Tests.ECS.Injection
     {
         private readonly Mock<IActorContext> _actorContext;
         private readonly Type _contract;
-        private readonly Mock<IDependencyScope> _scope;
+        private readonly Mock<IServiceProvider> _services;
 
         private readonly ContextDependency<IActorContext> _actorContextDependency;
 
-        public ContextDependencyShould(ITestOutputHelper output) : base(output)
+        public ContextDependencyShould()
         {
             _actorContext = new Mock<IActorContext>();
             _contract = typeof(IActorFilter<TestComponent1>);
-            _scope = new Mock<IDependencyScope>();
-            _scope
-                .Setup(scope => scope.GetRequiredService(typeof(IActorContext)))
+            _services = new Mock<IServiceProvider>();
+            _services
+                .Setup(provider => provider.GetService(typeof(IActorContext)))
                 .Returns(_actorContext.Object);
 
             _actorContextDependency = new ContextDependency<IActorContext>(
@@ -42,7 +41,7 @@ namespace Velo.Tests.ECS.Injection
         [Fact]
         public void GetInstance()
         {
-            _actorContextDependency.GetInstance(_contract, _scope.Object);
+            _actorContextDependency.GetInstance(_contract, _services.Object);
 
             _actorContext.Verify(context => context.GetFilter<TestComponent1>());
         }

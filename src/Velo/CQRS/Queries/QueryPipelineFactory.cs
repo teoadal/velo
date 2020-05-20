@@ -1,24 +1,18 @@
 using System;
+using Velo.CQRS.Queries.Pipeline;
 using Velo.DependencyInjection;
 using Velo.DependencyInjection.Dependencies;
 using Velo.DependencyInjection.Factories;
 using Velo.DependencyInjection.Resolvers;
 using Velo.Utils;
 
-namespace Velo.CQRS.Commands.Pipeline
+namespace Velo.CQRS.Queries
 {
-    public class CommandPipelineFactory : IDependencyFactory
+    internal sealed class QueryPipelineFactory : IDependencyFactory
     {
-        private readonly Type _contract;
-
-        public CommandPipelineFactory()
-        {
-            _contract = typeof(ICommandPipeline<>);
-        }
-
         public bool Applicable(Type contract)
         {
-            return ReflectionUtils.IsGenericTypeImplementation(contract, _contract);
+            return ReflectionUtils.IsGenericTypeImplementation(contract, Types.QueryPipeline);
         }
 
         public IDependency BuildDependency(Type contract, IDependencyEngine engine)
@@ -28,15 +22,15 @@ namespace Velo.CQRS.Commands.Pipeline
             Type pipelineType;
             if (ExistsBehaviour(genericArgs, engine))
             {
-                pipelineType = typeof(CommandFullPipeline<>);
+                pipelineType = typeof(QueryFullPipeline<,>);
             }
             else if (ExistsPreOrPostProcessor(genericArgs, engine))
             {
-                pipelineType = typeof(CommandSequentialPipeline<>);
+                pipelineType = typeof(QuerySequentialPipeline<,>);
             }
             else
             {
-                pipelineType = typeof(CommandSimplePipeline<>);
+                pipelineType = typeof(QuerySimplePipeline<,>);
             }
 
             var implementation = pipelineType.MakeGenericType(genericArgs);
@@ -48,16 +42,16 @@ namespace Velo.CQRS.Commands.Pipeline
 
         private bool ExistsBehaviour(Type[] contractGenericArgs, IDependencyEngine engine)
         {
-            var behaviourType = typeof(ICommandBehaviour<>).MakeGenericType(contractGenericArgs);
+            var behaviourType = typeof(IQueryBehaviour<,>).MakeGenericType(contractGenericArgs);
             return engine.Contains(behaviourType);
         }
 
         private bool ExistsPreOrPostProcessor(Type[] contractGenericArgs, IDependencyEngine engine)
         {
-            var preProcessorType = typeof(ICommandPreProcessor<>).MakeGenericType(contractGenericArgs);
+            var preProcessorType = typeof(IQueryPreProcessor<,>).MakeGenericType(contractGenericArgs);
             if (engine.Contains(preProcessorType)) return true;
 
-            var postProcessorType = typeof(ICommandPostProcessor<>).MakeGenericType(contractGenericArgs);
+            var postProcessorType = typeof(IQueryPostProcessor<,>).MakeGenericType(contractGenericArgs);
             return engine.Contains(postProcessorType);
         }
     }

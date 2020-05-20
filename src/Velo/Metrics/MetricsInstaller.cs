@@ -39,7 +39,7 @@ namespace Velo.DependencyInjection
         }
 
         public static DependencyCollection AddMetricsCounter<TSender>(this DependencyCollection dependencies,
-            Func<IDependencyScope, ICounter<TSender>> builder)
+            Func<IServiceProvider, ICounter<TSender>> builder)
         {
             var contracts = new[] {typeof(ICounter), typeof(ICounter<TSender>)};
             dependencies.AddDependency(contracts, builder, DependencyLifetime.Singleton);

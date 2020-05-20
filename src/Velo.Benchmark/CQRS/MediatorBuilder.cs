@@ -16,7 +16,7 @@ namespace Velo.Benchmark.CQRS
                 .AddSingleton(repository)
                 .AddSingleton<IRequestHandler<GetBooRequest, Boo>, GetBooHandler>()
                 .AddSingleton<IRequestHandler<StructRequest, StructResponse>, StructRequestHandler>()
-                .AddScoped<IMediator>(scope => new Mediator(scope.GetService));
+                .AddScoped<IMediator>(provider => new Mediator(provider.GetService));
 
             if (dependencyBuilder != null)
             {

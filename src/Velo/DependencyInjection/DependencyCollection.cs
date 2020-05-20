@@ -26,16 +26,6 @@ namespace Velo.DependencyInjection
             return this;
         }
 
-        public DependencyCollection AddDependency(Func<DependencyBuilder, DependencyBuilder> build)
-        {
-            var builder = build(new DependencyBuilder());
-            var dependency = builder.Build(_engine);
-
-            AddDependency(dependency);
-
-            return this;
-        }
-
         public DependencyCollection AddDependency(Type contract, Type implementation, DependencyLifetime lifetime)
         {
             if (contract.IsGenericTypeDefinition)
@@ -57,7 +47,7 @@ namespace Velo.DependencyInjection
 
         public DependencyCollection AddDependency<TResult>(
             Type[] contracts,
-            Func<IDependencyScope, TResult> builder,
+            Func<IServiceProvider, TResult> builder,
             DependencyLifetime lifetime)
             where TResult : class
         {
@@ -108,7 +98,7 @@ namespace Velo.DependencyInjection
 
             var providerContracts = new[] {Typeof<DependencyProvider>.Raw, Typeof<IServiceProvider>.Raw};
             var providerDependency = new InstanceDependency(providerContracts, provider);
-
+            
             _engine.AddDependency(providerDependency);
 
             return provider;

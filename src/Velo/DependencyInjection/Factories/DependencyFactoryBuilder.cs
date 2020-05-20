@@ -9,7 +9,7 @@ namespace Velo.DependencyInjection.Factories
 
         private DependencyLifetime? _lifetime;
         private Type _nullService;
-        private Predicate<IDependencyEngine> _nullServicePredicate;
+        private Predicate<IDependencyEngine>? _nullServicePredicate;
 
         internal DependencyFactoryBuilder(Type contract, Type implementation)
         {

@@ -10,7 +10,6 @@ using Velo.Serialization;
 using Velo.Serialization.Models;
 using Velo.TestsModels.Boos;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Serialization.Converters
 {
@@ -19,9 +18,9 @@ namespace Velo.Tests.Serialization.Converters
         private readonly IJsonConverter<Boo[]> _converter;
         private readonly IJsonConverter<Boo> _elementConverter;
 
-        public ArrayConverterShould(ITestOutputHelper output) : base(output)
+        public ArrayConverterShould()
         {
-            var converters = TestUtils.BuildConvertersCollection();
+            var converters = BuildConvertersCollection();
             _converter = converters.Get<Boo[]>();
             _elementConverter = converters.Get<Boo>();
         }

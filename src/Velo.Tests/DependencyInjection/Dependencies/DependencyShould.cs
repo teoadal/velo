@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using FluentAssertions;
 using Moq;
 using Velo.CQRS.Commands;
@@ -8,7 +9,6 @@ using Velo.DependencyInjection.Resolvers;
 using Velo.TestsModels.Boos;
 using Velo.TestsModels.Emitting;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.DependencyInjection.Dependencies
 {
@@ -18,7 +18,7 @@ namespace Velo.Tests.DependencyInjection.Dependencies
         private readonly Mock<Dependency> _dependency;
         private readonly Type _implementation;
 
-        public DependencyShould(ITestOutputHelper output) : base(output)
+        public DependencyShould()
         {
             _contract = typeof(IBooRepository);
             _implementation = typeof(BooRepository);
@@ -78,6 +78,15 @@ namespace Velo.Tests.DependencyInjection.Dependencies
         }
 
         [Fact]
+        public void HasImplementation()
+        {
+            var resolver = new Mock<DependencyResolver>(_contract).Object;
+            var dependency = new Mock<Dependency>(It.IsNotNull<Type[]>(), resolver, DependencyLifetime.Singleton);
+
+            dependency.Object.Implementation.Should().Be(_contract);
+        }
+
+        [Fact]
         public void HasValidContracts()
         {
             _dependency.Object.Contracts.Should().Contain(_contract);
@@ -114,6 +123,17 @@ namespace Velo.Tests.DependencyInjection.Dependencies
         {
             var notApplicable = typeof(IDependency);
             _dependency.Object.Applicable(notApplicable).Should().BeFalse();
+        }
+
+        [Fact]
+        public void ThrowIfBuildWithInvalidLifetime()
+        {
+            const DependencyLifetime badLifetime = (DependencyLifetime) byte.MaxValue;
+
+            var resolver = new Mock<DependencyResolver>(_implementation).Object;
+            Assert
+                .Throws<InvalidDataException>(() => Dependency
+                    .Build(badLifetime, new[] {_contract}, resolver));
         }
 
         private static Mock<Dependency> BuildDependency(Type[] contracts,

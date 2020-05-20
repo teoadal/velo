@@ -4,7 +4,6 @@ using FluentAssertions;
 using Velo.Settings.Provider;
 using Velo.TestsModels.Boos;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Settings.Provider
 {
@@ -12,7 +11,7 @@ namespace Velo.Tests.Settings.Provider
     {
         private readonly NullSettingsProvider _provider;
 
-        public NullProviderShould(ITestOutputHelper output) : base(output)
+        public NullProviderShould()
         {
             _provider = new NullSettingsProvider();
         }

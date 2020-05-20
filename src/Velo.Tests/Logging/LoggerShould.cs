@@ -10,7 +10,6 @@ using Velo.Logging.Writers;
 using Velo.Serialization.Models;
 using Velo.TestsModels.Boos;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Logging
 {
@@ -26,7 +25,7 @@ namespace Velo.Tests.Logging
         private readonly Mock<ILogWriter> _logWriter;
         private readonly Type _sender;
 
-        public LoggerShould(ITestOutputHelper output) : base(output)
+        public LoggerShould()
         {
             _logWriter = new Mock<ILogWriter>();
 
@@ -35,7 +34,7 @@ namespace Velo.Tests.Logging
                 .AddLogWriter(_logWriter.Object)
                 .BuildProvider();
 
-            _logger = provider.GetRequiredService<ILogger<LoggerShould>>();
+            _logger = provider.GetRequired<ILogger<LoggerShould>>();
             _sender = typeof(LoggerShould);
         }
 
@@ -46,7 +45,7 @@ namespace Velo.Tests.Logging
                 .AddLogging()
                 .BuildProvider();
 
-            provider.GetService<ILogger<LoggerShould>>().Should().NotBeNull();
+            provider.Get<ILogger<LoggerShould>>().Should().NotBeNull();
         }
 
         [Theory]
@@ -161,7 +160,7 @@ namespace Velo.Tests.Logging
 
         private void VerifyLogWrite(LogLevel level, Times? times = null)
         {
-            if (times == null) times = Times.AtLeastOnce();
+            times ??= Times.AtLeastOnce();
 
             _logWriter.Verify(writer => writer.Write(
                 It.Is<LogContext>(context => 

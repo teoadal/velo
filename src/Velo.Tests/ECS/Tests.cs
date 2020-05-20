@@ -14,7 +14,6 @@ using Velo.ECS.Sources.Json;
 using Velo.Serialization;
 using Velo.TestsModels.ECS;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.ECS
 {
@@ -27,12 +26,12 @@ namespace Velo.Tests.ECS
         private readonly IJsonConverter _converter;
         private readonly JConverter _jsonConverter;
 
-        public Tests(ITestOutputHelper output) : base(output)
+        public Tests()
         {
             _jsonConverter = new DependencyCollection()
                 .AddECS()
                 .BuildProvider()
-                .GetRequiredService<JConverter>();
+                .GetRequired<JConverter>();
 
             _converter = _jsonConverter.Converters.Get(typeof(TestAsset));
 
@@ -93,7 +92,7 @@ namespace Velo.Tests.ECS
             var serialized = _jsonConverter.Serialize(_actors);
             using var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(serialized));
 
-            var actors = provider.GetRequiredService<IActorContext>();
+            var actors = provider.GetRequired<IActorContext>();
             var actorsSource = provider.Activate<JsonStreamSource<Actor>>(new LocalList<object>(memoryStream));
             
             actors.Load(actorsSource);
@@ -112,7 +111,7 @@ namespace Velo.Tests.ECS
                 .AddJsonAssets(memoryStream)
                 .BuildProvider();
 
-            var assets = provider.GetRequiredService<IAssetContext>();
+            var assets = provider.GetRequired<IAssetContext>();
 
             var actual = (TestAsset) assets.Get(_asset.Id);
 

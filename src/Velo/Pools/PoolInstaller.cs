@@ -22,10 +22,10 @@ namespace Velo.DependencyInjection
         }
 
         public static DependencyCollection AddPool<T>(this DependencyCollection dependencies,
-            Func<IDependencyScope, T> builder, int capacity = 10)
+            Func<IServiceProvider, T> builder, int capacity = 10)
             where T : class
         {
-            dependencies.AddSingleton<IPool<T>>(scope => new Pool<T>(capacity, () => builder(scope)));
+            dependencies.AddSingleton<IPool<T>>(provider => new Pool<T>(capacity, () => builder(provider)));
             return dependencies;
         }
     }

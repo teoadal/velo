@@ -1,4 +1,5 @@
 using System;
+using Velo.CQRS.Notifications.Pipeline;
 using Velo.DependencyInjection;
 using Velo.DependencyInjection.Dependencies;
 using Velo.DependencyInjection.Factories;
@@ -6,20 +7,13 @@ using Velo.DependencyInjection.Resolvers;
 using Velo.Threading;
 using Velo.Utils;
 
-namespace Velo.CQRS.Notifications.Pipeline
+namespace Velo.CQRS.Notifications
 {
     internal sealed class NotificationPipelineFactory : IDependencyFactory
     {
-        private readonly Type _contract;
-
-        public NotificationPipelineFactory()
-        {
-            _contract = typeof(INotificationPipeline<>);
-        }
-
         public bool Applicable(Type contract)
         {
-            return ReflectionUtils.IsGenericTypeImplementation(contract, _contract);
+            return ReflectionUtils.IsGenericTypeImplementation(contract, Types.NotificationPipeline);
         }
 
         public IDependency BuildDependency(Type contract, IDependencyEngine engine)

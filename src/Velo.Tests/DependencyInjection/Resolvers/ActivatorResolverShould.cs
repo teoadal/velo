@@ -1,52 +1,94 @@
 using System;
-using System.Reflection;
+using System.Collections.Generic;
+using AutoFixture.Xunit2;
 using FluentAssertions;
 using Moq;
-using Velo.DependencyInjection;
 using Velo.DependencyInjection.Resolvers;
 using Velo.TestsModels.Boos;
+using Velo.TestsModels.DependencyInjection;
 using Velo.Utils;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.DependencyInjection.Resolvers
 {
     public class ActivatorResolverShould : DITestClass
     {
         private readonly Type _contract;
-        private readonly Mock<IDependencyScope> _scope;
         private readonly Type _implementation;
+        private readonly Mock<IServiceProvider> _services;
+
         private readonly ActivatorResolver _resolver;
 
-        public ActivatorResolverShould(ITestOutputHelper output) : base(output)
+        public ActivatorResolverShould()
         {
             _contract = typeof(IBooRepository);
             _implementation = typeof(BooRepository);
-            _scope = MockScope();
+
+            _services = new Mock<IServiceProvider>();
+
+            foreach (var parameter in ReflectionUtils.GetConstructorParameters(_implementation))
+            {
+                var parameterType = parameter.ParameterType;
+                _services
+                    .Setup(services => services.GetService(parameterType))
+                    .Returns(MockOf(parameterType));
+            }
 
             _resolver = new ActivatorResolver(_implementation);
         }
 
-        [Fact]
-        public void CallScope()
+        [Theory, AutoData]
+        public void ActivateManyTime(int count)
         {
-            var constructor = ReflectionUtils.GetConstructor(_implementation);
+            count = EnsureValid(count);
 
-            _resolver.Resolve(_contract, _scope.Object);
+            for (var i = 0; i < count; i++)
+            {
+                _resolver
+                    .Invoking(resolver => resolver.Resolve(_contract, _services.Object))
+                    .Should().NotThrow();
+            }
 
-            _scope.Verify(scope => scope.Activate(_implementation, constructor));
+            foreach (var parameter in ReflectionUtils.GetConstructorParameters(_implementation))
+            {
+                _services
+                    .Verify(services => services
+                        .GetService(parameter.ParameterType), Times.Exactly(count));
+            }
         }
-        
+
+        [Fact]
+        public void CallServiceProvider()
+        {
+            _resolver
+                .Invoking(resolver => resolver.Resolve(_contract, _services.Object))
+                .Should().NotThrow();
+
+            _services.Verify(services => services.GetService(It.IsNotNull<Type>()));
+        }
+
         [Fact]
         public void ResolveInstance()
         {
-            var instance = new Mock<IBooRepository>();
+            var instance = _resolver.Resolve(_contract, _services.Object);
+            instance.Should().BeOfType(_implementation);
+        }
 
-            _scope
-                .Setup(scope => scope.Activate(_implementation, It.IsNotNull<ConstructorInfo>()))
-                .Returns(instance.Object);
+        [Fact]
+        public void ThrowIfDependencyNotRegistered()
+        {
+            _services.Reset();
 
-            _resolver.Resolve(_contract, _scope.Object).Should().Be(instance.Object);
+            _resolver
+                .Invoking(resolver => resolver.Resolve(_contract, _services.Object))
+                .Should().Throw<KeyNotFoundException>();
+        }
+        
+        [Fact]
+        public void ThrowIfPublicConstructorNotFound()
+        {
+            var implementation = typeof(PrivateConstructorClass);
+            Assert.Throws<KeyNotFoundException>(() => new ActivatorResolver(implementation));
         }
     }
 }

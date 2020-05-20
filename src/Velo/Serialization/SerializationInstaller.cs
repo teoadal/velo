@@ -10,7 +10,7 @@ namespace Velo.DependencyInjection
             CultureInfo? culture = null)
         {
             dependencies
-                .AddSingleton<IConvertersCollection>(scope => new ConvertersCollection(scope, culture))
+                .AddSingleton<IConvertersCollection>(provider => new ConvertersCollection(provider, culture))
                 .AddSingleton<JConverter>();
 
             return dependencies;

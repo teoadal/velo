@@ -6,16 +6,11 @@ using Newtonsoft.Json;
 using Velo.Settings.Sources;
 using Velo.TestsModels;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Settings.Sources
 {
     public class JsonFileSourceShould : TestClass
     {
-        public JsonFileSourceShould(ITestOutputHelper output) : base(output)
-        {
-        }
-
         [Fact]
         public void ReturnValues()
         {
@@ -35,7 +30,7 @@ namespace Velo.Tests.Settings.Sources
                 var fileSource = new JsonFileSource(fileName, true);
                 fileSource.TryGet(out var jsonObject);
 
-                var converter = TestUtils.BuildConvertersCollection().Get<BigObject>();
+                var converter = BuildConvertersCollection().Get<BigObject>();
                 converter.Read(jsonObject).Should().BeEquivalentTo(values);
             }
             catch

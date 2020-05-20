@@ -1,22 +1,40 @@
+using System.Collections;
+using System.Linq;
+using FluentAssertions;
 using Velo.Collections.Enumerators;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Collections.Enumerators
 {
     public class EmptyEnumeratorShould : TestClass
     {
-        public EmptyEnumeratorShould(ITestOutputHelper output) : base(output)
+        private readonly EmptyEnumerator<int> _enumerator;
+
+        public EmptyEnumeratorShould()
         {
+            _enumerator = EmptyEnumerator<int>.Instance;
         }
 
         [Fact]
         public void Empty()
         {
-            var instance = EmptyEnumerator<int>.Instance;
-            
-            Assert.Equal(default, instance.Current);
-            Assert.False(instance.MoveNext());
+            Assert.Equal(default, _enumerator.Current);
+            Assert.False(_enumerator.MoveNext());
+        }
+
+        [Fact]
+        public void EnumerateAsEnumerator()
+        {
+            var enumerator = ((IEnumerable) _enumerator).GetEnumerator();
+
+            Assert.Equal(default, enumerator.Current);
+            Assert.False(enumerator.MoveNext());
+        }
+
+        [Fact]
+        public void EnumerateAsEnumerable()
+        {
+            _enumerator.Count().Should().Be(0);
         }
     }
 }

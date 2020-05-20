@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Velo.Utils;
 
 namespace Velo.CQRS.Queries.Pipeline
 {
@@ -10,6 +11,8 @@ namespace Velo.CQRS.Queries.Pipeline
         private IQueryProcessor<TQuery, TResult> _processor;
         private IQueryPostProcessor<TQuery, TResult>[] _postProcessors;
 
+        private bool _disposed;
+        
         public QuerySequentialPipeline(
             IQueryPreProcessor<TQuery, TResult>[] preProcessors,
             IQueryProcessor<TQuery, TResult> processor,
@@ -22,6 +25,8 @@ namespace Velo.CQRS.Queries.Pipeline
 
         public async Task<TResult> GetResponse(TQuery query, CancellationToken cancellationToken)
         {
+            if (_disposed) throw Error.Disposed(nameof(IQueryPipeline<TQuery, TResult>));
+            
             cancellationToken.ThrowIfCancellationRequested();
 
             foreach (var preProcessor in _preProcessors)
@@ -49,6 +54,7 @@ namespace Velo.CQRS.Queries.Pipeline
             _preProcessors = null!;
             _processor = null!;
             _postProcessors = null!;
+            _disposed = true;
         }
     }
 }

@@ -43,7 +43,7 @@ namespace Velo.CQRS
 
         // ReSharper disable ConvertClosureToMethodGroup
         private static readonly Func<Type, Type> CommandPipelineTypeBuilder = t => CommandPipeline.MakeGenericType(t);
-        private static readonly Func<Type, Type> QueryPipelineTypeBuilder = t => BuildQueryPipelineType(t);
+        private static readonly Func<Type, Type> QueryPipelineTypeBuilder = BuildQueryPipelineType;
         private static readonly Func<Type, Type> NotificationPipelineTypeBuilder = t => NotificationPipeline.MakeGenericType(t);
         // ReSharper restore ConvertClosureToMethodGroup
 

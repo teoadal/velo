@@ -10,8 +10,6 @@ namespace Velo.DependencyInjection.Dependencies
 
         public DependencyLifetime Lifetime => DependencyLifetime.Singleton;
 
-        public DependencyResolver Resolver => this;
-
         private readonly Type[] _contracts;
         private readonly object _instance;
 
@@ -34,9 +32,9 @@ namespace Velo.DependencyInjection.Dependencies
             return Array.IndexOf(_contracts, request) != -1;
         }
 
-        public object GetInstance(Type contract, IDependencyScope scope) => _instance;
+        public object GetInstance(Type contract, IServiceProvider services) => _instance;
 
-        protected override object ResolveInstance(Type contract, IDependencyScope scope) => _instance;
+        protected override object ResolveInstance(Type contract, IServiceProvider services) => _instance;
 
         public void Dispose()
         {

@@ -8,7 +8,6 @@ using Velo.ECS.Systems;
 using Velo.ECS.Systems.Handlers;
 using Velo.TestsModels.ECS;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.ECS.Systems.Handlers
 {
@@ -20,7 +19,7 @@ namespace Velo.Tests.ECS.Systems.Handlers
         
         private readonly SystemHandlerFactory _factory;
         
-        public SystemHandlerFactoryShould(ITestOutputHelper output) : base(output)
+        public SystemHandlerFactoryShould()
         {
             _engine = new Mock<IDependencyEngine>();
             _systemType = typeof(IUpdateSystem);
@@ -40,7 +39,7 @@ namespace Velo.Tests.ECS.Systems.Handlers
         [MemberData(nameof(Lifetimes))]
         public void CreateWithValidLifetime(DependencyLifetime lifetime)
         {
-            _engine.SetupApplicable(_systemType, TestUtils.MockDependency(lifetime).Object);
+            SetupApplicable(_engine, _systemType, MockDependency(lifetime).Object);
             
             var dependency = _factory.BuildDependency(_handlerType, _engine.Object);
             dependency.Lifetime.Should().Be(lifetime);
@@ -51,33 +50,28 @@ namespace Velo.Tests.ECS.Systems.Handlers
         {
             var parallelSystemType = typeof(ParallelSystem);
 
-            _engine.SetupApplicable(_systemType, Many(() => TestUtils
-                    .MockDependency(DependencyLifetime.Singleton, parallelSystemType)
-                    .SetupResolverImplementation(parallelSystemType)
-                    .Object)
-                .Append(TestUtils
-                    .MockDependency(DependencyLifetime.Singleton, _systemType)
-                    .SetupResolverImplementation(_systemType).Object)
+            SetupApplicable(_engine, _systemType, Many(() => MockDependency(DependencyLifetime.Singleton, parallelSystemType).Object)
+                .Append(MockDependency(DependencyLifetime.Singleton, _systemType).Object)
                 .ToArray());
             
             var dependency = _factory.BuildDependency(_handlerType, _engine.Object);
-            dependency.Resolver.Implementation.Should().Be(typeof(SystemFullHandler<>).MakeGenericType(_systemType));
+            dependency.Implementation.Should().Be(typeof(SystemFullHandler<>).MakeGenericType(_systemType));
         }
         
         [Fact]
         public void CreateNullWithoutSystems()
         {
             var dependency = _factory.BuildDependency(_handlerType, _engine.Object);
-            dependency.Resolver.Implementation.Should().Be(typeof(SystemNullHandler<>).MakeGenericType(_systemType));
+            dependency.Implementation.Should().Be(typeof(SystemNullHandler<>).MakeGenericType(_systemType));
         }
         
         [Fact]
         public void CreateSingleWithOneSystem()
         {
-            _engine.SetupApplicable(_systemType, Mock.Of<IDependency>());
+            SetupApplicable(_engine, _systemType, Mock.Of<IDependency>());
             
             var dependency = _factory.BuildDependency(_handlerType, _engine.Object);
-            dependency.Resolver.Implementation.Should().Be(typeof(SystemSingleHandler<>).MakeGenericType(_systemType));
+            dependency.Implementation.Should().Be(typeof(SystemSingleHandler<>).MakeGenericType(_systemType));
         }
 
         [Fact]
@@ -85,25 +79,19 @@ namespace Velo.Tests.ECS.Systems.Handlers
         {
             var parallelSystemType = typeof(ParallelSystem);
 
-            _engine.SetupApplicable(_systemType, Many(() => TestUtils
-                .MockDependency(DependencyLifetime.Singleton, parallelSystemType)
-                .SetupResolverImplementation(parallelSystemType)
-                .Object));
+            SetupApplicable(_engine, _systemType, Many(() => MockDependency(DependencyLifetime.Singleton, parallelSystemType).Object));
             
             var dependency = _factory.BuildDependency(_handlerType, _engine.Object);
-            dependency.Resolver.Implementation.Should().Be(typeof(SystemParallelHandler<>).MakeGenericType(_systemType));
+            dependency.Implementation.Should().Be(typeof(SystemParallelHandler<>).MakeGenericType(_systemType));
         }
         
         [Fact]
         public void CreateSequentialWithoutParallelSystems()
         {
-            _engine.SetupApplicable(_systemType, Many(() => TestUtils
-                .MockDependency(DependencyLifetime.Singleton, _systemType)
-                .SetupResolverImplementation(_systemType)
-                .Object));
+            SetupApplicable(_engine, _systemType, Many(() => MockDependency(DependencyLifetime.Singleton, _systemType).Object));
             
             var dependency = _factory.BuildDependency(_handlerType, _engine.Object);
-            dependency.Resolver.Implementation.Should().Be(typeof(SystemSequentialHandler<>).MakeGenericType(_systemType));
+            dependency.Implementation.Should().Be(typeof(SystemSequentialHandler<>).MakeGenericType(_systemType));
         }
         
         [Fact]

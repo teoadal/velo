@@ -1,119 +1,43 @@
 using System;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using Velo.Utils;
 
 namespace Velo.DependencyInjection
 {
-    public sealed class DependencyProvider : IDependencyScope
+    public sealed class DependencyProvider : IServiceProvider, IDisposable
     {
-        public event Action<IDependencyScope>? Destroy;
+        private readonly DependencyScope _defaultScope;
+        private readonly IDependencyEngine _engine;
+        private readonly object _lock;
 
         private bool _disposed;
-        private readonly IDependencyEngine? _engine;
-        private readonly object _lock;
-        private readonly DependencyProvider? _parent;
 
         internal DependencyProvider(IDependencyEngine engine)
         {
             _engine = engine;
             _lock = new object();
+
+            _defaultScope = new DependencyScope(_engine, _lock);
         }
 
-        private DependencyProvider(DependencyProvider parent)
+        public IDependencyScope StartScope()
         {
-            _parent = parent;
-            _lock = parent._lock;
+            return new DependencyScope(_engine, _lock);
         }
 
-        public IDependencyScope CreateScope()
-        {
-            return new DependencyProvider(this);
-        }
-
-        public object Activate(Type implementation, ConstructorInfo? constructor = null)
-        {
-            if (implementation.IsInterface || implementation.IsGenericTypeDefinition)
-            {
-                throw Error.InvalidOperation($"Type {ReflectionUtils.GetName(implementation)} can't be activated");
-            }
-
-            if (_disposed) throw Error.Disposed(nameof(DependencyProvider));
-
-            constructor ??= ReflectionUtils.GetConstructor(implementation);
-
-            if (constructor == null)
-            {
-                throw Error.DefaultConstructorNotFound(implementation);
-            }
-
-            var engine = GetEngine();
-            var parameters = constructor.GetParameters();
-
-            var parameterInstances = new object?[parameters.Length];
-
-            lock (_lock)
-            {
-                for (var i = parameters.Length - 1; i >= 0; i--)
-                {
-                    var parameter = parameters[i];
-                    var parameterType = parameter.ParameterType;
-                    var required = !parameter.HasDefaultValue;
-
-                    var dependency = required 
-                        ? engine.GetRequiredDependency(parameterType)
-                        : engine.GetDependency(parameterType);
-
-                    parameterInstances[i] = dependency?.GetInstance(parameterType, this);
-                }
-            }
-
-            return ReflectionUtils.TryInvoke(constructor, parameterInstances);
-        }
-
-        public object GetRequiredService(Type contract)
+        object? IServiceProvider.GetService(Type contract)
         {
             if (_disposed) throw Error.Disposed(nameof(DependencyProvider));
 
-            var engine = GetEngine();
-
-            lock (_lock)
-            {
-                var dependency = engine.GetRequiredDependency(contract);
-                return dependency.GetInstance(contract, this);
-            }
-        }
-
-        public object? GetService(Type contract)
-        {
-            if (_disposed) throw Error.Disposed(nameof(DependencyProvider));
-            var engine = GetEngine();
-
-            lock (_lock)
-            {
-                var dependency = engine.GetDependency(contract);
-                return dependency?.GetInstance(contract, this);
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private IDependencyEngine GetEngine()
-        {
-            if (_engine != null) return _engine;
-            return _parent == null
-                ? throw Error.InvalidOperation("Bad dependency provider configuration")
-                : _parent.GetEngine();
+            return _defaultScope.GetService(contract);
         }
 
         public void Dispose()
         {
             if (_disposed) return;
+
             _disposed = true; // contains self
 
-            var evt = Destroy;
-            evt?.Invoke(this);
-
-            _engine?.Dispose();
+            _engine.Dispose();
         }
     }
 }

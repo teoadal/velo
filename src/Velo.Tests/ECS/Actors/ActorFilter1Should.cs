@@ -10,7 +10,6 @@ using Velo.ECS.Actors.Filters;
 using Velo.ECS.Components;
 using Velo.TestsModels.ECS;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.ECS.Actors
 {
@@ -20,7 +19,7 @@ namespace Velo.Tests.ECS.Actors
         private readonly Mock<IActorContext> _actorContext;
         private readonly IActorFilter<TestComponent1> _actorFilter;
 
-        public ActorFilter1Should(ITestOutputHelper output) : base(output)
+        public ActorFilter1Should()
         {
             var components = new IComponent[] {new TestComponent1()};
             _actor = new TestActor(1, components);

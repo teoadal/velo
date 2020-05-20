@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using AutoFixture.Xunit2;
 using Velo.Pools;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.Pools
 {
@@ -11,7 +10,7 @@ namespace Velo.Tests.Pools
     {
         private readonly PoolArray<int> _arrayPool;
 
-        public PoolArrayTests(ITestOutputHelper output) : base(output)
+        public PoolArrayTests()
         {
             _arrayPool = new PoolArray<int>();
         }

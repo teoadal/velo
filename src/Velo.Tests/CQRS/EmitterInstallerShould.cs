@@ -11,17 +11,16 @@ using Velo.TestsModels.Emitting.Boos.Create;
 using Velo.TestsModels.Emitting.Boos.Get;
 using Velo.TestsModels.Emitting.Parallel;
 using Xunit;
-using Xunit.Abstractions;
 using Behaviour = Velo.TestsModels.Emitting.Boos.Get.Behaviour;
 using Processor = Velo.TestsModels.Emitting.Boos.Create.Processor;
 
 namespace Velo.Tests.CQRS
 {
-    public class EmitterInstallerShould : TestClass
+    public class EmitterInstallerShould : CQRSTestClass
     {
         private readonly DependencyCollection _dependencies;
 
-        public EmitterInstallerShould(ITestOutputHelper output) : base(output)
+        public EmitterInstallerShould()
         {
             _dependencies = new DependencyCollection();
         }
@@ -142,27 +141,11 @@ namespace Velo.Tests.CQRS
         }
 
         [Fact]
-        public void CreateCommandProcessorWithContext()
-        {
-            var processor = new Mock<Action<Command, IBooRepository>>();
-            _dependencies.CreateCommandProcessor(processor.Object);
-            _dependencies.Contains<ActionCommandProcessor<Command>>();
-        }
-
-        [Fact]
         public void CreateQueryProcessor()
         {
             var processor = new Mock<Func<Query, Boo>>();
             _dependencies.CreateQueryProcessor(processor.Object);
             _dependencies.Contains<ActionQueryProcessor<Query, Boo>>();
-        }
-
-        [Fact]
-        public void CreateQueryProcessorWithContext()
-        {
-            var processor = new Mock<Func<Query, IBooRepository, Boo>>();
-            _dependencies.CreateQueryProcessor(processor.Object);
-            _dependencies.Contains<ActionQueryProcessor<Query, IBooRepository, Boo>>();
         }
 
         [Fact]
@@ -176,38 +159,41 @@ namespace Velo.Tests.CQRS
         [Fact]
         public void ThrowIfAddNotCommandBehaviour()
         {
-            Assert.Throws<InvalidOperationException>(() => _dependencies.AddCommandBehaviour<Boo>());
+            _dependencies
+                .Invoking(dependencies => dependencies.AddCommandBehaviour<Boo>())
+                .Should().Throw<InvalidOperationException>();
         }
 
         [Fact]
         public void ThrowIfAddNotCommandProcessor()
         {
-            Assert.Throws<InvalidOperationException>(() => _dependencies.AddCommandProcessor<Boo>());
+            _dependencies
+                .Invoking(dependencies => dependencies.AddCommandProcessor<Boo>())
+                .Should().Throw<InvalidOperationException>();
         }
 
         [Fact]
         public void ThrowIfAddNotNotificationProcessor()
         {
-            Assert.Throws<InvalidOperationException>(() => _dependencies.AddNotificationProcessor<Boo>());
+            _dependencies
+                .Invoking(dependencies => dependencies.AddNotificationProcessor<Boo>())
+                .Should().Throw<InvalidOperationException>();
         }
 
         [Fact]
         public void ThrowIfAddNotQueryBehaviour()
         {
-            Assert.Throws<InvalidOperationException>(() => _dependencies.AddQueryBehaviour<Boo>());
+            _dependencies
+                .Invoking(dependencies => dependencies.AddQueryBehaviour<Boo>())
+                .Should().Throw<InvalidOperationException>();
         }
 
         [Fact]
         public void ThrowIfAddNotQueryProcessor()
         {
-            Assert.Throws<InvalidOperationException>(() => _dependencies.AddQueryProcessor<Boo>());
+            _dependencies
+                .Invoking(dependencies => dependencies.AddQueryProcessor<Boo>())
+                .Should().Throw<InvalidOperationException>();
         }
-
-        public static TheoryData<DependencyLifetime> Lifetimes => new TheoryData<DependencyLifetime>
-        {
-            DependencyLifetime.Scoped,
-            DependencyLifetime.Singleton,
-            DependencyLifetime.Transient
-        };
     }
 }

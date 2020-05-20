@@ -9,7 +9,6 @@ using Velo.ECS.Sources;
 using Velo.TestsModels.ECS;
 using Velo.Text;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Velo.Tests.ECS.Sources
 {
@@ -17,7 +16,7 @@ namespace Velo.Tests.ECS.Sources
     {
         private readonly SourceDescriptions _sourceDescriptions;
 
-        public SourceDescriptionsShould(ITestOutputHelper output) : base(output)
+        public SourceDescriptionsShould()
         {
             _sourceDescriptions = new SourceDescriptions();
         }
