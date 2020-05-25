@@ -27,7 +27,7 @@ namespace Velo.DependencyInjection
         public static DependencyCollection AddEnvironmentSettings(this DependencyCollection dependencies)
         {
             var dependency = new InstanceDependency(SettingsSourceContract, new EnvironmentSource());
-            dependencies.AddDependency(dependency);
+            dependencies.Add(dependency);
 
             return dependencies;
         }
@@ -36,7 +36,7 @@ namespace Velo.DependencyInjection
             string[] commandLineArgs)
         {
             var dependency = new InstanceDependency(SettingsSourceContract, new CommandLineSource(commandLineArgs));
-            dependencies.AddDependency(dependency);
+            dependencies.Add(dependency);
 
             return dependencies;
         }
@@ -45,7 +45,7 @@ namespace Velo.DependencyInjection
             string path = "appsettings.json", bool required = false)
         {
             var dependency = new InstanceDependency(SettingsSourceContract, new JsonFileSource(path, required));
-            dependencies.AddDependency(dependency);
+            dependencies.Add(dependency);
 
             return dependencies;
         }

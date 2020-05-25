@@ -38,7 +38,8 @@ namespace Velo.DependencyInjection.Factories
                         $"Dependency lifetime isn't supported for create {ReflectionUtils.GetName(contract)}");
             }
 
-            var resolver = new CompiledResolver(implementation.MakeGenericType(dependencyType), engine);
+            implementation = implementation.MakeGenericType(dependencyType);
+            var resolver = new DelegateResolver(implementation, provider => provider.Activate(implementation));
             return new SingletonDependency(new[] {contract}, resolver);
         }
     }

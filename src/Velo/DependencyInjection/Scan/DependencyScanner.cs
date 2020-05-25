@@ -2,20 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Velo.Utils;
 
 namespace Velo.DependencyInjection.Scan
 {
     public sealed class DependencyScanner
     {
         private readonly HashSet<Assembly> _assemblies;
-        private readonly List<IDependencyAllover> _alloverCollection;
+        private readonly List<IDependencyCollector> _collectors;
         private readonly DependencyCollection _dependencyCollection;
 
         internal DependencyScanner(DependencyCollection dependencyCollection)
         {
             _assemblies = new HashSet<Assembly>();
-            _alloverCollection = new List<IDependencyAllover>();
+            _collectors = new List<IDependencyCollector>();
             _dependencyCollection = dependencyCollection;
         }
 
@@ -33,81 +32,23 @@ namespace Velo.DependencyInjection.Scan
             return this;
         }
 
-        #region ScopedOf
-
-        public DependencyScanner ScopedOf(Type contract)
+        public DependencyScanner Register(Type contract, DependencyLifetime lifetime)
         {
             if (contract.IsGenericTypeDefinition)
             {
-                _alloverCollection.Add(new GenericInterfaceAllover(contract, DependencyLifetime.Scoped));
+                _collectors.Add(new GenericInterfaceCollector(contract, lifetime));
             }
             else
             {
-                _alloverCollection.Add(new AssignableAllover(contract, DependencyLifetime.Scoped));
+                _collectors.Add(new AssignableCollector(contract, lifetime));
             }
 
             return this;
         }
-
-        public DependencyScanner ScopedOf<TContract>()
-            where TContract : class
+        
+        public DependencyScanner UseCollector(IDependencyCollector collector)
         {
-            return ScopedOf(Typeof<TContract>.Raw);
-        }
-
-        #endregion
-
-        #region SingletonOf
-
-        public DependencyScanner SingletonOf<TContract>()
-            where TContract : class
-        {
-            return SingletonOf(Typeof<TContract>.Raw);
-        }
-
-        public DependencyScanner SingletonOf(Type contract)
-        {
-            if (contract.IsGenericTypeDefinition)
-            {
-                _alloverCollection.Add(new GenericInterfaceAllover(contract, DependencyLifetime.Singleton));
-            }
-            else
-            {
-                _alloverCollection.Add(new AssignableAllover(contract, DependencyLifetime.Singleton));
-            }
-
-            return this;
-        }
-
-        #endregion
-
-        #region TransientOf
-
-        public DependencyScanner TransientOf<TContract>()
-            where TContract : class
-        {
-            return TransientOf(Typeof<TContract>.Raw);
-        }
-
-        public DependencyScanner TransientOf(Type contract)
-        {
-            if (contract.IsGenericTypeDefinition)
-            {
-                _alloverCollection.Add(new GenericInterfaceAllover(contract, DependencyLifetime.Transient));
-            }
-            else
-            {
-                _alloverCollection.Add(new AssignableAllover(contract, DependencyLifetime.Transient));
-            }
-
-            return this;
-        }
-
-        #endregion
-
-        public DependencyScanner UseAllover(IDependencyAllover allover)
-        {
-            _alloverCollection.Add(allover);
+            _collectors.Add(collector);
 
             return this;
         }
@@ -124,9 +65,9 @@ namespace Velo.DependencyInjection.Scan
                         continue;
                     }
 
-                    foreach (var allover in _alloverCollection)
+                    foreach (var collector in _collectors)
                     {
-                        allover.TryRegister(_dependencyCollection, definedType);
+                        collector.TryRegister(_dependencyCollection, definedType);
                     }
                 }
             }

@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using Velo.Collections.Local;
 using Velo.DependencyInjection.Dependencies;
 using Velo.DependencyInjection.Factories;
+using Velo.DependencyInjection.Scan;
 using Velo.Utils;
 
 namespace Velo.DependencyInjection
@@ -103,6 +104,8 @@ namespace Velo.DependencyInjection
 
         #endregion
 
+        #region AddInstance
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static DependencyCollection AddInstance(
             this DependencyCollection dependencies,
@@ -111,6 +114,17 @@ namespace Velo.DependencyInjection
         {
             return dependencies.AddInstance(new[] {contract}, instance);
         }
+
+        public static DependencyCollection AddInstance<TContract>(
+            this DependencyCollection dependencies,
+            TContract instance)
+            where TContract : class
+        {
+            var contracts = new[] {Typeof<TContract>.Raw};
+            return dependencies.Add(new InstanceDependency(contracts, instance));
+        }
+
+        #endregion
 
         internal static DependencyCollection AddFactory<TContract, TImplementation>(
             this DependencyCollection dependencies,
@@ -365,7 +379,7 @@ namespace Velo.DependencyInjection
         {
             return (T[]?) services.GetService(Typeof<T[]>.Raw);
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object GetRequired(this IServiceProvider services, Type contract)
         {
@@ -384,7 +398,7 @@ namespace Velo.DependencyInjection
             var contract = Typeof<T[]>.Raw;
             return (T[]) services.GetService(contract) ?? throw Error.DependencyNotRegistered(contract);
         }
-        
+
         #endregion
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -409,11 +423,54 @@ namespace Velo.DependencyInjection
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static DependencyLifetime GetLifetime(this DependencyCollection dependencies, Type contract)
+        {
+            return dependencies.GetRequiredDependency(contract).Lifetime;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static DependencyLifetime GetLifetime<TContract>(this DependencyCollection dependencies)
             where TContract : class
         {
-            return dependencies.GetLifetime(Typeof<TContract>.Raw);
+            return dependencies.GetRequiredDependency(Typeof<TContract>.Raw).Lifetime;
         }
+
+        #region Register collector
+
+        public static DependencyScanner RegisterAsScoped(this DependencyScanner scanner, Type contract)
+        {
+            return scanner.Register(contract, DependencyLifetime.Scoped);
+        }
+
+        public static DependencyScanner RegisterAsScoped<TContract>(this DependencyScanner scanner)
+            where TContract : class
+        {
+            return scanner.Register(Typeof<TContract>.Raw, DependencyLifetime.Scoped);
+        }
+
+        public static DependencyScanner RegisterAsSingleton(this DependencyScanner scanner, Type contract)
+        {
+            return scanner.Register(contract, DependencyLifetime.Singleton);
+        }
+
+        public static DependencyScanner RegisterAsSingleton<TContract>(this DependencyScanner scanner)
+            where TContract : class
+        {
+            return scanner.Register(Typeof<TContract>.Raw, DependencyLifetime.Singleton);
+        }
+
+        public static DependencyScanner RegisterAsTransient(this DependencyScanner scanner, Type contract)
+        {
+            return scanner.Register(contract, DependencyLifetime.Transient);
+        }
+
+        public static DependencyScanner RegisterAsTransient<TContract>(this DependencyScanner scanner)
+            where TContract : class
+        {
+            return scanner.Register(Typeof<TContract>.Raw, DependencyLifetime.Transient);
+        }
+
+        #endregion
 
         private static void EnsureCanActivated(Type implementation)
         {

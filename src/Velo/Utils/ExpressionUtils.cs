@@ -35,47 +35,6 @@ namespace Velo.Utils
                 Expression.Default(type))).Compile();
         }
 
-        public static Delegate BuildDecrement(Type owner, PropertyInfo propertyInfo)
-        {
-            var instance = Expression.Parameter(owner, "instance");
-            var property = Expression.Property(instance, propertyInfo);
-
-            var body = Expression.Block(
-                Expression.Assign(property, Expression.Decrement(property)),
-                VoidResult);
-
-            return Expression.Lambda(body, instance).Compile();
-        }
-
-        public static Delegate BuildIncrement(Type owner, PropertyInfo propertyInfo)
-        {
-            var instance = Expression.Parameter(owner, "instance");
-            var property = Expression.Property(instance, propertyInfo);
-
-            var body = Expression.Block(
-                Expression.Assign(property, Expression.Increment(property)),
-                VoidResult);
-
-            return Expression.Lambda(body, instance).Compile();
-        }
-
-        public static Delegate BuildInitializer(Type owner, PropertyInfo propertyInfo)
-        {
-            var instance = Expression.Parameter(owner, "instance");
-            var property = Expression.Property(instance, propertyInfo);
-
-            var constructor = ReflectionUtils.GetEmptyConstructor(propertyInfo.PropertyType);
-            var assign = Expression.Assign(property, constructor == null
-                ? (Expression) Expression.Default(propertyInfo.PropertyType)
-                : Expression.New(constructor));
-
-            var body = Expression.Block(
-                assign,
-                VoidResult);
-
-            return Expression.Lambda(body, instance).Compile();
-        }
-
         public static Delegate BuildGetter(Type owner, PropertyInfo propertyInfo)
         {
             var instance = Expression.Parameter(owner, "instance");

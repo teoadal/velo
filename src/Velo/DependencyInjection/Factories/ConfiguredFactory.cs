@@ -23,6 +23,7 @@ namespace Velo.DependencyInjection.Factories
             _contract = contract;
             _lifetime = lifetime;
             _implementation = implementation;
+
             _nullService = nullService;
             _nullServicePredicate = nullServicePredicate;
         }

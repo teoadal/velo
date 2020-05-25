@@ -7,12 +7,12 @@ using Velo.Utils;
 
 namespace Velo.CQRS
 {
-    internal sealed class ProcessorsAllover : IDependencyAllover
+    internal sealed class ProcessorsCollector : IDependencyCollector
     {
         private readonly DependencyLifetime _lifetime;
         private readonly Type[] _processorTypes;
 
-        public ProcessorsAllover(DependencyLifetime lifetime)
+        public ProcessorsCollector(DependencyLifetime lifetime)
         {
             _lifetime = lifetime;
 

@@ -31,7 +31,7 @@ namespace Velo.DependencyInjection
             LogLevel level = LogLevel.Debug)
         {
             var dependency = new InstanceDependency(LogWriterContracts, new DefaultConsoleWriter(level));
-            dependencies.AddDependency(dependency);
+            dependencies.Add(dependency);
 
             return dependencies;
         }
@@ -42,7 +42,7 @@ namespace Velo.DependencyInjection
             filePath ??= $"{AppDomain.CurrentDomain.FriendlyName}.log";
 
             var dependency = new InstanceDependency(LogWriterContracts, new DefaultFileWriter(filePath, level));
-            dependencies.AddDependency(dependency);
+            dependencies.Add(dependency);
 
             return dependencies;
         }

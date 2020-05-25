@@ -50,6 +50,18 @@ namespace Velo.Collections
             }
         }
 
+        public static void DisposeValuesIfDisposable<T>(List<T> list)
+            where T : class
+        {
+            foreach (var value in list)
+            {
+                if (ReflectionUtils.IsDisposable(value, out var disposable))
+                {
+                    disposable.Dispose();
+                }
+            }
+        }
+        
         public static void EnsureCapacity<T>(ref T[] array, int capacity)
         {
             if (array.Length < capacity)

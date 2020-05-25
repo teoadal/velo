@@ -60,7 +60,7 @@ namespace Velo.Tests.DependencyInjection.Resolvers
         public void CallDependencyInstanceOnBuildOrOnResolve(DependencyLifetime lifetime)
         {
             var contract = typeof(ISettingsProvider);
-            var dependency = MockDependency<ISettingsProvider>(_services, lifetime);
+            var dependency = MockDependency<ISettingsProvider>(lifetime, _services);
 
             _engine
                 .Setup(engine => engine.GetRequiredDependency(contract))

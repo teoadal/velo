@@ -17,14 +17,14 @@ namespace Velo.DependencyInjection
             _engine = new DependencyEngine(capacity);
         }
 
-        #region AddDependency
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public DependencyCollection AddDependency(IDependency dependency)
+        public DependencyCollection Add(IDependency dependency)
         {
             _engine.AddDependency(dependency);
             return this;
         }
+
+        #region AddDependency
 
         public DependencyCollection AddDependency(Type contract, Type implementation, DependencyLifetime lifetime)
         {
@@ -42,7 +42,7 @@ namespace Velo.DependencyInjection
         {
             var resolver = DependencyResolver.Build(lifetime, implementation, _engine);
             var dependency = Dependency.Build(lifetime, contracts, resolver);
-            return AddDependency(dependency);
+            return Add(dependency);
         }
 
         public DependencyCollection AddDependency<TResult>(
@@ -65,7 +65,7 @@ namespace Velo.DependencyInjection
             var resolver = new DelegateResolver<TResult>(builder);
 
             var dependency = Dependency.Build(lifetime, contracts, resolver);
-            return AddDependency(dependency);
+            return Add(dependency);
         }
 
         #endregion
@@ -76,21 +76,10 @@ namespace Velo.DependencyInjection
             return this;
         }
 
-        #region AddInstance
-
         public DependencyCollection AddInstance(Type[] contracts, object instance)
         {
-            return AddDependency(new InstanceDependency(contracts, instance));
+            return Add(new InstanceDependency(contracts, instance));
         }
-
-        public DependencyCollection AddInstance<TContract>(TContract instance)
-            where TContract : class
-        {
-            var contracts = new[] {Typeof<TContract>.Raw};
-            return AddDependency(new InstanceDependency(contracts, instance));
-        }
-
-        #endregion
 
         public DependencyProvider BuildProvider()
         {
@@ -98,7 +87,7 @@ namespace Velo.DependencyInjection
 
             var providerContracts = new[] {Typeof<DependencyProvider>.Raw, Typeof<IServiceProvider>.Raw};
             var providerDependency = new InstanceDependency(providerContracts, provider);
-            
+
             _engine.AddDependency(providerDependency);
 
             return provider;
@@ -108,14 +97,9 @@ namespace Velo.DependencyInjection
 
         public IDependency[] GetApplicable(Type contract) => _engine.GetApplicable(contract);
 
-        public IDependency? GetDependency(Type contract)
-        {
-            return _engine.GetDependency(contract);
-        }
+        public IDependency? GetDependency(Type contract) => _engine.GetDependency(contract);
 
         public IDependency GetRequiredDependency(Type contract) => _engine.GetRequiredDependency(contract);
-
-        public DependencyLifetime GetLifetime(Type contract) => _engine.GetRequiredDependency(contract).Lifetime;
 
         public DependencyCollection Scan(Action<DependencyScanner> action)
         {

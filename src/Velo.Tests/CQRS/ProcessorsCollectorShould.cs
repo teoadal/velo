@@ -4,11 +4,11 @@ using Xunit;
 
 namespace Velo.Tests.CQRS
 {
-    public class ProcessorsAlloverShould : CQRSTestClass
+    public class ProcessorsCollectorShould : CQRSTestClass
     {
         private readonly DependencyCollection _dependencies;
 
-        public ProcessorsAlloverShould()
+        public ProcessorsCollectorShould()
         {
             _dependencies = new DependencyCollection()
                 .Scan(scanner => scanner

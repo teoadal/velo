@@ -61,6 +61,18 @@ namespace Velo.Tests.Collections
         }
 
         [Fact]
+        public void DisposeValuesIfDisposable_List()
+        {
+            var collection = new List<IRepository>();
+            var booRepository = new BooRepository(null);
+            collection.Add(booRepository);
+            
+            CollectionUtils.DisposeValuesIfDisposable(collection);
+
+            booRepository.Disposed.Should().BeTrue();
+        }
+        
+        [Fact]
         public void EnsureCapacity()
         {
             var array = new int[0];

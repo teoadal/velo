@@ -26,6 +26,8 @@ namespace Velo.DependencyInjection.Dependencies
             {
                 disposable.Dispose();
             }
+
+            _instance = null;
         }
     }
 }

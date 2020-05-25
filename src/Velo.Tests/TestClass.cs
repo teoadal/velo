@@ -41,6 +41,10 @@ namespace Velo.Tests
             if (contract != null)
             {
                 dependency
+                    .Setup(d => d.Applicable(contract))
+                    .Returns(true);
+
+                dependency
                     .SetupGet(d => d.Contracts)
                     .Returns(new[] {contract});
 
@@ -53,27 +57,19 @@ namespace Velo.Tests
         }
 
         protected static Mock<IDependency> MockDependency<T>(
-            IServiceProvider serviceProvider,
-            DependencyLifetime lifetime = DependencyLifetime.Singleton) where T : class
+            DependencyLifetime lifetime = DependencyLifetime.Singleton,
+            IServiceProvider serviceProvider = null) where T : class
         {
             var contract = typeof(T);
 
-            var dependency = new Mock<IDependency>();
-            dependency
-                .SetupGet(d => d.Lifetime)
-                .Returns(lifetime);
+            var dependency = MockDependency(lifetime, contract);
 
-            dependency
-                .SetupGet(d => d.Contracts)
-                .Returns(new[] {contract});
-
-            dependency
-                .SetupGet(d => d.Implementation)
-                .Returns(contract);
-
-            dependency
-                .Setup(d => d.GetInstance(contract, serviceProvider))
-                .Returns(Mock.Of<T>());
+            if (serviceProvider != null)
+            {
+                dependency
+                    .Setup(d => d.GetInstance(contract, serviceProvider))
+                    .Returns(Mock.Of<T>());
+            }
 
             return dependency;
         }
@@ -147,11 +143,18 @@ namespace Velo.Tests
             var dependencies = Enumerable
                 .Range(0, count)
                 .Select(_ => new Mock<IDependency>())
-                .Do(dependency => dependency.SetupGet(d => d.Lifetime).Returns(lifetime))
-                .Do(dependency => dependency.SetupGet(d => d.Implementation).Returns(type))
+                .Do(dependency => dependency
+                    .SetupGet(d => d.Lifetime)
+                    .Returns(lifetime))
+                .Do(dependency => dependency
+                    .SetupGet(d => d.Implementation)
+                    .Returns(type))
                 .ToArray();
-            
-            dependencyEngine.Setup(engine => engine.Contains(type)).Returns(true);
+
+            dependencyEngine
+                .Setup(engine => engine.Contains(type))
+                .Returns(true);
+
             dependencyEngine
                 .Setup(engine => engine.GetApplicable(type))
                 .Returns(dependencies.Select(d => d.Object).ToArray());
@@ -175,7 +178,10 @@ namespace Velo.Tests
             Type type,
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
         {
-            dependencyEngine.Setup(engine => engine.Contains(type)).Returns(true);
+            dependencyEngine
+                .Setup(engine => engine.Contains(type))
+                .Returns(true);
+
             dependencyEngine
                 .Setup(engine => engine.GetRequiredDependency(type.MakeArrayType()))
                 .Returns(Mock.Of<IDependency>(d => d.Lifetime == lifetime));

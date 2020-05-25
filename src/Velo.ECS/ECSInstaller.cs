@@ -71,7 +71,7 @@ namespace Velo.DependencyInjection
             if (assetSource == null) throw Error.Null(nameof(assetSource));
 
             var dependency = new InstanceDependency(AssetSourceContracts, assetSource);
-            dependencies.AddDependency(dependency);
+            dependencies.Add(dependency);
 
             return dependencies;
         }
@@ -96,7 +96,7 @@ namespace Velo.DependencyInjection
             var instance = new DelegateSource<Asset>(assets);
             var dependency = new InstanceDependency(AssetSourceContracts, instance);
 
-            dependencies.AddDependency(dependency);
+            dependencies.Add(dependency);
 
             return dependencies;
         }

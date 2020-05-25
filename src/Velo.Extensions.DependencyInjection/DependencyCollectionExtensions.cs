@@ -46,7 +46,7 @@ namespace Velo.DependencyInjection
                 var contracts = new[] {descriptor.ServiceType};
                 var resolver = BuildDelegateResolver(descriptor);
 
-                dependencies.AddDependency(new SingletonDependency(contracts, resolver));
+                dependencies.Add(new SingletonDependency(contracts, resolver));
             }
         }
 
@@ -61,7 +61,7 @@ namespace Velo.DependencyInjection
                 var contracts = new[] {descriptor.ServiceType};
                 var resolver = BuildDelegateResolver(descriptor);
 
-                dependencies.AddDependency(new ScopedDependency(contracts, resolver));
+                dependencies.Add(new ScopedDependency(contracts, resolver));
             }
         }
 
@@ -76,7 +76,7 @@ namespace Velo.DependencyInjection
                 var contracts = new[] {descriptor.ServiceType};
                 var resolver = BuildDelegateResolver(descriptor);
 
-                dependencies.AddDependency(new TransientDependency(contracts, resolver));
+                dependencies.Add(new TransientDependency(contracts, resolver));
             }
         }
 

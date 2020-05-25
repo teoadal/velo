@@ -3,12 +3,12 @@ using Velo.Utils;
 
 namespace Velo.DependencyInjection.Scan
 {
-    internal sealed class GenericInterfaceAllover : IDependencyAllover
+    internal sealed class GenericInterfaceCollector : IDependencyCollector
     {
         private readonly Type _genericContract;
         private readonly DependencyLifetime _lifetime;
 
-        public GenericInterfaceAllover(Type genericContract, DependencyLifetime lifetime)
+        public GenericInterfaceCollector(Type genericContract, DependencyLifetime lifetime)
         {
             _genericContract = genericContract;
             _lifetime = lifetime;
@@ -20,7 +20,7 @@ namespace Velo.DependencyInjection.Scan
             foreach (var interfaceType in interfaces)
             {
                 if (!ReflectionUtils.IsGenericTypeImplementation(interfaceType, _genericContract)) continue;
-
+                
                 collection.AddDependency(interfaceType, implementation, _lifetime);
                 return;
             }

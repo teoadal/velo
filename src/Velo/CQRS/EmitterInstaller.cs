@@ -148,7 +148,7 @@ namespace Velo.DependencyInjection
         public static DependencyScanner AddEmitterProcessors(this DependencyScanner scanner,
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
         {
-            return scanner.UseAllover(new ProcessorsAllover(lifetime));
+            return scanner.UseCollector(new ProcessorsCollector(lifetime));
         }
 
         #region CreateProcessors

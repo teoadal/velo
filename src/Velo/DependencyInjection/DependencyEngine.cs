@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using Velo.Collections;
 using Velo.Collections.Local;
 using Velo.DependencyInjection.Dependencies;
 using Velo.DependencyInjection.Factories;
@@ -23,6 +25,7 @@ namespace Velo.DependencyInjection
         private readonly List<IDependency> _dependencies;
         private readonly List<IDependencyFactory> _factories;
 
+        private bool _disposed;
         private readonly Dictionary<Type, IDependency> _resolvedDependencies;
 
         public DependencyEngine(int capacity)
@@ -50,6 +53,8 @@ namespace Velo.DependencyInjection
 
         public bool Contains(Type type)
         {
+            EnsureNotDisposed();
+
             // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
             foreach (var dependency in _dependencies)
             {
@@ -67,6 +72,8 @@ namespace Velo.DependencyInjection
 
         public IDependency[] GetApplicable(Type contract)
         {
+            EnsureNotDisposed();
+
             var localList = new LocalList<IDependency>();
 
             // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
@@ -93,6 +100,8 @@ namespace Velo.DependencyInjection
 
         public IDependency? GetDependency(Type contract)
         {
+            EnsureNotDisposed();
+
             if (_resolvedDependencies.TryGetValue(contract, out var existsDependency))
             {
                 return existsDependency;
@@ -124,14 +133,7 @@ namespace Velo.DependencyInjection
         public IDependency GetRequiredDependency(Type contract)
         {
             var dependency = GetDependency(contract);
-
-            if (dependency == null)
-            {
-                throw Error.NotFound(
-                    $"Dependency with contract '{ReflectionUtils.GetName(contract)}' isn't registered");
-            }
-
-            return dependency;
+            return dependency ?? throw Error.DependencyNotRegistered(contract);
         }
 
         public bool Remove(Type contract)
@@ -159,15 +161,29 @@ namespace Velo.DependencyInjection
             return false;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void EnsureNotDisposed()
+        {
+            if (_disposed) throw Error.Disposed(nameof(IDependencyEngine));
+        }
+
         public void Dispose()
         {
+            if (_disposed) return;
+            
             foreach (var dependency in _dependencies)
             {
                 dependency.Dispose();
             }
 
             _dependencies.Clear();
+
+            CollectionUtils.DisposeValuesIfDisposable(_factories);
+            _factories.Clear();
+
             _resolvedDependencies.Clear();
+
+            _disposed = true;
         }
     }
 }
