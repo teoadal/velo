@@ -9,14 +9,17 @@ using Velo.Collections.Enumerators;
 using Velo.Collections.Local;
 using Velo.ECS.Actors.Filters;
 using Velo.ECS.Actors.Groups;
+using Velo.ECS.Actors.Sources.Json;
 using Velo.ECS.Components;
 using Velo.ECS.Sources;
 using Velo.ECS.Sources.Context;
+using Velo.Serialization.Attributes;
 using Velo.Threading;
 using Velo.Utils;
 
 namespace Velo.ECS.Actors.Context
 {
+    [Converter(typeof(ActorContextConverter))]
     [DebuggerTypeProxy(typeof(ActorContextDebugVisualizer))]
     internal sealed partial class ActorContext : IActorContext
     {

@@ -98,6 +98,20 @@ namespace Velo.Serialization
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static TextWriter WriteArrayStart(this TextWriter writer)
+        {
+            writer.Write('[');
+            return writer;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static TextWriter WriteArrayEnd(this TextWriter writer)
+        {
+            writer.Write(']');
+            return writer;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TextWriter WriteProperty(this TextWriter writer, string propertyName)
         {
             writer.Write('"');

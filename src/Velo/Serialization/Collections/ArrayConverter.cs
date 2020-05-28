@@ -58,7 +58,7 @@ namespace Velo.Serialization.Collections
                 return;
             }
 
-            output.Write('[');
+            output.WriteArrayStart();
 
             for (var i = 0; i < array.Length; i++)
             {
@@ -66,7 +66,7 @@ namespace Velo.Serialization.Collections
                 SerializeElement(array[i], output);
             }
 
-            output.Write(']');
+            output.WriteArrayEnd();
         }
 
         public override JsonData Write(TElement[]? array)

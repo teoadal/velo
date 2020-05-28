@@ -60,7 +60,7 @@ namespace Velo.Serialization.Collections
                 return;
             }
 
-            output.Write('[');
+            output.WriteArrayStart();
 
             var first = true;
             foreach (var element in list)
@@ -71,7 +71,7 @@ namespace Velo.Serialization.Collections
                 SerializeElement(element, output);
             }
 
-            output.Write(']');
+            output.WriteArrayEnd();
         }
 
         public override JsonData Write(List<TElement>? list)
