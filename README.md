@@ -200,22 +200,22 @@ var provider = new DependencyCollection()
 
 ```cs
 // possible null or empty
-var repositoryArray = provider.GetService<IRepository[]>();
+var repositoryArray = provider.Get<IRepository[]>();
 
 // not null or exception
-var converterSingleton = provider.GetRequiredService<JConverter>();
+var converterSingleton = provider.GetRequired<JConverter>();
 
 // registered as transient
-var session = container.GetService<ISession>();
-var otherSession = container.GetService<ISession>();
+var session = container.Get<ISession>();
+var otherSession = container.Get<ISession>();
 ```
 
 ### Use scope
 
 ```cs
-using (var scope = provider.CreateScope())
+using (var scope = provider.StartScope())
 {
-    var controller = scope.GetService<SomethingController>();
+    var controller = scope.Get<SomethingController>();
 }
 ```
 
