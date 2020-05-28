@@ -66,7 +66,7 @@ namespace Velo.Tests.ECS
 
             _actors = new[] {BuildActor(1), new TestActor(2) {Prototype = reference}};
         }
-
+        
         [Fact]
         public void Serialize()
         {
@@ -77,6 +77,27 @@ namespace Velo.Tests.ECS
             serialized.Should().NotBeNullOrWhiteSpace();
         }
 
+        [Fact]
+        public void SerializeActorContext()
+        {
+            var provider = new DependencyCollection()
+                .AddECS()
+                .AddAssets(ctx => _assets)
+                .BuildProvider();
+            
+            var actors = provider.GetRequired<IActorContext>();
+            actors.AddRange(_actors);
+
+            var converter = provider.GetRequired<JConverter>();
+            
+            var serialized = converter.Serialize(actors);
+            actors.Clear();
+            
+            using var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(serialized));
+            var actorsSource = provider.Activate<JsonStreamSource<Actor>>(new LocalList<object>(memoryStream));
+            actors.Load(actorsSource);
+        }
+        
         [Fact]
         public void DeserializeActors()
         {
