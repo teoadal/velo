@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using Velo.Serialization;
 using Velo.Serialization.Models;
 using Velo.Utils;
 
@@ -44,7 +45,7 @@ namespace Velo.ECS.Sources.Json.References
         {
             var entities = _entityGetter(instance);
 
-            output.Write('[');
+            output.WriteArrayStart();
 
             var first = true;
             foreach (var entity in entities)
@@ -55,7 +56,7 @@ namespace Velo.ECS.Sources.Json.References
                 SerializeEntity(entity, output);
             }
 
-            output.Write(']');
+            output.WriteArrayEnd();
         }
 
         public override void Write(TOwner instance, JsonObject output)

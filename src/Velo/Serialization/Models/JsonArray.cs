@@ -45,7 +45,7 @@ namespace Velo.Serialization.Models
 
         public override void Serialize(TextWriter writer)
         {
-            writer.Write('[');
+            writer.WriteArrayStart();
 
             var first = true;
             foreach (var element in _elements)
@@ -55,8 +55,8 @@ namespace Velo.Serialization.Models
                 
                 element.Serialize(writer);
             }
-            
-            writer.Write(']');
+
+            writer.WriteArrayEnd();
         }
         
         public ref JsonData this[int index] => ref _elements[index];

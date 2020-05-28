@@ -34,7 +34,7 @@ namespace Velo.Benchmark.CQRS
         [GlobalSetup]
         public void Init()
         {
-            var repository = new BooRepository(null, null);
+            var repository = new BooRepository(null);
 
             _queries = new Query[Count];
             _queriesStruct = new Ping[Count];

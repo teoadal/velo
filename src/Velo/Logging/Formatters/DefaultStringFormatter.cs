@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Velo.Collections.Local;
 using Velo.Extensions;
+using Velo.Serialization;
 using Velo.Serialization.Models;
 using Velo.Text;
 
@@ -61,7 +62,8 @@ namespace Velo.Logging.Formatters
             foreach (var (propertyName, jsonData) in message)
             {
                 if (propertyName[0] != '_') continue;
-                writer.Write('[');
+
+                writer.WriteArrayStart();
                 jsonData.Serialize(writer);
                 writer.Write("] ");
             }

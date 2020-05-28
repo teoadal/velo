@@ -38,7 +38,7 @@ namespace Velo.Benchmark.CQRS
                 _mediatorNotifications[i] = new Notification();
             }
 
-            var repository = new BooRepository(null, null);
+            var repository = new BooRepository(null);
 
             _mediator = MediatorBuilder.BuildMediatR(repository, services => services
                 .AddSingleton<INotificationHandler<Notification>, NotificationHandler>(), ProcessorsCount);
