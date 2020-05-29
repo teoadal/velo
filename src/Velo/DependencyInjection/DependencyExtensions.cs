@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Velo.Collections.Local;
@@ -30,18 +31,25 @@ namespace Velo.DependencyInjection
                 return constructor.Invoke(Array.Empty<object>());
             }
 
-            var parameterValues = new object?[parameters.Length];
-            for (var i = parameters.Length - 1; i >= 0; i--)
+            try
             {
-                var parameter = parameters[i];
-                var parameterType = parameter.ParameterType;
+                var parameterValues = new object?[parameters.Length];
+                for (var i = parameters.Length - 1; i >= 0; i--)
+                {
+                    var parameter = parameters[i];
+                    var parameterType = parameter.ParameterType;
 
-                parameterValues[i] = !parameter.HasDefaultValue // required
-                    ? GetRequired(services, parameterType)
-                    : services.GetService(parameterType);
+                    parameterValues[i] = !parameter.HasDefaultValue // required
+                        ? GetRequired(services, parameterType)
+                        : services.GetService(parameterType);
+                }
+
+                return ReflectionUtils.TryInvoke(constructor, parameterValues);
             }
-
-            return ReflectionUtils.TryInvoke(constructor, parameterValues);
+            catch (KeyNotFoundException e)
+            {
+                throw Error.DependencyNotRegistered($"{e.Message} <- '{ReflectionUtils.GetName(implementation)}'");
+            }
         }
 
         public static object Activate(

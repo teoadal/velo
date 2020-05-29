@@ -3,9 +3,9 @@ using Velo.Logging.Provider;
 
 namespace Velo.Logging
 {
-    internal sealed class Logger<TSource> : ILogger<TSource>
+    internal sealed class Logger<TSender> : ILogger<TSender>
     {
-        private static readonly Type Sender = typeof(TSource);
+        private static readonly Type Sender = typeof(TSender);
 
         private readonly ILogProvider _provider;
 

@@ -23,7 +23,7 @@ namespace Velo.Tests.DependencyInjection
         public ProviderTests()
         {
             _dependencies = new DependencyCollection()
-                .AddJsonConverter()
+                .AddJson()
                 .AddSingleton<ISettingsProvider>(ctx => new NullSettingsProvider())
                 .AddSingleton<ISession, Session>();
         }

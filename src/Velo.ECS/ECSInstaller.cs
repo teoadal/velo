@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Velo.Collections.Local;
 using Velo.DependencyInjection.Dependencies;
+using Velo.DependencyInjection.Scan;
+using Velo.ECS;
 using Velo.ECS.Actors;
 using Velo.ECS.Actors.Context;
 using Velo.ECS.Actors.Factory;
@@ -18,8 +19,10 @@ using Velo.ECS.Injection;
 using Velo.ECS.Sources;
 using Velo.ECS.Sources.Context;
 using Velo.ECS.Sources.Json;
+using Velo.ECS.State;
 using Velo.ECS.Systems;
-using Velo.ECS.Systems.Handlers;
+using Velo.ECS.Systems.Pipelines;
+using Velo.Serialization;
 using Velo.Utils;
 
 // ReSharper disable once CheckNamespace
@@ -31,6 +34,9 @@ namespace Velo.DependencyInjection
 
         public static DependencyCollection AddECS(this DependencyCollection dependencies)
         {
+            dependencies
+                .AddSingleton<IEntityState, EntityState>();
+
             //actors
             dependencies
                 .AddFactory(new FilterFactory<IActorContext>(typeof(IActorFilter)))
@@ -54,7 +60,7 @@ namespace Velo.DependencyInjection
             // systems
             dependencies
                 .AddFactory<ISystemService, SystemService>(systemService => systemService.DependedLifetime())
-                .AddFactory(new SystemHandlerFactory());
+                .AddFactory(new SystemPipelineFactory());
 
             // source
             dependencies
@@ -106,7 +112,10 @@ namespace Velo.DependencyInjection
             if (string.IsNullOrWhiteSpace(filePath)) throw Error.Null(nameof(filePath));
 
             dependencies.AddDependency(AssetSourceContracts,
-                provider => provider.Activate<JsonFileSource<Asset>>(new LocalList<object>(filePath)),
+                provider => new JsonFileSource<Asset>(
+                    provider.GetRequired<IConvertersCollection>(),
+                    provider.GetRequired<SourceDescriptions>(),
+                    filePath),
                 DependencyLifetime.Singleton);
 
             return dependencies;
@@ -117,10 +126,36 @@ namespace Velo.DependencyInjection
             if (stream == null) throw Error.Null(nameof(stream));
 
             dependencies.AddDependency<IEntitySource<Asset>>(AssetSourceContracts,
-                provider => provider.Activate<JsonStreamSource<Asset>>(new LocalList<object>(stream)),
+                provider => new JsonStreamSource<Asset>(
+                    provider.GetRequired<IConvertersCollection>(),
+                    provider.GetRequired<SourceDescriptions>(),
+                    stream),
                 DependencyLifetime.Singleton);
 
             return dependencies;
+        }
+
+        public static DependencyCollection AddECSSystem<TSystem>(
+            this DependencyCollection dependencies,
+            DependencyLifetime lifetime = DependencyLifetime.Singleton)
+        {
+            var implementation = typeof(TSystem);
+            if (!ECSUtils.TryGetImplementedSystemInterfaces(implementation, out var contracts))
+            {
+                throw Error.InvalidOperation(
+                    $"Type '{ReflectionUtils.GetName<TSystem>()}' isn't implemented system interfaces");
+            }
+
+            dependencies.AddDependency(contracts, implementation, lifetime);
+            return dependencies;
+        }
+
+        public static DependencyScanner RegisterECSSystems(
+            this DependencyScanner scanner,
+            DependencyLifetime lifetime = DependencyLifetime.Singleton)
+        {
+            scanner.UseCollector(new SystemsCollector(lifetime));
+            return scanner;
         }
     }
 }

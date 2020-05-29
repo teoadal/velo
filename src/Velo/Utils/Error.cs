@@ -29,6 +29,11 @@ namespace Velo.Utils
             return new KeyNotFoundException($"Dependency with contract '{name}' is not registered");
         }
 
+        public static KeyNotFoundException DependencyNotRegistered(string message)
+        {
+            return new KeyNotFoundException(message);
+        }
+        
         public static KeyNotFoundException DefaultConstructorNotFound(Type type)
         {
             return new KeyNotFoundException($"Default constructor for '{ReflectionUtils.GetName(type)}' not found");

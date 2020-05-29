@@ -1,7 +1,7 @@
 using FluentAssertions;
 using Moq;
 using Velo.ECS.Systems;
-using Velo.ECS.Systems.Handlers;
+using Velo.ECS.Systems.Pipelines;
 using Xunit;
 
 namespace Velo.Tests.ECS.Systems.Handlers
@@ -10,21 +10,19 @@ namespace Velo.Tests.ECS.Systems.Handlers
     {
         private readonly Mock<IBeforeUpdateSystem> _system;
 
-        private readonly SystemSingleHandler<IBeforeUpdateSystem> _handler;
+        private readonly SystemSinglePipeline<IBeforeUpdateSystem> _pipeline;
 
         public SystemSingleHandlerShould()
         {
             _system = new Mock<IBeforeUpdateSystem>();
 
-            _handler = new SystemSingleHandler<IBeforeUpdateSystem>(
-                _system.Object,
-                (system, ct) => system.BeforeUpdate(ct));
+            _pipeline = new SystemSinglePipeline<IBeforeUpdateSystem>(_system.Object);
         }
 
         [Fact]
         public void Execute()
         {
-            _handler
+            _pipeline
                 .Awaiting(handler => handler.Execute(CancellationToken))
                 .Should().NotThrow();
 

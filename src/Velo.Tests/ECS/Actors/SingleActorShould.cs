@@ -55,7 +55,7 @@ namespace Velo.Tests.ECS.Actors
         [Fact]
         public void NotAddInstance()
         {
-            RaiseActorAdded(_actorContext, new Actor(1));
+            RaiseActorAdded(_actorContext, CreateActor());
 
             _single.Exists.Should().BeFalse();
         }
@@ -70,7 +70,7 @@ namespace Velo.Tests.ECS.Actors
         public void NotRemoveInstance()
         {
             RaiseActorAdded(_actorContext, _actor);
-            RaiseActorRemoved(_actorContext, new Actor(1));
+            RaiseActorRemoved(_actorContext, CreateActor());
 
             _single.Exists.Should().BeTrue();
         }

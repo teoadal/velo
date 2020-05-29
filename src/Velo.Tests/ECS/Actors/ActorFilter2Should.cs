@@ -4,7 +4,6 @@ using AutoFixture.Xunit2;
 using FluentAssertions;
 using Moq;
 using Velo.Collections;
-using Velo.ECS.Actors;
 using Velo.ECS.Actors.Context;
 using Velo.ECS.Actors.Filters;
 using Velo.ECS.Components;
@@ -92,7 +91,7 @@ namespace Velo.Tests.ECS.Actors
         public void NotAddActor()
         {
             var actorId = _actor.Id + 1;
-            RaiseActorAdded(_actorContext, new Actor(actorId));
+            RaiseActorAdded(_actorContext, BuildActor(actorId));
 
             _actorFilter.Contains(actorId).Should().BeFalse();
         }
@@ -103,7 +102,7 @@ namespace Velo.Tests.ECS.Actors
             RaiseActorAdded(_actorContext, _actor);
 
             var actorId = _actor.Id + 1;
-            RaiseActorAdded(_actorContext, new Actor(actorId));
+            RaiseActorAdded(_actorContext, BuildActor(actorId));
 
             _actorFilter.Contains(_actor.Id).Should().BeTrue();
         }

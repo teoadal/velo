@@ -11,7 +11,7 @@ namespace Velo.Tests.ECS.Actors
 
         public ActorShould()
         {
-            _actor = new Actor(1);
+            _actor = CreateActor();
         }
 
         [Fact]

@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using Velo.Serialization.Models;
 using Velo.Serialization.Tokenization;
@@ -7,12 +8,14 @@ namespace Velo.Serialization.Primitives
     internal sealed class NullableConverter<TNullable> : IJsonConverter<TNullable?>
         where TNullable : struct
     {
+        public Type Contract { get; }
         public bool IsPrimitive => true;
 
         private readonly IJsonConverter<TNullable> _valueConverter;
 
         public NullableConverter(IJsonConverter<TNullable> valueConverter)
         {
+            Contract = typeof(TNullable?);
             _valueConverter = valueConverter;
         }
 

@@ -20,7 +20,7 @@ namespace Velo.Serialization.Objects
         {
             _activator = ExpressionUtils.BuildActivator<T>(throwIfEmptyConstructorNotFound: false);
             _equalityComparer = EqualityComparer<T>.Default;
-            _properties = services.ActivatePropertyConverters<T>();
+            _properties = SerializationUtils.ActivatePropertyConverters<T>(services);
         }
 
         public override T Deserialize(JsonTokenizer tokenizer)

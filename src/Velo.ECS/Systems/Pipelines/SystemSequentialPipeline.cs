@@ -2,18 +2,18 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Velo.ECS.Systems.Handlers
+namespace Velo.ECS.Systems.Pipelines
 {
-    internal sealed class SystemSequentialHandler<TSystem> : ISystemHandler<TSystem>
-        where TSystem: class
+    internal sealed class SystemSequentialPipeline<TSystem> : ISystemPipeline<TSystem>
+        where TSystem : class
     {
         private readonly TSystem[] _systems;
         private readonly Func<TSystem, CancellationToken, Task> _update;
 
-        public SystemSequentialHandler(TSystem[] systems, Func<TSystem, CancellationToken, Task> update)
+        public SystemSequentialPipeline(TSystem[] systems)
         {
             _systems = systems;
-            _update = update;
+            _update = ECSUtils.BuildSystemUpdateMethod<TSystem>();
         }
 
         public async Task Execute(CancellationToken cancellationToken)

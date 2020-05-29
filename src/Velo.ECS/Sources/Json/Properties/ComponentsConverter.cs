@@ -17,7 +17,7 @@ namespace Velo.ECS.Sources.Json.Properties
         private readonly SourceDescriptions _descriptions;
 
         public ComponentsConverter(
-            IConvertersCollection converters, 
+            IConvertersCollection converters,
             IComponentFactory componentFactory,
             SourceDescriptions descriptions)
         {
@@ -28,10 +28,13 @@ namespace Velo.ECS.Sources.Json.Properties
 
         public object? ReadValue(JsonObject source)
         {
-            var componentsData = (JsonObject) source[nameof(IEntity.Components)];
+            if (!source.TryGet(nameof(IEntity.Components), out var componentsData))
+            {
+                return null;
+            }
 
             var components = new LocalList<IComponent>();
-            foreach (var (name, data) in componentsData)
+            foreach (var (name, data) in (JsonObject) componentsData)
             {
                 var componentType = _descriptions.GetComponentType(name);
 
@@ -83,7 +86,7 @@ namespace Velo.ECS.Sources.Json.Properties
                 var componentData = componentConverter.WriteObject(component);
                 componentsData.Add(componentName, componentData);
             }
-            
+
             output.Add(nameof(IEntity.Components), componentsData);
         }
 

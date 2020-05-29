@@ -40,8 +40,20 @@ namespace Velo.Serialization.Models
                 JsonDataType.String);
         }
 
-        public static JsonValue Number(int value) => new JsonValue(value.ToString(), JsonDataType.Number);
+        public static JsonValue Number(int value)
+        {
+            return value == 0
+                ? Zero
+                : new JsonValue(value.ToString(), JsonDataType.Number);
+        }
 
+        public static JsonValue Number(long value)
+        {
+            return value == 0L
+                ? Zero
+                : new JsonValue(value.ToString(), JsonDataType.Number);
+        }
+        
         public static JsonValue Number(float value, CultureInfo? cultureInfo = null)
         {
             return new JsonValue(

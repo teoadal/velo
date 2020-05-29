@@ -1,58 +1,14 @@
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Velo.Collections.Local;
-using Velo.DependencyInjection;
-using Velo.Serialization.Attributes;
 using Velo.Serialization.Models;
-using Velo.Serialization.Objects;
 using Velo.Serialization.Tokenization;
-using Velo.Text;
 using Velo.Utils;
 
 namespace Velo.Serialization
 {
     internal static class SerializationExtensions
     {
-        public static Dictionary<string, IPropertyConverter<T>> ActivatePropertyConverters<T>(
-            this IServiceProvider services)
-        {
-            var ownerType = Typeof<T>.Raw;
-            var properties = ownerType.GetProperties();
-
-            var propertyConverters = new Dictionary<string, IPropertyConverter<T>>(
-                properties.Length,
-                StringUtils.IgnoreCaseComparer);
-
-            foreach (var property in properties)
-            {
-                if (IgnoreAttribute.IsDefined(property)) continue;
-
-                IPropertyConverter<T> propertyConverter;
-                if (ConverterAttribute.IsDefined(property))
-                {
-                    var converterType = property
-                        .GetCustomAttribute<ConverterAttribute>()
-                        .GetConverterType(ownerType, property);
-
-                    var injections = new LocalList<object>(property, ownerType);
-                    propertyConverter = (IPropertyConverter<T>) services.Activate(converterType, injections);
-                }
-                else
-                {
-                    var converters = (IConvertersCollection) services.GetService(typeof(IConvertersCollection));
-                    propertyConverter = new PropertyConverter<T>(property, converters.Get(property.PropertyType));
-                }
-
-                propertyConverters.Add(property.Name, propertyConverter);
-            }
-
-            return propertyConverters;
-        }
-
         public static string GetNotNullPropertyName(this JsonToken token)
         {
             var tokenType = token.TokenType;

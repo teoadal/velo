@@ -18,8 +18,7 @@ namespace Velo.ECS.Actors
     [DebuggerDisplay("{GetType().Name} {Id}")]
     public class Actor : IEntity, IEquatable<Actor>
     {
-        [Converter(typeof(IdConverter))] 
-        public int Id { get; }
+        [Converter(typeof(IdConverter))] public int Id { get; }
 
         [Converter(typeof(ComponentsConverter))]
         public IEnumerable<IComponent> Components => new ArrayLockEnumerator<IComponent>(_components, _lock);
@@ -33,13 +32,13 @@ namespace Velo.ECS.Actors
         private IComponent[] _components;
         private int _componentsLength;
 
-        public Actor(int id, IComponent[]? components = null)
+        public Actor(int id, IComponent[] components)
         {
             Id = id;
 
             _lock = new ReaderWriterLockSlim();
 
-            _components = components ?? Array.Empty<IComponent>();
+            _components = components;
             _componentsLength = _components.Length;
         }
 

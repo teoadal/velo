@@ -12,7 +12,7 @@ namespace Velo.Benchmark.Serialization
         public static JConverter BuildVeloJsonConverter()
         {
             return new DependencyCollection()
-                .AddJsonConverter()
+                .AddJson()
                 .BuildProvider()
                 .GetRequired<JConverter>();
         }

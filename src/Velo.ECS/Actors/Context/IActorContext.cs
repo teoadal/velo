@@ -4,6 +4,7 @@ using Velo.ECS.Actors.Filters;
 using Velo.ECS.Actors.Groups;
 using Velo.ECS.Components;
 using Velo.ECS.Sources;
+using Velo.ECS.Stores;
 
 namespace Velo.ECS.Actors.Context
 {
@@ -44,9 +45,11 @@ namespace Velo.ECS.Actors.Context
         SingleActor<TActor> GetSingle<TActor>() where TActor : Actor;
 
         void Load(params IEntitySource<Actor>[] actorSources);
-        
+
         bool Remove(Actor actor);
 
+        void Save(IEntityStore<Actor> actorStore);
+        
         bool TryGet(int actorId, out Actor actor);
 
         IEnumerable<Actor> Where<TArg>(Func<Actor, TArg, bool> filter, TArg arg);

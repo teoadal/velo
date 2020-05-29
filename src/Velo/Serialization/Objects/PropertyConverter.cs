@@ -15,18 +15,18 @@ namespace Velo.Serialization.Objects
         private readonly Action<TOwner, TextWriter> _serialize;
         private readonly Action<TOwner, JsonObject> _write;
 
-        public PropertyConverter(PropertyInfo propertyInfo, IJsonConverter valueConverter)
+        public PropertyConverter(PropertyInfo property, IJsonConverter valueConverter)
         {
             var instance = Expression.Parameter(Typeof<TOwner>.Raw, "instance");
             var converter = Expression.Constant(valueConverter, valueConverter.GetType());
 
-            _serialize = BuildSerializeMethod(instance, propertyInfo, converter);
-            _write = BuildWriteMethod(instance, propertyInfo, converter);
+            _serialize = SerializationUtils.BuildSerialize<Action<TOwner, TextWriter>>(instance, property, converter);
+            _write = SerializationUtils.BuildWrite<Action<TOwner, JsonObject>>(instance, property, converter);
 
-            if (propertyInfo.CanWrite)
+            if (property.CanWrite)
             {
-                _deserialize = BuildDeserializeMethod(instance, propertyInfo, converter);
-                _read = BuildReadMethod(instance, propertyInfo, converter);
+                _deserialize = SerializationUtils.BuildDeserialize<Action<JsonTokenizer, TOwner>>(instance, property, converter);
+                _read = SerializationUtils.BuildRead<Action<JsonObject, TOwner>>(instance, property, converter);
             }
             else
             {
@@ -42,78 +42,7 @@ namespace Velo.Serialization.Objects
         public void Serialize(TOwner instance, TextWriter output) => _serialize(instance, output);
 
         public void Write(TOwner instance, JsonObject output) => _write(instance, output);
-
-        private static Action<JsonTokenizer, TOwner> BuildDeserializeMethod(ParameterExpression instance,
-            PropertyInfo property, Expression valueConverter)
-        {
-            const string deserializeMethodName = nameof(IJsonConverter<object>.Deserialize);
-
-            var source = Expression.Parameter(Typeof<JsonTokenizer>.Raw, "source");
-
-            var propertyValue = ExpressionUtils.Call(valueConverter, deserializeMethodName, source);
-            var body = ExpressionUtils.SetProperty(instance, property, propertyValue);
-
-            return Expression
-                .Lambda<Action<JsonTokenizer, TOwner>>(body, source, instance)
-                .Compile();
-        }
-
-        private static Action<JsonObject, TOwner> BuildReadMethod(ParameterExpression instance, PropertyInfo property,
-            Expression valueConverter)
-        {
-            const string tryGetMethodName = nameof(JsonObject.TryGet);
-            const string readMethodName = nameof(IJsonConverter<object>.Read);
-
-            var source = Expression.Parameter(Typeof<JsonObject>.Raw, "source");
-
-            var propertyName = Expression.Constant(property.Name);
-            var propertyData = Expression.Variable(Typeof<JsonData>.Raw, "propertyData");
-            var propertyExists = ExpressionUtils.Call(source, tryGetMethodName, propertyName, propertyData);
-
-            var propertyValue = ExpressionUtils.Call(valueConverter, readMethodName, propertyData);
-            var body = Expression.Block(
-                new[] {propertyData},
-                Expression.IfThen(propertyExists, ExpressionUtils.SetProperty(instance, property, propertyValue)));
-
-            return Expression
-                .Lambda<Action<JsonObject, TOwner>>(body, source, instance)
-                .Compile();
-        }
-
-        private static Action<TOwner, TextWriter> BuildSerializeMethod(ParameterExpression instance,
-            PropertyInfo property, Expression valueConverter)
-        {
-            const string serializeMethodName = nameof(IJsonConverter<object>.Serialize);
-
-            var output = Expression.Parameter(Typeof<TextWriter>.Raw, "output");
-
-            var propertyValue = Expression.Property(instance, property);
-            var body = ExpressionUtils.Call(valueConverter, serializeMethodName, propertyValue, output);
-
-            return Expression
-                .Lambda<Action<TOwner, TextWriter>>(body, instance, output)
-                .Compile();
-        }
-
-        private static Action<TOwner, JsonObject> BuildWriteMethod(ParameterExpression instance, PropertyInfo property,
-            Expression valueConverter)
-        {
-            const string addMethodMane = nameof(JsonObject.Add);
-            const string writeMethodName = nameof(IJsonConverter<object>.Write);
-
-            var output = Expression.Parameter(Typeof<JsonObject>.Raw, "output");
-
-            var propertyName = Expression.Constant(property.Name);
-            var propertyValue = Expression.Property(instance, property);
-            var propertyData = ExpressionUtils.Call(valueConverter, writeMethodName, propertyValue);
-
-            var body = ExpressionUtils.Call(output, addMethodMane, propertyName, propertyData);
-
-            return Expression
-                .Lambda<Action<TOwner, JsonObject>>(body, instance, output)
-                .Compile();
-        }
-
+        
         private static void ReadonlyProperty(JsonTokenizer tokenizer, TOwner obj)
         {
         }
