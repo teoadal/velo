@@ -23,6 +23,16 @@ namespace Velo.Tests.ECS
             actual.As<TComponent>().Should().BeEquivalentTo(expected.As<TComponent>());
         }
 
+        protected Actor CreateActor(IComponent[] components = null)
+        {
+            return new Actor(Fixture.Create<int>(), components ?? Array.Empty<IComponent>());
+        }
+        
+        protected static Actor BuildActor(int id, params IComponent[] components)
+        {
+            return new Actor(id, components ?? Array.Empty<IComponent>());
+        }
+        
         protected Asset CreateAsset(IComponent[] components = null)
         {
             return new Asset(Fixture.Create<int>(), components ?? Array.Empty<IComponent>());

@@ -41,7 +41,7 @@ namespace Velo.ECS.Actors.Factory
         public Actor Create(IComponent[]? components = null, int? actorId = null)
         {
             var id = CreateOrCheckId(actorId);
-            return new Actor(id, components);
+            return new Actor(id, components ?? Array.Empty<IComponent>());
         }
 
         public Actor Create(Type actorType, IComponent[]? components = null, int? actorId = null)
@@ -50,7 +50,7 @@ namespace Velo.ECS.Actors.Factory
             var builder = GetOrAdd(typeId, _findOrCreate, actorType);
 
             var id = CreateOrCheckId(actorId);
-            return builder.BuildActor(id, components);
+            return builder.BuildActor(id, components ?? Array.Empty<IComponent>());
         }
 
         public TActor Create<TActor>(IComponent[]? components = null, int? actorId = null) where TActor : Actor
@@ -59,7 +59,7 @@ namespace Velo.ECS.Actors.Factory
             var builder = (IActorBuilder<TActor>) GetOrAdd(typeId, _findOrCreate, Typeof<TActor>.Raw);
 
             var id = CreateOrCheckId(actorId);
-            return builder.Build(id, components);
+            return builder.Build(id, components ?? Array.Empty<IComponent>());
         }
 
         private int CreateOrCheckId(int? id)

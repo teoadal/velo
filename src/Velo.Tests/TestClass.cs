@@ -22,7 +22,7 @@ namespace Velo.Tests
         internal static ConvertersCollection BuildConvertersCollection(IServiceProvider serviceProvider = null)
         {
             serviceProvider ??= new DependencyCollection()
-                .AddJsonConverter()
+                .AddJson()
                 .BuildProvider();
 
             return (ConvertersCollection) serviceProvider.GetService(typeof(IConvertersCollection));

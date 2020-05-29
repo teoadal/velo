@@ -145,12 +145,6 @@ namespace Velo.DependencyInjection
 
         #endregion
 
-        public static DependencyScanner AddEmitterProcessors(this DependencyScanner scanner,
-            DependencyLifetime lifetime = DependencyLifetime.Singleton)
-        {
-            return scanner.UseCollector(new ProcessorsCollector(lifetime));
-        }
-
         #region CreateProcessors
 
         public static DependencyCollection CreateCommandProcessor<TCommand>(this DependencyCollection dependencies,
@@ -170,6 +164,12 @@ namespace Velo.DependencyInjection
         }
 
         #endregion
+
+        public static DependencyScanner RegisterEmitterProcessors(this DependencyScanner scanner,
+            DependencyLifetime lifetime = DependencyLifetime.Singleton)
+        {
+            return scanner.UseCollector(new ProcessorsCollector(lifetime));
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool AddDependencies(

@@ -17,6 +17,8 @@ namespace Velo.ECS.Sources.Json.Objects
     {
         private const string TypeProperty = "_type";
 
+        public Type Contract { get; }
+
         public bool IsPrimitive => false;
 
         private readonly string? _customTypeName;
@@ -27,11 +29,13 @@ namespace Velo.ECS.Sources.Json.Objects
 
         protected EntityConverter(IServiceProvider services, bool isCustomType)
         {
+            Contract = Typeof<TEntity>.Raw;
+            
             _customTypeName = isCustomType
                 ? SourceDescriptions.BuildTypeName(Typeof<TEntity>.Raw)
                 : null;
 
-            _properties = services.ActivatePropertyConverters<TEntity>();
+            _properties = SerializationUtils.ActivatePropertyConverters<TEntity>(services);
 
             _idConverter = (IdConverter) _properties[nameof(IEntity.Id)];
             _componentsConverter = (ComponentsConverter) _properties[nameof(IEntity.Components)];

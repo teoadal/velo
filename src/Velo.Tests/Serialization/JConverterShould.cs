@@ -22,7 +22,7 @@ namespace Velo.Tests.Serialization
         public void Resolve()
         {
             var provider = new DependencyCollection()
-                .AddJsonConverter()
+                .AddJson()
                 .BuildProvider();
             
             Assert.NotNull(provider.GetRequired<JConverter>());

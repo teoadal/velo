@@ -5,15 +5,15 @@ using Velo.DependencyInjection.Factories;
 using Velo.DependencyInjection.Resolvers;
 using Velo.Threading;
 
-namespace Velo.ECS.Systems.Handlers
+namespace Velo.ECS.Systems.Pipelines
 {
-    internal sealed class SystemHandlerFactory : IDependencyFactory
+    internal sealed class SystemPipelineFactory : IDependencyFactory
     {
         private readonly Type _contract;
 
-        public SystemHandlerFactory()
+        public SystemPipelineFactory()
         {
-            _contract = typeof(ISystemHandler<>);
+            _contract = typeof(ISystemPipeline<>);
         }
 
         public bool Applicable(Type contract)
@@ -30,7 +30,7 @@ namespace Velo.ECS.Systems.Handlers
 
             if (dependencies.Length == 0)
             {
-                var nullHandlerType = typeof(SystemNullHandler<>).MakeGenericType(systemType);
+                var nullHandlerType = typeof(SystemNullPipeline<>).MakeGenericType(systemType);
                 var nullHandler = Activator.CreateInstance(nullHandlerType);
                 return new InstanceDependency(contracts, nullHandler);
             }
@@ -48,7 +48,7 @@ namespace Velo.ECS.Systems.Handlers
         {
             if (dependencies.Length == 1)
             {
-                return typeof(SystemSingleHandler<>);
+                return typeof(SystemSinglePipeline<>);
             }
 
             bool hasParallels = false, hasSequential = false;
@@ -67,9 +67,9 @@ namespace Velo.ECS.Systems.Handlers
 
             return hasParallels
                 ? hasSequential
-                    ? typeof(SystemFullHandler<>)
-                    : typeof(SystemParallelHandler<>)
-                : typeof(SystemSequentialHandler<>);
+                    ? typeof(SystemFullPipeline<>)
+                    : typeof(SystemParallelPipeline<>)
+                : typeof(SystemSequentialPipeline<>);
         }
     }
 }

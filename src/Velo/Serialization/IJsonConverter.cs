@@ -1,11 +1,15 @@
+using System;
 using System.IO;
 using Velo.Serialization.Models;
 using Velo.Serialization.Tokenization;
+using Velo.Utils;
 
 namespace Velo.Serialization
 {
-    internal interface IJsonConverter
+    public interface IJsonConverter
     {
+        Type Contract { get; }
+        
         bool IsPrimitive { get; }
 
         object DeserializeObject(JsonTokenizer tokenizer);
@@ -17,7 +21,7 @@ namespace Velo.Serialization
         JsonData WriteObject(object value);
     }
 
-    internal interface IJsonConverter<T> : IJsonConverter
+    public interface IJsonConverter<T> : IJsonConverter
     {
         T Deserialize(JsonTokenizer tokenizer);
 
@@ -28,12 +32,15 @@ namespace Velo.Serialization
         JsonData Write(T value);
     }
 
-    internal abstract class JsonConverter<T> : IJsonConverter<T>
+    public abstract class JsonConverter<T> : IJsonConverter<T>
     {
+        public Type Contract { get; }
+
         public bool IsPrimitive { get; }
 
         protected JsonConverter(bool isPrimitive)
         {
+            Contract = Typeof<T>.Raw;
             IsPrimitive = isPrimitive;
         }
 

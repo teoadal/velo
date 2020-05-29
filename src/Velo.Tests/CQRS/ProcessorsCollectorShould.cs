@@ -13,7 +13,7 @@ namespace Velo.Tests.CQRS
             _dependencies = new DependencyCollection()
                 .Scan(scanner => scanner
                     .AssemblyOf<TestsModels.Emitting.Boos.Create.Processor>()
-                    .AddEmitterProcessors());
+                    .RegisterEmitterProcessors());
         }
 
         [Fact]

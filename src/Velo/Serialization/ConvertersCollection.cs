@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Velo.Collections;
 using Velo.Collections.Local;
 using Velo.DependencyInjection;
@@ -10,6 +11,7 @@ using Velo.Serialization.Attributes;
 using Velo.Serialization.Collections;
 using Velo.Serialization.Objects;
 using Velo.Serialization.Primitives;
+using Velo.Serialization.Structs;
 using Velo.Utils;
 
 namespace Velo.Serialization
@@ -31,6 +33,13 @@ namespace Velo.Serialization
         {
             _converterBuilder = BuildConverter;
             _services = services;
+
+            var converters = services.GetArray<IJsonConverter>();
+            if (converters == null) return;
+            foreach (var converter in converters)
+            {
+                TryAdd(converter.Contract, converter);
+            }
         }
 
         public ConvertersCollection(Func<Type, object> serviceProvider, CultureInfo? culture = null)
@@ -50,6 +59,8 @@ namespace Velo.Serialization
 
         private IJsonConverter BuildConverter(Type type)
         {
+            if (TryGetCustomConverter(type, out var customConverter)) return customConverter;
+            
             if (ReflectionUtils.IsArrayLikeGenericType(type, out var elementType))
             {
                 return BuildArrayConverter(elementType);
@@ -66,29 +77,38 @@ namespace Velo.Serialization
                 return BuildNullableConverter(underlyingType);
             }
 
-            return type.IsEnum
-                ? BuildEnumConverter(type)
+            if (type.IsEnum)
+            {
+                return BuildEnumConverter(type);
+            }
+            
+            return type.IsValueType
+                ? BuildStructConverter(type)
                 : BuildObjectConverter(type);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private IJsonConverter BuildArrayConverter(Type elementType)
         {
             var converterType = typeof(ArrayConverter<>).MakeGenericType(elementType);
             return (IJsonConverter) Activator.CreateInstance(converterType, this);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static IJsonConverter BuildEnumConverter(Type type)
         {
             var converterType = typeof(EnumConverter<>).MakeGenericType(type);
             return (IJsonConverter) Activator.CreateInstance(converterType);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private IJsonConverter BuildListConverter(Type elementType)
         {
             var converterType = typeof(ListConverter<>).MakeGenericType(elementType);
             return (IJsonConverter) Activator.CreateInstance(converterType, this);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private IJsonConverter BuildNullableConverter(Type underlyingType)
         {
             var valueConverter = Get(underlyingType);
@@ -96,22 +116,37 @@ namespace Velo.Serialization
             return (IJsonConverter) Activator.CreateInstance(nullableConverterType, valueConverter);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private IJsonConverter BuildObjectConverter(Type type)
         {
-            if (ConverterAttribute.IsDefined(type))
-            {
-                var customConverterType = type
-                    .GetCustomAttribute<ConverterAttribute>()
-                    .GetConverterType(type);
-
-                var injections = new LocalList<object>(type, this);
-                return (IJsonConverter) _services.Activate(customConverterType, injections);
-            }
-
             var converterType = typeof(ObjectConverter<>).MakeGenericType(type);
             return (IJsonConverter) Activator.CreateInstance(converterType, _services);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private IJsonConverter BuildStructConverter(Type type)
+        {
+            var converterType = typeof(StructConverter<>).MakeGenericType(type);
+            return (IJsonConverter) Activator.CreateInstance(converterType, this);
+        }
+
+        private bool TryGetCustomConverter(Type type, out IJsonConverter customConverter)
+        {
+            if (!ConverterAttribute.IsDefined(type))
+            {
+                customConverter = null!;
+                return false;
+            }
+
+            var customConverterType = type
+                .GetCustomAttribute<ConverterAttribute>()
+                .GetConverterType(type);
+
+            var injections = new LocalList<object>(type, this);
+            customConverter = (IJsonConverter) _services.Activate(customConverterType, injections);
+            return true;
+        }
+        
         private static Dictionary<Type, IJsonConverter> DefaultConverters(CultureInfo culture)
         {
             return new Dictionary<Type, IJsonConverter>
@@ -123,6 +158,7 @@ namespace Velo.Serialization
                 {typeof(float), new FloatConverter(culture)},
                 {typeof(Guid), new GuidConverter()},
                 {typeof(int), new IntConverter()},
+                {typeof(long), new LongConverter()},
                 {typeof(string), new StringConverter()},
                 {typeof(TimeSpan), new TimeSpanConverter(culture)}
             };

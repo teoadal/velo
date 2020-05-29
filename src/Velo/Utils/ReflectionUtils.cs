@@ -105,8 +105,8 @@ namespace Velo.Utils
         {
             CheckIsNotAbstractAndNotInterface(type);
 
-            var availableConstructors = type.GetTypeInfo().DeclaredConstructors;
-            return availableConstructors.FirstOrDefault(c => !c.IsStatic && c.GetParameters().Length == 0);
+            var available = type.GetTypeInfo().DeclaredConstructors;
+            return available.FirstOrDefault(c => !c.IsStatic && c.GetParameters().Length == 0);
         }
 
         public static string GetName<T>()

@@ -10,7 +10,7 @@ using Velo.Utils;
 namespace Velo.Serialization.Tokenization
 {
     [DebuggerDisplay("Current token: {Current.TokenType}")]
-    internal sealed class JsonTokenizer : IEnumerator<JsonToken>
+    public sealed class JsonTokenizer : IEnumerator<JsonToken>
     {
         public JsonToken Current { get; private set; }
 
@@ -21,17 +21,17 @@ namespace Velo.Serialization.Tokenization
 
         #region Constructors
 
-        public JsonTokenizer(string source, StringBuilder? stringBuilder = null)
+        internal JsonTokenizer(string source, StringBuilder? stringBuilder = null)
             : this(new JsonReader(source), stringBuilder)
         {
         }
 
-        public JsonTokenizer(Stream stream, StringBuilder? stringBuilder = null)
+        internal JsonTokenizer(Stream stream, StringBuilder? stringBuilder = null)
             : this(new JsonReader(stream), stringBuilder)
         {
         }
 
-        public JsonTokenizer(JsonReader reader, StringBuilder? stringBuilder = null)
+        internal JsonTokenizer(JsonReader reader, StringBuilder? stringBuilder = null)
         {
             _reader = reader;
             _builder = stringBuilder ?? new StringBuilder(128);

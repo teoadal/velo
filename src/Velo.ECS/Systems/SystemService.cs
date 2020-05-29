@@ -1,30 +1,38 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Velo.ECS.Systems.Handlers;
+using Velo.ECS.Systems.Pipelines;
 
 namespace Velo.ECS.Systems
 {
     internal sealed class SystemService : ISystemService
     {
-        private readonly ISystemHandler<ICleanupSystem> _cleanup;
-        private readonly ISystemHandler<IInitSystem> _init;
+        private readonly ISystemPipeline<IBootstrapSystem> _bootstrap;
+        private readonly ISystemPipeline<ICleanupSystem> _cleanup;
+        private readonly ISystemPipeline<IInitSystem> _init;
 
-        private readonly ISystemHandler<IBeforeUpdateSystem> _beforeHandler;
-        private readonly ISystemHandler<IUpdateSystem> _update;
-        private readonly ISystemHandler<IAfterUpdateSystem> _afterHandler;
+        private readonly ISystemPipeline<IBeforeUpdateSystem> _beforePipeline;
+        private readonly ISystemPipeline<IUpdateSystem> _update;
+        private readonly ISystemPipeline<IAfterUpdateSystem> _afterPipeline;
 
         public SystemService(
-            ISystemHandler<IInitSystem> init, 
-            ISystemHandler<IBeforeUpdateSystem> beforeHandler, 
-            ISystemHandler<IUpdateSystem> update, 
-            ISystemHandler<IAfterUpdateSystem> afterHandler,
-            ISystemHandler<ICleanupSystem> cleanup) 
+            ISystemPipeline<IBootstrapSystem> bootstrap,
+            ISystemPipeline<IInitSystem> init, 
+            ISystemPipeline<IBeforeUpdateSystem> beforePipeline, 
+            ISystemPipeline<IUpdateSystem> update, 
+            ISystemPipeline<IAfterUpdateSystem> afterPipeline,
+            ISystemPipeline<ICleanupSystem> cleanup) 
         {
+            _bootstrap = bootstrap;
             _cleanup = cleanup;
             _init = init;
-            _beforeHandler = beforeHandler;
+            _beforePipeline = beforePipeline;
             _update = update;
-            _afterHandler = afterHandler;
+            _afterPipeline = afterPipeline;
+        }
+
+        public Task Bootstrap(CancellationToken cancellationToken)
+        {
+            return _bootstrap.Execute(cancellationToken);
         }
 
         public Task Cleanup(CancellationToken cancellationToken)
@@ -39,9 +47,9 @@ namespace Velo.ECS.Systems
 
         public async Task Update(CancellationToken cancellationToken)
         {
-            await _beforeHandler.Execute(cancellationToken);
+            await _beforePipeline.Execute(cancellationToken);
             await _update.Execute(cancellationToken);
-            await _afterHandler.Execute(cancellationToken);
+            await _afterPipeline.Execute(cancellationToken);
         }
     }
 }

@@ -94,7 +94,7 @@ namespace Velo.Tests.Serialization.Converters
             serialized.Add(nameof(CustomConverterModel.Value), JsonValue.String("one"));
             var model = (CustomConverterModel) converter.ReadObject(serialized);
 
-            model.Value.Should().Be(1);
+            model!.Value.Should().Be(1);
         }
 
         [Fact]

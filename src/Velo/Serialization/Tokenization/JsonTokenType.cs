@@ -1,6 +1,6 @@
 namespace Velo.Serialization.Tokenization
 {
-    internal enum JsonTokenType : byte
+    public enum JsonTokenType : byte
     {
         None = 0,
         ArrayStart,

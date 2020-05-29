@@ -1,30 +1,33 @@
 using FluentAssertions;
 using Moq;
 using Velo.ECS.Systems;
-using Velo.ECS.Systems.Handlers;
+using Velo.ECS.Systems.Pipelines;
 using Xunit;
 
 namespace Velo.Tests.ECS.Systems
 {
     public class SystemServiceShould : ECSTestClass
     {
-        private readonly Mock<ISystemHandler<IInitSystem>> _init;
-        private readonly Mock<ISystemHandler<IBeforeUpdateSystem>> _beforeUpdate;
-        private readonly Mock<ISystemHandler<IUpdateSystem>> _update;
-        private readonly Mock<ISystemHandler<IAfterUpdateSystem>> _afterUpdate;
-        private readonly Mock<ISystemHandler<ICleanupSystem>> _cleanup;
+        private readonly Mock<ISystemPipeline<IBootstrapSystem>> _bootstrap;
+        private readonly Mock<ISystemPipeline<IInitSystem>> _init;
+        private readonly Mock<ISystemPipeline<IBeforeUpdateSystem>> _beforeUpdate;
+        private readonly Mock<ISystemPipeline<IUpdateSystem>> _update;
+        private readonly Mock<ISystemPipeline<IAfterUpdateSystem>> _afterUpdate;
+        private readonly Mock<ISystemPipeline<ICleanupSystem>> _cleanup;
 
         private readonly ISystemService _systemService;
 
         public SystemServiceShould()
         {
-            _init = new Mock<ISystemHandler<IInitSystem>>();
-            _beforeUpdate = new Mock<ISystemHandler<IBeforeUpdateSystem>>();
-            _update = new Mock<ISystemHandler<IUpdateSystem>>();
-            _afterUpdate = new Mock<ISystemHandler<IAfterUpdateSystem>>();
-            _cleanup = new Mock<ISystemHandler<ICleanupSystem>>();
+            _bootstrap = new Mock<ISystemPipeline<IBootstrapSystem>>();
+            _init = new Mock<ISystemPipeline<IInitSystem>>();
+            _beforeUpdate = new Mock<ISystemPipeline<IBeforeUpdateSystem>>();
+            _update = new Mock<ISystemPipeline<IUpdateSystem>>();
+            _afterUpdate = new Mock<ISystemPipeline<IAfterUpdateSystem>>();
+            _cleanup = new Mock<ISystemPipeline<ICleanupSystem>>();
 
             _systemService = new SystemService(
+                _bootstrap.Object,
                 _init.Object,
                 _beforeUpdate.Object,
                 _update.Object,
@@ -32,6 +35,16 @@ namespace Velo.Tests.ECS.Systems
                 _cleanup.Object);
         }
 
+        [Fact]
+        public void RunBootstrapSystems()
+        {
+            _systemService
+                .Awaiting(service => service.Bootstrap(CancellationToken))
+                .Should().NotThrow();
+            
+            _bootstrap.Verify(bootstrap => bootstrap.Execute(CancellationToken));
+        }
+        
         [Fact]
         public void RunInitSystems()
         {

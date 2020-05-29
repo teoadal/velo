@@ -24,22 +24,15 @@ namespace Velo.DependencyInjection.Factories
             var dependencyType = contract.GenericTypeArguments[0];
             var dependency = engine.GetRequiredDependency(dependencyType);
 
-            Type implementation;
-            switch (dependency.Lifetime)
+            var implementation = dependency.Lifetime switch
             {
-                case DependencyLifetime.Singleton:
-                    implementation = typeof(SingletonReference<>);
-                    break;
-                case DependencyLifetime.Transient:
-                    implementation = typeof(TransientReference<>);
-                    break;
-                default:
-                    throw Error.InvalidDependencyLifetime(
-                        $"Dependency lifetime isn't supported for create {ReflectionUtils.GetName(contract)}");
-            }
+                DependencyLifetime.Singleton => typeof(SingletonReference<>),
+                DependencyLifetime.Transient => typeof(TransientReference<>),
+                _ => throw Error.InvalidDependencyLifetime(
+                    $"Dependency lifetime of {ReflectionUtils.GetName(dependencyType)} (Scoped) isn't supported for create reference")
+            };
 
-            implementation = implementation.MakeGenericType(dependencyType);
-            var resolver = new DelegateResolver(implementation, provider => provider.Activate(implementation));
+            var resolver = new ActivatorResolver(implementation.MakeGenericType(dependencyType));
             return new SingletonDependency(new[] {contract}, resolver);
         }
     }

@@ -23,6 +23,10 @@ namespace Velo.Utils
             {
                 return Expression.Lambda<Func<T>>(Expression.New(constructor)).Compile();
             }
+            else if (type.IsValueType)
+            {
+                return Expression.Lambda<Func<T>>(Expression.New(type)).Compile();
+            }
 
             var exception = Error.DefaultConstructorNotFound(type);
             if (throwIfEmptyConstructorNotFound)
@@ -66,7 +70,8 @@ namespace Velo.Utils
             return Expression.Call(instance, method, arg1);
         }
 
-        public static MethodCallExpression Call(Expression instance, string methodName, Expression arg1, Expression arg2)
+        public static MethodCallExpression Call(Expression instance, string methodName, Expression arg1,
+            Expression arg2)
         {
             var method = instance.Type.GetMethod(methodName);
             if (method == null) throw MethodNotFound(instance.Type, methodName);

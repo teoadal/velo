@@ -12,19 +12,23 @@ namespace Velo.Serialization.Collections
         [ThreadStatic] 
         private static List<TElement>? _buffer;
 
+        public Type Contract { get; }
+
         public bool IsPrimitive => false;
 
         private readonly IConvertersCollection _converters;
         private readonly IJsonConverter<TElement> _elementConverter;
         private readonly Type _elementType;
-        private readonly Func<TElement, bool> _isNull;
+        private readonly Func<TElement, bool> _elementTypeNullable;
 
         protected CollectionConverter(IConvertersCollection converters)
         {
+            Contract = Typeof<TCollection>.Raw;
+            
             _converters = converters;
             _elementConverter = converters.Get<TElement>();
             _elementType = Typeof<TElement>.Raw;
-            _isNull = _elementType.IsClass
+            _elementTypeNullable = _elementType.IsClass
                 ? new Func<TElement, bool>(reference => reference == null)
                 : notReference => false;
         }
@@ -56,7 +60,7 @@ namespace Velo.Serialization.Collections
 
         protected void SerializeElement(TElement element, TextWriter output)
         {
-            if (_isNull(element))
+            if (_elementTypeNullable(element))
             {
                 output.Write(JsonValue.NullToken);
                 return;
@@ -77,7 +81,7 @@ namespace Velo.Serialization.Collections
 
         protected JsonData WriteElement(TElement element)
         {
-            if (_isNull(element)) return JsonValue.Null;
+            if (_elementTypeNullable(element)) return JsonValue.Null;
 
             var elementType = element!.GetType();
 

@@ -26,7 +26,7 @@ namespace Velo.ECS.Assets.Factory
             var builder = GetOrAdd(Typeof.GetTypeId(entityType), _findOrCreate, entityType);
             return builder.BuildAsset(id, components ?? Array.Empty<IComponent>());
         }
-
+        
         private IAssetBuilder FindOrCreateBuilder(int _, Type assetType)
         {
             var builderType = typeof(IAssetBuilder<>).MakeGenericType(assetType);

@@ -9,18 +9,17 @@ using Velo.Collections.Enumerators;
 using Velo.Collections.Local;
 using Velo.ECS.Actors.Filters;
 using Velo.ECS.Actors.Groups;
-using Velo.ECS.Actors.Sources.Json;
 using Velo.ECS.Components;
 using Velo.ECS.Sources;
 using Velo.ECS.Sources.Context;
-using Velo.Serialization.Attributes;
+using Velo.ECS.Stores;
 using Velo.Threading;
 using Velo.Utils;
 
 namespace Velo.ECS.Actors.Context
 {
-    [Converter(typeof(ActorContextConverter))]
     [DebuggerTypeProxy(typeof(ActorContextDebugVisualizer))]
+    [DebuggerDisplay("Length = {" + nameof(Length) + "}")]
     internal sealed partial class ActorContext : IActorContext
     {
         public event Action<Actor>? Added;
@@ -236,7 +235,7 @@ namespace Velo.ECS.Actors.Context
 
             AddActors(buffer);
         }
-
+        
         public bool Remove(Actor actor)
         {
             bool removeResult;
@@ -251,6 +250,11 @@ namespace Velo.ECS.Actors.Context
             }
 
             return removeResult;
+        }
+
+        public void Save(IEntityStore<Actor> actorStore)
+        {
+            actorStore.Write(this);
         }
 
         public bool TryGet(int actorId, out Actor actor)

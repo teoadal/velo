@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Velo.Utils;
 
 namespace Velo.DependencyInjection.Scan
 {
@@ -55,6 +56,11 @@ namespace Velo.DependencyInjection.Scan
 
         public void Execute()
         {
+            if (_assemblies.Count == 0)
+            {
+                throw Error.InvalidOperation("Set assemblies for scan dependencies");
+            }
+            
             var anonType = typeof(CompilerGeneratedAttribute);
             foreach (var assembly in _assemblies)
             {

@@ -3,13 +3,13 @@ using System.Diagnostics;
 namespace Velo.Serialization.Tokenization
 {
     [DebuggerDisplay("{" + nameof(TokenType) + "}")]
-    internal readonly struct JsonToken
+    public readonly struct JsonToken
     {
         public readonly JsonTokenType TokenType;
 
         public readonly string? Value;
 
-        public JsonToken(JsonTokenType tokenType, string? value = null)
+        internal JsonToken(JsonTokenType tokenType, string? value = null)
         {
             TokenType = tokenType;
             Value = value;

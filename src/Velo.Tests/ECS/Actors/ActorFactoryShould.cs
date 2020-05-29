@@ -56,10 +56,12 @@ namespace Velo.Tests.ECS.Actors
         }
         
         [Fact]
-        public void CreateActor()
+        public void CreateActorWithoutParameters()
         {
             var actor = _actorFactory.Create();
-            actor.Should().NotBeNull();
+            
+            actor.Id.Should().BeGreaterOrEqualTo(0);
+            actor.Components.Should().NotBeNull();
         }
 
         [Fact]

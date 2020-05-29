@@ -2,7 +2,7 @@ using System.Linq;
 using FluentAssertions;
 using Moq;
 using Velo.ECS.Systems;
-using Velo.ECS.Systems.Handlers;
+using Velo.ECS.Systems.Pipelines;
 using Xunit;
 
 namespace Velo.Tests.ECS.Systems.Handlers
@@ -11,21 +11,20 @@ namespace Velo.Tests.ECS.Systems.Handlers
     {
         private readonly Mock<IInitSystem>[] _systems;
 
-        private readonly SystemSequentialHandler<IInitSystem> _handler;
+        private readonly SystemSequentialPipeline<IInitSystem> _pipeline;
 
         public SystemSequentialHandlerShould()
         {
             _systems = Many(() => new Mock<IInitSystem>());
 
-            _handler = new SystemSequentialHandler<IInitSystem>(
-                _systems.Select(s => s.Object).ToArray(),
-                (system, ct) => system.Init(ct));
+            _pipeline = new SystemSequentialPipeline<IInitSystem>(
+                _systems.Select(s => s.Object).ToArray());
         }
 
         [Fact]
         public void Execute()
         {
-            _handler
+            _pipeline
                 .Awaiting(handler => handler.Execute(CancellationToken))
                 .Should().NotThrow();
 
