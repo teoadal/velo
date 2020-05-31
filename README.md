@@ -28,7 +28,7 @@ var dependencyProvider = new DependencyCollection()
     .AddEmitter()
     .Scan(scanner => scanner // collect all processors and behaviours
         .AssemblyOf<IBooRepository>()
-        .AddEmitterProcessors())     
+        .RegisterEmitterProcessors())     
     .BuildProvider();
 
 var emitter = dependencyProvider.GetRequired<Emitter>();
@@ -143,7 +143,7 @@ var container = new DependencyCollection()
     .AddLogger()
     .AddDefaultLogEnrichers()         // log level, sender, timestamp
     .AddLogEnricher<Enricher>()       // add your enricher 
-    .AddLogWriter<ConsoleLogWriter>() // included primitive log writer
+    .AddDefaultConsoleLogWriter()     // primitive log writer
     .AddLogWriter<LogWriter>()        // add your writer
 ```
 
