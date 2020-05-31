@@ -31,7 +31,7 @@ var dependencyProvider = new DependencyCollection()
         .AddEmitterProcessors())     
     .BuildProvider();
 
-var emitter = dependencyProvider.GetRequiredService<Emitter>();
+var emitter = dependencyProvider.GetRequired<Emitter>();
 
 // ask query (send request)
 Boo boo = await emitter.Ask(new GetBoo { Id = id }); 
@@ -107,14 +107,14 @@ var foo = compiledMapper.Map(source);
 ### Deserialization
 
 ```cs
-var converter = new JConverter();
+var converter = dependencyCollection.GetRequired<JConverter>();
 var deserialized = converter.Deserialize<Boo[]>(json);
 ```
 
 ### Serialization
 
 ```cs
-var converter = new JConverter();
+var converter = dependencyCollection.GetRequired<JConverter>();
 var json = converter.Serialize(data);
 ```
 
@@ -150,7 +150,7 @@ var container = new DependencyCollection()
 ### Use logger
 
 ```cs
-var logger = _dependencyProvider.GetRequiredService<ILogger<MyClass>>();
+var logger = _dependencyProvider.GetRequired<ILogger<MyClass>>();
 logger.Debug("My code for handling {instance} executed at {elapsed}", instance, timer.Elapsed);
 ```
 
@@ -192,7 +192,7 @@ var container = new DependencyCollection()
 var provider = new DependencyCollection()
     .Scan(scanner => scanner
         .AssemblyOf<IRepository>()
-        .SingletoneOf(typeof(IRepository<>)))
+        .RegisterAsSingleton(typeof(IRepository<>)))
     .BuildProvider();
 ```
 
