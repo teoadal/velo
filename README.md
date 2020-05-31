@@ -25,7 +25,7 @@ Install-Package Velo.Extensions.DependencyInjection
 
 ```cs
 var dependencyProvider = new DependencyCollection()
-    .AddEmitter()
+    .AddEmitter()            // mediator infrastructure
     .Scan(scanner => scanner // collect all processors and behaviours
         .AssemblyOf<IBooRepository>()
         .RegisterEmitterProcessors())     
@@ -50,6 +50,7 @@ Boo boo = await emitter.Ask<GetBooStruct, Boo>(new GetBooStruct {Id = id});
 
 ```cs
 var dependencyProvider = new DependencyCollection()
+    .AddEmitter()                            // mediator infrastructure
     .AddCommandBehaviour<MeasureBehaviour>() // add behaviours
     .AddCommandProcessor<PreProcessor>()
     .AddCommandProcessor<Processor>(DependencyLifetime.Scoped) 
@@ -58,6 +59,7 @@ var dependencyProvider = new DependencyCollection()
     .AddQueryProcessor<QueryProcessor>()
     .AddQueryProcessor<QueryPostProcessor>()
     .AddNotificationProcessor<OnBooCreated>()
+    .BuildProvider();
 ```
 
 ### Mediator query (request) benchmark (per 1000 requests)
@@ -107,14 +109,18 @@ var foo = compiledMapper.Map(source);
 ### Deserialization
 
 ```cs
-var converter = dependencyCollection.GetRequired<JConverter>();
+var dependencyProvider = new DependencyCollection()
+    .AddJson() // json converter infrastructure
+    .BuildProvider();
+
+var converter = dependencyProvider.GetRequired<JConverter>();
 var deserialized = converter.Deserialize<Boo[]>(json);
 ```
 
 ### Serialization
 
 ```cs
-var converter = dependencyCollection.GetRequired<JConverter>();
+var converter = dependencyProvider.GetRequired<JConverter>();
 var json = converter.Serialize(data);
 ```
 
@@ -139,18 +145,19 @@ var json = converter.Serialize(data);
 ### Configure logger
 
 ```cs
-var container = new DependencyCollection()
+var dependencyProvider = new DependencyCollection()
     .AddLogger()
     .AddDefaultLogEnrichers()         // log level, sender, timestamp
     .AddLogEnricher<Enricher>()       // add your enricher 
     .AddDefaultConsoleLogWriter()     // primitive log writer
     .AddLogWriter<LogWriter>()        // add your writer
+    .BuildProvider();
 ```
 
 ### Use logger
 
 ```cs
-var logger = _dependencyProvider.GetRequired<ILogger<MyClass>>();
+var logger = dependencyProvider.GetRequired<ILogger<MyClass>>();
 logger.Debug("My code for handling {instance} executed at {elapsed}", instance, timer.Elapsed);
 ```
 
@@ -177,7 +184,7 @@ logger.Debug("My code for handling {instance} executed at {elapsed}", instance, 
 ### Create dependency provider
 
 ```cs
-var container = new DependencyCollection()
+var dependencyProvider = new DependencyCollection()
     .AddScoped<SomethingController>()
     .AddSingleton<IFooService, FooService>()
     .AddSingleton(typof(IMapper<>), typeof(CompiledMapper<>))
@@ -189,7 +196,7 @@ var container = new DependencyCollection()
 ### Use assembly scanner for find generic interface implementations
 
 ```cs
-var provider = new DependencyCollection()
+var dependencyProvider = new DependencyCollection()
     .Scan(scanner => scanner
         .AssemblyOf<IRepository>()
         .RegisterAsSingleton(typeof(IRepository<>)))
@@ -200,20 +207,20 @@ var provider = new DependencyCollection()
 
 ```cs
 // possible null or empty
-var repositoryArray = provider.Get<IRepository[]>();
+var repositoryArray = dependencyProvider.Get<IRepository[]>();
 
 // not null or exception
-var converterSingleton = provider.GetRequired<JConverter>();
+var converterSingleton = dependencyProvider.GetRequired<JConverter>();
 
 // registered as transient
-var session = container.Get<ISession>();
-var otherSession = container.Get<ISession>();
+var session = dependencyProvider.Get<ISession>();
+var otherSession = dependencyProvider.Get<ISession>();
 ```
 
 ### Use scope
 
 ```cs
-using (var scope = provider.StartScope())
+using (var scope = dependencyProvider.StartScope())
 {
     var controller = scope.Get<SomethingController>();
 }
