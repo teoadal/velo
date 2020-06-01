@@ -1,5 +1,7 @@
+using System;
 using System.IO;
 using System.Reflection;
+using Velo.DependencyInjection;
 using Velo.ECS.Assets.Context;
 using Velo.ECS.Sources;
 using Velo.ECS.Sources.Context;
@@ -14,18 +16,18 @@ namespace Velo.ECS.Assets.Sources.Json
     internal sealed class AssetReferencesConverter<TOwner, TAsset> : IPropertyConverter<TOwner>
         where TOwner : class where TAsset : Asset
     {
-        private readonly IReference<IAssetContext> _assetContext;
+        private readonly Lazy<IAssetContext> _assetContext;
         private readonly IEntitySourceContext<Asset> _sources;
 
         private readonly ReferenceResolver<TOwner, TAsset> _resolver;
 
         public AssetReferencesConverter(
-            IReference<IAssetContext> assetContext,
             SourceDescriptions descriptions,
+            IServiceProvider provider,
             IEntitySourceContext<Asset> sources,
             PropertyInfo property)
         {
-            _assetContext = assetContext;
+            _assetContext = new Lazy<IAssetContext>(provider.GetRequired<IAssetContext>);
             _resolver = ReferenceResolver<TOwner, TAsset>.Build(property, descriptions, GetEntity);
             _sources = sources;
         }

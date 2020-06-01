@@ -50,6 +50,10 @@ namespace Velo.DependencyInjection
             {
                 throw Error.DependencyNotRegistered($"{e.Message} <- '{ReflectionUtils.GetName(implementation)}'");
             }
+            catch (TypeAccessException e)
+            {
+                throw Error.CircularDependency($"{e.Message} <- '{ReflectionUtils.GetName(implementation)}'");
+            }
         }
 
         public static object Activate(

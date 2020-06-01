@@ -74,11 +74,5 @@
         <Compile Update="Collections\Local\LocalList.Row.cs">
           <DependentUpon>LocalList.cs</DependentUpon>
         </Compile>
-        <Compile Update="DependencyInjection\Factories\ReferenceFactory.SingletonReference.cs">
-          <DependentUpon>ReferenceFactory.cs</DependentUpon>
-        </Compile>
-        <Compile Update="DependencyInjection\Factories\ReferenceFactory.TransientReference.cs">
-          <DependentUpon>ReferenceFactory.cs</DependentUpon>
-        </Compile>
     </ItemGroup>
 </Project>

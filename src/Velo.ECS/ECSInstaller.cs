@@ -71,6 +71,8 @@ namespace Velo.DependencyInjection
             return dependencies;
         }
 
+        #region AddAssets
+
         public static DependencyCollection AddAssets(this DependencyCollection dependencies,
             IEntitySource<Asset> assetSource)
         {
@@ -107,7 +109,7 @@ namespace Velo.DependencyInjection
             return dependencies;
         }
 
-        public static DependencyCollection AddJsonAssets(this DependencyCollection dependencies, string filePath)
+        public static DependencyCollection AddAssets(this DependencyCollection dependencies, string filePath)
         {
             if (string.IsNullOrWhiteSpace(filePath)) throw Error.Null(nameof(filePath));
 
@@ -121,7 +123,7 @@ namespace Velo.DependencyInjection
             return dependencies;
         }
 
-        public static DependencyCollection AddJsonAssets(this DependencyCollection dependencies, Stream stream)
+        public static DependencyCollection AddAssets(this DependencyCollection dependencies, Stream stream)
         {
             if (stream == null) throw Error.Null(nameof(stream));
 
@@ -135,22 +137,23 @@ namespace Velo.DependencyInjection
             return dependencies;
         }
 
-        public static DependencyCollection AddECSSystem<TSystem>(
+        #endregion
+
+        public static DependencyCollection AddSystem<TSystem>(
             this DependencyCollection dependencies,
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
         {
             var implementation = typeof(TSystem);
             if (!ECSUtils.TryGetImplementedSystemInterfaces(implementation, out var contracts))
             {
-                throw Error.InvalidOperation(
-                    $"Type '{ReflectionUtils.GetName<TSystem>()}' isn't implemented system interfaces");
+                throw Error.InvalidOperation($"Type '{ReflectionUtils.GetName<TSystem>()}' isn't implemented system interfaces");
             }
 
             dependencies.AddDependency(contracts, implementation, lifetime);
             return dependencies;
         }
 
-        public static DependencyScanner RegisterECSSystems(
+        public static DependencyScanner RegisterSystems(
             this DependencyScanner scanner,
             DependencyLifetime lifetime = DependencyLifetime.Singleton)
         {

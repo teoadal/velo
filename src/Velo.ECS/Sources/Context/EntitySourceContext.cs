@@ -10,19 +10,12 @@ namespace Velo.ECS.Sources.Context
         public bool IsStarted => _enumerator != null;
 
         private Enumerator? _enumerator;
-        private readonly IReference<IEntitySource<TEntity>[]> _sources;
 
-        public EntitySourceContext(IReference<IEntitySource<TEntity>[]> sources)
+        public EntitySourceContext()
         {
-            _sources = sources;
             _enumerator = null!;
         }
 
-        public EntitySourceContext(params IEntitySource<TEntity>[] sources)
-            : this(new MemorySources(sources))
-        {
-        }
-        
         public TEntity Get(int id)
         {
             if (_enumerator == null)
@@ -35,12 +28,14 @@ namespace Velo.ECS.Sources.Context
                 : throw Error.NotFound($"Entity with id '{id}' isn't found in sources");
         }
 
-        public IEnumerable<TEntity> GetEntities()
+        public IEnumerable<TEntity> GetEntities(IEntitySource<TEntity>[] sources)
         {
-            if (_enumerator != null) return _enumerator;
+            if (_enumerator != null)
+            {
+                throw Error.InvalidOperation("Entities context already started");
+            }
 
-            var sources = _sources.Value;
-            if (sources == null || sources.Length == 0)
+            if (sources.Length == 0)
             {
                 return EmptyEnumerator<TEntity>.Instance;
             }

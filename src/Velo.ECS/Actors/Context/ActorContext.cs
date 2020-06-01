@@ -219,10 +219,10 @@ namespace Velo.ECS.Actors.Context
 
         public void Load(params IEntitySource<Actor>[] actorSources)
         {
-            var context = new EntitySourceContext<Actor>(actorSources);
+            var context = new EntitySourceContext<Actor>();
 
             var buffer = new LocalList<Actor>();
-            foreach (var actor in context.GetEntities())
+            foreach (var actor in context.GetEntities(actorSources))
             {
                 buffer.Add(actor);
 

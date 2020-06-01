@@ -17,15 +17,13 @@ namespace Velo.ECS.Injection
         private readonly Type _baseFilterType;
         private readonly Dictionary<int, MethodInfo> _resolveMethods;
 
-        public FilterFactory(Type baseFilterType, string? methodName = null)
+        public FilterFactory(Type baseFilterType)
         {
             _baseFilterType = baseFilterType;
 
-            methodName ??= nameof(IActorContext.GetFilter);
-
             _resolveMethods = typeof(TContext)
                 .GetMethods()
-                .Where(method => method.IsGenericMethod && method.Name == methodName)
+                .Where(method => method.IsGenericMethod && method.Name == nameof(IActorContext.GetFilter))
                 .ToDictionary(method => method.GetGenericArguments().Length);
         }
 

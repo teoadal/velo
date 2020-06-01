@@ -56,17 +56,6 @@ namespace Velo.Tests.DependencyInjection
         }
 
         [Fact]
-        public void IncludeReferenceFactory()
-        {
-            var dependency = MockDependency(contract: _contract);
-            _engine.AddDependency(dependency.Object);
-
-            _engine
-                .Contains(typeof(IReference<>).MakeGenericType(_contract))
-                .Should().BeTrue();
-        }
-
-        [Fact]
         public void ContainsApplicableDependency()
         {
             var dependency = MockDependency(contract: _contract);

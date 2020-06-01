@@ -15,10 +15,10 @@ namespace Velo.ECS.Injection
         private readonly Type _singleGenericType;
         private readonly MethodInfo _resolveMethod;
 
-        public SingleFactory(Type singleGenericType, string? methodName = null)
+        public SingleFactory(Type singleGenericType)
         {
             _singleGenericType = singleGenericType;
-            _resolveMethod = typeof(TContext).GetMethod(methodName ?? nameof(IActorContext.GetSingle));
+            _resolveMethod = typeof(TContext).GetMethod(nameof(IActorContext.GetSingle))!;
         }
 
         public bool Applicable(Type contract)
