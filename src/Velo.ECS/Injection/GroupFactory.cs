@@ -14,10 +14,10 @@ namespace Velo.ECS.Injection
         private readonly Type _baseGroupType;
         private readonly MethodInfo _resolveMethod;
 
-        public GroupFactory(Type baseGroupType, string? methodName = null)
+        public GroupFactory(Type baseGroupType)
         {
             _baseGroupType = baseGroupType;
-            _resolveMethod = typeof(TContext).GetMethod(methodName ?? nameof(IActorContext.GetGroup));
+            _resolveMethod = typeof(TContext).GetMethod(nameof(IActorContext.GetGroup))!;
         }
 
         public bool Applicable(Type contract)

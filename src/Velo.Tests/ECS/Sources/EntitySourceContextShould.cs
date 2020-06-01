@@ -19,7 +19,7 @@ namespace Velo.Tests.ECS.Sources
     {
         private readonly IEntitySourceContext<Asset> _context;
         private readonly Mock<IEntitySource<Asset>> _source;
-        private readonly Mock<IReference<IEntitySource<Asset>[]>> _sources;
+        private readonly IEntitySource<Asset>[] _sources;
 
         public EntitySourceContextShould()
         {
@@ -28,33 +28,27 @@ namespace Velo.Tests.ECS.Sources
                 .Setup(source => source.GetEntities(_context))
                 .Returns(Array.Empty<Asset>());
 
-            _sources = new Mock<IReference<IEntitySource<Asset>[]>>();
-            _sources
-                .SetupGet(reference => reference.Value)
-                .Returns(new[] {_source.Object});
-
-            _context = new EntitySourceContext<Asset>(_sources.Object);
+            _sources = new[] {_source.Object};
+            _context = new EntitySourceContext<Asset>();
         }
 
         [Fact]
         public void DisposeSource()
         {
             _context
-                .Invoking(context => context.GetEntities().ToArray())
+                .Invoking(context => context.GetEntities(_sources).ToArray())
                 .Should().NotThrow();
 
             _source.Verify(source => source.Dispose());
         }
 
-        [Theory]
-        [MemberData(nameof(EmptySources))]
-        public void GetEmptyEnumeratorIfEventSourcesIsNotRegistered(IEntitySource<Asset>[] sources)
+        [Fact]
+        public void GetEmptyEnumeratorIfEventSourcesIsNotRegistered()
         {
-            _sources
-                .SetupGet(reference => reference.Value)
-                .Returns(sources);
-
-            _context.GetEntities().Should().BeOfType<EmptyEnumerator<Asset>>();
+            var empty = Array.Empty<IEntitySource<Asset>>();
+            _context
+                .GetEntities(empty)
+                .Should().BeOfType<EmptyEnumerator<Asset>>();
         }
 
         [Fact]
@@ -72,11 +66,7 @@ namespace Velo.Tests.ECS.Sources
             });
             CollectionUtils.Add(ref sources, delegateSource);
 
-            _sources
-                .SetupGet(reference => reference.Value)
-                .Returns(sources);
-
-            _context.GetEntities(); // start enumeration
+            StartEnumeration(sources);
 
             var actual = (TestAsset) _context
                 .Invoking(context => context.Get(testAssetId))
@@ -94,7 +84,7 @@ namespace Velo.Tests.ECS.Sources
                 .Setup(source => source.GetEntities(_context))
                 .Returns(new[] {asset});
 
-            _context.GetEntities(); // start enumeration
+            StartEnumeration();
 
             var actual = _context
                 .Invoking(context => context.Get(asset.Id))
@@ -108,7 +98,7 @@ namespace Velo.Tests.ECS.Sources
         public void NotStartedAfterEndEnumeration()
         {
             _context
-                .Invoking(context => context.GetEntities().ToArray())
+                .Invoking(context => context.GetEntities(_sources).ToArray())
                 .Should().NotThrow();
 
             _context.IsStarted.Should().BeFalse();
@@ -124,7 +114,7 @@ namespace Velo.Tests.ECS.Sources
                 .Returns(assets);
 
             var actual = _context
-                .Invoking(context => context.GetEntities())
+                .Invoking(context => context.GetEntities(_sources))
                 .Should().NotThrow()
                 .Which.ToArray();
 
@@ -138,12 +128,8 @@ namespace Velo.Tests.ECS.Sources
             var assets = Many(100, i => CreateAsset(i));
             var sources = Many(10, i => CreateSource(assets.Skip(i * 10).Take(10)));
 
-            _sources
-                .SetupGet(reference => reference.Value)
-                .Returns(sources);
-
             var actual = _context
-                .Invoking(context => context.GetEntities())
+                .Invoking(context => context.GetEntities(sources))
                 .Should().NotThrow()
                 .Which.ToArray();
 
@@ -152,17 +138,10 @@ namespace Velo.Tests.ECS.Sources
         }
 
         [Fact]
-        public void ReturnSameEnumeratorAfterStartEnumeration()
-        {
-            var enumerator = _context.GetEntities();
-            _context.GetEntities().Should().BeSameAs(enumerator);
-        }
-
-        [Fact]
         public void SendContextAfterStartEnumeration()
         {
             _context
-                .Invoking(context => context.GetEntities().ToArray())
+                .Invoking(context => context.GetEntities(_sources).ToArray())
                 .Should().NotThrow();
 
             _source.Verify(source => source.GetEntities(_context));
@@ -171,8 +150,19 @@ namespace Velo.Tests.ECS.Sources
         [Fact]
         public void StartedAfterStartEnumeration()
         {
-            _context.GetEntities(); // start enumeration
+            StartEnumeration();
+
             _context.IsStarted.Should().BeTrue();
+        }
+
+        [Fact]
+        public void ThrowGetEntitiesAgainAfterStartEnumeration()
+        {
+            StartEnumeration();
+            
+            _context
+                .Invoking(context => context.GetEntities(_sources))
+                .Should().Throw<InvalidOperationException>();
         }
 
         [Fact]
@@ -186,7 +176,7 @@ namespace Velo.Tests.ECS.Sources
         [Fact]
         public void ThrowIfEntityNotExists()
         {
-            _context.GetEntities(); // start enumeration
+            StartEnumeration();
 
             _context
                 .Invoking(context => context.Get(Fixture.Create<int>()))
@@ -204,10 +194,9 @@ namespace Velo.Tests.ECS.Sources
             return source.Object;
         }
 
-        public static TheoryData<IEntitySource<Asset>[]> EmptySources => new TheoryData<IEntitySource<Asset>[]>
+        private void StartEnumeration(IEntitySource<Asset>[] sources = null)
         {
-            null,
-            Array.Empty<IEntitySource<Asset>>()
-        };
+            _context.GetEntities(sources ?? _sources);
+        }
     }
 }

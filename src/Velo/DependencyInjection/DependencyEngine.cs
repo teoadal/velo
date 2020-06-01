@@ -34,8 +34,7 @@ namespace Velo.DependencyInjection
 
             _factories = new List<IDependencyFactory>(4)
             {
-                new ArrayFactory(),
-                new ReferenceFactory()
+                new ArrayFactory()
             };
 
             _resolvedDependencies = new Dictionary<Type, IDependency>();

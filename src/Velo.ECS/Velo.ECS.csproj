@@ -59,9 +59,6 @@
       <Compile Update="Sources\Context\EntitySourceContext.Enumerator.cs">
         <DependentUpon>EntitySourceContext.cs</DependentUpon>
       </Compile>
-      <Compile Update="Sources\Context\EntitySourceContext.MemorySources.cs">
-        <DependentUpon>EntitySourceContext.cs</DependentUpon>
-      </Compile>
       <Compile Update="Actors\Context\ActorContext.DebugVisualizer.cs">
         <DependentUpon>ActorContext.cs</DependentUpon>
       </Compile>

@@ -18,6 +18,11 @@ namespace Velo.Utils
             return new TypeAccessException($"Detected circular dependency '{ReflectionUtils.GetName(contract)}'");
         }
 
+        public static TypeAccessException CircularDependency(string message)
+        {
+            return new TypeAccessException(message);
+        }
+        
         public static InvalidCastException Cast(string message, Exception? innerException = null)
         {
             return new InvalidCastException(message, innerException);

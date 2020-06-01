@@ -104,7 +104,7 @@ namespace Velo.Tests.ECS
 
             var provider = new DependencyCollection()
                 .AddECS()
-                .AddJsonAssets(memoryStream)
+                .AddAssets(memoryStream)
                 .BuildProvider();
 
             var assets = provider.GetRequired<IAssetContext>();
