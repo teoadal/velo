@@ -39,7 +39,7 @@ namespace Velo.Tests.ECS.Systems
         public void RunBootstrapSystems()
         {
             _systemService
-                .Awaiting(service => service.Bootstrap(CancellationToken))
+                .Awaiting(service => service.BootstrapAsync(CancellationToken))
                 .Should().NotThrow();
             
             _bootstrap.Verify(bootstrap => bootstrap.Execute(CancellationToken));
@@ -49,7 +49,7 @@ namespace Velo.Tests.ECS.Systems
         public void RunInitSystems()
         {
             _systemService
-                .Awaiting(service => service.Init(CancellationToken))
+                .Awaiting(service => service.InitAsync(CancellationToken))
                 .Should().NotThrow();
             
             _init.Verify(init => init.Execute(CancellationToken));
@@ -59,7 +59,7 @@ namespace Velo.Tests.ECS.Systems
         public void RunUpdateSystems()
         {
             _systemService
-                .Awaiting(service => service.Update(CancellationToken))
+                .Awaiting(service => service.UpdateAsync(CancellationToken))
                 .Should().NotThrow();
             
             _beforeUpdate.Verify(before => before.Execute(CancellationToken));
@@ -71,7 +71,7 @@ namespace Velo.Tests.ECS.Systems
         public void RunCleanupSystems()
         {
             _systemService
-                .Awaiting(service => service.Cleanup(CancellationToken))
+                .Awaiting(service => service.CleanupAsync(CancellationToken))
                 .Should().NotThrow();
             
             _cleanup.Verify(cleanup => cleanup.Execute(CancellationToken));

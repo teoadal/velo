@@ -5,12 +5,12 @@ namespace Velo.ECS.Systems
 {
     public interface ISystemService
     {
-        Task Bootstrap(CancellationToken cancellationToken);
+        Task BootstrapAsync(CancellationToken cancellationToken = default);
         
-        Task Cleanup(CancellationToken cancellationToken);
+        Task CleanupAsync(CancellationToken cancellationToken = default);
 
-        Task Init(CancellationToken cancellationToken);
+        Task InitAsync(CancellationToken cancellationToken = default);
 
-        Task Update(CancellationToken cancellationToken);
+        Task UpdateAsync(CancellationToken cancellationToken = default);
     }
 }

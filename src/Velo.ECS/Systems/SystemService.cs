@@ -30,22 +30,22 @@ namespace Velo.ECS.Systems
             _afterPipeline = afterPipeline;
         }
 
-        public Task Bootstrap(CancellationToken cancellationToken)
+        public Task BootstrapAsync(CancellationToken cancellationToken)
         {
             return _bootstrap.Execute(cancellationToken);
         }
 
-        public Task Cleanup(CancellationToken cancellationToken)
+        public Task CleanupAsync(CancellationToken cancellationToken)
         {
             return _cleanup.Execute(cancellationToken);
         }
 
-        public Task Init(CancellationToken cancellationToken)
+        public Task InitAsync(CancellationToken cancellationToken)
         {
             return _init.Execute(cancellationToken);
         }
 
-        public async Task Update(CancellationToken cancellationToken)
+        public async Task UpdateAsync(CancellationToken cancellationToken)
         {
             await _beforePipeline.Execute(cancellationToken);
             await _update.Execute(cancellationToken);

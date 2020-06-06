@@ -64,7 +64,7 @@ namespace Velo.ECS.State
         {
             Actors.Clear();
 
-            return systems.Cleanup(cancellationToken);
+            return systems.CleanupAsync(cancellationToken);
         }
 
         public async Task LoadAsync(
@@ -78,15 +78,15 @@ namespace Velo.ECS.State
 
             Actors.Load(source);
 
-            await systems.Init(cancellationToken);
+            await systems.InitAsync(cancellationToken);
         }
 
         public async Task NewAsync(ISystemService systems, CancellationToken cancellationToken = default)
         {
             await ClearAsync(systems, cancellationToken);
 
-            await systems.Bootstrap(cancellationToken);
-            await systems.Init(cancellationToken);
+            await systems.BootstrapAsync(cancellationToken);
+            await systems.InitAsync(cancellationToken);
         }
 
         public void Save(string jsonFilePath)
