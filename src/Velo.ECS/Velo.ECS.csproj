@@ -7,11 +7,10 @@
         <LangVersion>8</LangVersion>
         <TargetFramework>netstandard2.0</TargetFramework>
         <RepositoryType>git</RepositoryType>
-        <RepositoryUrl>git://github.com/teoadal/velo</RepositoryUrl>
+        <RepositoryUrl>https://github.com/teoadal/velo/wiki/Integration-with-IServiceCollection</RepositoryUrl>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <PackageId>Velo.ECS</PackageId>
         <PackageTags>ecs;entity;component;system</PackageTags>
-        <PackageProjectUrl>https://github.com/teoadal/velo/wiki/ECS-(Entity-component-system)</PackageProjectUrl>
         <Authors>teoadal</Authors>
         <Company>teoadal</Company>
         <Product>Velo.ECS</Product>
