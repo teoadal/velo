@@ -11,7 +11,7 @@
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <PackageId>Velo.ECS</PackageId>
         <PackageTags>ecs;entity;component;system</PackageTags>
-        <PackageProjectUrl>https://github.com/teoadal/velo</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/teoadal/velo/wiki/ECS-(Entity-component-system)</PackageProjectUrl>
         <Authors>teoadal</Authors>
         <Company>teoadal</Company>
         <Product>Velo.ECS</Product>
