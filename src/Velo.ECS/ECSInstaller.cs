@@ -127,7 +127,7 @@ namespace Velo.DependencyInjection
         {
             if (stream == null) throw Error.Null(nameof(stream));
 
-            dependencies.AddDependency<IEntitySource<Asset>>(AssetSourceContracts,
+            dependencies.AddDependency(AssetSourceContracts,
                 provider => new JsonStreamSource<Asset>(
                     provider.GetRequired<IConvertersCollection>(),
                     provider.GetRequired<SourceDescriptions>(),

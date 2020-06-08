@@ -31,7 +31,7 @@ namespace Velo.Tests.ECS.Injection
         public void CreateDependency()
         {
             var dependency = _actorSingleFactory.BuildDependency(_contract, Mock.Of<IDependencyEngine>());
-            dependency.Should().BeOfType<ContextDependency<IActorContext>>();
+            dependency.Should().BeOfType<EntityContextDependency<IActorContext>>();
         }
 
         [Fact]

@@ -16,7 +16,7 @@ namespace Velo.Tests.ECS.Injection
         private readonly Type _contract;
         private readonly Mock<IServiceProvider> _services;
 
-        private readonly ContextDependency<IActorContext> _actorContextDependency;
+        private readonly EntityContextDependency<IActorContext> _actorContextDependency;
 
         public ContextDependencyShould()
         {
@@ -27,7 +27,7 @@ namespace Velo.Tests.ECS.Injection
                 .Setup(provider => provider.GetService(typeof(IActorContext)))
                 .Returns(_actorContext.Object);
 
-            _actorContextDependency = new ContextDependency<IActorContext>(
+            _actorContextDependency = new EntityContextDependency<IActorContext>(
                 _contract,
                 context => context.GetFilter<TestComponent1>());
         }

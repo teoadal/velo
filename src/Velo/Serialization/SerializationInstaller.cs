@@ -14,8 +14,11 @@ namespace Velo.DependencyInjection
             CultureInfo? culture = null)
         {
             dependencies
-                .AddSingleton<IConvertersCollection>(provider => new ConvertersCollection(provider, culture))
-                .AddSingleton<JConverter>();
+                .AddSingleton<JConverter>()
+                .AddDependency(
+                    new[] {typeof(IConvertersCollection)},
+                    provider => new ConvertersCollection(provider, culture),
+                    DependencyLifetime.Singleton);
 
             return dependencies;
         }
@@ -28,7 +31,8 @@ namespace Velo.DependencyInjection
             return dependencies;
         }
 
-        public static DependencyCollection AddJsonConverter(this DependencyCollection dependencies, IJsonConverter converter)
+        public static DependencyCollection AddJsonConverter(this DependencyCollection dependencies,
+            IJsonConverter converter)
         {
             dependencies.Add(new InstanceDependency(ConverterContracts, converter));
 

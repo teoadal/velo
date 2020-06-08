@@ -31,7 +31,7 @@ namespace Velo.Tests.ECS.Injection
         public void CreateDependency(Type filterType)
         {
             var dependency = _actorFilterFactory.BuildDependency(filterType, Mock.Of<IDependencyEngine>());
-            dependency.Should().BeOfType<ContextDependency<IActorContext>>();
+            dependency.Should().BeOfType<EntityContextDependency<IActorContext>>();
         }
 
         [Fact]

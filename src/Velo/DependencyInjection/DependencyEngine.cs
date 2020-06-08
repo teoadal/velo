@@ -169,7 +169,7 @@ namespace Velo.DependencyInjection
         public void Dispose()
         {
             if (_disposed) return;
-            
+
             foreach (var dependency in _dependencies)
             {
                 dependency.Dispose();

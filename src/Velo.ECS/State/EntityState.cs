@@ -7,6 +7,7 @@ using Velo.ECS.Assets.Context;
 using Velo.ECS.Components;
 using Velo.ECS.Sources;
 using Velo.ECS.Sources.Json;
+using Velo.ECS.Stores;
 using Velo.ECS.Stores.Json;
 using Velo.ECS.Systems;
 using Velo.Serialization;
@@ -67,19 +68,30 @@ namespace Velo.ECS.State
             return systems.CleanupAsync(cancellationToken);
         }
 
+        #region Load
+
         public async Task LoadAsync(
             ISystemService systems,
             string jsonFilePath,
             CancellationToken cancellationToken = default)
         {
-            await ClearAsync(systems, cancellationToken);
-
             using var source = new JsonFileSource<Actor>(_converters, _descriptions, jsonFilePath);
+            await LoadAsync(systems, source, cancellationToken);
+        }
+
+        public async Task LoadAsync(
+            ISystemService systems,
+            IEntitySource<Actor> source,
+            CancellationToken cancellationToken = default)
+        {
+            await ClearAsync(systems, cancellationToken);
 
             Actors.Load(source);
 
             await systems.InitAsync(cancellationToken);
         }
+
+        #endregion
 
         public async Task NewAsync(ISystemService systems, CancellationToken cancellationToken = default)
         {
@@ -89,11 +101,19 @@ namespace Velo.ECS.State
             await systems.InitAsync(cancellationToken);
         }
 
+        #region Save
+
         public void Save(string jsonFilePath)
         {
             var store = new JsonFileStore<Actor>(_converters, jsonFilePath);
+            Save(store);
+        }
 
+        public void Save(IEntityStore<Actor> store)
+        {
             Actors.Save(store);
         }
+
+        #endregion
     }
 }

@@ -51,6 +51,8 @@ namespace Velo.DependencyInjection
         {
             if (_disposed) throw Error.Disposed(nameof(IDependencyScope));
 
+            if (contract == typeof(IDependencyScope)) return this;
+            
             lock (_lock)
             {
                 if (_dependencies.TryGetValue(contract, out var exists))

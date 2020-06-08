@@ -28,11 +28,11 @@ namespace Velo.Tests.ECS.Systems
 
             _systemService = new SystemService(
                 _bootstrap.Object,
+                _cleanup.Object,
                 _init.Object,
                 _beforeUpdate.Object,
                 _update.Object,
-                _afterUpdate.Object,
-                _cleanup.Object);
+                _afterUpdate.Object);
         }
 
         [Fact]

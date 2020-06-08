@@ -133,7 +133,6 @@ namespace Velo.Tests.DependencyInjection
         {
             var provider = _dependencies.BuildProvider();
 
-            provider.GetRequired<IServiceProvider>().Should().Be(provider);
             provider.GetRequired<DependencyProvider>().Should().Be(provider);
         }
 

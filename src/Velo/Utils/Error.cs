@@ -59,9 +59,10 @@ namespace Velo.Utils
             return new ObjectDisposedException(objectName);
         }
 
-        public static InvalidOperationException InconsistentOperation(string message)
+        public static InvalidOperationException InconsistentLifetime(Type dependedType, Type dependencyType)
         {
-            return new InvalidOperationException($"Inconsistent operation: {message}");
+            return new InvalidOperationException($"Lifetime of {ReflectionUtils.GetName(dependedType)} " +
+                                                 $"is less that {ReflectionUtils.GetName(dependencyType)}");
         }
 
         public static InvalidDataException InvalidData(string message)

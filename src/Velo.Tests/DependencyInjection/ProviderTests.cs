@@ -105,7 +105,6 @@ namespace Velo.Tests.DependencyInjection
             var provider = _dependencies.BuildProvider();
 
             Assert.Equal(provider, provider.GetRequired<DependencyProvider>());
-            Assert.Equal(provider, provider.GetRequired<IServiceProvider>());
         }
 
         [Fact]

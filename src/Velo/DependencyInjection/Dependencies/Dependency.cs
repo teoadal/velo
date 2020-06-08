@@ -71,7 +71,7 @@ namespace Velo.DependencyInjection.Dependencies
         }
 
         public abstract object GetInstance(Type contract, IServiceProvider services);
-
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected object Resolve(Type contract, IServiceProvider services) => _resolver.Resolve(contract, services);
 

@@ -35,7 +35,7 @@ namespace Velo.ECS.Injection
                 .Lambda<Func<TContext, object>>(Expression.Call(parameter, callMethod), parameter)
                 .Compile();
 
-            return new ContextDependency<TContext>(contract, resolveMethod);
+            return new EntityContextDependency<TContext>(contract, resolveMethod);
         }
     }
 }

@@ -19,7 +19,7 @@ namespace Velo.ECS.Stores.Json
 
         public void Write(IEnumerable<TEntity> actors)
         {
-            using var writer = (TextWriter) new StreamWriter(_path, false, Encoding.UTF8);
+            using var writer = new StreamWriter(_path, false, Encoding.UTF8);
 
             writer.WriteArrayStart();
 

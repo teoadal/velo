@@ -85,10 +85,7 @@ namespace Velo.DependencyInjection
         {
             var provider = new DependencyProvider(_engine);
 
-            var providerContracts = new[] {Typeof<DependencyProvider>.Raw, Typeof<IServiceProvider>.Raw};
-            var providerDependency = new InstanceDependency(providerContracts, provider);
-
-            _engine.AddDependency(providerDependency);
+            _engine.AddDependency(new ProviderDependency(provider));
 
             return provider;
         }

@@ -6,7 +6,7 @@ using Velo.DependencyInjection.Resolvers;
 
 namespace Velo.ECS.Injection
 {
-    internal sealed class ContextDependency<TContext> : DependencyResolver, IDependency
+    internal sealed class EntityContextDependency<TContext> : DependencyResolver, IDependency
         where TContext : class
     {
         public Type[] Contracts => _contracts ??= new[] {Implementation};
@@ -16,7 +16,7 @@ namespace Velo.ECS.Injection
         private Type[]? _contracts;
         private readonly Func<TContext, object> _resolver;
 
-        public ContextDependency(Type contract, Func<TContext, object> resolver) : base(contract)
+        public EntityContextDependency(Type contract, Func<TContext, object> resolver) : base(contract)
         {
             _resolver = resolver;
         }

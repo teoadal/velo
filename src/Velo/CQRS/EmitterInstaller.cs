@@ -18,7 +18,7 @@ namespace Velo.DependencyInjection
                 .AddFactory(new CommandPipelineFactory())
                 .AddFactory(new NotificationPipelineFactory())
                 .AddFactory(new QueryPipelineFactory())
-                .AddScoped<IEmitter>(provider => new Emitter(provider));
+                .AddDependency(new[] {typeof(IEmitter)}, provider => new Emitter(provider), DependencyLifetime.Scoped);
 
             return dependencies;
         }

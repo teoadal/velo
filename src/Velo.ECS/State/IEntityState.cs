@@ -4,6 +4,8 @@ using Velo.ECS.Actors;
 using Velo.ECS.Actors.Context;
 using Velo.ECS.Assets.Context;
 using Velo.ECS.Components;
+using Velo.ECS.Sources;
+using Velo.ECS.Stores;
 using Velo.ECS.Systems;
 
 namespace Velo.ECS.State
@@ -22,8 +24,12 @@ namespace Velo.ECS.State
 
         Task LoadAsync(ISystemService systems, string jsonFilePath, CancellationToken cancellationToken = default);
 
+        Task LoadAsync(ISystemService systems, IEntitySource<Actor> source, CancellationToken cancellationToken = default);
+
         Task NewAsync(ISystemService systems, CancellationToken cancellationToken = default);
 
         void Save(string jsonFilePath);
+        
+        void Save(IEntityStore<Actor> store);
     }
 }
