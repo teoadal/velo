@@ -15,13 +15,20 @@ namespace Velo.DependencyInjection.Resolvers
 
         private Func<IServiceProvider, object>? _builder;
         private readonly ConstructorInfo _constructor;
-        private readonly IDependencyEngine _dependencyEngine;
+        private IDependencyEngine _dependencyEngine;
 
-        public CompiledResolver(Type implementation, IDependencyEngine engine)
+        public CompiledResolver(Type implementation)
             : base(implementation)
         {
             _constructor = ReflectionUtils.GetConstructor(implementation)
                            ?? throw Error.DefaultConstructorNotFound(implementation);
+
+            _dependencyEngine = null!;
+        }
+
+        public override void Init(DependencyLifetime lifetime, IDependencyEngine engine)
+        {
+            EnsureValidDependenciesLifetime(_constructor, lifetime, engine);
 
             _dependencyEngine = engine;
         }

@@ -146,7 +146,8 @@ namespace Velo.DependencyInjection
             var implementation = typeof(TSystem);
             if (!ECSUtils.TryGetImplementedSystemInterfaces(implementation, out var contracts))
             {
-                throw Error.InvalidOperation($"Type '{ReflectionUtils.GetName<TSystem>()}' isn't implemented system interfaces");
+                throw Error.InvalidOperation(
+                    $"Type '{ReflectionUtils.GetName<TSystem>()}' isn't implemented system interfaces");
             }
 
             dependencies.AddDependency(contracts, implementation, lifetime);

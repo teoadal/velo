@@ -31,7 +31,7 @@ namespace Velo.DependencyInjection.Factories
                 ? contract
                 : _genericImplementation.MakeGenericType(contract.GenericTypeArguments);
 
-            var resolver = DependencyResolver.Build(_lifetime, implementation, engine);
+            var resolver = DependencyResolver.Build(_lifetime, implementation);
             return Dependency.Build(_lifetime, new[] {contract}, resolver);
         }
     }

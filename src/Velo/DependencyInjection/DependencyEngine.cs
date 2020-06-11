@@ -91,6 +91,8 @@ namespace Velo.DependencyInjection
 
                 var dependency = factory.BuildDependency(contract, this);
                 _dependencies.Add(dependency);
+                dependency.Init(this);
+
                 localList.Add(dependency);
             }
 
@@ -121,8 +123,12 @@ namespace Velo.DependencyInjection
                 if (!factory.Applicable(contract)) continue;
 
                 var dependency = factory.BuildDependency(contract, this);
+                
                 _dependencies.Add(dependency);
                 _resolvedDependencies.Add(contract, dependency);
+            
+                dependency.Init(this);
+                
                 return dependency;
             }
 
@@ -135,6 +141,17 @@ namespace Velo.DependencyInjection
             return dependency ?? throw Error.DependencyNotRegistered(contract);
         }
 
+        public void Init()
+        {
+            // dependencies collection can be changed 
+            // ReSharper disable once ForCanBeConvertedToForeach
+            for (var i = 0; i < _dependencies.Count; i++)
+            {
+                var dependency = _dependencies[i];
+                dependency.Init(this);
+            }
+        }
+        
         public bool Remove(Type contract)
         {
             _resolvedDependencies.Remove(contract);

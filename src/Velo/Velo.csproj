@@ -47,7 +47,7 @@
         <Compile Update="DependencyInjection\Factories\ArrayFactory.ArrayResolver.cs">
             <DependentUpon>ArrayFactory.cs</DependentUpon>
         </Compile>
-        <Compile Update="DependencyInjection\Factories\ArrayFactory.EmptyArrayResolver.cs">
+        <Compile Update="DependencyInjection\Factories\ArrayFactory.EmptyArrayDependency.cs">
             <DependentUpon>ArrayFactory.cs</DependentUpon>
         </Compile>
         <Compile Update="Settings\SettingsDependency.cs">

@@ -35,7 +35,7 @@ namespace Velo.CQRS.Commands
 
             var implementation = pipelineType.MakeGenericType(genericArgs);
             var lifetime = engine.DefineLifetime(implementation);
-            var resolver = DependencyResolver.Build(lifetime, implementation, engine);
+            var resolver = DependencyResolver.Build(lifetime, implementation);
 
             return Dependency.Build(lifetime, new[] {contract}, resolver);
         }

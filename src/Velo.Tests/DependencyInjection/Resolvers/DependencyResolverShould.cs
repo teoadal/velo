@@ -30,8 +30,7 @@ namespace Velo.Tests.DependencyInjection.Resolvers
         [MemberData(nameof(Lifetimes))]
         public void Build(DependencyLifetime lifetime)
         {
-            var engine = Mock.Of<IDependencyEngine>();
-            var resolver = DependencyResolver.Build(lifetime, typeof(BooRepository), engine);
+            var resolver = DependencyResolver.Build(lifetime, typeof(BooRepository));
 
             switch (lifetime)
             {
@@ -77,11 +76,7 @@ namespace Velo.Tests.DependencyInjection.Resolvers
         public void ThrowIfBuildWithInvalidLifetime()
         {
             const DependencyLifetime badLifetime = (DependencyLifetime) byte.MaxValue;
-
-            var engine = Mock.Of<IDependencyEngine>();
-            Assert
-                .Throws<InvalidDataException>(() => DependencyResolver
-                    .Build(badLifetime, _implementation, engine));
+            Assert.Throws<InvalidDataException>(() => DependencyResolver.Build(badLifetime, _implementation));
         }
     }
 }

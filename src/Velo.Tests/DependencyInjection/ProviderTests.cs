@@ -91,7 +91,7 @@ namespace Velo.Tests.DependencyInjection
                 .AddSingleton<IFooRepository, FooRepository>()
                 .AddSingleton<IBooService, BooService>()
                 .AddSingleton<IBooRepository, BooRepository>()
-                .AddSingleton<SomethingController>()
+                .AddScoped<SomethingController>()
                 .AddLogging()
                 .BuildProvider();
 
@@ -196,7 +196,7 @@ namespace Velo.Tests.DependencyInjection
                 .AddSingleton<IFooRepository, FooRepository>()
                 .AddSingleton<IBooService, BooService>()
                 .AddSingleton<IBooRepository, BooRepository>()
-                .AddSingleton<SomethingController>()
+                .AddScoped<SomethingController>()
                 .AddLogging()
                 .BuildProvider();
 
@@ -247,7 +247,7 @@ namespace Velo.Tests.DependencyInjection
         public void Throw_Disposed()
         {
             var provider = new DependencyCollection()
-                .AddSingleton<JConverter>()
+                .AddJson()
                 .BuildProvider();
 
             provider.Dispose();

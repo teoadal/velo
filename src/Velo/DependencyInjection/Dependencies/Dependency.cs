@@ -15,6 +15,8 @@ namespace Velo.DependencyInjection.Dependencies
 
         bool Applicable(Type contract);
 
+        void Init(IDependencyEngine engine);
+        
         object GetInstance(Type contract, IServiceProvider services);
     }
 
@@ -68,6 +70,11 @@ namespace Velo.DependencyInjection.Dependencies
             }
 
             return Array.IndexOf(_contracts, request) != -1;
+        }
+
+        public void Init(IDependencyEngine engine)
+        {
+            _resolver.Init(Lifetime, engine);
         }
 
         public abstract object GetInstance(Type contract, IServiceProvider services);

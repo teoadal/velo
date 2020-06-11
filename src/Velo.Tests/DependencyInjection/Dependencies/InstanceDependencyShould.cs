@@ -3,7 +3,6 @@ using FluentAssertions;
 using Moq;
 using Velo.DependencyInjection;
 using Velo.DependencyInjection.Dependencies;
-using Velo.DependencyInjection.Resolvers;
 using Velo.TestsModels.Boos;
 using Xunit;
 
@@ -54,26 +53,10 @@ namespace Velo.Tests.DependencyInjection.Dependencies
         }
 
         [Fact]
-        public void ImplementResolver()
-        {
-            _dependency.Should().BeAssignableTo<DependencyResolver>();
-        }
-
-        [Fact]
         public void NotApplicable()
         {
             var notApplicable = typeof(IDependency);
             _dependency.Applicable(notApplicable).Should().BeFalse();
-        }
-
-        [Fact]
-        public void ResolveInstance()
-        {
-            var resolver = (DependencyResolver) _dependency;
-
-            resolver
-                .Resolve(It.IsAny<Type>(), It.IsNotNull<IServiceProvider>())
-                .Should().Be(_instance.Object);
         }
 
         [Fact]

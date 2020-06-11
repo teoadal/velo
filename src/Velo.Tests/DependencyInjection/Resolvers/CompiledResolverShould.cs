@@ -29,7 +29,8 @@ namespace Velo.Tests.DependencyInjection.Resolvers
             _engine = new Mock<IDependencyEngine>();
             _services = Mock.Of<IServiceProvider>();
 
-            _resolver = new CompiledResolver(_implementation, _engine.Object);
+            _resolver = new CompiledResolver(_implementation);
+            _resolver.Init(DependencyLifetime.Scoped, _engine.Object);
         }
 
         [Theory, AutoData]
@@ -82,7 +83,7 @@ namespace Velo.Tests.DependencyInjection.Resolvers
         public void ThrowIfPublicConstructorNotFound()
         {
             var implementation = typeof(PrivateConstructorClass);
-            Assert.Throws<KeyNotFoundException>(() => new CompiledResolver(implementation, _engine.Object));
+            Assert.Throws<KeyNotFoundException>(() => new CompiledResolver(implementation));
         }
 
         private object Act()

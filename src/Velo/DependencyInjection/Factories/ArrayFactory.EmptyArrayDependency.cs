@@ -1,15 +1,14 @@
 using System;
-using Velo.DependencyInjection;
+using System.Diagnostics;
 using Velo.DependencyInjection.Dependencies;
-using Velo.Settings.Provider;
 using Velo.Utils;
 
-namespace Velo.Settings
+namespace Velo.DependencyInjection.Factories
 {
-    internal sealed partial class SettingsFactory
+    internal sealed partial class ArrayFactory
     {
-        private sealed class SettingsDependency<TSettings> : IDependency
-            where TSettings : class
+        [DebuggerDisplay("Empty array of {typeof(T).Name}")]
+        private sealed class EmptyArrayDependency<T> : IDependency
         {
             public Type[] Contracts => _contracts ??= new[] {Implementation};
 
@@ -18,24 +17,20 @@ namespace Velo.Settings
             public DependencyLifetime Lifetime => DependencyLifetime.Singleton;
 
             private Type[]? _contracts;
-            private readonly string _path;
 
-            public SettingsDependency(string path)
+            public EmptyArrayDependency()
             {
-                _path = path;
-
-                Implementation = Typeof<TSettings>.Raw;
+                Implementation = Typeof<T[]>.Raw;
             }
 
             public bool Applicable(Type contract)
             {
-                return contract == Implementation;
+                return contract == Implementation || contract.IsAssignableFrom(Implementation);
             }
 
             public object GetInstance(Type contract, IServiceProvider services)
             {
-                var settingsProvider = services.GetRequired<ISettingsProvider>();
-                return settingsProvider.Get<TSettings>(_path);
+                return Array.Empty<T>();
             }
 
             #region Interfaces

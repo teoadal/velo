@@ -40,7 +40,18 @@ namespace Velo.DependencyInjection
 
         public DependencyCollection AddDependency(Type[] contracts, Type implementation, DependencyLifetime lifetime)
         {
-            var resolver = DependencyResolver.Build(lifetime, implementation, _engine);
+            var resolver = DependencyResolver.Build(lifetime, implementation);
+            var dependency = Dependency.Build(lifetime, contracts, resolver);
+            return Add(dependency);
+        }
+
+        public DependencyCollection AddDependency(
+            Type[] contracts,
+            Func<IServiceProvider, object> builder,
+            DependencyLifetime lifetime, Type? implementation = null)
+        {
+            var resolver = new DelegateResolver(implementation ?? contracts[0], builder);
+
             var dependency = Dependency.Build(lifetime, contracts, resolver);
             return Add(dependency);
         }
@@ -85,7 +96,10 @@ namespace Velo.DependencyInjection
         {
             var provider = new DependencyProvider(_engine);
 
-            _engine.AddDependency(new ProviderDependency(provider));
+            _engine.AddDependency(new ProviderDependency());
+            _engine.AddDependency(new InstanceDependency(new[] {typeof(DependencyProvider)}, provider));
+
+            _engine.Init();
 
             return provider;
         }

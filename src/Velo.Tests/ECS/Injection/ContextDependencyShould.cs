@@ -57,7 +57,7 @@ namespace Velo.Tests.ECS.Injection
         [Fact]
         public void HasResolverImplementation()
         {
-            _actorContextDependency.Resolver.Implementation.Should().Be(_contract);
+            _actorContextDependency.Implementation.Should().Be(_contract);
         }
 
         [Fact]

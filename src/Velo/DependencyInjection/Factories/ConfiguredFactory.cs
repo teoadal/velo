@@ -43,7 +43,7 @@ namespace Velo.DependencyInjection.Factories
             }
 
             var lifetime = _lifetime ?? engine.DefineLifetime(_implementation);
-            var resolver = DependencyResolver.Build(lifetime, _implementation, engine);
+            var resolver = DependencyResolver.Build(lifetime, _implementation);
 
             return Dependency.Build(lifetime, contracts, resolver);
         }

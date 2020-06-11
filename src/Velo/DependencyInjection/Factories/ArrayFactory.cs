@@ -27,9 +27,8 @@ namespace Velo.DependencyInjection.Factories
 
             if (dependencies.Length == 0)
             {
-                var emptyResolverType = typeof(EmptyArrayResolver<>).MakeGenericType(elementType);
-                var emptyResolver = (DependencyResolver) Activator.CreateInstance(emptyResolverType);
-                return new SingletonDependency(contracts, emptyResolver);
+                var emptyDependencyType = typeof(EmptyArrayDependency<>).MakeGenericType(elementType);
+                return (IDependency) Activator.CreateInstance(emptyDependencyType);
             }
 
             var resolverType = typeof(ArrayResolver<>).MakeGenericType(elementType);

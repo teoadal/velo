@@ -17,6 +17,11 @@ namespace Velo.DependencyInjection.Resolvers
                            ?? throw Error.DefaultConstructorNotFound(implementation);
         }
 
+        public override void Init(DependencyLifetime lifetime, IDependencyEngine engine)
+        {
+            EnsureValidDependenciesLifetime(_constructor, lifetime, engine);
+        }
+
         protected override object ResolveInstance(Type contract, IServiceProvider services)
         {
             return services.Activate(Implementation, _constructor);

@@ -36,7 +36,7 @@ namespace Velo.CQRS.Notifications
 
             var implementation = pipelineType.MakeGenericType(contractGenericArgs);
             var lifetime = dependencies.DefineLifetime();
-            var resolver = DependencyResolver.Build(lifetime, implementation, engine);
+            var resolver = DependencyResolver.Build(lifetime, implementation);
 
             return Dependency.Build(lifetime, new[] {contract}, resolver);
         }

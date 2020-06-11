@@ -39,7 +39,7 @@ namespace Velo.ECS.Systems.Pipelines
 
             var implementation = handlerType.MakeGenericType(systemType);
             var lifetime = dependencies.DefineLifetime();
-            var resolver = DependencyResolver.Build(lifetime, implementation, engine);
+            var resolver = DependencyResolver.Build(lifetime, implementation);
 
             return Dependency.Build(lifetime, contracts, resolver);
         }

@@ -20,6 +20,21 @@ namespace Velo.DependencyInjection.Factories
                 _elementType = typeof(T);
             }
 
+            public override void Init(DependencyLifetime lifetime, IDependencyEngine engine)
+            {
+                foreach (var dependency in _dependencies)
+                {
+                    if (lifetime == DependencyLifetime.Singleton && dependency.Lifetime == DependencyLifetime.Scoped)
+                    {
+                        throw Error.InconsistentLifetime(
+                            _elementType.MakeArrayType(),
+                            lifetime,
+                            dependency.Implementation,
+                            dependency.Lifetime);
+                    }
+                }
+            }
+
             protected override object ResolveInstance(Type contract, IServiceProvider services)
             {
                 var array = new T[_dependencies.Length];

@@ -15,6 +15,10 @@ namespace Velo.DependencyInjection.Resolvers
             _builder = builder;
         }
 
+        public override void Init(DependencyLifetime lifetime, IDependencyEngine engine)
+        {
+        }
+
         protected override object ResolveInstance(Type contract, IServiceProvider services)
         {
             return _builder(services);
@@ -29,6 +33,10 @@ namespace Velo.DependencyInjection.Resolvers
         public DelegateResolver(Type implementation, Func<IServiceProvider, object> builder) : base(implementation)
         {
             _builder = builder;
+        }
+
+        public override void Init(DependencyLifetime lifetime, IDependencyEngine engine)
+        {
         }
 
         protected override object ResolveInstance(Type contract, IServiceProvider services)

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
+using Velo.DependencyInjection;
 using Velo.Serialization.Tokenization;
 
 namespace Velo.Utils
@@ -22,7 +23,7 @@ namespace Velo.Utils
         {
             return new TypeAccessException(message);
         }
-        
+
         public static InvalidCastException Cast(string message, Exception? innerException = null)
         {
             return new InvalidCastException(message, innerException);
@@ -38,7 +39,7 @@ namespace Velo.Utils
         {
             return new KeyNotFoundException(message);
         }
-        
+
         public static KeyNotFoundException DefaultConstructorNotFound(Type type)
         {
             return new KeyNotFoundException($"Default constructor for '{ReflectionUtils.GetName(type)}' not found");
@@ -59,10 +60,15 @@ namespace Velo.Utils
             return new ObjectDisposedException(objectName);
         }
 
-        public static InvalidOperationException InconsistentLifetime(Type dependedType, Type dependencyType)
+        public static InvalidOperationException InconsistentLifetime(
+            Type dependedType,
+            DependencyLifetime dependedLifetime,
+            Type dependencyType,
+            DependencyLifetime dependencyLifetime)
         {
-            return new InvalidOperationException($"Lifetime of {ReflectionUtils.GetName(dependedType)} " +
-                                                 $"is less that {ReflectionUtils.GetName(dependencyType)}");
+            return new InvalidOperationException(
+                $"Type of {ReflectionUtils.GetName(dependedType)} with lifetime {dependedLifetime} " +
+                $"depended on {ReflectionUtils.GetName(dependencyType)} with lifetime {dependencyLifetime}");
         }
 
         public static InvalidDataException InvalidData(string message)

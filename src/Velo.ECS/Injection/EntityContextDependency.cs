@@ -2,22 +2,25 @@ using System;
 using System.Runtime.CompilerServices;
 using Velo.DependencyInjection;
 using Velo.DependencyInjection.Dependencies;
-using Velo.DependencyInjection.Resolvers;
 
 namespace Velo.ECS.Injection
 {
-    internal sealed class EntityContextDependency<TContext> : DependencyResolver, IDependency
-        where TContext : class
+    internal sealed class EntityContextDependency<TEntityContext> : IDependency
+        where TEntityContext : class
     {
         public Type[] Contracts => _contracts ??= new[] {Implementation};
+
+        public Type Implementation { get; }
+
         public DependencyLifetime Lifetime => DependencyLifetime.Singleton;
-        public DependencyResolver Resolver => this;
 
         private Type[]? _contracts;
-        private readonly Func<TContext, object> _resolver;
+        private readonly Func<TEntityContext, object> _resolver;
 
-        public EntityContextDependency(Type contract, Func<TContext, object> resolver) : base(contract)
+        public EntityContextDependency(Type contract, Func<TEntityContext, object> resolver)
         {
+            Implementation = contract;
+
             _resolver = resolver;
         }
 
@@ -29,17 +32,20 @@ namespace Velo.ECS.Injection
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public object GetInstance(Type contract, IServiceProvider services)
         {
-            var actorContext = services.GetRequired<TContext>();
-            return _resolver(actorContext);
+            var entityContext = services.GetRequired<TEntityContext>();
+            return _resolver(entityContext);
         }
 
-        protected override object ResolveInstance(Type contract, IServiceProvider services)
+        #region Interfaces
+
+        void IDependency.Init(IDependencyEngine engine)
         {
-            return GetInstance(contract, services);
         }
 
-        public void Dispose()
+        void IDisposable.Dispose()
         {
         }
+
+        #endregion
     }
 }
