@@ -1,5 +1,5 @@
 using System;
-using AutoFixture.Xunit2;
+using System.Linq;
 using FluentAssertions;
 using Moq;
 using Velo.DependencyInjection;
@@ -42,15 +42,21 @@ namespace Velo.Tests.Logging
         {
             _dependencies.AddDefaultLogEnrichers();
 
-            _dependencies.Contains<LogLevelEnricher>().Should().BeTrue();
-            _dependencies.Contains<SenderEnricher>().Should().BeTrue();
-            _dependencies.Contains<TimeStampEnricher>().Should().BeTrue();
+            var dependencies = _dependencies.GetApplicable<ILogEnricher>();
+            var implementations = dependencies.Select(d => d.Implementation).ToArray();
+
+            implementations.Should().Contain(new []
+            {
+                typeof(LogLevelEnricher), 
+                typeof(SenderEnricher),
+                typeof(TimeStampEnricher)
+            });
         }
         
         [Fact]
         public void AddLogProvider()
         {
-            _dependencies.AddLogging();
+            _dependencies.AddLogs();
             _dependencies.Contains<ILogProvider>().Should().BeTrue();
         }
 
@@ -58,7 +64,7 @@ namespace Velo.Tests.Logging
         public void AddLoggerFactory()
         {
             _dependencies
-                .AddLogging()
+                .AddLogs()
                 .BuildProvider()
                 .Get<ILogger<LoggingInstallerShould>>().Should().NotBeNull();
         }
@@ -84,15 +90,6 @@ namespace Velo.Tests.Logging
             _dependencies.GetLifetime<ILogEnricher>().Should().Be(DependencyLifetime.Singleton);
         }
 
-        [Theory]
-        [AutoData]
-        public void AddLogEnricherWithLifetime(DependencyLifetime lifetime)
-        {
-            _dependencies.AddLogEnricher<TestEnricher>(lifetime);
-
-            _dependencies.GetLifetime<TestEnricher>().Should().Be(lifetime);
-        }
-        
         [Fact]
         public void AddLogWriter()
         {
@@ -114,21 +111,11 @@ namespace Velo.Tests.Logging
             _dependencies.GetLifetime<ILogWriter>().Should().Be(DependencyLifetime.Singleton);
         }
 
-        [Theory]
-        [InlineData(DependencyLifetime.Scoped)]
-        [InlineData(DependencyLifetime.Singleton)]
-        [InlineData(DependencyLifetime.Transient)]
-        public void AddLogWriterWithLifetime(DependencyLifetime lifetime)
-        {
-            _dependencies.AddLogWriter<TestWriter>(lifetime);
-            _dependencies.GetLifetime<TestWriter>().Should().Be(lifetime);
-        }
-        
         [Fact]
         public void InstallJson()
         {
             _dependencies
-                .AddLogging()
+                .AddLogs()
                 .Contains<JConverter>().Should().BeTrue();
         }
         

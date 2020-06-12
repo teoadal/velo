@@ -8,12 +8,14 @@ namespace Velo.Logging.Enrichers
     {
         public const string Name = "_timestamp";
 
+        private readonly string _dateTimeFormat;
         private DateTime _last;
         private JsonVerbose _lastVerbose;
         private SpinLock _lock;
 
-        public TimeStampEnricher()
+        public TimeStampEnricher(string dateTimeFormat)
         {
+            _dateTimeFormat = dateTimeFormat;
             _lock = new SpinLock();
             _lastVerbose = GetTimestamp();
             
@@ -37,7 +39,7 @@ namespace Velo.Logging.Enrichers
             if (current.Ticks - _last.Ticks < 1000) result = _lastVerbose;
             else
             {
-                result = new JsonVerbose(current.ToString("s"));
+                result = new JsonVerbose(current.ToString(_dateTimeFormat));
                 _last = current;
                 _lastVerbose = result;    
             }

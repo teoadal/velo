@@ -1,5 +1,7 @@
 using System;
+using System.Linq;
 using Velo.Extensions.DependencyInjection;
+using Velo.Extensions.DependencyInjection.Logging;
 using Velo.Logging;
 using Velo.Logging.Enrichers;
 using Velo.Logging.Provider;
@@ -11,12 +13,16 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class LoggingInstaller
     {
-        public static IServiceCollection AddLogging(this IServiceCollection services)
+        public static IServiceCollection AddLogs(this IServiceCollection services)
         {
             services
+                .RemoveMicrosoftLogger()
+                .AddSingleton(typeof(Microsoft.Extensions.Logging.Logger<>), typeof(VeloLogger<>));
+
+            services
                 .AddSingleton<IRenderersCollection, RenderersCollection>()
-                .AddScoped(ProviderFactory)
-                .AddScoped(typeof(ILogger<>), typeof(Logger<>))
+                .AddSingleton(ProviderFactory)
+                .AddSingleton(typeof(ILogger<>), typeof(Logger<>))
                 .EnsureJsonEnabled();
 
             return services;
@@ -29,31 +35,30 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        public static IServiceCollection AddDefaultLogEnrichers(this IServiceCollection services)
+        public static IServiceCollection AddDefaultLogEnrichers(this IServiceCollection services,
+            string dateTimeFormat = "s")
         {
             services
-                .AddSingleton<ILogEnricher, LogLevelEnricher>()
-                .AddSingleton<ILogEnricher, SenderEnricher>()
-                .AddSingleton<ILogEnricher, TimeStampEnricher>();
+                .AddSingleton<ILogEnricher>(new LogLevelEnricher())
+                .AddSingleton<ILogEnricher>(new SenderEnricher())
+                .AddSingleton<ILogEnricher>(new TimeStampEnricher(dateTimeFormat));
 
             return services;
         }
 
-        public static IServiceCollection AddLogEnricher<TEnricher>(this IServiceCollection services,
-            ServiceLifetime lifetime = ServiceLifetime.Singleton)
+        public static IServiceCollection AddLogEnricher<TEnricher>(this IServiceCollection services)
             where TEnricher : ILogEnricher
         {
             var implementation = typeof(TEnricher);
-            services.Add(new ServiceDescriptor(typeof(ILogEnricher), implementation, lifetime));
+            services.Add(new ServiceDescriptor(typeof(ILogEnricher), implementation, ServiceLifetime.Singleton));
             return services;
         }
 
-        public static IServiceCollection AddLogWriter<TWriter>(this IServiceCollection services,
-            ServiceLifetime lifetime = ServiceLifetime.Singleton)
+        public static IServiceCollection AddLogWriter<TWriter>(this IServiceCollection services)
             where TWriter : ILogWriter
         {
             var implementation = typeof(TWriter);
-            services.Add(new ServiceDescriptor(typeof(ILogWriter), implementation, lifetime));
+            services.Add(new ServiceDescriptor(typeof(ILogWriter), implementation, ServiceLifetime.Singleton));
             return services;
         }
 
@@ -61,11 +66,20 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             var writers = provider.GetArray<ILogWriter>();
 
-            if (writers.Length == 0) return NullLogProvider.Instance;
+            if (writers.Length == 0) return new NullLogProvider();
 
             var enrichers = provider.GetArray<ILogEnricher>();
             var renderers = provider.GetRequiredService<IRenderersCollection>();
             return new LogProvider(enrichers, renderers, writers);
+        }
+
+        private static IServiceCollection RemoveMicrosoftLogger(this IServiceCollection services)
+        {
+            var logger = services.FirstOrDefault(descriptor =>
+                descriptor.ServiceType == typeof(Microsoft.Extensions.Logging.Logger<>));
+            if (logger != null) services.Remove(logger);
+
+            return services;
         }
     }
 }

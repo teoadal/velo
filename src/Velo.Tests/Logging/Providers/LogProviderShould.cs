@@ -31,7 +31,7 @@ namespace Velo.Tests.Logging.Providers
                 .Callback(_logWriteCallback);
 
             var dependencyProvider = new DependencyCollection()
-                .AddLogging()
+                .AddLogs()
                 .AddLogWriter(_logWriter.Object)
                 .BuildProvider();
 
@@ -44,7 +44,7 @@ namespace Velo.Tests.Logging.Providers
         public void BeNullIfNoWriters()
         {
             var provider = new DependencyCollection()
-                .AddLogging()
+                .AddLogs()
                 .BuildProvider();
 
             var logProvider = provider.GetRequired<ILogProvider>();
@@ -52,13 +52,13 @@ namespace Velo.Tests.Logging.Providers
         }
 
         [Fact]
-        public void BeScoped()
+        public void BeSingleton()
         {
             var dependencies = new DependencyCollection()
-                .AddLogging()
-                .AddLogWriter(_logWriter.Object); // if not add any logWriter - static NullProvider
+                .AddLogs()
+                .AddLogWriter(_logWriter.Object); // if not add any logWriter - created NullProvider
 
-            dependencies.GetLifetime<ILogProvider>().Should().Be(DependencyLifetime.Scoped);
+            dependencies.GetLifetime<ILogProvider>().Should().Be(DependencyLifetime.Singleton);
         }
 
         [Theory]
@@ -80,7 +80,7 @@ namespace Velo.Tests.Logging.Providers
             var enricher = new Mock<ILogEnricher>();
 
             var logger = new DependencyCollection()
-                .AddLogging()
+                .AddLogs()
                 .AddLogWriter(Mock.Of<ILogWriter>())
                 .AddLogEnricher(enricher.Object)
                 .BuildProvider()
@@ -95,7 +95,7 @@ namespace Velo.Tests.Logging.Providers
         [MemberAutoData(nameof(Levels))]
         public void UseEnrichers(LogLevel level, string message)
         {
-            var dependencies = new DependencyCollection().AddLogging();
+            var dependencies = new DependencyCollection().AddLogs();
             var enrichers = Many(() => new Mock<ILogEnricher>());
 
             foreach (var enricher in enrichers)
@@ -150,7 +150,7 @@ namespace Velo.Tests.Logging.Providers
         [MemberAutoData(nameof(Levels))]
         public void WriteWriters(LogLevel level, string message)
         {
-            var dependencies = new DependencyCollection().AddLogging();
+            var dependencies = new DependencyCollection().AddLogs();
             var writers = Many(() => new Mock<ILogWriter>());
 
             foreach (var writer in writers)

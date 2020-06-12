@@ -32,7 +32,7 @@ namespace Velo.Tests.Logging.Enrichers
                 .Callback(_logWriteCallback);
             
             _logger = new DependencyCollection()
-                .AddLogging()
+                .AddLogs()
                 .AddLogWriter(logWriter.Object)
                 .AddLogEnricher(_logEnricher.Object)
                 .BuildProvider()

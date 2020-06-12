@@ -30,7 +30,7 @@ namespace Velo.Tests.Logging
             _logWriter = new Mock<ILogWriter>();
 
             var provider = new DependencyCollection()
-                .AddLogging()
+                .AddLogs()
                 .AddLogWriter(_logWriter.Object)
                 .BuildProvider();
 
@@ -42,7 +42,7 @@ namespace Velo.Tests.Logging
         public void CreatedWithNullProvider()
         {
             var provider = new DependencyCollection()
-                .AddLogging()
+                .AddLogs()
                 .BuildProvider();
 
             provider.Get<ILogger<LoggerShould>>().Should().NotBeNull();
@@ -127,12 +127,12 @@ namespace Velo.Tests.Logging
         }
 
         [Fact]
-        public void Scoped()
+        public void Singleton()
         {
             new DependencyCollection()
-                .AddLogging()
-                .AddLogWriter(_logWriter.Object) // if not add any logWriter - static NullProvider
-                .GetLifetime<ILogger<LoggerShould>>().Should().Be(DependencyLifetime.Scoped);
+                .AddLogs()
+                .AddLogWriter(_logWriter.Object) // if not add any logWriter - created NullProvider
+                .GetLifetime<ILogger<LoggerShould>>().Should().Be(DependencyLifetime.Singleton);
         }
         
         [Fact]

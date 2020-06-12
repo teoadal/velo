@@ -1,11 +1,26 @@
 using System;
+using System.Linq;
 using Velo.DependencyInjection;
+using Velo.Extensions.DependencyInjection.Scope;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
+        public static DependencyCollection AsDependencyCollection(this IServiceCollection services)
+        {
+            var dependenciesDescriptor = services.FirstOrDefault(descriptor => descriptor.ServiceType == typeof(DependencyCollection));
+            if (dependenciesDescriptor != null)
+            {
+                return (DependencyCollection) dependenciesDescriptor.ImplementationInstance;
+            }
+
+            var dependencies = new DependencyCollection();
+            services.Add(new ServiceDescriptor(typeof(DependencyCollection), dependencies));
+            return dependencies;
+        }
+
         public static IServiceCollection AddDependencyProvider(this IServiceCollection services,
             Action<DependencyCollection> dependencies)
         {
@@ -20,7 +35,9 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             var dependencies = new DependencyCollection();
 
-            dependencies.AddServiceCollection(services);
+            dependencies
+                .Add(new ServiceScopeDependency())
+                .AddServiceCollection(services);
 
             return dependencies.BuildProvider();
         }

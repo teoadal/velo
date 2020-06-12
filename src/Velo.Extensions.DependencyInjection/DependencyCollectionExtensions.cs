@@ -12,6 +12,8 @@ namespace Velo.DependencyInjection
         {
             foreach (var descriptor in services)
             {
+                if (descriptor.ServiceType == typeof(DependencyCollection)) continue;
+
                 switch (descriptor.Lifetime)
                 {
                     case ServiceLifetime.Singleton:

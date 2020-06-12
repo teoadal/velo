@@ -14,14 +14,14 @@ namespace Velo.DependencyInjection
     {
         private static readonly Type[] LogWriterContracts = {Typeof<ILogWriter>.Raw};
 
-        public static DependencyCollection AddLogging(this DependencyCollection dependencies)
+        public static DependencyCollection AddLogs(this DependencyCollection dependencies)
         {
             dependencies
                 .AddSingleton<IRenderersCollection, RenderersCollection>()
                 .AddFactory<ILogProvider, LogProvider>(factory => factory
-                    .Lifetime(DependencyLifetime.Scoped)
+                    .Lifetime(DependencyLifetime.Singleton)
                     .CreateIf<NullLogProvider>(engine => !engine.Contains(typeof(ILogWriter))))
-                .AddScoped(typeof(ILogger<>), typeof(Logger<>))
+                .AddSingleton(typeof(ILogger<>), typeof(Logger<>))
                 .EnsureJsonEnabled();
 
             return dependencies;
@@ -47,23 +47,25 @@ namespace Velo.DependencyInjection
             return dependencies;
         }
 
-        public static DependencyCollection AddDefaultLogEnrichers(this DependencyCollection dependencies)
+        public static DependencyCollection AddDefaultLogEnrichers(this DependencyCollection dependencies, string dateTimeFormat = "s")
         {
-            AddLogEnricher<LogLevelEnricher>(dependencies);
-            AddLogEnricher<SenderEnricher>(dependencies);
-            AddLogEnricher<TimeStampEnricher>(dependencies);
+            var contracts = new[] {Typeof<ILogEnricher>.Raw};
+            
+            dependencies
+                .AddInstance(contracts, new TimeStampEnricher(dateTimeFormat))
+                .AddInstance(contracts, new LogLevelEnricher())
+                .AddInstance(contracts, new SenderEnricher());
 
             return dependencies;
         }
 
-        public static DependencyCollection AddLogEnricher<TEnricher>(this DependencyCollection dependencies,
-            DependencyLifetime lifetime = DependencyLifetime.Singleton)
+        public static DependencyCollection AddLogEnricher<TEnricher>(this DependencyCollection dependencies)
             where TEnricher : ILogEnricher
         {
             var implementation = Typeof<TEnricher>.Raw;
             var contracts = new[] {Typeof<ILogEnricher>.Raw, implementation};
 
-            dependencies.AddDependency(contracts, implementation, lifetime);
+            dependencies.AddDependency(contracts, implementation, DependencyLifetime.Singleton);
 
             return dependencies;
         }
@@ -75,14 +77,13 @@ namespace Velo.DependencyInjection
             return dependencies;
         }
 
-        public static DependencyCollection AddLogWriter<TWriter>(this DependencyCollection dependencies,
-            DependencyLifetime lifetime = DependencyLifetime.Singleton)
+        public static DependencyCollection AddLogWriter<TWriter>(this DependencyCollection dependencies)
             where TWriter : ILogWriter
         {
             var implementation = Typeof<TWriter>.Raw;
             var contracts = new[] {Typeof<ILogWriter>.Raw, implementation};
 
-            dependencies.AddDependency(contracts, implementation, lifetime);
+            dependencies.AddDependency(contracts, implementation, DependencyLifetime.Singleton);
 
             return dependencies;
         }

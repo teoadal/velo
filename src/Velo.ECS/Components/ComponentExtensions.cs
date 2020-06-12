@@ -5,8 +5,10 @@ namespace Velo.ECS.Components
         public static bool ContainsComponents<TComponent1, TComponent2>(this IComponent[] array)
             where TComponent1 : IComponent where TComponent2 : IComponent
         {
+            if (array.Length < 2) return false;
+
             var counter = 0;
-            
+
             foreach (var component in array)
             {
                 switch (component)
@@ -22,12 +24,20 @@ namespace Velo.ECS.Components
 
             return false;
         }
-        
+
         public static bool TryGetComponents<TComponent1, TComponent2>(
-            this IComponent[] array, 
-            out TComponent1 component1, 
+            this IComponent[] array,
+            out TComponent1 component1,
             out TComponent2 component2)
         {
+            if (array.Length < 2)
+            {
+                component1 = default!;
+                component2 = default!;
+
+                return false;
+            }
+
             component1 = default!;
             component2 = default!;
 

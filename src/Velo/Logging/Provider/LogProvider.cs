@@ -12,6 +12,9 @@ namespace Velo.Logging.Provider
 {
     internal sealed class LogProvider : ILogProvider
     {
+        // ReSharper disable once ConvertToAutoPropertyWhenPossible
+        public LogLevel Level => _minimalLevel;
+        
         private readonly ILogEnricher[] _enrichers;
         private readonly IRenderersCollection _renderers;
         private readonly LogLevel _minimalLevel;
@@ -26,73 +29,73 @@ namespace Velo.Logging.Provider
             _minimalLevel = writers.Min(w => w.Level);
         }
 
-        public void Write(LogLevel level, Type sender, string template)
+        public void Write(LogLevel level, Type sender, string message)
         {
             if (level < _minimalLevel) return;
-            if (string.IsNullOrWhiteSpace(template)) throw Error.Null("Template is null");
+            if (string.IsNullOrWhiteSpace(message)) throw Error.Null(nameof(message));
 
-            var message = Renderer.GetBuffer(_enrichers.Length);
+            var buffer = Renderer.GetBuffer(_enrichers.Length);
 
-            Enrich(level, sender, message);
+            Enrich(level, sender, buffer);
 
-            WriteMessage(level, sender, null, template, message);
-            Renderer.ReturnBuffer(message);
+            WriteMessage(level, sender, null, message, buffer);
+            Renderer.ReturnBuffer(buffer);
         }
 
         public void Write<T1>(LogLevel level, Type sender, string template, T1 arg1)
         {
             if (level < _minimalLevel) return;
 
-            var message = Renderer.GetBuffer(_enrichers.Length + 1);
+            var buffer = Renderer.GetBuffer(_enrichers.Length + 1);
 
-            Enrich(level, sender, message);
+            Enrich(level, sender, buffer);
 
             var renderer = _renderers.GetRenderer<Renderer<T1>>(template);
-            renderer.Render(message, arg1);
+            renderer.Render(buffer, arg1);
 
-            WriteMessage(level, sender, renderer.Formatter, template, message);
+            WriteMessage(level, sender, renderer.Formatter, template, buffer);
         }
 
         public void Write<T1, T2>(LogLevel level, Type sender, string template, T1 arg1, T2 arg2)
         {
             if (level < _minimalLevel) return;
 
-            var message = Renderer.GetBuffer(_enrichers.Length + 2);
+            var buffer = Renderer.GetBuffer(_enrichers.Length + 2);
 
-            Enrich(level, sender, message);
+            Enrich(level, sender, buffer);
 
             var renderer = _renderers.GetRenderer<Renderer<T1, T2>>(template);
-            renderer.Render(message, arg1, arg2);
+            renderer.Render(buffer, arg1, arg2);
 
-            WriteMessage(level, sender, renderer.Formatter, template, message);
+            WriteMessage(level, sender, renderer.Formatter, template, buffer);
         }
 
         public void Write<T1, T2, T3>(LogLevel level, Type sender, string template, T1 arg1, T2 arg2, T3 arg3)
         {
             if (level < _minimalLevel) return;
 
-            var message = Renderer.GetBuffer(_enrichers.Length + 3);
+            var buffer = Renderer.GetBuffer(_enrichers.Length + 3);
 
-            Enrich(level, sender, message);
+            Enrich(level, sender, buffer);
 
             var renderer = _renderers.GetRenderer<Renderer<T1, T2, T3>>(template);
-            renderer.Render(message, arg1, arg2, arg3);
+            renderer.Render(buffer, arg1, arg2, arg3);
 
-            WriteMessage(level, sender, renderer.Formatter, template, message);
+            WriteMessage(level, sender, renderer.Formatter, template, buffer);
         }
 
         public void Write(LogLevel level, Type sender, string template, params object[] args)
         {
             if (level < _minimalLevel) return;
 
-            var message = Renderer.GetBuffer(_enrichers.Length + args.Length);
+            var buffer = Renderer.GetBuffer(_enrichers.Length + args.Length);
 
-            Enrich(level, sender, message);
+            Enrich(level, sender, buffer);
 
             var arrayRenderer = _renderers.GetArrayRenderer(template, args);
-            arrayRenderer.Render(message, args);
+            arrayRenderer.Render(buffer, args);
 
-            WriteMessage(level, sender, arrayRenderer.Formatter, template, message);
+            WriteMessage(level, sender, arrayRenderer.Formatter, template, buffer);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -105,18 +108,17 @@ namespace Velo.Logging.Provider
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void WriteMessage(LogLevel level, Type sender, ILogFormatter? formatter, string template,
-            JsonObject message)
+        private void WriteMessage(LogLevel level, Type sender, ILogFormatter? formatter, string template, JsonObject buffer)
         {
             var context = new LogContext(level, sender, template, formatter);
 
-            foreach (var sink in _writers)
+            foreach (var writer in _writers)
             {
-                if (sink.Level > level) continue;
-                sink.Write(context, message);
+                if (writer.Level > level) continue;
+                writer.Write(context, buffer);
             }
 
-            Renderer.ReturnBuffer(message);
+            Renderer.ReturnBuffer(buffer);
         }
     }
 }

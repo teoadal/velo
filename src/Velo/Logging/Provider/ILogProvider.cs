@@ -2,9 +2,11 @@ using System;
 
 namespace Velo.Logging.Provider
 {
-    internal interface ILogProvider
+    public interface ILogProvider
     {
-        void Write(LogLevel level, Type sender, string template);
+        LogLevel Level { get; }
+        
+        void Write(LogLevel level, Type sender, string message);
 
         void Write<T1>(LogLevel level, Type sender, string template, T1 arg1);
 

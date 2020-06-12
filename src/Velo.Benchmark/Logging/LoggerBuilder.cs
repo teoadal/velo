@@ -5,7 +5,6 @@ using Velo.DependencyInjection;
 using Velo.Logging;
 using Velo.Logging.Enrichers;
 using Velo.Logging.Writers;
-using ILogger = Serilog.ILogger;
 using LogLevel = NLog.LogLevel;
 
 namespace Velo.Benchmark.Logging
@@ -39,7 +38,7 @@ namespace Velo.Benchmark.Logging
         public static ILogger<LoggerBenchmark> BuildVelo(ILogWriter logWriter)
         {
             return new DependencyCollection()
-                .AddLogging()
+                .AddLogs()
                 .AddLogWriter(logWriter)
                 .AddLogEnricher<TimeStampEnricher>()
                 .AddLogEnricher<LogLevelEnricher>()

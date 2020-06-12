@@ -17,7 +17,7 @@ namespace Velo.Tests.Logging.Enrichers
         
         public TimeStampEnricherShould()
         {
-            _enricher = new TimeStampEnricher();
+            _enricher = new TimeStampEnricher("s");
             _message = new JsonObject();
         }
 

@@ -22,6 +22,8 @@ namespace Velo.DependencyInjection
 
     internal sealed class DependencyEngine : IDependencyEngine
     {
+        public int Length => _dependencies.Count;
+        
         private readonly List<IDependency> _dependencies;
         private readonly List<IDependencyFactory> _factories;
 

@@ -59,14 +59,21 @@ namespace Velo.Logging.Formatters
 
         internal static void WritePrefixes(JsonObject message, TextWriter writer)
         {
+            var first = true;
             foreach (var (propertyName, jsonData) in message)
             {
                 if (propertyName[0] != '_') continue;
+                if (first)
+                {
+                    writer.WriteArrayStart();
+                    first = false;
+                }
+                else writer.Write(" "); 
 
-                writer.WriteArrayStart();
                 jsonData.Serialize(writer);
-                writer.Write("] ");
             }
+
+            if (!first) writer.Write("] ");
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

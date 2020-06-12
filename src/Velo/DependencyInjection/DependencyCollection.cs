@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Velo.DependencyInjection.Dependencies;
 using Velo.DependencyInjection.Factories;
@@ -8,6 +9,7 @@ using Velo.Utils;
 
 namespace Velo.DependencyInjection
 {
+    [DebuggerDisplay("Length = {_engine.Length}")]
     public sealed class DependencyCollection
     {
         private readonly DependencyEngine _engine;
@@ -48,9 +50,9 @@ namespace Velo.DependencyInjection
         public DependencyCollection AddDependency(
             Type[] contracts,
             Func<IServiceProvider, object> builder,
-            DependencyLifetime lifetime, Type? implementation = null)
+            DependencyLifetime lifetime, Type implementation)
         {
-            var resolver = new DelegateResolver(implementation ?? contracts[0], builder);
+            var resolver = new DelegateResolver(implementation, builder);
 
             var dependency = Dependency.Build(lifetime, contracts, resolver);
             return Add(dependency);
@@ -96,9 +98,7 @@ namespace Velo.DependencyInjection
         {
             var provider = new DependencyProvider(_engine);
 
-            _engine.AddDependency(new ProviderDependency());
-            _engine.AddDependency(new InstanceDependency(new[] {typeof(DependencyProvider)}, provider));
-
+            _engine.AddDependency(new ProviderDependency(provider));
             _engine.Init();
 
             return provider;

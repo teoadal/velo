@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Velo.Collections;
 using Velo.Utils;
 
@@ -17,29 +18,30 @@ namespace Velo.DependencyInjection
     internal sealed class DependencyScope : IDependencyScope
     {
         public event Action<IDependencyScope>? CreateChild;
+
         public event Action<IDependencyScope>? Destroy;
 
         private IDependencyEngine _engine;
-        private object _lock;
+        private object _providerLock;
+        private Dictionary<Type, object> _scopeInstances;
 
         private bool _disposed;
-        private Dictionary<Type, object> _dependencies;
 
-        public DependencyScope(IDependencyEngine engine, object @lock)
+        public DependencyScope(IDependencyEngine engine, object providerLock)
         {
-            _engine = engine;
-            _lock = @lock;
-            _dependencies = new Dictionary<Type, object>();
-
             CreateChild = null;
             Destroy = null;
+
+            _engine = engine;
+            _providerLock = providerLock;
+            _scopeInstances = new Dictionary<Type, object>(16);
         }
 
         public IDependencyScope StartScope()
         {
-            if (_disposed) throw Error.Disposed(nameof(IDependencyScope));
+            EnsureNotDisposed();
 
-            var child = new DependencyScope(_engine, _lock);
+            var child = new DependencyScope(_engine, _providerLock);
 
             var evt = CreateChild;
             evt?.Invoke(child);
@@ -49,13 +51,13 @@ namespace Velo.DependencyInjection
 
         public object? GetService(Type contract)
         {
-            if (_disposed) throw Error.Disposed(nameof(IDependencyScope));
+            EnsureNotDisposed();
 
-            if (contract == typeof(IDependencyScope)) return this;
-            
-            lock (_lock)
+            if (contract == typeof(IServiceProvider)) return this;
+
+            lock (_providerLock)
             {
-                if (_dependencies.TryGetValue(contract, out var exists))
+                if (_scopeInstances.TryGetValue(contract, out var exists))
                 {
                     return exists;
                 }
@@ -68,11 +70,17 @@ namespace Velo.DependencyInjection
 
                 if (dependency.Lifetime == DependencyLifetime.Scoped)
                 {
-                    _dependencies.Add(contract, instance);
+                    _scopeInstances.Add(contract, instance);
                 }
 
                 return instance;
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void EnsureNotDisposed()
+        {
+            if (_disposed) throw Error.Disposed(nameof(IDependencyScope));
         }
 
         public void Dispose()
@@ -83,12 +91,11 @@ namespace Velo.DependencyInjection
             evt?.Invoke(this);
 
             _engine = null!;
-            _lock = null!;
+            _providerLock = null!;
 
-            CollectionUtils.DisposeValuesIfDisposable(_dependencies);
-
-            _dependencies.Clear();
-            _dependencies = null!;
+            CollectionUtils.DisposeValuesIfDisposable(_scopeInstances);
+            _scopeInstances.Clear();
+            _scopeInstances = null!;
 
             _disposed = true;
         }

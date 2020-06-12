@@ -9,15 +9,18 @@ namespace Velo.DependencyInjection.Dependencies
         public Type Implementation { get; }
 
         public DependencyLifetime Lifetime { get; }
+        
+        private readonly DependencyProvider _provider;
 
-        public ProviderDependency()
+        public ProviderDependency(DependencyProvider provider)
         {
+            _provider = provider;
             var providerType = typeof(IServiceProvider);
 
-            Contracts = new[] {providerType};
+            Contracts = new[] {providerType, typeof(DependencyProvider)};
             Implementation = providerType;
 
-            Lifetime = DependencyLifetime.Scoped;
+            Lifetime = DependencyLifetime.Singleton;
         }
 
         public bool Applicable(Type contract)
@@ -27,7 +30,9 @@ namespace Velo.DependencyInjection.Dependencies
 
         public object GetInstance(Type contract, IServiceProvider services)
         {
-            return services;
+            return contract == typeof(DependencyProvider)
+                ? _provider
+                : services;
         }
 
         #region Interfaces

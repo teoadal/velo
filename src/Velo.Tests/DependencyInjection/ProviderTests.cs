@@ -92,7 +92,7 @@ namespace Velo.Tests.DependencyInjection
                 .AddSingleton<IBooService, BooService>()
                 .AddSingleton<IBooRepository, BooRepository>()
                 .AddScoped<SomethingController>()
-                .AddLogging()
+                .AddLogs()
                 .BuildProvider();
 
             var controller = provider.Get<SomethingController>();
@@ -197,7 +197,7 @@ namespace Velo.Tests.DependencyInjection
                 .AddSingleton<IBooService, BooService>()
                 .AddSingleton<IBooRepository, BooRepository>()
                 .AddScoped<SomethingController>()
-                .AddLogging()
+                .AddLogs()
                 .BuildProvider();
 
             var resolvedControllers = new ConcurrentBag<SomethingController>();

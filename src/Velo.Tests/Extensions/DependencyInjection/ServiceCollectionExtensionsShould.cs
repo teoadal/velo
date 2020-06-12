@@ -2,6 +2,7 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Velo.CQRS;
 using Velo.DependencyInjection;
+using Velo.Extensions.DependencyInjection;
 using Velo.Serialization;
 using Velo.TestsModels.Boos;
 using Xunit;
@@ -22,14 +23,14 @@ namespace Velo.Tests.Extensions.DependencyInjection
             provider.GetRequiredService<JConverter>().Should().NotBeNull();
             provider.GetRequiredService<IEmitter>().Should().BeOfType<Emitter>();
         }
-        
+
         [Fact]
         public void AddDependencyProvider()
         {
             var serviceProvider = new ServiceCollection()
                 .AddDependencyProvider(dependencies => dependencies
                     .AddEmitter()
-                    .AddLogging())
+                    .AddLogs())
                 .BuildServiceProvider();
 
             var dependencyProvider = serviceProvider.GetRequiredService<DependencyProvider>();
@@ -45,6 +46,19 @@ namespace Velo.Tests.Extensions.DependencyInjection
             provider.Should().BeOfType<DependencyProvider>();
         }
 
+        [Fact]
+        public void CreateScope()
+        {
+            var serviceCollection = new ServiceCollection();
+            var providerFactory = new DependencyProviderFactory();
+            var builder = providerFactory.CreateBuilder(serviceCollection);
+            var serviceProvider = providerFactory.CreateServiceProvider(builder);
+
+            serviceProvider.Invoking(provider => provider.CreateScope())
+                .Should().NotThrow()
+                .Which.Should().NotBeNull();
+        }
+        
         [Fact]
         public void ContainsDependencies()
         {

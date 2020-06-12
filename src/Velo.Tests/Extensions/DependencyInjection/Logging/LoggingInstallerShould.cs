@@ -17,7 +17,7 @@ namespace Velo.Tests.Extensions.DependencyInjection.Logging
         public LoggingInstallerShould()
         {
             _services = new ServiceCollection()
-                .AddLogging();
+                .AddLogs();
         }
 
         [Fact]
@@ -64,11 +64,11 @@ namespace Velo.Tests.Extensions.DependencyInjection.Logging
         }
 
         [Fact]
-        public void InstallScopedLogProvider()
+        public void InstallSingletonLogProvider()
         {
             _services.Should().Contain(descriptor =>
                 descriptor.ServiceType == typeof(ILogProvider) &&
-                descriptor.Lifetime == ServiceLifetime.Scoped);
+                descriptor.Lifetime == ServiceLifetime.Singleton);
         }
 
         [Fact]
@@ -80,18 +80,18 @@ namespace Velo.Tests.Extensions.DependencyInjection.Logging
         }
 
         [Fact]
-        public void InstallScopedLogger()
+        public void InstallSingletonLogger()
         {
             _services.Should().Contain(descriptor =>
                 descriptor.ServiceType == typeof(ILogger<>) &&
-                descriptor.Lifetime == ServiceLifetime.Scoped);
+                descriptor.Lifetime == ServiceLifetime.Singleton);
         }
 
         [Fact]
         public void ResolveProvider()
         {
             _services
-                .AddLogging()
+                .AddLogs()
                 .BuildServiceProvider()
                 .GetService<ILogProvider>()
                 .Should().NotBeNull();
@@ -110,7 +110,7 @@ namespace Velo.Tests.Extensions.DependencyInjection.Logging
         public void ResolveLogger()
         {
             _services
-                .AddLogging()
+                .AddLogs()
                 .AddDefaultConsoleLogWriter()
                 .BuildServiceProvider()
                 .GetService<ILogger<Boo>>()

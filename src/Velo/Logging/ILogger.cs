@@ -3,7 +3,7 @@ namespace Velo.Logging
     // ReSharper disable once UnusedTypeParameter
     public interface ILogger<TSender>
     {
-        void Log(LogLevel level, string template);
+        void Log(LogLevel level, string message);
 
         void Log<T1>(LogLevel level, string template, T1 arg1);
 
@@ -15,7 +15,7 @@ namespace Velo.Logging
 
         #region Trace
 
-        void Trace(string template);
+        void Trace(string message);
 
         void Trace<T1>(string template, T1 arg1);
 
@@ -29,7 +29,7 @@ namespace Velo.Logging
 
         #region Debug
 
-        void Debug(string template);
+        void Debug(string message);
 
         void Debug<T1>(string template, T1 arg1);
 
@@ -43,7 +43,7 @@ namespace Velo.Logging
 
         #region Info
 
-        void Info(string template);
+        void Info(string message);
 
         void Info<T1>(string template, T1 arg1);
 
@@ -57,7 +57,7 @@ namespace Velo.Logging
 
         #region Warning
 
-        void Warning(string template);
+        void Warning(string message);
 
         void Warning<T1>(string template, T1 arg1);
 
@@ -71,7 +71,7 @@ namespace Velo.Logging
 
         #region Error
 
-        void Error(string template);
+        void Error(string message);
 
         void Error<T1>(string template, T1 arg1);
 

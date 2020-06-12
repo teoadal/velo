@@ -34,7 +34,7 @@ namespace Velo.Tests.Logging
                 .Callback(_logWriteCallback);
 
             var provider = new DependencyCollection()
-                .AddLogging()
+                .AddLogs()
                 .AddLogWriter(_logWriter.Object)
                 .BuildProvider();
 

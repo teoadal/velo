@@ -1,8 +1,10 @@
 using System;
+using System.Diagnostics;
 using Velo.Utils;
 
 namespace Velo.DependencyInjection.Dependencies
 {
+    [DebuggerDisplay("Contract = {Contracts[0]}")]
     internal sealed class InstanceDependency : IDependency
     {
         public Type[] Contracts => _contracts;

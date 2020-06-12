@@ -4,8 +4,8 @@ namespace Velo.Logging.Provider
 {
     internal sealed class NullLogProvider : ILogProvider
     {
-        public static readonly ILogProvider Instance = new NullLogProvider();
-        
+        public LogLevel Level => LogLevel.Error;
+
         public void Write(LogLevel level, Type sender, string template)
         {
         }
