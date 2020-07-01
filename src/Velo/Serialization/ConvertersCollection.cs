@@ -28,24 +28,21 @@ namespace Velo.Serialization
         private readonly Func<Type, IJsonConverter> _converterBuilder;
         private readonly IServiceProvider _services;
 
+        #region Constructors
+
         public ConvertersCollection(IServiceProvider services, CultureInfo? culture = null)
             : base(DefaultConverters(culture ?? CultureInfo.InvariantCulture))
         {
             _converterBuilder = BuildConverter;
             _services = services;
-
-            var converters = services.GetArray<IJsonConverter>();
-            if (converters == null) return;
-            foreach (var converter in converters)
-            {
-                TryAdd(converter.Contract, converter);
-            }
         }
 
         public ConvertersCollection(Func<Type, object> serviceProvider, CultureInfo? culture = null)
             : this(new DelegateServiceResolver(serviceProvider), culture)
         {
         }
+
+        #endregion
 
         public IJsonConverter Get(Type type)
         {
@@ -59,8 +56,9 @@ namespace Velo.Serialization
 
         private IJsonConverter BuildConverter(Type type)
         {
+            if (TryGetDependencyConverter(type, out var dependencyConverter)) return dependencyConverter;
             if (TryGetCustomConverter(type, out var customConverter)) return customConverter;
-            
+
             if (ReflectionUtils.IsArrayLikeGenericType(type, out var elementType))
             {
                 return BuildArrayConverter(elementType);
@@ -81,7 +79,7 @@ namespace Velo.Serialization
             {
                 return BuildEnumConverter(type);
             }
-            
+
             return type.IsValueType
                 ? BuildStructConverter(type)
                 : BuildObjectConverter(type);
@@ -145,6 +143,23 @@ namespace Velo.Serialization
             var injections = new LocalList<object>(type, this);
             customConverter = (IJsonConverter) _services.Activate(customConverterType, injections);
             return true;
+        }
+
+        private bool TryGetDependencyConverter(Type type, out IJsonConverter dependencyConverter)
+        {
+            var maybeRegistered = _services.GetArray<IJsonConverter>();
+            if (maybeRegistered != null)
+            {
+                foreach (var converter in maybeRegistered)
+                {
+                    if (converter.Contract != type) continue;
+                    dependencyConverter = converter;
+                    return true;
+                }
+            }
+
+            dependencyConverter = null!;
+            return false;
         }
         
         private static Dictionary<Type, IJsonConverter> DefaultConverters(CultureInfo culture)

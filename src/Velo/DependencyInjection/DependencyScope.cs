@@ -8,8 +8,6 @@ namespace Velo.DependencyInjection
 {
     public interface IDependencyScope : IServiceProvider, IDisposable
     {
-        event Action<IDependencyScope> CreateChild;
-
         event Action<IDependencyScope> Destroy;
 
         IDependencyScope StartScope();
@@ -17,8 +15,6 @@ namespace Velo.DependencyInjection
 
     internal sealed class DependencyScope : IDependencyScope
     {
-        public event Action<IDependencyScope>? CreateChild;
-
         public event Action<IDependencyScope>? Destroy;
 
         private IDependencyEngine _engine;
@@ -29,7 +25,6 @@ namespace Velo.DependencyInjection
 
         public DependencyScope(IDependencyEngine engine, object providerLock)
         {
-            CreateChild = null;
             Destroy = null;
 
             _engine = engine;
@@ -41,12 +36,7 @@ namespace Velo.DependencyInjection
         {
             EnsureNotDisposed();
 
-            var child = new DependencyScope(_engine, _providerLock);
-
-            var evt = CreateChild;
-            evt?.Invoke(child);
-
-            return child;
+            return new DependencyScope(_engine, _providerLock);
         }
 
         public object? GetService(Type contract)

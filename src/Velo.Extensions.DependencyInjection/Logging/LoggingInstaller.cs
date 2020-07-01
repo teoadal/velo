@@ -17,7 +17,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services
                 .RemoveMicrosoftLogger()
-                .AddSingleton(typeof(Microsoft.Extensions.Logging.Logger<>), typeof(VeloLogger<>));
+                .AddSingleton(typeof(Microsoft.Extensions.Logging.ILogger<>), typeof(VeloLogger<>));
 
             services
                 .AddSingleton<IRenderersCollection, RenderersCollection>()
@@ -39,9 +39,9 @@ namespace Microsoft.Extensions.DependencyInjection
             string dateTimeFormat = "s")
         {
             services
+                .AddSingleton<ILogEnricher>(new TimeStampEnricher(dateTimeFormat))
                 .AddSingleton<ILogEnricher>(new LogLevelEnricher())
-                .AddSingleton<ILogEnricher>(new SenderEnricher())
-                .AddSingleton<ILogEnricher>(new TimeStampEnricher(dateTimeFormat));
+                .AddSingleton<ILogEnricher>(new SenderEnricher());
 
             return services;
         }
@@ -76,7 +76,7 @@ namespace Microsoft.Extensions.DependencyInjection
         private static IServiceCollection RemoveMicrosoftLogger(this IServiceCollection services)
         {
             var logger = services.FirstOrDefault(descriptor =>
-                descriptor.ServiceType == typeof(Microsoft.Extensions.Logging.Logger<>));
+                descriptor.ServiceType == typeof(Microsoft.Extensions.Logging.ILogger<>));
             if (logger != null) services.Remove(logger);
 
             return services;

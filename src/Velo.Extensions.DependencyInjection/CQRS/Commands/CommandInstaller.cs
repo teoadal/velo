@@ -60,7 +60,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        private static void UpsertPipeline(IServiceCollection services, Type contract, ServiceLifetime lifetime)
+        internal static void UpsertPipeline(IServiceCollection services, Type contract, ServiceLifetime lifetime)
         {
             var commandType = contract.GenericTypeArguments[0];
             var pipelineType = Types.CommandPipeline.MakeGenericType(commandType);

@@ -4,12 +4,18 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Velo.Collections.Enumerators;
+using Velo.Serialization.Tokenization;
 
 namespace Velo.Serialization.Models
 {
     public sealed class JsonArray : JsonData, IEnumerable<JsonData>
     {
         public static readonly JsonArray Empty = new JsonArray(Array.Empty<JsonData>());
+
+        public new static JsonArray Parse(JsonTokenizer tokenizer)
+        {
+            return JsonVisitor.VisitArray(tokenizer);
+        }
 
         public readonly int Length;
 
@@ -52,13 +58,13 @@ namespace Velo.Serialization.Models
             {
                 if (first) first = false;
                 else writer.Write(',');
-                
+
                 element.Serialize(writer);
             }
 
             writer.WriteArrayEnd();
         }
-        
+
         public ref JsonData this[int index] => ref _elements[index];
 
         IEnumerator<JsonData> IEnumerable<JsonData>.GetEnumerator()

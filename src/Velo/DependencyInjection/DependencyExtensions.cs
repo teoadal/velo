@@ -54,6 +54,10 @@ namespace Velo.DependencyInjection
             {
                 throw Error.CircularDependency($"{e.Message} <- '{ReflectionUtils.GetName(implementation)}'");
             }
+            catch (Exception e)
+            {
+                throw Error.InvalidOperation($"{e.Message} <- '{ReflectionUtils.GetName(implementation)}'");
+            }
         }
 
         public static object Activate(

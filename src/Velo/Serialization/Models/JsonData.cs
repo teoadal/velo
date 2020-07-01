@@ -15,8 +15,7 @@ namespace Velo.Serialization.Models
             _buffer ??= new StringBuilder(200);
 
             using var tokenizer = new JsonTokenizer(new JsonReader(stream, encoding), _buffer);
-            tokenizer.MoveNext();
-            return JsonVisitor.Visit(tokenizer);
+            return Parse(tokenizer);
         }
 
         public static JsonData Parse(string json)
@@ -24,10 +23,15 @@ namespace Velo.Serialization.Models
             _buffer ??= new StringBuilder(200);
 
             using var tokenizer = new JsonTokenizer(json, _buffer);
+            return Parse(tokenizer);
+        }
+
+        public static JsonData Parse(JsonTokenizer tokenizer)
+        {
             tokenizer.MoveNext();
             return JsonVisitor.Visit(tokenizer);
         }
-
+        
         public readonly JsonDataType Type;
 
         protected JsonData(JsonDataType type)

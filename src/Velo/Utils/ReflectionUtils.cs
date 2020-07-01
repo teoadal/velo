@@ -85,7 +85,9 @@ namespace Velo.Utils
             CheckIsNotAbstractAndNotInterface(type);
 
             var availableConstructors = type.GetTypeInfo().DeclaredConstructors;
-            return availableConstructors.FirstOrDefault(constructor => !constructor.IsStatic && !constructor.IsPrivate);
+            return availableConstructors
+                .Where(constructor => !Attribute.IsDefined(constructor, typeof(ObsoleteAttribute)))
+                .FirstOrDefault(constructor => !constructor.IsStatic && !constructor.IsPrivate);
         }
 
         public static ParameterInfo[] GetConstructorParameters(Type implementation)

@@ -14,7 +14,7 @@ namespace Velo.Extensions.DependencyInjection.CQRS.Queries
         static QueryPipelineFactory()
         {
             ActivatorMethod = typeof(QueryPipelineFactory)
-                .GetMethod(nameof(Activator), BindingFlags.Static | BindingFlags.NonPublic);
+                .GetMethod(nameof(Activator), BindingFlags.Static | BindingFlags.NonPublic)!;
         }
 
         public static Func<IServiceProvider, object> GetActivator(Type queryType, Type resultType)

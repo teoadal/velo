@@ -14,7 +14,7 @@ namespace Velo.Extensions.DependencyInjection.CQRS.Notifications
         static NotificationPipelineFactory()
         {
             ActivatorMethod = typeof(NotificationPipelineFactory)
-                .GetMethod(nameof(Activator), BindingFlags.Static | BindingFlags.NonPublic);
+                .GetMethod(nameof(Activator), BindingFlags.Static | BindingFlags.NonPublic)!;
         }
         
         public static Func<IServiceProvider, object> GetActivator(Type notificationType)

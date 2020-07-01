@@ -12,7 +12,7 @@ namespace Velo.Tests.Extensions.DependencyInjection.Serialization
         public SerializationInstallerShould()
         {
             _services = new ServiceCollection()
-                .AddJsonConverter();
+                .AddJson();
         }
 
         [Fact]

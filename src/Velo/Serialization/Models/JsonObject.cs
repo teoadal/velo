@@ -1,12 +1,18 @@
 using System.Collections.Generic;
 using System.IO;
 using Velo.Extensions;
+using Velo.Serialization.Tokenization;
 using Velo.Text;
 
 namespace Velo.Serialization.Models
 {
     public sealed class JsonObject : JsonData
     {
+        public new static JsonObject Parse(JsonTokenizer tokenizer)
+        {
+            return JsonVisitor.VisitObject(tokenizer);
+        }
+
         private readonly Dictionary<string, JsonData> _properties;
 
         public JsonObject() : base(JsonDataType.Object)

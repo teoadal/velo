@@ -16,7 +16,7 @@ namespace Velo.Tests.Extensions.DependencyInjection
         {
             var provider = new DependencyCollection()
                 .AddServiceCollection(new ServiceCollection()
-                    .AddJsonConverter()
+                    .AddJson()
                     .AddEmitter())
                 .BuildProvider();
 
@@ -63,7 +63,7 @@ namespace Velo.Tests.Extensions.DependencyInjection
         public void ContainsDependencies()
         {
             var provider = new ServiceCollection()
-                .AddJsonConverter()
+                .AddJson()
                 .BuildDependencyProvider();
 
             provider.GetRequiredService<JConverter>();

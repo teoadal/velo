@@ -14,7 +14,7 @@ namespace Velo.Extensions.DependencyInjection.CQRS.Commands
         static CommandPipelineFactory()
         {
             ActivatorMethod = typeof(CommandPipelineFactory)
-                .GetMethod(nameof(Activator), BindingFlags.Static | BindingFlags.NonPublic);
+                .GetMethod(nameof(Activator), BindingFlags.Static | BindingFlags.NonPublic)!;
         }
         
         public static Func<IServiceProvider, object> GetActivator(Type commandType)
