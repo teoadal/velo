@@ -5,7 +5,8 @@
 [![NuGet](https://img.shields.io/nuget/v/velo.svg)](https://www.nuget.org/packages/velo) 
 [![NuGet](https://img.shields.io/nuget/dt/velo.svg)](https://www.nuget.org/packages/velo)
 
-**Do not use in work. It's just a training project.**
+**Do not use in production environment. 
+It's just a training project.**
 
 Performance oriented small library with simple implementations of popular patterns and workflows: CQRS, IoC, serialization/deserialization, logging and mapping. *Under construction*.
 
