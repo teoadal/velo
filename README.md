@@ -8,7 +8,12 @@
 **Do not use in production environment. 
 It's just a training project.**
 
-Performance oriented small library with simple implementations of popular patterns and workflows: CQRS, IoC, serialization/deserialization, logging and mapping. *Under construction*.
+The library is performance-oriented package of popular patterns and workflows:
+ - CQRS, 
+ - IoC, 
+ - serialization/deserialization, 
+ - logging and mapping
+ - etc *Under construction*.
 
 ## Install from nuget
 
