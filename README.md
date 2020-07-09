@@ -8,7 +8,11 @@
 **Do not use in production environment. 
 It's just a training project.**
 
-Performance oriented small library with simple implementations of popular patterns and workflows: CQRS, IoC, serialization/deserialization, logging and mapping. *Under construction*.
+The library is performance-oriented package of popular patterns and workflows:
+ - CQRS, 
+ - IoC, 
+ - serialization/deserialization, 
+ - logging and mapping
 
 ## Install from nuget
 
@@ -196,7 +200,7 @@ var dependencyProvider = new DependencyCollection()
     .BuildProvider();
 ```
 
-### Use assembly scanner for find generic interface implementations
+### Use an assembly scanner to find generic interface implementations
 
 ```cs
 var dependencyProvider = new DependencyCollection()
@@ -259,7 +263,7 @@ using (var scope = dependencyProvider.StartScope())
 
 ## LocalVector (small collection on stack)
 
-Ref struct for collect values on stack. This collection allows you to reduce memory consumption. Also, it allows you to work with several variables as a collection without extra costs. Read about LocalList [here](https://github.com/teoadal/velo/wiki/LocalList-(collection-on-stack)).
+Ref struct to collect values on stack. This collection allows you to reduce memory consumption. Also, it allows to work with several variables as a collection without extra costs. Read about LocalList [here](https://github.com/teoadal/velo/wiki/LocalList-(collection-on-stack)).
 
 ### Usage
 
@@ -277,7 +281,7 @@ var inner = new LocalVector<Boo>(_reversItems);
 var counter = 0;
 foreach (var number in outer
     .Join(inner, o => o, i => i, (o, i) => i) 
-    .Where((b, threshold) => b.Int > threshold, _threshold) // use argument for avoid clousure
+    .Where((b, threshold) => b.Int > threshold, _threshold) // use an argument to avoid closure
     .Select((b, modifier) => b.Id * modifier, _modifier)
     .OrderBy(id => id))
 {
